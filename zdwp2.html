@@ -423,12 +423,12 @@ zdwpSetVarValue = function (varName, varValue) {
 			return valid
 		}
 
-		//2024-09-25调用金三待办任务委派
+		//2024-09-25调用金三待办任务委派；成功返回true，失败返回false
 		function gt3_dbrwwp(userId, swrysfDm, swjgDm, gwDm, workItemId, lcslid, sourceUser) {
-                        zdwpSetVarValue("zdwpActionDone","");
-                        zdwpSetVarValue("zdwpActionResult","");
-                        zdwpSetVarValue("zdwpActionWorkItemId","");
-			
+			zdwpSetVarValue("zdwpActionDone", "");
+			zdwpSetVarValue("zdwpActionResult", "");
+			zdwpSetVarValue("zdwpActionWorkItemId", "");
+
 			var formData = {
 				"func": "execScript",
 				"reqContent": {
@@ -445,16 +445,13 @@ zdwpSetVarValue = function (varName, varValue) {
 					"script": "SendDbrwWP('%a%','%b%','%c%','%d%','%e%','%f%','%g%');"
 				}
 			}
-			var res = ''
-			res = setWfh(formData);
+			var res = setWfh(formData);
 			if (res && res.repContent && res.repContent.retValue == 0) {
-				shzsConsole('拿到callshell值')
-			} else {
-				clearTimeout(zdwp.data.timerA);
-				zdwp.data.rowids = []
-				zdwp.data.flag = true
-				alert('请先打开金三委派页面再提交委派')
+				shzsConsole('拿到callshell值');
+				return true;
 			}
+			alert('请先打开金三委派页面再提交委派');
+			return false;
 		}
 		function setTableOption() {
 			console.log(111);
@@ -542,8 +539,6 @@ zdwpSetVarValue = function (varName, varValue) {
 				},
 				baseUrl: '',
 				rowids: [],
-				flag: true,
-				timerA: null,
 				orderSql: '',
 				cktssxList: [
 					{
@@ -789,157 +784,79 @@ zdwpSetVarValue = function (varName, varValue) {
 					}
 				})
 			},
-			//点击提交委派
-			commit: function () {
-				zdwp.data.rowids = []
-				var wpMxs = []
-				var arr = []
+			//点击提交委派：收集合法行后顺序处理
+			commit: async function () {
+				zdwp.data.rowids = [];
 				var rowids = $("#zdwp_table").jqGrid("getGridParam", "selarrrow");
 				if (rowids.length <= 0) {
 					alert("请至少选择一条记录!");
 					return;
 				}
-				var isWp = true
-				var isJg = true
-				rowids.forEach(item => {
-					var row = $("#zdwp_table").jqGrid("getRowData", item)
-					var wpdx = row.wpdx
-					var wpjg = row.wpjg
-					if (wpdx == '') {
-						isWp = false
-					}
-					if (wpjg == '委派成功') {
-						isJg = false
-					}
-					if(wpdx != ''&& wpjg != '委派成功'){
-						arr.push(item)
-					}
-				})
-				if(!isWp||!isJg){
-					var flag = window.confirm("是否对已分配委派对象的任务，提交给金三进行委派处理？")
-					if(flag){
-						zdwp.data.rowids = arr
-						zdwp.triggerAction(0)
-					}else{
-						return
-					}
-				}else{
-					zdwp.data.rowids = arr
-					zdwp.triggerAction(0)
-				}
-				// if (!isWp) {
-				// 	alert("请选择已经设置委派对象的记录!");
-				// 	return;
-				// }
-				// if (!isJg) {
-				// 	alert("请勿选择已经委派成功的记录!");
-				// 	return;
-				// }
-				// zdwp.data.rowids = rowids
-				// zdwp.triggerAction(0)
-			},
-			//递归，通过zdwp.data.flag判断是否拿到委派结果
-			triggerAction: function (iteration) {
-				shzs.console("trig-001;iteration="+iteration);
-				if (iteration >= zdwp.data.rowids.length) {
+				var arr = [];
+				var hasUnassigned = false;
+				var hasCommitted = false;
+				rowids.forEach(function (item) {
+					var row = $("#zdwp_table").jqGrid("getRowData", item);
+					if (row.wpdx == '') hasUnassigned = true;
+					if (row.wpjg == '委派成功') hasCommitted = true;
+					if (row.wpdx != '' && row.wpjg != '委派成功') arr.push(item);
+				});
+				if ((hasUnassigned || hasCommitted) &&
+					!window.confirm("是否对已分配委派对象的任务，提交给金三进行委派处理？")) {
 					return;
 				}
-				shzs.console("trig-002;iteration="+iteration);
-				// 清除之前可能存在的定时器  
-				if (zdwp.data.timerA !== null) {
-					clearTimeout(zdwp.data.timerA);
-				}
-        shzs.console("trig-003;iteration="+iteration);
-				// 设置一个新的定时器  
-				zdwp.data.timerA = setTimeout(function () {
-					// 10秒后，如果没有再次触发事件A，则执行事件B
-					if (iteration < zdwp.data.rowids.length) {
-						zdwp.handleTimeout();
-					} else {
-						clearTimeout(zdwp.data.timerA);
-					}
-				}, 10000);
+				zdwp.data.rowids = arr;
 
-				//每100毫秒判断下有没有拿到请求结果
-				var timer = setInterval(() => {
-					shzs.console("trig-004;iteration="+iteration);
-					shzs.console("trig-004;zdwp.data.flag="+zdwp.data.flag);
-					if (zdwp.data.flag) {
-						clearInterval(timer);
-						zdwp.data.flag = false
-						var row = $("#zdwp_table").jqGrid("getRowData", zdwp.data.rowids[iteration])
-						var userId = row.userId
-						var swrysfDm = row.swrysfDm
-						var swjgDm = row.swjgDm
-						var gwDm = row.gwDm
-						var workItemId = row.gzxid
-						var lcslid = row.lcslid
-						var sourceUser = row.sourceUser
-						gt3_dbrwwp(userId, swrysfDm, swjgDm, gwDm, workItemId, lcslid, sourceUser)
-						zdwp.triggerAction(iteration + 1);
+				// 顺序处理：每条任务"提交单笔 → 轮询结果（最长10秒）"完成后再处理下一条
+				for (var i = 0; i < arr.length; i++) {
+					var ok = await zdwp.commitOne(arr[i]);
+					if (!ok) {
+						zdwp.handleTimeout();
+						break;
 					}
-					zdwp.queryResStr();
-				}, 100)
-			},
-			//通过callshell调用，并拿到请求结果和gzxid
-			queryResStr:function(){
-                     var  resStr = zdwpGetVarValue("zdwpActionResult");
-                     var  gzxid  = zdwpGetVarValue("zdwpActionWorkItemId");
-				if(resStr !==""){
-						var res = JSON.parse(resStr)
-						var wpjg = ''
-						if (res.data.length) {
-							wpjg = '委派成功'
-						} else {
-							wpjg = '委派失败'
-						}
-						$('#zdwp_table').setCell(gzxid, 'wpjg', wpjg);
-						var params = {
-							mxs: [{
-								id: gzxid,
-								wpjg: wpjg
-							}]
-						}
-						jsonPost("/shzs/dbwt/writeback", params, function (res) {
-							if (res.code == '0') {
-								shzsConsole('回写成功')
-							} else {
-								shzsConsole('回写失败')
-							}
-						})
-						zdwp.data.flag = true;
 				}
 			},
-			getResStr: function (resStr, gzxid) {
-				// 清除之前可能存在的定时器  
-				clearTimeout(zdwp.data.timerA);
-				zdwp.data.flag = true
-				var res = JSON.parse(resStr)
-				var wpjg = ''
-				if (res.data.length) {
-					wpjg = '委派成功'
-				} else {
-					wpjg = '委派失败'
+			//提交单笔委派并轮询结果，成功返回true，失败/超时返回false
+			commitOne: async function (rowid) {
+				var row = $("#zdwp_table").jqGrid("getRowData", rowid);
+				var submitted = gt3_dbrwwp(
+					row.userId, row.swrysfDm, row.swjgDm,
+					row.gwDm, row.gzxid, row.lcslid, row.sourceUser
+				);
+				if (!submitted) return false;
+
+				var deadline = Date.now() + 10000;
+				while (Date.now() < deadline) {
+					await zdwp.sleep(100);
+					var resStr = zdwpGetVarValue("zdwpActionResult");
+					var gzxid = zdwpGetVarValue("zdwpActionWorkItemId");
+					if (resStr !== "") {
+						zdwp.applyResult(resStr, gzxid);
+						return true;
+					}
 				}
+				return false;
+			},
+			//把单笔委派结果写入表格并回写后台
+			applyResult: function (resStr, gzxid) {
+				var res = JSON.parse(resStr);
+				var wpjg = res.data.length ? '委派成功' : '委派失败';
 				$('#zdwp_table').setCell(gzxid, 'wpjg', wpjg);
-				var params = {
-					mxs: [{
-						id: gzxid,
-						wpjg: wpjg
-					}]
-				}
+				var params = { mxs: [{ id: gzxid, wpjg: wpjg }] };
 				jsonPost("/shzs/dbwt/writeback", params, function (res) {
 					if (res.code == '0') {
-						shzsConsole('回写成功')
+						shzsConsole('回写成功');
 					} else {
-						shzsConsole('回写失败')
+						shzsConsole('回写失败');
 					}
-				})
+				});
+			},
+			sleep: function (ms) {
+				return new Promise(function (resolve) { setTimeout(resolve, ms); });
 			},
 			handleTimeout: function () {
-				alert('委派超时，请到金三委派页面查看异常信息')
-				zdwp.data.rowids = []
-				zdwp.data.flag = true
+				alert('委派超时，请到金三委派页面查看异常信息');
+				zdwp.data.rowids = [];
 			},
 			export: function () {
 				var cktssx = $('#cktssx').val();
