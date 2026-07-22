@@ -1,0 +1,78 @@
+-- MySQL 5.5 版本：由税务机关代码计算权限机关代码（LIKE 匹配模式）
+-- 对应 Oracle 11g 脚本：方法函数-2-Oracle.txt（tl_bjts.Func_Get_Qxswjg）
+--
+-- ！！重要提示：源文件字符丢失 ！！
+-- 方法函数-2-Oracle.txt 中的运算符字符（:=、<>、>、<、*、||）在上传时全部丢失
+-- （如 "if length(swjg_dm)11 then"、"while i 1 loop"、"v_qxSwjg=v_qxSwjg  '%'"），
+-- 该脚本在 Oracle 中本身无法编译。本转换按上下文重构了原逻辑，重构对照如下，
+-- 请务必与 Oracle 库中的实际源码核对：
+--     length(swjg_dm)11            → length(swjg_dm) <> 11
+--     v_qxSwjg=...                 → v_qxSwjg := ...      （下同，赋值均为 :=）
+--     while i 1 loop               → while i > 1 loop
+--     substr(swjg_dm,(i2),2)'00'   → substr(swjg_dm, i*2, 2) <> '00'
+--     substr(swjg_dm,1,(i2)+1)     → substr(swjg_dm, 1, i*2+1)
+--     length(v_qxSwjg)11           → length(v_qxSwjg) < 11
+--       （此处若是 <>，末级机关得到的 11 位结果再拼 '%' 会超出 varchar2(11)
+--         直接报错，故只能是 <）
+--     v_qxSwjg  '%'                → v_qxSwjg || '%'
+--
+-- 重构后的业务逻辑：11 位税务机关代码 = 3 位根 + 4 级 × 2 位；从最末一级
+-- （第 10-11 位）向上找第一个不为 '00' 的层级，权限代码截取到该层级末尾
+-- （长度为 5/7/9/11）；各级全为 '00' 则取前 3 位；长度不为 11 的入参原样使用；
+-- 结果不足 11 位时末尾补 '%'，供 LIKE 做辖区前缀匹配。
+--
+-- 说明：
+-- 1. 纯字符串计算、不访问任何表，可直接转为 MySQL FUNCTION，并可如实声明
+--    DETERMINISTIC NO SQL——即使实例开启 binlog 且 log_bin_trust_function_creators=0
+--    也不会触发 1418 错误。
+-- 2. 本函数是 mysql-4.txt（func_get_wjdr_sblist）依赖的 func_get_qxswjg，
+--    需先于该存储过程创建。
+-- 3. 函数替换：length→CHAR_LENGTH（按字符计数，与 Oracle length 对齐；机关代码
+--    均为数字，LENGTH 亦可，取语义一致者）；substr→SUBSTRING；||→CONCAT；
+--    loop 的 exit→带标签的 LEAVE。
+-- 4. 入参为 NULL 时两库行为一致：所有比较均为 NULL（不成立），最终返回 NULL。
+-- 5. DBMS_OUTPUT.put_line 调试输出无对应机制，按原位置以注释保留。
+-- 6. 执行前先 USE 到目标库。
+
+SET NAMES utf8;
+
+-- USE 目标数据库;   -- 例如：USE tl_bjts;
+
+DELIMITER $$
+
+DROP FUNCTION IF EXISTS func_get_qxswjg$$
+CREATE FUNCTION func_get_qxswjg(swjg_dm VARCHAR(50))
+RETURNS VARCHAR(11)
+DETERMINISTIC
+NO SQL
+BEGIN
+    DECLARE v_qxSwjg VARCHAR(11);
+    DECLARE i INT;
+
+    IF CHAR_LENGTH(swjg_dm) <> 11 THEN
+        SET v_qxSwjg = swjg_dm;
+    ELSE
+        SET i = 5;
+        wjg_loop: WHILE i > 1 DO
+            -- DBMS_OUTPUT.put_line('For'||to_char(i)||'--'||substr(swjg_dm,2+(i*2),2));
+            IF SUBSTRING(swjg_dm, i * 2, 2) <> '00' THEN
+                SET v_qxSwjg = SUBSTRING(swjg_dm, 1, i * 2 + 1);
+                LEAVE wjg_loop;
+            END IF;
+            SET i = i - 1;
+        END WHILE wjg_loop;
+
+        IF i = 1 THEN
+            SET v_qxSwjg = SUBSTRING(swjg_dm, 1, 3);
+        END IF;
+        -- DBMS_OUTPUT.put_line('Result'||v_qxSwjg);
+    END IF;
+
+    IF CHAR_LENGTH(v_qxSwjg) < 11 THEN
+        SET v_qxSwjg = CONCAT(v_qxSwjg, '%');
+    END IF;
+
+    RETURN v_qxSwjg;
+END$$
+
+DELIMITER ;
