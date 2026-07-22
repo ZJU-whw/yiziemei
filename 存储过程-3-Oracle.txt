@@ -1,0 +1,205 @@
+create or replace function tl_bjts.func_shzs_rwwp(p_swjg_dm varchar2,p_gwdm varchar2,p_nsrsbh varchar2,p_lcswsxdm varchar2)
+return TYPE_TB_SHZS_RWWP
+--审核助手任务
+is
+  o_wp TYPE_TB_SHZS_RWWP := TYPE_TB_SHZS_RWWP();
+  v_WTDXMC varchar2(30);   --委托对象
+  v_WTDXSFDM VARCHAR2(13); --委托对象身份代码
+  v_JDMODE CHAR(1);        --接单方式  0分组 1随机
+  v_FLGLCD CHAR(1);        --分类管理等级
+  v_JSMODE CHAR(1);        --退税计算方式 1生产 2外贸
+  v_QYFZDM VARCHAR2(11);   --企业分组代码
+  v_QYFZMC VARCHAR2(11);   --企业分组名称
+  v_sbywbdm varchar(32);   --申报业务表代码
+  v_ErrMsg VARCHAR2(100);
+begin
+  v_ErrMsg:='';
+  --根据流程税务事项，取申报业务表代码
+  begin
+    select t.sbyw_dm into v_sbywbdm from tl_bjts.dm_gt3_xml_config t where t.lcsx_dm=p_lcswsxdm;
+  EXCEPTION
+  WHEN no_data_found THEN
+    v_sbywbdm :='NODEF';
+  end;
+  
+  --根据税号，获取分类管理等级和企业分组。
+  begin
+    select nvl(dj.zs_swjg_dm,'NONE'),dj.tsjsfs_dm,dk.kzxx
+           into v_QYFZDM,v_JSMODE,v_FLGLCD
+      from gs_dj_cktmsdab dj
+      left join gs_dj_cktmsdab_kz dk
+        on (dj.nsrdzdah = dk.nsrdzdah and dk.kzlx = 'FLGLCD' and dk.flag = '1' and
+           sysdate between dk.st_date and dk.end_date and rownum = 1)
+     where dj.nsrsbh = p_nsrsbh;
+  EXCEPTION
+  WHEN no_data_found THEN
+    v_QYFZDM :='NOFZ';
+    v_JSMODE :='';
+    v_FLGLCD :='';
+  end;
+  DBMS_OUTPUT.put_line('v_JSMODE='||v_JSMODE);
+  
+  --判断税号当月有没有被委派过，且该人在线，有则继续委派给同一个人员
+  --此规则只针对v_sbywbdm属于申报类业务A03开头，或证明类业务A02开头，或A0410002撤销申报
+  if substr(v_sbywbdm,1,3)='A03' or substr(v_sbywbdm,1,3)='A02' or v_sbywbdm='A0410002' then
+    begin
+      select wpsfdm,swrymc into v_WTDXSFDM,v_WTDXMC
+        from (select t.wpsfdm,s.swrymc
+                from shzs_wp_task t, shzs_wp_swry s
+               where t.wpsfdm = s.sfdm
+                 and s.status = '1'
+                 and s.gwdm = p_gwdm
+                 and t.nsrsbh = p_nsrsbh
+                 and to_char(t.wpsj, 'mm') = to_char(sysdate, 'mm')
+               order by t.wpsj desc)
+       where rownum = 1;
+    EXCEPTION
+    WHEN no_data_found THEN
+       --DBMS_OUTPUT.put_line('该企业本月尚未被委派过');
+       v_WTDXSFDM :='';
+    end;
+    DBMS_OUTPUT.put_line('v_WTDXSFDM='||v_WTDXSFDM);
+  else
+     v_WTDXSFDM :='';   
+  end if;
+
+  IF Length(v_WTDXSFDM)>0 THEN
+    --本月已委派过，则沿用此人
+    BEGIN
+        V_JDMODE:='2';
+DBMS_OUTPUT.put_line('fenzhi=1');
+    END;
+  ELSE
+    BEGIN
+DBMS_OUTPUT.put_line('fenzhi=2');
+    --根据税务机关，获得接单方式（2本月已分配过 0分组 1随机）
+      Begin
+        select d.jd_mode into V_JDMODE from sys_cfg_sbdr_filemode d where d.code = p_swjg_dm and d.qybz='Y';
+      EXCEPTION
+      WHEN no_data_found THEN
+         v_JDMODE :='';
+      End;
+
+      IF v_JDMODE='1' THEN
+    --1.随机分单
+    --  1）按税务机关+岗位序号+在线+分类管理等级+税务事项代码,获取接单人列表
+    --  2) 再结合委派日志表, 按当天已委派+预分配的企业数量 排序，取第一个人作为委派对象
+    --  注：随机分单时，分两步检索：
+    --     先根据接单人设置的规则，看有没有指定条件的接单人（如分类管理限定四类、退税计算方式限定外贸等）
+    --     再根据在岗大名单去取数。
+        BEGIN
+          with RY as
+           (select t.sfdm, t.swrymc
+              from SHZS_WP_SWRY t
+              inner join sys_cfg_czry_fpgl s
+                on s.swjg_dm = t.swjgdm
+               and s.czry_dm = substr(t.sfdm, 1, 11)
+               and s.qybz = 'Y'
+               and (v_FLGLCD is not null and s.flgl_set like '%' || v_FLGLCD ||'%')
+               and (v_JSMODE is not null and s.jsmode_set like '%' || v_JSMODE ||'%')
+             where t.swjgdm = p_swjg_dm
+               and t.gwdm = p_gwdm
+               and t.status = '1')
+          select SFDM, SWRYMC into v_WTDXSFDM,v_WTDXMC
+            FROM (select RY.SFDM, RY.swrymc, count(distinct(TK.nsrsbh)) as CNT
+                    from RY
+                    LEFT JOIN SHZS_WP_TASK TK
+                      ON RY.SFDM = TK.WPSFDM
+                     AND TO_CHAR(TK.Wpsj, 'mm') = TO_CHAR(sysdate, 'mm')
+                   group by RY.SFDM, RY.swrymc
+                   order by CNT)
+           WHERE ROWNUM = 1;
+           
+DBMS_OUTPUT.put_line('随机分单=已找到指定规则的接单人！');
+	      EXCEPTION
+        WHEN no_data_found THEN
+             v_WTDXSFDM :='';
+             v_WTDXMC :='';
+        END;
+        
+        IF v_WTDXSFDM is null THEN  
+DBMS_OUTPUT.put_line('随机分单=未找到指定规则接单人，继续找在岗人');
+        BEGIN
+          with RY as
+           (select t.sfdm, t.swrymc
+              from SHZS_WP_SWRY t
+              left join sys_cfg_czry_fpgl s
+                on s.swjg_dm = t.swjgdm
+               and s.czry_dm = substr(t.sfdm, 1, 11)
+               and s.qybz = 'Y'
+               and (s.flgl_set is null or s.flgl_set like '%' || v_FLGLCD ||'%')
+               and (s.jsmode_set is null or s.jsmode_set like '%' || v_JSMODE ||'%')
+             where t.swjgdm = p_swjg_dm
+               and t.gwdm = p_gwdm
+               and t.status = '1')
+          select SFDM, SWRYMC into v_WTDXSFDM,v_WTDXMC
+            FROM (select RY.SFDM, RY.swrymc, count(distinct(TK.nsrsbh)) as CNT
+                    from RY
+                    LEFT JOIN SHZS_WP_TASK TK
+                      ON RY.SFDM = TK.WPSFDM
+                     AND TO_CHAR(TK.Wpsj, 'mm') = TO_CHAR(sysdate, 'mm')
+                   group by RY.SFDM, RY.swrymc
+                   order by CNT)
+           WHERE ROWNUM = 1;
+DBMS_OUTPUT.put_line('随机分单=找到在岗接单人');
+          EXCEPTION
+          WHEN no_data_found THEN
+             v_WTDXSFDM :='';
+             v_WTDXMC :='';
+             v_ErrMsg :='未找到可随机分配的接单人！';
+          END;
+        END IF;
+      ELSE
+        IF v_JDMODE='0' THEN
+        BEGIN
+    --0.分组接单
+    --  1）按分组+分类管理+税务事项代码，获取接单人
+    --  2）判断接单人是否在岗和在线。
+          with RY as
+           (select t.sfdm, t.swrymc 
+              from SHZS_WP_SWRY t
+             inner join sys_cfg_czry_fpgl s
+                on s.swjg_dm = t.swjgdm
+               and s.czry_dm = substr(t.sfdm, 1, 11)
+               and s.qybz = 'Y'
+               and (s.flgl_set is null or s.flgl_set like '%' || v_FLGLCD ||'%')
+               and (s.jsmode_set is null or s.jsmode_set like '%' || v_JSMODE ||'%')
+               and (nvl(s.zsjg_dm_set,'NOFZ') like '%' || v_QYFZDM ||'%')
+             where t.swjgdm = p_swjg_dm
+               and t.gwdm = p_gwdm
+               and t.status = '1')
+          select SFDM, SWRYMC into v_WTDXSFDM,v_WTDXMC
+            FROM (select RY.SFDM, RY.swrymc, count(distinct(TK.nsrsbh)) as CNT
+                    from RY
+                    LEFT JOIN SHZS_WP_TASK TK
+                      ON RY.SFDM = TK.WPSFDM
+                     AND TO_CHAR(TK.Wpsj, 'mm') = TO_CHAR(sysdate, 'mm')
+                   group by RY.SFDM, RY.swrymc
+                   order by CNT)
+           WHERE ROWNUM = 1;
+
+        EXCEPTION
+        WHEN no_data_found THEN
+           v_WTDXSFDM :='';
+           v_WTDXMC :='';
+           v_ErrMsg :='未找到分组对应的接单人！';
+        END;
+        ELSE
+        BEGIN
+          v_WTDXSFDM:='';
+          v_WTDXMC:='';
+          v_ErrMsg :='税务机关'||p_swjg_dm||'未设置接单方式！';
+        END;
+        END IF;
+      END IF;
+
+    END;
+  END IF;
+
+  o_wp.extend;
+  o_wp(1) := TYPE_REC_SHZS_RWWP(v_WTDXSFDM,v_WTDXMC,p_nsrsbh,v_QYFZDM,v_JDMODE,v_ErrMsg);
+
+DBMS_OUTPUT.put_line('结束--'||v_ErrMsg||'-'||v_WTDXSFDM||v_WTDXMC);
+
+  return o_wp;
+end func_shzs_rwwp;
