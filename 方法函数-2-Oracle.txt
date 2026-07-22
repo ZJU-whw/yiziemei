@@ -1,0 +1,28 @@
+create or replace function tl_bjts.Func_Get_Qxswjg(swjg_dm varchar2) return varchar2 is
+  v_qxSwjg varchar2(11);
+  i integer;
+begin
+  if length(swjg_dm)11 then
+     v_qxSwjg=swjg_dm;
+  else
+    begin
+      i=5;
+      while i 1 loop
+        --DBMS_OUTPUT.put_line('For' to_char(i)  '--'  substr(swjg_dm,2+(i2),2));
+        if substr(swjg_dm,(i2),2)'00' then
+          begin
+            v_qxSwjg=substr(swjg_dm,1,(i2)+1);
+            exit;
+          end;
+        end if;
+        i=i-1;
+      end loop;
+      if (i=1) then v_qxSwjg = substr(swjg_dm,1,3); end if;
+      --DBMS_OUTPUT.put_line('Result'  v_qxSwjg);
+    end;
+  end if;
+  if length(v_qxSwjg)11 then
+    v_qxSwjg=v_qxSwjg  '%';
+  end if;
+  return(v_qxSwjg);
+end Func_Get_Qxswjg;

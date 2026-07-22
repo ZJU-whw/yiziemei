@@ -1,0 +1,72 @@
+create or replace function tl_tssh.F_MY_STDAVG_TMPTB(p_datasql varchar2) return number is
+--计算一组数据的标准值
+--区别于算数平均值，是一组数中剔除和标准差偏离较大的坏点后，再取平均值
+-- 输入数据组的脚本示例如下，对象必须别名为obj
+-- 示例：select zb_total as obj from jkgl_pz_jkm
+-- 示例：select to_number(zb_val) as obj from tl_tssh.jkgl_data_zb_jgb where zb_val is not null and zb_val<>0
+-- select zb_val as obj from jkgl_data_tj_zb t where zb_id='W50202' and t.bgqid in (select bgqid from jkgl_data_bgq b,glxt_bb_shxt_djxx d where b.djxh=d.djxh_js and d.jsmode='2' and b.bgq_q=date'2019-01-01')
+  v_tmpSql varchar2(2000);
+  v_stddev number(18,2);
+  v_avg number(18,2);
+  v_deeps integer;--嵌套计算深度
+  v_id integer;
+  v_tablecnt integer;
+begin
+  --创建临时表
+  v_tmpSql:='select count(1) from user_tables where table_name=''TMP_STDDEV''';
+  EXECUTE IMMEDIATE v_tmpSql into v_tablecnt;
+  if v_tablecnt>0 then
+    v_tmpSql:='drop table TMP_STDDEV';
+    EXECUTE IMMEDIATE v_tmpSql;
+  end if;
+
+  v_tmpSql:='CREATE GLOBAL TEMPORARY TABLE TMP_STDDEV (id INTEGER,val NUMBER(18,2),ybbz CHAR(1)) ON COMMIT DELETE ROWS';
+  EXECUTE IMMEDIATE v_tmpSql;
+
+--  v_tmpSql:='select nvl(max(id),0) from tmp_stddev';
+--  EXECUTE IMMEDIATE v_tmpSql into v_id ;
+--  v_id := v_id + 1;
+  v_id:=1;
+  v_deeps:=0;
+
+
+  --首先，将数组写入临时表
+  v_tmpSql := 'insert into tmp_stddev(id,val,ybbz) '
+           || ' select ' || v_id || ',obj,''1'' from (' || p_datasql || ')' ;
+  EXECUTE IMMEDIATE v_tmpSql;
+
+  IF SQL%ROWCOUNT = 0 THEN
+    v_avg:=null;
+  ELSE
+    LOOP Exit When(v_deeps>3);
+      v_deeps:=v_deeps+1;
+      --计算标准差
+      v_tmpSql :='select stddev(val) from tmp_stddev where id=' || v_id || ' and ybbz=''1''';
+      EXECUTE IMMEDIATE v_tmpSql into v_stddev;
+      --计算平均值
+      v_tmpSql :='select avg(val) from tmp_stddev where id=' || v_id || ' and ybbz=''1''';
+      EXECUTE IMMEDIATE v_tmpSql into v_avg ;
+
+      if nvl(v_stddev,0) = 0 OR nvl(v_avg,0)=0 then
+        Exit;
+      end if;
+
+      --和平均值的偏差 和标准差相比，偏差在一倍以上的剔除掉。
+      v_tmpSql :='update tmp_stddev t set ybbz=''0'' where id=' || v_id || ' and '
+                 || ' abs(t.val - ' || v_avg ||')/' || v_stddev ||' > 2 and ybbz=''1''' ;
+      EXECUTE IMMEDIATE v_tmpSql;
+      if (sql%rowcount = 0) then
+        Exit;
+      end if;
+    END LOOP;
+
+    v_tmpSql :='select avg(val) from tmp_stddev where id=' || v_id || ' and ybbz=''1''';
+    EXECUTE IMMEDIATE v_tmpSql into v_avg ;
+  END IF;
+
+--  delete from tmp_stddev where id=v_id;
+  v_tmpSql:='DROP TABLE TMP_STDDEV';
+  EXECUTE IMMEDIATE v_tmpSql;
+
+  return(v_avg);
+end F_MY_STDAVG_TMPTB;
