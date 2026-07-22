@@ -1,0 +1,171 @@
+-- MySQL 5.5 版本：文件导入申报列表分页查询
+-- 对应 Oracle 11g 脚本：存储过程-4-Oracle.txt（tl_bjts.func_get_wjdr_sblist）
+--
+-- 说明：
+-- 1. Oracle 原对象是返回集合类型 type_tb_sblist 的函数；MySQL 5.5 的函数不能返回
+--    结果集，故改写为存储过程，以结果集按 type_rec_sblist 的字段顺序返回。
+--    原“REF CURSOR 逐行 FETCH 再拼集合”的写法，MySQL 游标无法遍历动态 SQL，
+--    改为 PREPARE/EXECUTE 直接返回查询结果，逐行构造记录时的 CASE 加工
+--    （申报业务 A0301001 时 sssq 拼两位批次号）移入动态 SQL 的选择列表，逻辑不变。
+--    调用方式：CALL func_get_wjdr_sblist(操作员代码, 排序串, 起始行号, 行数, 过滤条件);
+--    注意 p_offset 与原脚本一致，是“起始行号”（从 1 起），不是跳过的行数。
+-- 2. 已按要求去掉表名前的 schema 前缀（tl_bjts.），执行本脚本前请先 USE 到目标库。
+--    依赖的对象需先存在于目标库：视图 v_sbxx_sbdr_filemode，表 dm_czry、
+--    sys_cfg_czry_fpgl、dm_swjg、sys_dict，以及函数 func_get_qxswjg
+--    （原 Oracle 同名函数，需另行转换创建，本过程按“返回 LIKE 匹配模式”调用它）。
+-- 3. MySQL 5.5 无 row_number() 窗口函数。改为“内层派生表先 ORDER BY 排序物化、
+--    外层用用户变量 @rn_wjdr 自增编号”的标准写法，再按 rn between 取页、
+--    LEFT JOIN 字典表、order by rn 返回，与原 SQL 结构一一对应。
+--    注意：该写法依赖 5.5 对含 ORDER BY 的派生表按序物化；若日后迁移到 5.7+，
+--    派生表的 ORDER BY 可能被优化器忽略，需改用窗口函数或 LIMIT 分页。
+-- 4. 动态 SQL：MySQL 的 PREPARE 要求语句文本放在用户变量中（@dyn_select_wjdr）。
+--    机关代码用 QUOTE() 安全嵌入（值为 NULL 时 QUOTE 输出字面 NULL，LIKE NULL
+--    不命中任何行，与 Oracle 拼出 like '' 的效果一致——均返回空集）。
+--    p_sort / p_filter 与原脚本相同仍按字符串原样拼接，注入风险同原脚本，
+--    由调用方保证内容可信；过滤条件中引用列请使用视图别名 vs（与原脚本一致）。
+-- 5. Oracle 的 || 拼接把 NULL 当空串，MySQL 的 CONCAT 遇 NULL 整体为 NULL，
+--    因此动态 SQL 内 like '%'||列||'%' 一律改写为 LIKE CONCAT('%', IFNULL(列,''), '%')；
+--    sssq 拼批次号处同理用 IFNULL 包裹。构造 SQL 文本的 v_filter 为空时取 ''
+--    而非 NULL，也是同一原因。
+-- 6. coalesce(x,' ')=' ' 原样直译；MySQL 比较时忽略尾部空格，空串 '' 同样命中，
+--    与 Oracle“空串即 NULL”的语义吻合。
+-- 7. to_char(v_sbpc,'00') 改为 LPAD(sbpc,2,'0')。按业务意图补齐两位批次号；
+--    严格说 Oracle to_char(x,'00') 输出还带一个符号位空格（如 ' 01'），一般视为
+--    原脚本疏漏未予保留，如需完全复刻可改为 CONCAT(' ', LPAD(sbpc,2,'0'))。
+--    批次号超过两位时 Oracle 输出 '##'（报错性占位），LPAD 则截断，业务上批次
+--    不会超两位，不影响。
+-- 8. EXCEPTION WHEN no_data_found 用“嵌套 BEGIN 块 + CONTINUE HANDLER FOR NOT FOUND”
+--    模拟；“操作员不存在”时原脚本返回空集合，这里返回零行的同列结果集后退出。
+-- 9. nvl→IFNULL，substr→SUBSTRING，DBMS_OUTPUT.put_line 无对应机制，按原位置以注释保留。
+-- 10. 脚本含中文字面量，请在默认字符集为 utf8 的库中创建，客户端连接字符集也应为 utf8。
+--     原记录类型 type_rec_sblist 最后三个属性在脚本中恒为 0（属性名未知），
+--     结果集中以 c14、c15、c16 占位。
+
+SET NAMES utf8;
+
+-- USE 目标数据库;   -- 例如：USE tl_bjts;
+
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS func_get_wjdr_sblist$$
+CREATE PROCEDURE func_get_wjdr_sblist(
+    IN p_czryDm VARCHAR(50),     -- 操作员代码
+    IN p_sort   VARCHAR(200),    -- 排序串（如 'sbrq asc'），空则默认 sbrq asc
+    IN p_offset INT,             -- 起始行号（1 起），<=0 时从第 1 行开始
+    IN p_rows   INT,             -- 取行数，<=0 时不限（取到 1 亿行）
+    IN p_filter VARCHAR(100)     -- 追加过滤条件（不含 and 前缀），列用 vs 别名
+)
+proc_main: BEGIN
+    DECLARE sorting       VARCHAR(200);
+    DECLARE startRow      INT;
+    DECLARE endRow        INT;
+    DECLARE v_filter      VARCHAR(110);
+    DECLARE v_czry_swjg   VARCHAR(11);   -- 操作员退税税务机关代码
+    DECLARE v_czry_qxswjg VARCHAR(11);   -- 权限机关代码（LIKE 匹配模式）
+    DECLARE v_czry_found  TINYINT DEFAULT 1;
+
+    -- 提取操作员的退税税务机关代码，并计算权限机关代码
+    BEGIN
+        DECLARE CONTINUE HANDLER FOR NOT FOUND
+            SET v_czry_found = 0;
+
+        SELECT IFNULL(qx_swjg, swjg_dm)
+          INTO v_czry_swjg
+          FROM dm_czry
+         WHERE czry_dm = p_czryDm;
+    END;
+
+    IF v_czry_found = 0 THEN
+        -- DBMS_OUTPUT.put_line('操作员不存在');
+        -- 对应 Oracle 的 return o_tb（空集合）：返回零行的同列结构结果集
+        SELECT NULL AS sbid, NULL AS sssq, NULL AS sbrq, NULL AS qyhgdm,
+               NULL AS nsrmc, NULL AS sbywb_dm, NULL AS flglcd, NULL AS zzsbb,
+               NULL AS zs_swjg_mc, NULL AS ts_swjg_mc, NULL AS tsjsfs_dm,
+               NULL AS sbywbmc, NULL AS sbtmse,
+               0 AS c14, 0 AS c15, 0 AS c16
+          FROM DUAL
+         WHERE 1 = 0;
+        LEAVE proc_main;
+    END IF;
+
+    SET v_czry_qxswjg = func_get_qxswjg(v_czry_swjg);
+
+    IF p_offset <= 0 THEN
+        SET startRow = 1;
+    ELSE
+        SET startRow = p_offset;
+    END IF;
+
+    IF p_rows <= 0 THEN
+        SET endRow = 100000000;
+    ELSE
+        SET endRow = startRow + p_rows - 1;
+    END IF;
+
+    IF IFNULL(p_sort, ' ') = ' ' THEN
+        SET sorting = 'sbrq asc';
+    ELSE
+        SET sorting = p_sort;
+    END IF;
+
+    -- 这里空过滤取 ''（而不是 NULL），避免 CONCAT 拼接整体变 NULL
+    IF IFNULL(p_filter, ' ') = ' ' THEN
+        SET v_filter = '';
+    ELSE
+        SET v_filter = CONCAT(' and ', p_filter, ' ');
+    END IF;
+
+    -- 与原 dyn_select 结构对应：
+    --   最内层：按权限机关 + 未接单(sbr is null) + 过滤条件 + 未被分配规则排除，
+    --           按 sorting 排序；
+    --   中间层：用 @rn_wjdr 自增模拟 row_number() over(order by sorting) 生成 rn；
+    --   最外层：rn between 取页，LEFT JOIN 机关简称与业务名称字典，order by rn。
+    SET @dyn_select_wjdr = CONCAT(
+        'select TT.sbid, ',
+               'case when TT.sbywb_dm = ''A0301001'' ',
+                    'then concat(ifnull(TT.sssq, ''''), ifnull(lpad(TT.sbpc, 2, ''0''), '''')) ',
+                    'else TT.sssq end as sssq, ',
+               'TT.sbrq, TT.qyhgdm, TT.nsrmc, TT.sbywb_dm, TT.flglcd, TT.zzsbb, ',
+               'TT.swjg_jc as zs_swjg_mc, ds.swjg_jc as ts_swjg_mc, TT.tsjsfs_dm, ',
+               'sd1.dname as sbywbmc, TT.sbtmse, ',
+               '0 as c14, 0 as c15, 0 as c16 ',
+        'from (select t.*, (@rn_wjdr := @rn_wjdr + 1) as rn ',
+                'from (select vs.sbid, vs.sssq, vs.sbpc, vs.sbrq, vs.qyhgdm, vs.nsrmc, ',
+                             'vs.sbywb_dm, vs.flglcd, vs.zzsbb, vs.swjg_jc, vs.tsjsfs_dm, ',
+                             'vs.swjg_dm, vs.sbtmse ',
+                        'from v_sbxx_sbdr_filemode vs ',
+                       'where vs.swjg_dm like ', QUOTE(v_czry_qxswjg), ' and vs.sbr is null ',
+                       v_filter,
+                       ' and ( ',
+                       '(vs.zs_swjg_dm is not null and ',
+                       'not exists (select 1 from sys_cfg_czry_fpgl sc1 ',
+                       'where sc1.swjg_dm like concat(''%'', vs.swjg_dm, ''%'') and sc1.qybz = ''Y'' ',
+                       'and (coalesce(sc1.zsjg_dm_set, '' '') = '' '' or sc1.zsjg_dm_set like concat(''%'', ifnull(vs.zs_swjg_dm, ''''), ''%'')) ',
+                       'and (coalesce(sc1.flgl_set, '' '') = '' '' or sc1.flgl_set like concat(''%'', ifnull(vs.flglcd, ''''), ''%'')) ',
+                       'and (vs.sbzl_dm <> ''TSSB'' or (coalesce(sc1.jsmode_set, '' '') = '' '' or sc1.jsmode_set like concat(''%'', ifnull(vs.tsjsfs_dm, ''''), ''%''))) ',
+                       ') ',
+                       ') or ',
+                       '(vs.zs_swjg_dm is null and ',
+                       'not exists (select 1 from sys_cfg_czry_fpgl sc2 ',
+                       'where sc2.swjg_dm like concat(''%'', vs.swjg_dm, ''%'') and sc2.qybz = ''Y'' ',
+                       'and (coalesce(sc2.zsjg_dm_set, '' '') = '' '') ',
+                       'and (coalesce(sc2.flgl_set, '' '') = '' '' or sc2.flgl_set like concat(''%'', ifnull(vs.flglcd, ''''), ''%'')) ',
+                       'and (vs.sbzl_dm <> ''TSSB'' or (coalesce(sc2.jsmode_set, '' '') = '' '' or sc2.jsmode_set like concat(''%'', ifnull(vs.tsjsfs_dm, ''''), ''%''))) ',
+                       ') ',
+                       ')) ',
+                      'order by ', sorting, ') t ',
+                'cross join (select @rn_wjdr := 0) r ',
+        ') TT ',
+        'left join dm_swjg ds on (ds.swjg_dm = TT.swjg_dm) ',
+        'left join sys_dict sd1 on sd1.dtype = ''ywlx_dm'' and sd1.dcode = TT.sbywb_dm ',
+        'where TT.rn between ', startRow, ' and ', endRow, ' ',
+        'order by TT.rn');
+
+    -- 对应 Oracle：OPEN my_cursor FOR dyn_select + FETCH 循环拼 type_rec_sblist，
+    -- 这里直接执行动态 SQL 把结果集返回给调用方
+    PREPARE stmt_wjdr FROM @dyn_select_wjdr;
+    EXECUTE stmt_wjdr;
+    DEALLOCATE PREPARE stmt_wjdr;
+END proc_main$$
+
+DELIMITER ;
