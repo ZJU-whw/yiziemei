@@ -1,0 +1,503 @@
+-- MySQL 5.5 版本：风险商品出口电子信息提取
+-- 对应 Oracle 11g 脚本：存储过程-2-Oracle.txt
+--
+-- 说明：
+-- 1. 第二层 CUR_FXSJ 游标的数据先写入会话级临时表，再由局部游标逐条处理。
+-- 2. sys_sequence + FN_SYS_SEQUENCE_NEXTVAL 用于模拟 Oracle Sequence。
+-- 3. Oracle MERGE INTO ... WHEN NOT MATCHED 已改写为 INSERT ... SELECT + LEFT JOIN 反连接。
+-- 4. 创建“修改数据的函数”时，开启二进制日志的实例可能需要相应权限，或设置
+--    log_bin_trust_function_creators=1。
+-- 5. MySQL 5.5 的 REGEXP 默认不区分大小写且按字节匹配；为保持 Oracle REGEXP_LIKE
+--    默认区分大小写的行为，正则比较统一加 BINARY。另外 5.5 不支持 \d、\w 等
+--    Perl 快捷类，规则库中的模式如有使用需改写为 [[:digit:]] 等 POSIX 字符类。
+-- 6. Oracle 中 NUMBER||字符串 不带多余的小数尾零，故 DECIMAL 变量拼接进 YJ_MSG
+--    前先去除尾零，保持提示文本与 Oracle 一致。
+
+USE TL_TSSH;
+SET NAMES utf8;
+
+-- SEQ_NAME 上的主键既保证每个序列只有一行，也是并发安全递增的必要条件。
+CREATE TABLE IF NOT EXISTS sys_sequence (
+    SEQ_NAME  VARCHAR(100) NOT NULL,
+    SEQ_VALUE BIGINT       NOT NULL,
+    PRIMARY KEY (SEQ_NAME)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- 首次部署时以业务表当前最大 ID 初始化；重复执行不会使序列值倒退。
+INSERT INTO sys_sequence (SEQ_NAME, SEQ_VALUE)
+SELECT 'SEQ_YJ_DATA_YJXX', IFNULL(MAX(ID), 0)
+  FROM TL_ADMIN.YJ_DATA_YJXX
+ON DUPLICATE KEY UPDATE
+    SEQ_VALUE = GREATEST(SEQ_VALUE, VALUES(SEQ_VALUE));
+
+INSERT INTO sys_sequence (SEQ_NAME, SEQ_VALUE)
+SELECT 'SEQ_MSG_PUSH_DATA', IFNULL(MAX(ID), 0)
+  FROM TL_TSSH.MSG_PUSH_DATA
+ON DUPLICATE KEY UPDATE
+    SEQ_VALUE = GREATEST(SEQ_VALUE, VALUES(SEQ_VALUE));
+
+INSERT INTO sys_sequence (SEQ_NAME, SEQ_VALUE)
+SELECT 'SEQ_FXGL_SZ_SPFXJH', IFNULL(MAX(ID), 0)
+  FROM TL_TSSH.FXGL_SZ_SPFXJH
+ON DUPLICATE KEY UPDATE
+    SEQ_VALUE = GREATEST(SEQ_VALUE, VALUES(SEQ_VALUE));
+
+DELIMITER $$
+
+DROP FUNCTION IF EXISTS FN_SYS_SEQUENCE_NEXTVAL$$
+CREATE FUNCTION FN_SYS_SEQUENCE_NEXTVAL(P_SEQ_NAME VARCHAR(100))
+RETURNS BIGINT
+NOT DETERMINISTIC
+MODIFIES SQL DATA
+BEGIN
+    /*
+     * LAST_INSERT_ID(expr) 的值属于当前连接；配合主键冲突更新，可在并发调用时
+     * 原子地取得各自的序列值。新序列从 1 开始，已有序列在当前值上加 1。
+     */
+    INSERT INTO TL_TSSH.sys_sequence (SEQ_NAME, SEQ_VALUE)
+    VALUES (P_SEQ_NAME, LAST_INSERT_ID(1))
+    ON DUPLICATE KEY UPDATE
+        SEQ_VALUE = LAST_INSERT_ID(SEQ_VALUE + 1);
+
+    RETURN LAST_INSERT_ID();
+END$$
+
+DROP PROCEDURE IF EXISTS PRO_FXGL_FXSPCK_DZXX$$
+CREATE PROCEDURE PRO_FXGL_FXSPCK_DZXX()
+BEGIN
+    DECLARE LD_BEGINDATE DATETIME;
+    DECLARE V_DONE_FXGZ TINYINT DEFAULT 0;
+
+    DECLARE V_GZ_MC       TEXT;
+    DECLARE V_GZ_FXMS     TEXT;
+    DECLARE V_GZ_FW_SWJG  TEXT;
+    DECLARE V_GZ_SPDM     TEXT;
+    DECLARE V_GZ_SPMC     TEXT;
+    DECLARE V_GZ_GGXH     TEXT;
+    DECLARE V_GZ_CKKA     TEXT;
+    DECLARE V_GZ_CKGB     TEXT;
+    DECLARE V_GZ_HYD      TEXT;
+    DECLARE V_GZ_DJQ      DECIMAL(65, 30);
+    DECLARE V_GZ_DJZ      DECIMAL(65, 30);
+    DECLARE V_GZ_ZJQ      DECIMAL(65, 30);
+    DECLARE V_GZ_ZJZ      DECIMAL(65, 30);
+    DECLARE V_GZ_YXQZ     DATETIME;
+    DECLARE V_GZ_DXTXBZ   VARCHAR(1);
+
+    DECLARE CUR_FXGZ CURSOR FOR
+        SELECT NULLIF(GZ_MC, ''),
+               NULLIF(GZ_FXMS, ''),
+               NULLIF(GZ_FW_SWJG, ''),
+               NULLIF(GZ_SPDM, ''),
+               NULLIF(GZ_SPMC, ''),
+               NULLIF(GZ_GGXH, ''),
+               NULLIF(GZ_CKKA, ''),
+               NULLIF(GZ_CKGB, ''),
+               NULLIF(GZ_HYD, ''),
+               GZ_DJQ,
+               GZ_DJZ,
+               GZ_ZJQ,
+               GZ_ZJZ,
+               GZ_YXQZ,
+               GZ_DXTXBZ
+          FROM TL_TSSH.FXGL_SZ_SPFXCK
+         WHERE GZ_FW_DATA IN ('1', '3')
+           AND QYBJ = 'Y'
+           AND IFNULL(GZ_YXQZ, CAST('2100-12-31 00:00:00' AS DATETIME)) > SYSDATE();
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET V_DONE_FXGZ = 1;
+
+    -- Oracle DATE 包含时分秒，因此使用 DATETIME，而不是 MySQL DATE。
+    SELECT DATE_SUB(MAX(T.SJTB_SJ), INTERVAL 3 DAY)
+      INTO LD_BEGINDATE
+      FROM TL_TSSH.CKTS_WBSJ_HG_BGD T;
+
+    /*
+     * 临时表仅在当前数据库连接中可见。用源字段创建表结构，避免手工定义字段
+     * 长度或精度导致数据截断；WHERE 1=0 保证这里只建结构、不装载数据。
+     */
+    DROP TEMPORARY TABLE IF EXISTS TMP_PRO_FXSPCK_FXSJ;
+    CREATE TEMPORARY TABLE TMP_PRO_FXSPCK_FXSJ
+    ENGINE=InnoDB
+    AS
+    SELECT T.DJXH,
+           T.CKBGDH,
+           T.MYLAJ,
+           T.CKNY,
+           T.CKSP_DM,
+           T.CKRQ_1,
+           SUBSTRING(T.CKBGDH, 1, 18) AS CKBGD18,
+           T.HGSPMC,
+           S.NSRDZDAH,
+           S.SWJG_DM,
+           IFNULL(NULLIF(S.SHXYNO, ''), NULLIF(S.NSRDJNO, '')) AS NSRSBH,
+           S.NSRMC
+      FROM TL_TSSH.CKTS_WBSJ_HG_BGD T
+      INNER JOIN TL_BJTS.GS_DJ_CKTMSDAB S
+              ON S.CPCODE = T.DJXH
+     WHERE 1 = 0;
+
+    OPEN CUR_FXGZ;
+
+    READ_FXGZ: LOOP
+        FETCH CUR_FXGZ
+         INTO V_GZ_MC,
+              V_GZ_FXMS,
+              V_GZ_FW_SWJG,
+              V_GZ_SPDM,
+              V_GZ_SPMC,
+              V_GZ_GGXH,
+              V_GZ_CKKA,
+              V_GZ_CKGB,
+              V_GZ_HYD,
+              V_GZ_DJQ,
+              V_GZ_DJZ,
+              V_GZ_ZJQ,
+              V_GZ_ZJZ,
+              V_GZ_YXQZ,
+              V_GZ_DXTXBZ;
+
+        IF V_DONE_FXGZ = 1 THEN
+            LEAVE READ_FXGZ;
+        END IF;
+
+        -- 规则中的所有筛选条件都为空时，跳过该无效规则。
+        IF V_GZ_SPDM IS NULL
+           AND V_GZ_SPMC IS NULL
+           AND V_GZ_GGXH IS NULL
+           AND V_GZ_CKKA IS NULL
+           AND V_GZ_CKGB IS NULL
+           AND V_GZ_HYD IS NULL
+           AND V_GZ_DJQ IS NULL
+           AND V_GZ_DJZ IS NULL
+           AND V_GZ_ZJQ IS NULL
+           AND V_GZ_ZJZ IS NULL THEN
+            ITERATE READ_FXGZ;
+        END IF;
+
+        -- 按当前风险规则扫描出口电子信息，并将第二层游标数据固化到临时表。
+        DELETE FROM TMP_PRO_FXSPCK_FXSJ;
+
+        INSERT INTO TMP_PRO_FXSPCK_FXSJ (
+            DJXH, CKBGDH, MYLAJ, CKNY, CKSP_DM, CKRQ_1,
+            CKBGD18, HGSPMC, NSRDZDAH, SWJG_DM, NSRSBH, NSRMC
+        )
+        SELECT T.DJXH,
+               T.CKBGDH,
+               T.MYLAJ,
+               T.CKNY,
+               T.CKSP_DM,
+               T.CKRQ_1,
+               SUBSTRING(T.CKBGDH, 1, 18),
+               T.HGSPMC,
+               S.NSRDZDAH,
+               S.SWJG_DM,
+               IFNULL(NULLIF(S.SHXYNO, ''), NULLIF(S.NSRDJNO, '')),
+               S.NSRMC
+          FROM TL_TSSH.CKTS_WBSJ_HG_BGD T
+          INNER JOIN TL_BJTS.GS_DJ_CKTMSDAB S
+                  ON S.CPCODE = T.DJXH
+         WHERE T.JGFS_DM <> '1039'
+           AND T.SJTB_SJ >= LD_BEGINDATE
+           AND T.TSSWJG_DM_1 LIKE CONCAT(IFNULL(V_GZ_FW_SWJG, ''), '%')
+           AND (
+                V_GZ_SPDM IS NULL
+                OR (LEFT(V_GZ_SPDM, 1) = '!'
+                    AND T.CKSP_DM NOT REGEXP BINARY SUBSTRING(V_GZ_SPDM, 2))
+                OR (LEFT(V_GZ_SPDM, 1) <> '!'
+                    AND T.CKSP_DM REGEXP BINARY V_GZ_SPDM)
+           )
+           AND (V_GZ_SPMC IS NULL OR T.HGSPMC REGEXP BINARY V_GZ_SPMC)
+           AND (V_GZ_GGXH IS NULL OR T.GGXH REGEXP BINARY V_GZ_GGXH)
+           AND (V_GZ_CKKA IS NULL OR T.HGGQKA_DM REGEXP BINARY V_GZ_CKKA)
+           AND (V_GZ_CKGB IS NULL OR T.MYGDQSZ_DM REGEXP BINARY V_GZ_CKGB)
+           AND (
+                V_GZ_HYD IS NULL
+                OR (LEFT(V_GZ_HYD, 1) = '!'
+                    AND T.HZDWDQ_DM NOT REGEXP BINARY SUBSTRING(V_GZ_HYD, 2))
+                OR (LEFT(V_GZ_HYD, 1) <> '!'
+                    AND T.HZDWDQ_DM REGEXP BINARY V_GZ_HYD)
+           )
+           AND (V_GZ_DJQ IS NULL
+                OR IF(T.CKSL = 0, 0, T.MYLAJ / T.CKSL) > V_GZ_DJQ)
+           AND (V_GZ_DJZ IS NULL
+                OR IF(T.CKSL = 0, 0, T.MYLAJ / T.CKSL) < V_GZ_DJZ)
+           AND (V_GZ_ZJQ IS NULL OR T.MYLAJ > V_GZ_ZJQ)
+           AND (V_GZ_ZJZ IS NULL OR T.MYLAJ < V_GZ_ZJZ);
+
+        -- 局部代码块使第二层游标拥有独立的 NOT FOUND 处理器。
+        BEGIN
+            DECLARE V_DONE_FXSJ TINYINT DEFAULT 0;
+            DECLARE V_FXSJ_DJXH      TEXT;
+            DECLARE V_FXSJ_CKBGDH    TEXT;
+            DECLARE V_FXSJ_MYLAJ     DECIMAL(65, 30);
+            DECLARE V_FXSJ_CKNY      TEXT;
+            DECLARE V_FXSJ_CKSP_DM   TEXT;
+            DECLARE V_FXSJ_CKRQ_1    DATETIME;
+            DECLARE V_FXSJ_CKBGD18   VARCHAR(18);
+            DECLARE V_FXSJ_HGSPMC    TEXT;
+            DECLARE V_FXSJ_NSRDZDAH  TEXT;
+            DECLARE V_FXSJ_SWJG_DM   TEXT;
+            DECLARE V_FXSJ_NSRSBH    TEXT;
+            DECLARE V_FXSJ_NSRMC     TEXT;
+
+            DECLARE CUR_FXSJ CURSOR FOR
+                SELECT DJXH,
+                       CKBGDH,
+                       MYLAJ,
+                       CKNY,
+                       CKSP_DM,
+                       CKRQ_1,
+                       CKBGD18,
+                       HGSPMC,
+                       NSRDZDAH,
+                       SWJG_DM,
+                       NSRSBH,
+                       NSRMC
+                  FROM TMP_PRO_FXSPCK_FXSJ;
+
+            DECLARE CONTINUE HANDLER FOR NOT FOUND SET V_DONE_FXSJ = 1;
+
+            OPEN CUR_FXSJ;
+
+            READ_FXSJ: LOOP
+                FETCH CUR_FXSJ
+                 INTO V_FXSJ_DJXH,
+                      V_FXSJ_CKBGDH,
+                      V_FXSJ_MYLAJ,
+                      V_FXSJ_CKNY,
+                      V_FXSJ_CKSP_DM,
+                      V_FXSJ_CKRQ_1,
+                      V_FXSJ_CKBGD18,
+                      V_FXSJ_HGSPMC,
+                      V_FXSJ_NSRDZDAH,
+                      V_FXSJ_SWJG_DM,
+                      V_FXSJ_NSRSBH,
+                      V_FXSJ_NSRMC;
+
+                IF V_DONE_FXSJ = 1 THEN
+                    LEAVE READ_FXSJ;
+                END IF;
+
+                -- TL_ADMIN.YJ_DATA_YJXX：态势感知风险管理统一风险数据表。
+                INSERT INTO TL_ADMIN.YJ_DATA_YJXX (
+                    TBPC, ID, SBID, NSRDZDAH, CJ_DATE, YJCODE, ZBCODE,
+                    YJ_OBJECT, YJ_COUNT, YJ_AMT, YJ_RECORD, YJ_MSG,
+                    SBYM, SWFLAG, QYFLAG, BMDFLAG
+                )
+                SELECT 0,
+                       TL_TSSH.FN_SYS_SEQUENCE_NEXTVAL('SEQ_YJ_DATA_YJXX'),
+                       0,
+                       V_FXSJ_NSRDZDAH,
+                       SYSDATE(),
+                       '140',
+                       '14001',
+                       V_FXSJ_CKSP_DM,
+                       1,
+                       V_FXSJ_MYLAJ,
+                       V_FXSJ_CKBGDH,
+                       CONCAT_WS('',
+                           '风险商品出口(规则：',
+                           IFNULL(V_GZ_MC, V_GZ_FXMS),
+                           ')，报关单号(',
+                           V_FXSJ_CKBGDH,
+                           ')，商品代码(',
+                           V_FXSJ_CKSP_DM,
+                           ')，商品名称(',
+                           V_FXSJ_CKSP_DM,
+                           ')，出口美元金额',
+                           -- DECIMAL(65,30) 直接拼接会带 30 位小数尾零，按 Oracle
+                           -- NUMBER 的显示效果先去除尾零再拼接。
+                           TRIM(TRAILING '.' FROM
+                               TRIM(TRAILING '0' FROM CAST(V_FXSJ_MYLAJ AS CHAR))),
+                           ')'
+                       ),
+                       V_FXSJ_CKNY,
+                       1,
+                       0,
+                       0
+                  FROM (SELECT 1 AS DUMMY) D
+                  LEFT JOIN TL_ADMIN.YJ_DATA_YJXX A
+                         ON A.SBID = 0
+                        AND A.NSRDZDAH = V_FXSJ_NSRDZDAH
+                        AND A.YJCODE = '140'
+                        AND A.ZBCODE = '14001'
+                        AND A.YJ_RECORD = V_FXSJ_CKBGDH
+                 WHERE A.YJ_RECORD IS NULL
+                   AND NOT EXISTS (
+                           SELECT 1
+                             FROM TL_ADMIN.YJ_CS_BMD B
+                             LEFT JOIN TL_ADMIN.YJ_CS_BMD_SUB C
+                                    ON C.BMDID = B.ID
+                            WHERE B.NSRDZDAH = V_FXSJ_NSRDZDAH
+                              AND B.YJCODE = '140'
+                              AND (B.OBJFLAG = '0' OR C.YJ_OBJECT = V_GZ_MC)
+                       );
+
+                -- TL_TSSH.JKGL_GY_FXSM_HGCK：原三三智检风险出口数据，待迁移。
+                INSERT INTO TL_TSSH.JKGL_GY_FXSM_HGCK (DJXH, CKBGDH, SMRQ, FXGZ)
+                SELECT V_FXSJ_DJXH,
+                       V_FXSJ_CKBGDH,
+                       SYSDATE(),
+                       V_GZ_MC
+                  FROM (SELECT 1 AS DUMMY) D
+                  LEFT JOIN TL_TSSH.JKGL_GY_FXSM_HGCK A
+                         ON A.DJXH = V_FXSJ_DJXH
+                        AND A.CKBGDH = V_FXSJ_CKBGDH
+                 WHERE A.CKBGDH IS NULL
+                   AND NOT EXISTS (
+                           SELECT 1
+                             FROM TL_ADMIN.YJ_CS_BMD B
+                             LEFT JOIN TL_ADMIN.YJ_CS_BMD_SUB C
+                                    ON C.BMDID = B.ID
+                            WHERE B.NSRDZDAH = V_FXSJ_NSRDZDAH
+                              AND B.YJCODE = '140'
+                              AND (B.OBJFLAG = '0' OR C.YJ_OBJECT = V_GZ_MC)
+                       );
+
+                -- 风险出口数据短信提醒，按 18 位报关单号汇总。
+                IF V_GZ_DXTXBZ = 'Y' THEN
+                    INSERT INTO TL_TSSH.MSG_PUSH_DATA (
+                        ID, SWJG_DM, NSRSBH, NSRMC, BIZTYPE, BIZKEY,
+                        QDSJ, JZSJ, YWBZ, SJTBSJ, IDLY
+                    )
+                    SELECT TL_TSSH.FN_SYS_SEQUENCE_NEXTVAL('SEQ_MSG_PUSH_DATA'),
+                           V_FXSJ_SWJG_DM,
+                           V_FXSJ_NSRSBH,
+                           V_FXSJ_NSRMC,
+                           '风险出口电子信息',
+                           V_FXSJ_CKBGD18,
+                           V_FXSJ_CKRQ_1,
+                           NULL,
+                           V_GZ_MC,
+                           SYSDATE(),
+                           '1'
+                      FROM (SELECT 1 AS DUMMY) D
+                      LEFT JOIN TL_TSSH.MSG_PUSH_DATA A
+                             ON A.BIZTYPE = '风险出口电子信息'
+                            AND A.BIZKEY = V_FXSJ_CKBGD18
+                     WHERE A.BIZKEY IS NULL
+                       AND NOT EXISTS (
+                               SELECT 1
+                                 FROM TL_ADMIN.YJ_CS_BMD B
+                                 LEFT JOIN TL_ADMIN.YJ_CS_BMD_SUB C
+                                        ON C.BMDID = B.ID
+                                WHERE B.NSRDZDAH = V_FXSJ_NSRDZDAH
+                                  AND B.YJCODE = '140'
+                                  AND (B.OBJFLAG = '0' OR C.YJ_OBJECT = V_GZ_MC)
+                           );
+                END IF;
+
+                COMMIT;
+            END LOOP READ_FXSJ;
+
+            CLOSE CUR_FXSJ;
+        END;
+    END LOOP READ_FXGZ;
+
+    CLOSE CUR_FXGZ;
+    DROP TEMPORARY TABLE IF EXISTS TMP_PRO_FXSPCK_FXSJ;
+
+    -- Oracle MERGE（仅 WHEN NOT MATCHED）转换：一年以上未回函。
+    INSERT INTO TL_TSSH.FXGL_SZ_SPFXJH (
+        ID, TSSWJG_DM, TSSWJG_MC, TBR, TBRQ, GZ_FW_SWJG, GZ_FW_DATA,
+        GZ_MC, GZ_FXMS, GZ_GHQYSH, GZ_GHQYMC, GZ_DXTXBZ, QYBJ, FHXXBUUID
+    )
+    SELECT TL_TSSH.FN_SYS_SEQUENCE_NEXTVAL('SEQ_FXGL_SZ_SPFXJH'),
+           '13300000000',
+           '浙江省税务局',
+           'SYSTEM',
+           SYSDATE(),
+           '133',
+           '2',
+           '一年以上未回函',
+           CONCAT_WS('',
+               T.FAHDSWJGMC,
+               DATE_FORMAT(T.FAHQFRQ, '%Y-%m-%d'),
+               '发函，至今尚无明确回函意见'
+           ),
+           T.GHQYNSRSBH_1,
+           T.GHFQYMC_1,
+           'N',
+           'Y',
+           T.FHXXBUUID
+      FROM TL_ADMIN.YJ_CS_YCHD_JS T
+      LEFT JOIN TL_TSSH.FXGL_SZ_SPFXJH A
+             ON A.FHXXBUUID = T.FHXXBUUID
+            AND A.GZ_MC = '一年以上未回函'
+     WHERE T.FUHLX_DM IS NULL
+       AND T.FAHQFRQ < DATE_SUB(SYSDATE(), INTERVAL 365 DAY)
+       AND A.FHXXBUUID IS NULL;
+    COMMIT;
+
+    -- Oracle MERGE（仅 WHEN NOT MATCHED）转换：回函存在异常业务。
+    INSERT INTO TL_TSSH.FXGL_SZ_SPFXJH (
+        ID, TSSWJG_DM, TSSWJG_MC, TBR, TBRQ, GZ_FW_SWJG, GZ_FW_DATA,
+        GZ_MC, GZ_FXMS, GZ_GHQYSH, GZ_GHQYMC, GZ_DXTXBZ, QYBJ,
+        FHXXBUUID, GZ_YXQZ
+    )
+    SELECT TL_TSSH.FN_SYS_SEQUENCE_NEXTVAL('SEQ_FXGL_SZ_SPFXJH'),
+           '13300000000',
+           '浙江省税务局',
+           'SYSTEM',
+           SYSDATE(),
+           '133',
+           '2',
+           '回函存在异常业务',
+           CONCAT_WS('',
+               T.FAHDSWJGMC,
+               DATE_FORMAT(T.FAHQFRQ, '%Y-%m-%d'),
+               '发函，对方税务机关回函存在异常业务'
+           ),
+           T.GHQYNSRSBH_1,
+           T.GHFQYMC_1,
+           'N',
+           'Y',
+           T.FHXXBUUID,
+           DATE_ADD(T.FUHQFRQ, INTERVAL 12 MONTH)
+      FROM TL_ADMIN.YJ_CS_YCHD_JS T
+      LEFT JOIN TL_TSSH.FXGL_SZ_SPFXJH A
+             ON A.FHXXBUUID = T.FHXXBUUID
+            AND A.GZ_MC = '回函存在异常业务'
+     WHERE T.FUHLX_DM = '2'
+       AND A.FHXXBUUID IS NULL;
+    COMMIT;
+
+    /*
+     * 原 Oracle 脚本中的第三段 MERGE 处于注释状态。下面保留其 MySQL 等价写法，
+     * 仍不启用：
+     *
+     * INSERT INTO TL_TSSH.FXGL_SZ_SPFXJH (
+     *     ID, TSSWJG_DM, TSSWJG_MC, TBR, TBRQ, GZ_FW_SWJG, GZ_FW_DATA,
+     *     GZ_MC, GZ_FXMS, GZ_GHQYSH, GZ_GHQYMC, GZ_DXTXBZ, QYBJ,
+     *     FHXXBUUID, GZ_YXQZ
+     * )
+     * SELECT TL_TSSH.FN_SYS_SEQUENCE_NEXTVAL('SEQ_FXGL_SZ_SPFXJH'),
+     *        '13300000000', '浙江省税务局', 'SYSTEM', SYSDATE(), '133', '2',
+     *        '回函正常其他情况不予退税',
+     *        CONCAT_WS('', T.FAHDSWJGMC, DATE_FORMAT(T.FAHQFRQ, '%Y-%m-%d'),
+     *                       '发函，对方税务机关回函正常，经核查其他情况不予退税'),
+     *        T.GHQYNSRSBH_1, T.GHFQYMC_1, 'N', 'Y', T.FHXXBUUID,
+     *        DATE_ADD(T.FUHQFRQ, INTERVAL 12 MONTH)
+     *   FROM TL_ADMIN.YJ_CS_YCHD_JS T
+     *   LEFT JOIN TL_TSSH.FXGL_SZ_SPFXJH A
+     *          ON A.FHXXBUUID = T.FHXXBUUID
+     *         AND A.GZ_MC = '回函正常其他情况不予退税'
+     *  WHERE T.FUHLX_DM <> '2'
+     *    AND T.FUHCLYJ_DM = '3'
+     *    AND A.FHXXBUUID IS NULL;
+     * COMMIT;
+     */
+
+    UPDATE TL_TSSH.FXGL_SZ_SPFXJH A
+       SET GZ_YXQZ = (
+               SELECT B.FUHQFRQ
+                 FROM TL_ADMIN.YJ_CS_YCHD_JS B
+                WHERE B.FHXXBUUID = A.FHXXBUUID
+           )
+     WHERE A.FHXXBUUID IS NOT NULL
+       AND A.GZ_MC = '一年以上未回函';
+    COMMIT;
+END$$
+
+DELIMITER ;
