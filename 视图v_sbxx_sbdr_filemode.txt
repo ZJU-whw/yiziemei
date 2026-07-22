@@ -1,0 +1,13 @@
+create or replace view tl_bjts.v_sbxx_sbdr_filemode as
+select "NSRSBH","QYHGDM","NSRMC","SWJG_DM","FLGLCD","TSJSFS_DM","SBID","SBYWB_DM","SSSQ","SBPC","SBZT_DM","SBRQ","SBZL_DM","ZZSBB","SBR","SBTMSE","ZS_SWJG_DM","SWJG_JC","RN" from (
+select dj.nsrsbh,case when sh.sbywb_dm='A0101001' then dj.nsrsbh else dj.qyhgdm end as qyhgdm,
+  nvl(dj.tag,'') || dj.nsrmc as nsrmc,dj.swjg_dm,coalesce(dk.kzxx,'C') as flglcd,dj.tsjsfs_dm,
+  sh.id as sbid,sh.sbywb_dm,sh.sssq,sh.sbpc,sh.sbzt_dm,sh.sbrq,sh.sbzl_dm,sh.zzsbb,sh.sbr,sh.sbtmse,dj.zs_swjg_dm,
+  substr(ds.swjg_dm,8,4)||' '||ds.swjg_jc as swjg_jc,row_number() OVER(partition by sh.id order by dk.id desc) as RN
+from
+ sb_sbxx_hz sh
+ left join gs_dj_cktmsdab dj on (sh.nsrdzdah=dj.nsrdzdah)
+ left join gs_dj_cktmsdab_kz dk on (dj.nsrdzdah=dk.nsrdzdah and dk.kzlx='FLGLCD' and dk.flag = '1' and sh.sbrq between dk.st_date and dk.end_date and rownum=1)
+ left join dm_swjg ds on (ds.swjg_dm=dj.zs_swjg_dm)
+  where
+  sh.sbzt_dm='2B') TT where TT.RN<=1;
