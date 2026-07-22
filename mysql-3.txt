@@ -1,0 +1,258 @@
+-- MySQL 5.5 版本：审核助手任务委派
+-- 对应 Oracle 11g 脚本：存储过程-3-Oracle.txt（tl_bjts.func_shzs_rwwp）
+--
+-- 说明：
+-- 1. Oracle 原对象是返回集合类型 TYPE_TB_SHZS_RWWP（单条 TYPE_REC_SHZS_RWWP 记录）
+--    的函数；MySQL 5.5 的函数不能返回结果集，故改写为存储过程，末尾以单行结果集
+--    按原记录字段顺序返回。调用方式：
+--        CALL func_shzs_rwwp(税务机关代码, 岗位代码, 纳税人识别号, 流程税务事项代码);
+--    改为存储过程后，不受创建函数时 log_bin_trust_function_creators 的限制。
+-- 2. 已按要求去掉表名前的 schema 前缀（tl_bjts.），执行本脚本前请先 USE 到目标库。
+--    原脚本同一张表大小写混用（如 shzs_wp_task / SHZS_WP_TASK），Linux 下 MySQL
+--    表名区分大小写，这里统一为小写。
+-- 3. Oracle 中空字符串 '' 等价于 NULL，原脚本的 :='' 赋值一律改为 = NULL，
+--    以保持 Length(x)>0、x IS NULL 等判断的行为与 Oracle 一致。
+-- 4. Oracle 的 || 拼接把 NULL 当作空串，而 MySQL 的 CONCAT 遇 NULL 整体为 NULL，
+--    因此拼接可能为 NULL 的值时统一用 IFNULL(x,'') 包裹；
+--    例如 s.flgl_set like '%'||v_FLGLCD||'%' 在 v_FLGLCD 为空时 Oracle 相当于
+--    LIKE '%%'（恒真），转换后必须写成 LIKE CONCAT('%', IFNULL(v_FLGLCD,''), '%')。
+-- 5. EXCEPTION WHEN no_data_found 用“嵌套 BEGIN 块 + CONTINUE HANDLER FOR NOT FOUND”
+--    模拟，作用范围与 Oracle 的块级异常一致；SELECT INTO 命中多行时两库同样直接报错。
+-- 6. 子查询 ORDER BY + ROWNUM=1 取第一行，改为 ORDER BY ... LIMIT 1；
+--    gs_dj_cktmsdab_kz 关联条件中的 rownum=1（扩展信息最多取一条）用 LIMIT 1 实现。
+-- 7. MySQL 5.5 不支持 WITH 公共表表达式，原 RY 改写为 FROM 子句中的派生表。
+-- 8. 函数替换：nvl→IFNULL，substr→SUBSTRING，sysdate→NOW()，
+--    to_char(x,'mm')→DATE_FORMAT(x,'%m')。沿用原逻辑：委派时间只比较“月份”，
+--    不含年份。
+-- 9. DBMS_OUTPUT.put_line 为调试输出，MySQL 无对应机制，按原位置以注释保留。
+-- 10. 脚本含中文字面量，请在默认字符集为 utf8 的库中创建，客户端连接字符集也应为 utf8。
+
+SET NAMES utf8;
+
+-- USE 目标数据库;   -- 例如：USE tl_bjts;
+
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS func_shzs_rwwp$$
+CREATE PROCEDURE func_shzs_rwwp(
+    IN p_swjg_dm  VARCHAR(50),    -- 税务机关代码
+    IN p_gwdm     VARCHAR(50),    -- 岗位代码
+    IN p_nsrsbh   VARCHAR(50),    -- 纳税人识别号
+    IN p_lcswsxdm VARCHAR(50)     -- 流程税务事项代码
+)
+-- 审核助手任务
+BEGIN
+    DECLARE v_WTDXMC   VARCHAR(30);   -- 委托对象
+    DECLARE v_WTDXSFDM VARCHAR(13);   -- 委托对象身份代码
+    DECLARE v_JDMODE   CHAR(1);       -- 接单方式  0分组 1随机
+    DECLARE v_FLGLCD   CHAR(1);       -- 分类管理等级
+    DECLARE v_JSMODE   CHAR(1);       -- 退税计算方式 1生产 2外贸
+    DECLARE v_QYFZDM   VARCHAR(11);   -- 企业分组代码
+    DECLARE v_QYFZMC   VARCHAR(11);   -- 企业分组名称（原脚本声明后未使用，按原样保留）
+    DECLARE v_sbywbdm  VARCHAR(32);   -- 申报业务表代码
+    DECLARE v_ErrMsg   VARCHAR(100);
+
+    SET v_ErrMsg = NULL;   -- 对应 Oracle 的 v_ErrMsg:=''（'' 即 NULL）
+
+    -- 根据流程税务事项，取申报业务表代码
+    BEGIN
+        DECLARE CONTINUE HANDLER FOR NOT FOUND
+            SET v_sbywbdm = 'NODEF';
+
+        SELECT t.sbyw_dm
+          INTO v_sbywbdm
+          FROM dm_gt3_xml_config t
+         WHERE t.lcsx_dm = p_lcswsxdm;
+    END;
+
+    -- 根据税号，获取分类管理等级和企业分组。
+    BEGIN
+        DECLARE CONTINUE HANDLER FOR NOT FOUND
+            SET v_QYFZDM = 'NOFZ',
+                v_JSMODE = NULL,
+                v_FLGLCD = NULL;
+
+        -- 原关联条件中的 rownum=1 表示扩展表最多取一条，这里用 LIMIT 1 实现
+        SELECT IFNULL(dj.zs_swjg_dm, 'NONE'), dj.tsjsfs_dm, dk.kzxx
+          INTO v_QYFZDM, v_JSMODE, v_FLGLCD
+          FROM gs_dj_cktmsdab dj
+          LEFT JOIN gs_dj_cktmsdab_kz dk
+            ON dj.nsrdzdah = dk.nsrdzdah
+           AND dk.kzlx = 'FLGLCD'
+           AND dk.flag = '1'
+           AND NOW() BETWEEN dk.st_date AND dk.end_date
+         WHERE dj.nsrsbh = p_nsrsbh
+         LIMIT 1;
+    END;
+    -- DBMS_OUTPUT.put_line('v_JSMODE='||v_JSMODE);
+
+    -- 判断税号当月有没有被委派过，且该人在线，有则继续委派给同一个人员
+    -- 此规则只针对v_sbywbdm属于申报类业务A03开头，或证明类业务A02开头，或A0410002撤销申报
+    IF SUBSTRING(v_sbywbdm, 1, 3) = 'A03'
+       OR SUBSTRING(v_sbywbdm, 1, 3) = 'A02'
+       OR v_sbywbdm = 'A0410002' THEN
+        BEGIN
+            DECLARE CONTINUE HANDLER FOR NOT FOUND
+                -- 该企业本月尚未被委派过
+                SET v_WTDXSFDM = NULL;
+
+            SELECT t.wpsfdm, s.swrymc
+              INTO v_WTDXSFDM, v_WTDXMC
+              FROM shzs_wp_task t, shzs_wp_swry s
+             WHERE t.wpsfdm = s.sfdm
+               AND s.status = '1'
+               AND s.gwdm = p_gwdm
+               AND t.nsrsbh = p_nsrsbh
+               AND DATE_FORMAT(t.wpsj, '%m') = DATE_FORMAT(NOW(), '%m')
+             ORDER BY t.wpsj DESC
+             LIMIT 1;
+        END;
+        -- DBMS_OUTPUT.put_line('v_WTDXSFDM='||v_WTDXSFDM);
+    ELSE
+        SET v_WTDXSFDM = NULL;
+    END IF;
+
+    IF LENGTH(v_WTDXSFDM) > 0 THEN
+        -- 本月已委派过，则沿用此人
+        SET v_JDMODE = '2';
+        -- DBMS_OUTPUT.put_line('fenzhi=1');
+    ELSE
+        -- DBMS_OUTPUT.put_line('fenzhi=2');
+        -- 根据税务机关，获得接单方式（2本月已分配过 0分组 1随机）
+        BEGIN
+            DECLARE CONTINUE HANDLER FOR NOT FOUND
+                SET v_JDMODE = NULL;
+
+            SELECT d.jd_mode
+              INTO v_JDMODE
+              FROM sys_cfg_sbdr_filemode d
+             WHERE d.code = p_swjg_dm
+               AND d.qybz = 'Y';
+        END;
+
+        IF v_JDMODE = '1' THEN
+            -- 1.随机分单
+            --   1）按税务机关+岗位序号+在线+分类管理等级+税务事项代码,获取接单人列表
+            --   2) 再结合委派日志表, 按当天已委派+预分配的企业数量 排序，取第一个人作为委派对象
+            --   注：随机分单时，分两步检索：
+            --      先根据接单人设置的规则，看有没有指定条件的接单人（如分类管理限定四类、退税计算方式限定外贸等）
+            --      再根据在岗大名单去取数。
+            BEGIN
+                DECLARE CONTINUE HANDLER FOR NOT FOUND
+                    SET v_WTDXSFDM = NULL,
+                        v_WTDXMC   = NULL;
+
+                SELECT RY.sfdm, RY.swrymc
+                  INTO v_WTDXSFDM, v_WTDXMC
+                  FROM (SELECT t.sfdm, t.swrymc
+                          FROM shzs_wp_swry t
+                         INNER JOIN sys_cfg_czry_fpgl s
+                            ON s.swjg_dm = t.swjgdm
+                           AND s.czry_dm = SUBSTRING(t.sfdm, 1, 11)
+                           AND s.qybz = 'Y'
+                           AND (v_FLGLCD IS NOT NULL AND
+                                s.flgl_set LIKE CONCAT('%', IFNULL(v_FLGLCD, ''), '%'))
+                           AND (v_JSMODE IS NOT NULL AND
+                                s.jsmode_set LIKE CONCAT('%', IFNULL(v_JSMODE, ''), '%'))
+                         WHERE t.swjgdm = p_swjg_dm
+                           AND t.gwdm = p_gwdm
+                           AND t.status = '1') RY
+                  LEFT JOIN shzs_wp_task TK
+                    ON RY.sfdm = TK.wpsfdm
+                   AND DATE_FORMAT(TK.wpsj, '%m') = DATE_FORMAT(NOW(), '%m')
+                 GROUP BY RY.sfdm, RY.swrymc
+                 ORDER BY COUNT(DISTINCT TK.nsrsbh)
+                 LIMIT 1;
+
+                -- DBMS_OUTPUT.put_line('随机分单=已找到指定规则的接单人！');
+            END;
+
+            IF v_WTDXSFDM IS NULL THEN
+                -- DBMS_OUTPUT.put_line('随机分单=未找到指定规则接单人，继续找在岗人');
+                BEGIN
+                    DECLARE CONTINUE HANDLER FOR NOT FOUND
+                        SET v_WTDXSFDM = NULL,
+                            v_WTDXMC   = NULL,
+                            v_ErrMsg   = '未找到可随机分配的接单人！';
+
+                    SELECT RY.sfdm, RY.swrymc
+                      INTO v_WTDXSFDM, v_WTDXMC
+                      FROM (SELECT t.sfdm, t.swrymc
+                              FROM shzs_wp_swry t
+                              LEFT JOIN sys_cfg_czry_fpgl s
+                                ON s.swjg_dm = t.swjgdm
+                               AND s.czry_dm = SUBSTRING(t.sfdm, 1, 11)
+                               AND s.qybz = 'Y'
+                               AND (s.flgl_set IS NULL OR
+                                    s.flgl_set LIKE CONCAT('%', IFNULL(v_FLGLCD, ''), '%'))
+                               AND (s.jsmode_set IS NULL OR
+                                    s.jsmode_set LIKE CONCAT('%', IFNULL(v_JSMODE, ''), '%'))
+                             WHERE t.swjgdm = p_swjg_dm
+                               AND t.gwdm = p_gwdm
+                               AND t.status = '1') RY
+                      LEFT JOIN shzs_wp_task TK
+                        ON RY.sfdm = TK.wpsfdm
+                       AND DATE_FORMAT(TK.wpsj, '%m') = DATE_FORMAT(NOW(), '%m')
+                     GROUP BY RY.sfdm, RY.swrymc
+                     ORDER BY COUNT(DISTINCT TK.nsrsbh)
+                     LIMIT 1;
+
+                    -- DBMS_OUTPUT.put_line('随机分单=找到在岗接单人');
+                END;
+            END IF;
+        ELSE
+            IF v_JDMODE = '0' THEN
+                -- 0.分组接单
+                --   1）按分组+分类管理+税务事项代码，获取接单人
+                --   2）判断接单人是否在岗和在线。
+                BEGIN
+                    DECLARE CONTINUE HANDLER FOR NOT FOUND
+                        SET v_WTDXSFDM = NULL,
+                            v_WTDXMC   = NULL,
+                            v_ErrMsg   = '未找到分组对应的接单人！';
+
+                    SELECT RY.sfdm, RY.swrymc
+                      INTO v_WTDXSFDM, v_WTDXMC
+                      FROM (SELECT t.sfdm, t.swrymc
+                              FROM shzs_wp_swry t
+                             INNER JOIN sys_cfg_czry_fpgl s
+                                ON s.swjg_dm = t.swjgdm
+                               AND s.czry_dm = SUBSTRING(t.sfdm, 1, 11)
+                               AND s.qybz = 'Y'
+                               AND (s.flgl_set IS NULL OR
+                                    s.flgl_set LIKE CONCAT('%', IFNULL(v_FLGLCD, ''), '%'))
+                               AND (s.jsmode_set IS NULL OR
+                                    s.jsmode_set LIKE CONCAT('%', IFNULL(v_JSMODE, ''), '%'))
+                               AND IFNULL(s.zsjg_dm_set, 'NOFZ') LIKE CONCAT('%', IFNULL(v_QYFZDM, ''), '%')
+                             WHERE t.swjgdm = p_swjg_dm
+                               AND t.gwdm = p_gwdm
+                               AND t.status = '1') RY
+                      LEFT JOIN shzs_wp_task TK
+                        ON RY.sfdm = TK.wpsfdm
+                       AND DATE_FORMAT(TK.wpsj, '%m') = DATE_FORMAT(NOW(), '%m')
+                     GROUP BY RY.sfdm, RY.swrymc
+                     ORDER BY COUNT(DISTINCT TK.nsrsbh)
+                     LIMIT 1;
+                END;
+            ELSE
+                SET v_WTDXSFDM = NULL,
+                    v_WTDXMC   = NULL,
+                    v_ErrMsg   = CONCAT('税务机关', IFNULL(p_swjg_dm, ''), '未设置接单方式！');
+            END IF;
+        END IF;
+    END IF;
+
+    -- DBMS_OUTPUT.put_line('结束--'||v_ErrMsg||'-'||v_WTDXSFDM||v_WTDXMC);
+
+    -- 对应 Oracle：o_wp(1) := TYPE_REC_SHZS_RWWP(v_WTDXSFDM, v_WTDXMC, p_nsrsbh,
+    --                                            v_QYFZDM, v_JDMODE, v_ErrMsg);
+    -- 以单行结果集代替集合类型返回，字段顺序与原记录类型一致。
+    SELECT v_WTDXSFDM AS wtdxsfdm,   -- 委托对象身份代码
+           v_WTDXMC   AS wtdxmc,     -- 委托对象名称
+           p_nsrsbh   AS nsrsbh,     -- 纳税人识别号
+           v_QYFZDM   AS qyfzdm,     -- 企业分组代码
+           v_JDMODE   AS jdmode,     -- 接单方式
+           v_ErrMsg   AS errmsg;     -- 错误信息
+END$$
+
+DELIMITER ;
