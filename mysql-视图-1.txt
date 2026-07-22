@@ -1,0 +1,75 @@
+-- MySQL 5.5 版本：申报导入分单视图 v_sbxx_sbdr_filemode
+-- 对应 Oracle 11g 脚本：视图v_sbxx_sbdr_filemode.txt（tl_bjts.v_sbxx_sbdr_filemode）
+--
+-- 说明：
+-- 1. 已按要求去掉视图名前的 schema 前缀（tl_bjts.），执行前请先 USE 到目标库。
+--    本视图是 mysql-4.txt（func_get_wjdr_sblist）依赖的对象，须先创建。
+-- 2. MySQL 5.5 的视图不允许 FROM 子句子查询（派生表），也不允许用户变量，
+--    因此原“内层 row_number() OVER(partition by sh.id order by dk.id desc)
+--    + 外层 RN<=1”的两层结构无法保留。其净效果是：每条申报（sh.id）至多保留
+--    dk.id 最大的一条分类管理扩展记录。这里等价改写为 LEFT JOIN 关联条件中的
+--    MAX 相关子查询（视图的 ON/WHERE 中允许子查询）；原 dk 关联条件里的
+--    rownum=1（至多取一条）的意图相同，一并由该子查询实现。
+-- 3. 前提假设：gs_dj_cktmsdab（登记主表）中 nsrdzdah 唯一。若同一 nsrdzdah
+--    存在多条登记记录，Oracle 原视图按 partition by sh.id 任意保留一条，
+--    而本改写会输出多条；如实际数据存在该情况，需另行处理。
+-- 4. 原视图经 RN<=1 过滤后 RN 恒为 1，为兼容原视图的列结构，保留常量列 1 AS rn。
+-- 5. Oracle 的 || 拼接把 NULL 当空串，MySQL 的 CONCAT 遇 NULL 整体为 NULL，
+--    两处拼接按 Oracle 实际行为精确改写：
+--    - nvl(dj.tag,'') || dj.nsrmc：其一为 NULL 时取另一个、两者皆 NULL（含
+--      dj 未关联上）时为 NULL，用 CASE + IFNULL 实现；
+--    - substr(ds.swjg_dm,8,4) || ' ' || ds.swjg_jc：ds 未关联上时 Oracle 输出
+--      单个空格 ' '（中间的空格字面量仍在），用 IFNULL 包裹两端保持一致。
+-- 6. 函数替换：nvl/coalesce→IFNULL/COALESCE，substr→SUBSTRING；
+--    CREATE OR REPLACE VIEW 在 MySQL 5.5 中直接支持。
+-- 7. 性能提示：相关子查询按 (nsrdzdah, kzlx, flag) 过滤并取 MAX(id)，
+--    建议 gs_dj_cktmsdab_kz 上有 (nsrdzdah, kzlx, flag) 相关索引。
+
+SET NAMES utf8;
+
+-- USE 目标数据库;   -- 例如：USE tl_bjts;
+
+CREATE OR REPLACE VIEW v_sbxx_sbdr_filemode AS
+SELECT dj.nsrsbh                                        AS nsrsbh,
+       CASE WHEN sh.sbywb_dm = 'A0101001'
+            THEN dj.nsrsbh
+            ELSE dj.qyhgdm END                          AS qyhgdm,
+       CASE WHEN dj.tag IS NULL AND dj.nsrmc IS NULL
+            THEN NULL
+            ELSE CONCAT(IFNULL(dj.tag, ''), IFNULL(dj.nsrmc, '')) END
+                                                        AS nsrmc,
+       dj.swjg_dm                                       AS swjg_dm,
+       COALESCE(dk.kzxx, 'C')                           AS flglcd,
+       dj.tsjsfs_dm                                     AS tsjsfs_dm,
+       sh.id                                            AS sbid,
+       sh.sbywb_dm                                      AS sbywb_dm,
+       sh.sssq                                          AS sssq,
+       sh.sbpc                                          AS sbpc,
+       sh.sbzt_dm                                       AS sbzt_dm,
+       sh.sbrq                                          AS sbrq,
+       sh.sbzl_dm                                       AS sbzl_dm,
+       sh.zzsbb                                         AS zzsbb,
+       sh.sbr                                           AS sbr,
+       sh.sbtmse                                        AS sbtmse,
+       dj.zs_swjg_dm                                    AS zs_swjg_dm,
+       CONCAT(IFNULL(SUBSTRING(ds.swjg_dm, 8, 4), ''), ' ',
+              IFNULL(ds.swjg_jc, ''))                   AS swjg_jc,
+       1                                                AS rn
+  FROM sb_sbxx_hz sh
+  LEFT JOIN gs_dj_cktmsdab dj
+    ON sh.nsrdzdah = dj.nsrdzdah
+  LEFT JOIN gs_dj_cktmsdab_kz dk
+    ON dj.nsrdzdah = dk.nsrdzdah
+   AND dk.kzlx = 'FLGLCD'
+   AND dk.flag = '1'
+   AND sh.sbrq BETWEEN dk.st_date AND dk.end_date
+   -- 对应原 row_number(order by dk.id desc)+RN<=1 及 rownum=1：只取 id 最大的一条
+   AND dk.id = (SELECT MAX(dk2.id)
+                  FROM gs_dj_cktmsdab_kz dk2
+                 WHERE dk2.nsrdzdah = dj.nsrdzdah
+                   AND dk2.kzlx = 'FLGLCD'
+                   AND dk2.flag = '1'
+                   AND sh.sbrq BETWEEN dk2.st_date AND dk2.end_date)
+  LEFT JOIN dm_swjg ds
+    ON ds.swjg_dm = dj.zs_swjg_dm
+ WHERE sh.sbzt_dm = '2B';
