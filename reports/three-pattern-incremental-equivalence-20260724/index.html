@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>三形态市场环境增量语义修复验收报告（2026-07-24）</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033;
+      --muted: #5d687c;
+      --line: #dfe5ef;
+      --paper: #ffffff;
+      --canvas: #f4f7fb;
+      --blue: #2563eb;
+      --blue-soft: #e8f0ff;
+      --green: #15803d;
+      --green-soft: #e9f8ee;
+      --amber: #a16207;
+      --amber-soft: #fff7dd;
+      --red: #b42318;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+      line-height: 1.65;
+    }
+    main {
+      width: min(1100px, calc(100% - 32px));
+      margin: 32px auto 64px;
+    }
+    header, section {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgb(23 32 51 / 5%);
+    }
+    header {
+      padding: 34px;
+      background:
+        radial-gradient(circle at top right, #dce9ff 0, transparent 34%),
+        var(--paper);
+    }
+    section { padding: 28px; margin-top: 20px; }
+    h1 { margin: 0 0 8px; font-size: clamp(28px, 4vw, 42px); line-height: 1.25; }
+    h2 { margin: 0 0 18px; font-size: 24px; }
+    h3 { margin: 18px 0 6px; font-size: 18px; }
+    p { margin: 8px 0; }
+    .muted { color: var(--muted); }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 16px;
+      padding: 7px 13px;
+      color: var(--green);
+      background: var(--green-soft);
+      border: 1px solid #b8e5c5;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+    .status::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .card {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fbfcff;
+    }
+    .card .value {
+      display: block;
+      margin-top: 5px;
+      font-size: 25px;
+      font-weight: 750;
+      color: var(--blue);
+    }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      align-items: stretch;
+    }
+    .flow div {
+      position: relative;
+      padding: 18px 16px;
+      border-radius: 12px;
+      background: var(--blue-soft);
+      border: 1px solid #c8d9ff;
+      text-align: center;
+      font-weight: 650;
+    }
+    .flow div:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: -12px;
+      top: 50%;
+      z-index: 2;
+      transform: translateY(-50%);
+      color: var(--blue);
+      font-size: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-variant-numeric: tabular-nums;
+    }
+    th, td {
+      padding: 12px 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+    }
+    th { color: var(--muted); font-size: 14px; }
+    td:last-child, th:last-child { text-align: right; }
+    .pass { color: var(--green); font-weight: 750; }
+    .note, .warning {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 10px;
+    }
+    .note { background: var(--green-soft); border-left: 4px solid var(--green); }
+    .warning { background: var(--amber-soft); border-left: 4px solid var(--amber); }
+    code {
+      padding: 2px 5px;
+      background: #eef2f7;
+      border-radius: 5px;
+      font-family: "Cascadia Code", Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+    ul { margin: 8px 0; padding-left: 22px; }
+    footer {
+      margin-top: 22px;
+      padding: 18px 4px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+    @media (max-width: 800px) {
+      .grid, .flow { grid-template-columns: 1fr 1fr; }
+      .flow div::after { display: none; }
+    }
+    @media (max-width: 520px) {
+      main { width: min(100% - 18px, 1100px); margin-top: 12px; }
+      header, section { padding: 20px; border-radius: 12px; }
+      .grid, .flow { grid-template-columns: 1fr; }
+      table { font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="muted">Finan · 三形态市场环境 · 工程验收</p>
+    <h1>增量语义修复验收报告</h1>
+    <p>验证日期：2026-07-24｜生成时间：2026-07-28 11:15（Asia/Shanghai）</p>
+    <span class="status">最终验收 PASS · 语义 mismatch = 0</span>
+  </header>
+
+  <section>
+    <h2>结论先行</h2>
+    <p>
+      以 2026-07-16 的全量结果作为 B0 基线，只增量重放至 2026-07-24，
+      得到的 <strong>events、event_returns、execution_ledger、lifecycle</strong>
+      与 2026-07-24 全量 Oracle 在严格语义比较下完全一致。
+    </p>
+    <div class="grid">
+      <div class="card">语义不一致总数<span class="value">0</span></div>
+      <div class="card">执行行验证<span class="value">624,480</span></div>
+      <div class="card">收益行验证<span class="value">1,873,440</span></div>
+      <div class="card">数据证券数<span class="value">5,537</span></div>
+    </div>
+    <div class="note">
+      发布 audit 为 <strong>PASS</strong>，范围为 <strong>full</strong>，
+      失败列表为空；修复已通过 ff-only 集成、合并前后测试和 Ruff。
+    </div>
+  </section>
+
+  <section>
+    <h2>问题是什么</h2>
+    <p>
+      增量模式会复用上一版 release 的执行价和收益。执行与收益是向前看的：
+      当新增交易日到来时，靠近旧边界的事件可能获得新的入场、退出或 60 日收益信息。
+      旧逻辑却把这些尚未完全成熟的值当成不可变化的历史值，因此发布前语义审计会报：
+    </p>
+    <ul>
+      <li><code>EXECUTION_SEMANTIC_MISMATCH</code></li>
+      <li><code>RETURN_SEMANTIC_MISMATCH</code></li>
+    </ul>
+    <p>
+      安全窗口为最大入场延迟 5 日 + 最大持有期 60 日 + 最大退出延迟 5 日，
+      合计 <strong>70 个交易日</strong>。
+    </p>
+  </section>
+
+  <section>
+    <h2>采用的修法</h2>
+    <div class="flow" aria-label="修复流程">
+      <div>B0 全量<br>截至 7/16</div>
+      <div>边界前 70 日<br>强制再成熟</div>
+      <div>增量至 7/24<br>规范行序与 dtype</div>
+      <div>对比全量 Oracle<br>四产物判官</div>
+    </div>
+    <h3>语义修复</h3>
+    <ul>
+      <li>边界前 70 个交易日内的事件重新计算 execution 与 return。</li>
+      <li>窗口外的稳定历史值继续复用，事件检测 lifecycle 的复用语义保留。</li>
+      <li>允许旧 FAILED setup 在新增数据后重新进入有效生命周期。</li>
+    </ul>
+    <h3>确定性与幂等</h3>
+    <ul>
+      <li>event_returns 按证券、事件和持有期形成稳定规范顺序。</li>
+      <li><code>entry_session_delay</code> 恢复为与全量一致的整数 schema。</li>
+      <li>阶段完成身份与缓存热度、进度计数解耦，重试不再误报 immutable。</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>四产物严格结果</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>产物</th>
+          <th>Oracle 行数</th>
+          <th>增量行数</th>
+          <th>Schema</th>
+          <th>Mismatch</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>events</td><td>624,480</td><td>624,480</td><td class="pass">相等</td><td class="pass">0</td></tr>
+        <tr><td>event_returns</td><td>1,873,440</td><td>1,873,440</td><td class="pass">相等</td><td class="pass">0</td></tr>
+        <tr><td>execution_ledger</td><td>624,480</td><td>624,480</td><td class="pass">相等</td><td class="pass">0</td></tr>
+        <tr><td>lifecycle</td><td>1,504,915</td><td>1,504,915</td><td class="pass">相等</td><td class="pass">0</td></tr>
+      </tbody>
+    </table>
+    <div class="warning">
+      execution_ledger 的 Parquet 物理字节不完全相同，但 schema 与逐行语义完全相等；
+      这是存储编码差异，不是数据差异。
+    </div>
+  </section>
+
+  <section>
+    <h2>真实发布与代码证据</h2>
+    <table>
+      <tbody>
+        <tr><th>Store generation</th><td><code>74a7967ffad64e26bfe4dc14ed1d59ff</code></td></tr>
+        <tr><th>增量 run ID</th><td><code>5ad686aa2cbb9e83965cc521e5d595f7ce33510e706cb62c302b6cad322343aa</code></td></tr>
+        <tr><th>增量 release ID</th><td><code>f30ddaf9aa44772f892fda260a87b2e8</code></td></tr>
+        <tr><th>最终 Git HEAD</th><td><code>a428fd3367837673b43b14cfa31af332e90df812</code></td></tr>
+        <tr><th>受保护全量 HEAD</th><td><code>68e0cf870838865e017999633778cb65dc499295</code></td></tr>
+        <tr><th>聚焦测试</th><td>合并前 27 passed；合并后 27 passed</td></tr>
+        <tr><th>Ruff</th><td class="pass">合并前后均 PASS</td></tr>
+      </tbody>
+    </table>
+    <h3>TDD 覆盖</h3>
+    <p>
+      失败测试先后复现了 70 日再成熟缺口、边界包含性、FAILED lifecycle 恢复、
+      event_returns 行序漂移、entry_session_delay dtype 漂移和阶段重试身份漂移，
+      再由最小实现逐项转绿。
+    </p>
+  </section>
+
+  <section>
+    <h2>一次收尾异常及其边界</h2>
+    <p>
+      主链完成后，旧监督适配层曾因终态 JSON 没有 <code>stage</code> 字段，
+      且包装判官错误寻找 <code>validate</code> 导出而失败。主增量产物当时已经是
+      mismatch=0；该异常未污染 release。
+    </p>
+    <p>
+      两个适配缺陷均先用契约测试复现，再修复为直接调用叶子验证器和可选字段读取。
+      修复后的独立最终判官与自动收尾均为 PASS，相关作业契约 8 passed。
+    </p>
+  </section>
+
+  <section>
+    <h2>阅读边界</h2>
+    <p>
+      本报告是软件与数据语义验收，不是股票排名、买卖建议或收益承诺。
+      它证明的是：在本次固定代码、固定 Store 和固定日期范围下，增量结果与全量结果一致。
+    </p>
+  </section>
+
+  <footer>
+    Finan three-pattern incremental equivalence acceptance · RESEARCH/ENGINEERING EVIDENCE ONLY
+  </footer>
+</main>
+</body>
+</html>
