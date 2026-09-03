@@ -1,5 +1,5 @@
 对远端仓库yiziemei\main\bjts\bizReviewd的系统功能分析整理输出《M_QYXXCX企业信息一户式查询.md》做内容精简，完成后更新远端仓库该md文件，
-要求请见远端仓库bjts下的“任务要求.txt”。
+要求请见远端仓库bjts下的“任务要求.txt”。 
 
 具体要求如下：
 阅读说明：
