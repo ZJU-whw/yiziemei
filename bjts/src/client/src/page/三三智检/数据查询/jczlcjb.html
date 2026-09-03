@@ -1,0 +1,57 @@
+<div class="jczlcjb tableLine" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        出口企业基础资料采集表查询
+      </div>
+      <div class="btns">
+        <div class="btn" ms-click="@search(1)">查询</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <div class="select-wrapper">
+          <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+          <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+          <div class="select-main">
+              <div class="select-item">
+                  <label  title="税务机关">税务机关</label>
+                  <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree">
+                  <ul id="jczlcjbZtree" class='ztree treeDiv' style="left: 90px;top:100%;"></ul>
+              </div>
+              <div class="select-item">
+                  <label  title="企业标识">企业标识</label>
+                  <input  type="text" ms-duplex="@searchData.qybs" placeholder="海关代码、税号、名称，支持模糊匹配">
+              </div>
+              <div class="select-item">
+                  <label title="退税计算方式">退税计算方式</label>
+                  <select ms-duplex="@searchData.tsjsfs">
+                    <option value="">全部</option>
+                    <option value="1">免抵退税</option>
+                    <option value="2">免退税</option>
+                    <option value="3">免税</option>
+                    <option value="9">其他</option>
+                </select>
+              </div>
+          </div>
+          <div class="select-sub">
+              <div class="select-item">
+                  <label title="管理等级">管理等级</label>
+                  <div class="custom-bootstrap-multiselect bootstrap-multiselect lf" style="height: 22px;">
+                    <select id="jczlcjb_select_gllb" multiple="multiple"></select>
+                  </div>
+              </div>
+              <div class="select-item">
+                <label title="采集状态">采集状态</label>
+                <select ms-duplex="@searchData.cjzt">
+                  <option value="">全部</option>
+                  <option value="0">未采集</option>
+                  <option value="1">已采集</option>
+              </select>
+            </div>
+          </div>
+      </div>
+      <div class="form" style="padding-top: 54px">
+          <table id="jczlcjb-table"></table>
+          <div id="jczlcjb-tablePager"></div>
+      </div>
+  </div>
+</div>

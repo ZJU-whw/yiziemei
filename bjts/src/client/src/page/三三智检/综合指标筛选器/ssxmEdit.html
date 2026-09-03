@@ -1,0 +1,325 @@
+<div class="ssxmEdit tableLine" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        筛选项目编辑
+      </div>
+      <div class="btns">
+        <div ms-if="@formData.status == '0'" class="btn" ms-click="@saveModel('0')">保存</div>
+        <div class="btn" ms-click="@preview">预览</div>
+        <div class="btn" ms-class="[@formData.status != '0' && 'disabled']" ms-click="@start">启动</div>
+        <div class="btn" ms-class="[@formData.status != '0' && 'disabled']" ms-click="@showFaModel">载入方案</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+    <div class="select-wrapper g-form xmxx">
+      <i class="icon" ms-click="showHyper" title="展开"></i>
+      <div class="select-main clear" style="height: 30px;">
+        <div class="g-form-item">
+          <div class="g-form-item_label" style="font-weight: bold;"></div>
+          <div class="g-form-item__content">
+            <div class="g-form-item w-33per lf mt-0">
+              <div class="g-form-item_label">项目名称：</div>
+              <div class="g-form-item__content">
+                <div class="simulationInp">{{@formData.xmmc}}</div>
+              </div>
+            </div>
+            <div class="g-form-item w-33per lf mt-0">
+              <div class="g-form-item_label">企业类型：</div>
+              <div class="g-form-item__content">
+                <div class="simulationInp">{{@formData.tsjsfsMc}}</div>
+              </div>
+            </div>
+            <div class="g-form-item w-33per lf mt-0">
+              <div class="g-form-item_label">项目状态：</div>
+              <div class="g-form-item__content">
+                <div class="simulationInp">{{@formData.statusStr}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="select-sub clear">
+        <div class="g-form-item lf w-100per">
+          <div class="g-form-item_label" style="font-weight: bold;">约束条件：</div>
+          <div class="g-form-item__content" style="height:auto;">
+            <div class="g-form-item w-33per lf clear">
+              <div class="g-form-item_label">税务机关：</div>
+              <div class="g-form-item__content" style="position: relative;">
+                <div class="item-content fz">
+                  <div style="width: 100%;" class="tree clear">
+                    <div
+                      style="height: 26px;line-height: 26px;background-color: #fff;"
+                      class="item-content showSelect text-ellipsis"
+                      ms-click="@showTree"
+                      ms-attr="{title: @selectMc['dj.swjg']&&@selectMc['dj.swjg'].name}">{{@selectMc['dj.swjg']&&(@selectMc['dj.swjg'].value.length>3 ? @selectMc['dj.swjg'].value.length+ '项已选择':@selectMc['dj.swjg'].name)}}</div>
+                    <ul
+                      style="left: 0;height:180px;"
+                      ms-attr="{id:'ssxmEdit_tree_dj_swjg'}"
+                      class='treeSelect ztree treeDiv'></ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="g-form-item w-33per lf mt-0" ms-visible="@formData.status == '0'">
+              <div class="g-form-item_label">样本企业维护：</div>
+              <div class="g-form-item__content">
+                <div class="btn" style="position: relative;margin-top:2px;">
+                  <input id="ssxmEditFileupload" type="file" name="file" data-url="/sszj/xmgl/ybqy/import">导入
+                </div>
+                <a class="link ml-10" style="line-height: 30px;" ms-click="@exformModel()">下载导入模板</a>
+              </div>
+            </div>
+            <div class="g-form-item lf w-33per mt-0 mb-5 ystj" ms-for="(index,item) in @dictList">
+              <div class="g-form-item_label">{{item.zbxmmc}}：</div>
+              <div class="g-form-item__content">
+                <div class="item-content fz clear lf" style="width: 100%; height: 26px;">
+                  <div
+                    class="custom-bootstrap-multiselect bootstrap-multiselect lf"
+                    style="max-width: 100%;"
+                    ms-if="item.isTree=='0'">
+                    <select ms-attr="{id:'ssxmEdit_select_'+item.zbxmbm.split('.')[0]+'_'+item.zbxmbm.split('.')[1]}" multiple="multiple"></select>
+                  </div>
+                  <div
+                    style="width: 100%;"
+                    class="tree clear lf"
+                    ms-if="item.isTree=='1'">
+                    <div
+                      ms-if="@selectMc[item.zbxmbm].value.length>3"
+                      class="item-content showSelect text-ellipsis"
+                      style="height: 26px;line-height: 26px;background-color: #fff;"
+                      ms-click="@showTree"
+                      ms-attr="{title: @selectMc[item.zbxmbm]&&@selectMc[item.zbxmbm].name}">
+                      {{@selectMc[item.zbxmbm].value.length+ '项已选择'}}
+                    </div>
+                    <div
+                      ms-if="@selectMc[item.zbxmbm].value.length<=3"
+                      class="item-content showSelect text-ellipsis"
+                      style="height: 26px;line-height: 26px;background-color: #fff;"
+                      ms-click="@showTree"
+                      ms-attr="{title: @selectMc[item.zbxmbm]&&@selectMc[item.zbxmbm].name}">
+                      {{@selectMc[item.zbxmbm].name}}
+                    </div>
+                    <ul
+                      style="left: 0;height: 140px;"
+                      ms-attr="{id:'ssxmEdit_tree_'+item.zbxmbm.split('.')[0]+'_'+item.zbxmbm.split('.')[1]}"
+                      class='treeSelect ztree treeDiv'></ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="g-tabs" style="padding-top: 56px;">
+      <div class="tab-title mb-5">
+        <div class="tab-title-wrap">
+          <div
+            ms-for="(index,item) in @tabList"
+            class="tab-title-item"
+            :class="[@activeName == item.activeName&&'active', item.activeName]"
+            ms-click="changeTab(index)">
+            {{item.name}}
+        </div>
+        </div>
+      </div>
+      <div class="tab-content">
+        <div class="tab-content-item preview" ms-visible="@activeName == '1'">
+          <div class="g-form clear">
+            <div class="g-form-item lf">
+              <div class="g-form-item_label">企业标识：</div>
+              <div class="g-form-item__content" style="width: 270px;">
+                <input type="text" ms-duplex="@previewData.qyxx" placeholder="请输入企业税号/名称">
+              </div>
+            </div>  
+            <div class="btn" style="margin-top: 3px;" ms-click="@getPreviewList(1)">查询</div>
+            <div class="btn" style="margin-top: 3px;" ms-click="@previewExform">导出</div>
+          </div>
+          <div class="mt-10">
+            <table id="ssxmEdit-target-table"></table>
+            <div id="ssxmEdit-target-tablePager"></div>
+          </div>
+        </div>
+        <div class="tab-content-item clear gzwh" ms-visible="@activeName == '2'">
+          <div class="g-form clear">
+            <div class="g-form-item lf">
+              <div class="g-form-item_label">规则名称：</div>
+              <div class="g-form-item__content" style="width: 270px;">
+                <input type="text" ms-duplex="@gzwhData.rulename">
+              </div>
+            </div>
+            <div class="g-form-item lf mt-0">
+              <div class="g-form-item_label">业务描述：</div>
+              <div class="g-form-item__content" style="width: 270px;">
+                <input type="text" ms-duplex="@gzwhData.note">
+              </div>
+            </div>
+            <div class="btn" style="margin-top: 3px;" ms-click="@getXmRules(1)">查询</div>
+            <div class="btn" style="margin-top: 3px;" ms-click="@showGzModel('添加')">添加</div>
+            <div class="btn" ms-class="[@formData.status == '0' && 'disabled']" style="margin-top: 3px;" ms-click="@showSxModel">执行筛选</div>
+            <div class="btn" style="margin-top: 3px;" ms-click="@sharePlan">方案共享</div>
+          </div>
+          <div class="mt-10">
+            <table id="ssxmEdit-gzwh-table"></table>
+          </div>
+          <div class="clear previewExpression">
+            <div class="lf previewExpression-title">预览所选规则的表达式</div>
+            <div class="lf g-textarea previewExpression-content">{{previewGzExpression}}</div>
+          </div>
+        </div>
+        <div class="tab-content-item clear gzwh" ms-visible="@activeName == '3'">
+          <div class="lf" style="width: 780px;">
+            <div class="pc clear">
+              <p style="line-height: 28px;">
+                <span style="font-weight: bold;">筛选批次</span>
+                <div class="btn rt" ms-click="@getXmPcList(1)">刷新</div>
+              </p>
+              <table id="ssxmEdit-pc-table"></table>
+              <div id="ssxmEdit-pc-tablePager"></div>
+            </div>
+            <div>
+              <table id="ssxmEdit-pcRules-table"></table>
+            </div>
+          </div>
+          <div class="lf pcResult ml-20" style="width: calc(100% - 800px);">
+            <p style="line-height: 28px;">
+              <span style="font-weight: bold;">筛选批次输出的结果企业</span>
+              <div class="btn rt" ms-click="@exformPcResult">导出</div>
+            </p>
+            <table id="ssxmEdit-pcResult-table"></table>
+            <div id="ssxmEdit-pcResult-tablePager"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 编辑规则 -->
+  <div class="page-model editgz-page-model" style="height:404px;" >
+    <div class="model-title">
+      <span>{{@addTitleGz}}规则</span>
+      <span class="close" ms-click="@hideGzModel">&times;</span>
+    </div>
+    <div class="model-content g-form clear" style="height: 304px;padding: 10px 20px;">
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>规则名称：</div>
+        <div class="g-form-item__content">
+          <input type="text" ms-duplex="@ruleData.rulename">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">规则表达式：</div>
+        <div class="g-form-item__content" style="height: 90px;">
+          <div class="g-textarea lf" style="width: calc(100% - 100px);height: 90px;">
+            {{@ruleData.expressionCname.join('')}}
+          </div>
+          <div class="btn" ms-click="addGz">编辑表达式</div>
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>分析期偏移类型：</div>
+        <div class="g-form-item__content">
+          <select data-duplex-changed="@fxqTypeChange" class="g-select lf" ms-duplex="@ruleData.fxqType" style="height: 30px;width: 60px;">
+            <option value=""></option>
+            <option value="0">月</option>
+            <option value="1">季</option>
+            <option value="2">年</option>
+          </select>
+          <div class="g-form-item lf">
+            <div class="g-form-item_label"><span class="text-red">*</span>分析期偏移量：</div>
+            <div class="g-form-item__content">
+              <input style="width: 60px;" data-duplex-changed="@fxqOffsetChange" type="text" ms-duplex="@ruleData.fxqOffset">
+            </div>
+          </div>
+          <div class="g-form-item lf mt-0">
+            <div class="g-form-item_label"><span class="text-red">*</span>分析期月跨度：</div>
+            <div class="g-form-item__content">
+              <select class="g-select" ms-duplex="@ruleData.fxqRange" style="height: 30px;width: 60px;">
+                <option value=""></option>
+                <option ms-for="(index,tmp) in @fxqRangeList" ms-attr="{value: index+1}">{{index+1}}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">显示顺序：</div>
+        <div class="g-form-item__content">
+          <input class="lf" style="width: 60px;" type="text" ms-duplex="@ruleData.showorder">
+          <div class="g-form-item lf">
+            <div class="g-form-item_label"><span class="text-red">*</span>有效标志：</div>
+            <div class="g-form-item__content">
+              <select class="g-select" ms-duplex="@ruleData.yxbz" style="height: 30px;width: 60px;">
+                <option value="Y">有效</option>
+                <option value="N">无效</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">业务描述：</div>
+        <div class="g-form-item__content" style="height: 48px;">
+          <textarea class="g-textarea" ms-duplex="@ruleData.note" style="resize: none;"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="model-btns">
+      <div class="btn" ms-click="@saveGzModel">确定</div>
+      <div class="btn" ms-click="@hideGzModel">取消</div>
+    </div>
+  </div>
+  <!-- 执行筛选 -->
+  <div class="page-model sx-page-model" style="height:240px;width: 500px;" >
+    <div class="model-title">筛选</div>
+    <div class="model-content g-form clear" style="height: 140px;padding: 10px 20px;">
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>所属期：</div>
+        <div class="g-form-item__content">
+          <input type="text" class="datepicker date-month" ms-duplex="@sxData.ssq" readonly>
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">依赖批次：</div>
+        <div class="g-form-item__content">
+          <select class="g-select" ms-duplex="@sxData.relyPc" style="height: 30px;width: 100%;">
+            <option value=""></option>
+            <option ms-for="item in @relyPcList" ms-attr="{value:item.pc}">{{item.pc}}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="model-btns">
+      <div class="btn" ms-click="@saveSxModel">确定</div>
+      <div class="btn" ms-click="@hideSxModel">取消</div>
+    </div>
+  </div>
+  <!-- 载入方案 -->
+  <div class="page-model importFa-page-model" style="height:454px;width: 860px;margin-left: -430px;" >
+    <div class="model-title">
+      <span>载入方案</span>
+      <span class="close" ms-click="@hideFaModel">&times;</span>
+    </div>
+    <div class="model-content" style="height: 400px;padding: 10px 20px;">
+      <div class=" g-form clear">
+        <div class="g-form-item lf">
+          <div class="g-form-item_label">方案名称：</div>
+          <div class="g-form-item__content">
+            <input type="text" class="g-input" ms-duplex="@importFaData.famc" placeholder="支持模糊查询">
+          </div>
+        </div>
+        <div class="btn" style="margin-top: 3px;" ms-click="@getImportFaList(1)">查询</div>
+      </div>
+      <div class="mt-10">
+        <table id="ssxmEdit-importFa-table"></table>
+        <div id="ssxmEdit-importFa-tablePager"></div>
+      </div>
+    </div>
+  </div>
+  <div ms-visible="@gzbjqVisible">
+    <wbr ms-widget="[{is: 'gzbjq'}]"/>
+  </div>
+  <!-- 方案共享 -->
+  <div ms-visible="@shareFaVisible">
+    <wbr ms-widget="[{is: 'shareFa'}]"/>
+  </div>
+</div>

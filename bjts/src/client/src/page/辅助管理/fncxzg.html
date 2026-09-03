@@ -1,0 +1,67 @@
+<div class="fncxzg" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            退税返纳查询（征管）
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <!--<div class="btn" ms-click="@sychonize">同步</div>-->
+            <div class="btn" ms-click="@exform">导出</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="select-wrapper">
+            <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+            <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+            <div class="select-main">
+                <div class="select-item">
+                    <label title="纳税人识别号">纳税人识别号</label>
+                    <input type="text" ms-duplex="searchData.nsrsbh">
+                </div>
+                <div class="select-item">
+                    <label  title="税务机关">税务机关</label>
+                    <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree">
+                    <ul id="fncxzgZtree" class='ztree treeDiv' style="left: 90px;top:100%;"></ul>
+                </div>
+                <div class="select-item">
+                    <label  title="入库日期">入库日期起</label>
+                    <div class="select-item-inner">
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.rkrqq" :on-blur="@filDate" >
+                        <span>止</span>
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.rkrqz" :on-blur="@filDate">
+                    </div>
+                </div>
+            </div>
+            <div class="select-sub">
+                <div class="select-item">
+                    <label  title="实缴金额">实缴金额起</label>
+                    <div class="select-item-inner">
+                        <input type="text" ms-duplex="@searchData.sjjeq" :change="checkIsNum" >
+                        <span>止</span>
+                        <input type="text"  ms-duplex="@searchData.sjjez" :change="checkIsNum">
+                    </div>
+                </div>
+                <div class="select-item">
+                    <label  title="对账结果">对账结果</label>
+                    <select  ms-duplex="@searchData.dzjg">
+                        <option value=""></option>
+                        <option value="10">对账结果正确</option>
+                        <option value="1">征管有出口无</option>
+                        <option value="2">征管无出口有</option>
+                        <option value="3">返纳税额不一致</option>
+                        <option value="4">出口未销号，征管已入库</option>
+                        <option value="5">出口已销号，征管未入库</option>
+                        <option value="6">出口已销号，征管仅部分入库</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 54px">
+            <table id="fncxzg-table"></table>
+            <div id="fncxzg-tablePager"></div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==3&&'active']">
+        <div class="chartDiv"></div>
+    </div>
+</div>

@@ -1,0 +1,128 @@
+<div class="fp-detail" ms-visible="@visible">
+  <div class="fp-mask" ms-click="@closeModel"></div>
+  <div class="fpModel fpPrint fp_qd_zzs">
+    <div class="fp-btn-rt close" title="关闭" ms-click="@closeModel"></div>
+
+    <div class="title">
+      <div class="til-content">
+        <span>电子发票</span>
+        <span class="til-line"></span>
+      </div>
+      <div class="one">
+        <p>发票号码：<span class="text-black">{{info.fphm}}</span></p>
+        <p>开票日期：<span class="text-black">{{info.kprq}}</span></p>
+      </div>
+    </div>
+
+    <div class="fptt">
+      <table>
+        <tr>
+          <td width="20px" style="text-align: center">购买方信息</td>
+          <td style="border-right: 0;">
+            <ul>
+              <li class="line">
+                <div>名称：</div>
+                <span class="text-black">{{info.gfmc}}</span>
+              </li>
+              <li class="line">
+                <div>统一社会信用代码/纳税人识别号：</div>
+                <span class="text-black">{{info.gfsbh}}</span>
+              </li>
+            </ul>
+          </td>
+        </tr>
+      </table>
+      <table>
+        <tr>
+          <td width="20px" style="text-align: center">销售方信息</td>
+          <td style="border-right: 0;">
+            <ul>
+              <li class="line">
+                <div>名称：</div>
+                <span class="text-black">{{info.xfmc}}</span>
+              </li>
+              <li class="line">
+                <div>统一社会信用代码/纳税人识别号：</div>
+                <span class="text-black">{{info.xfsbh}}</span>
+              </li>
+            </ul>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="fpmx">
+      <div class="hwxx">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:170px;">项目名称</th>
+              <th style="width:90px;">规格型号</th>
+              <th style="width:60px;">单位</th>
+              <th style="width:60px;">数量</th>
+              <th style="width:110px;">单价</th>
+              <th style="width:110px;">金额</th>
+              <th style="width:110px;">税率/征收率</th>
+              <th style="width:110px;">税额</th>
+            </tr>
+          </thead>
+          <tbody id="fpHwxxTbody">
+            <tr ms-for="hw in @hwxxs">
+              <td style="width: 170px;"><span class="width-lock text-black" ms-attr="{title: hw.hwmc}">{{hw.hwmc}}</span></td>
+              <td style="width: 90px;"><span class="text-black" ms-attr="{title: hw.ggxh}">{{hw.ggxh}}</span></td>
+              <td style="width: 60px;text-align: center"><span class="text-black">{{hw.dw}}</span></td>
+              <td style="width: 60px;text-align: right"><span class="text-black">{{hw.sl}}</span></td>
+              <td style="width: 110px;text-align: right"><span class="text-black">{{hw.dj}}</span></td>
+              <td style="width: 110px;text-align: right"><span class="text-black">{{hw.je}}</span></td>
+              <td style="width: 110px;text-align: center"><span class="text-black">{{hw.slv}}</span></td>
+              <td style="width: 110px;text-align: right"><span class="text-black">{{hw.se}}</span></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td style="width: 170px;">合计</td>
+              <td style="width: 90px">&nbsp;</td>
+              <td style="width: 60px">&nbsp;</td>
+              <td style="width: 60px">&nbsp;</td>
+              <td style="width: 110px">&nbsp;</td>
+              <td style="width: 110px;text-align: right;"><span class="jehj text-black">{{info.je}}</span></td>
+              <td style="width: 110px">&nbsp;</td>
+              <td style="width: 110px;text-align: right"><span class="sehj text-black">{{info.se}}</span></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <table class="heji">
+        <tr>
+          <td style="width: 164px;text-align: center;font-family: '楷体';">
+            <span class="width-lock">价税合计（大写）</span>
+          </td>
+          <td>
+            <span class="jshjZh text-black">{{info.jshjZh}}</span>
+            <span class="jshj">
+              <span>（小写）¥</span>
+              <span class="text-black">{{info.jshj}}</span>
+            </span>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="xfxx">
+      <table>
+        <tr>
+          <td width="20px" style="text-align: center">备注</td>
+          <td>
+            <span class="text-black bz" style="white-space: pre-wrap;">
+              <span>{{info.bz}}</span>
+              <div>{{info.skfhr}}</div>
+            </span>
+          </td>
+        </tr>
+      </table>
+      <div class="fpbtm">
+        <div class="info">开票人：<span class="text-black">{{info.kpr}}</span></div>
+      </div>
+    </div>
+  </div>
+</div>

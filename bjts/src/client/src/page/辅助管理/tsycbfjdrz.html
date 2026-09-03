@@ -1,0 +1,78 @@
+<div class="tsycbfjdrz">
+    <div class="pageTabs">
+        <div class="pageTitle">
+            退税预测不符接单日志
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']">
+        <div class="select-wrapper">
+            <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+            <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+            <div class="select-main">
+                <div class="select-item">
+                    <label title="纳税人标识">纳税人标识</label>
+                    <input type="text" ms-duplex="searchData.nsrbs">
+                </div>
+                <div class="select-item">
+                    <label title="纳税人税务机关">纳税人税务机关</label>
+                    <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree">
+                    <ul id="tsycbfjdrzZtree" class='ztree treeDiv' style="left: 90px;top:100%;"></ul>
+                </div>
+                <div class="select-item">
+                    <label title="统计年月">统计年月</label>
+                    <div class="select-item-inner">
+                        <select ms-duplex="@searchData.tjnd" style="width: 80px">
+                            <option ms-for="item in tjndList" ms-attr="{value:item}">{{item}}</option>
+                        </select>
+                        <span>年</span>
+                        <select ms-duplex="@searchData.tjyf" style="width: 60px">
+                            <option value="01">1</option>
+                            <option value="02">2</option>
+                            <option value="03">3</option>
+                            <option value="04">4</option>
+                            <option value="05">5</option>
+                            <option value="06">6</option>
+                            <option value="07">7</option>
+                            <option value="08">8</option>
+                            <option value="09">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                        </select>
+                        <span>月</span>
+                    </div>
+                </div>
+            </div>
+            <div class="select-sub">
+                <div class="select-item">
+                    <label title="退税计算方法">退税计算方法</label>
+                    <select ms-duplex="@searchData.tsjsfs">
+                        <option value=""></option>
+                        <option value="1">生产</option>
+                        <option value="2">外贸</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label title="处理动作">处理动作</label>
+                    <select ms-duplex="@searchData.cldz">
+                        <option value=""></option>
+                        <option value="0">放行</option>
+                        <option value="1">取消</option>
+                        <option value="2">退回</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 54px">
+            <table id="tsycbfjdrz-table"></table>
+            <div id="tsycbfjdrz-tablePager"></div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==3&&'active']">
+        <div class="chartDiv"></div>
+    </div>
+</div>

@@ -1,0 +1,101 @@
+<div class="wxxxMx" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            无信息申报数据查询 / 无信息申报明细
+        </div>
+        <!--<div class="btns">-->
+            <!--<div class="btn rt" ms-click="@printForm($event)">打印</div>-->
+        <!--</div>-->
+    </div>
+    <div class="page active">
+        <div class="form wxxxMx-form">
+            <table class="table">
+                <tr>
+                    <td class="title text-center" colspan="9">申报数据</td>
+                </tr>
+                <tr>
+                    <td style="width: 16%"  class="title text-center" colspan="2">申报日期起止</td>
+                    <td  style="width: 16%" class="text-left">{{form.firing}}</td>
+                    <td  style="width: 16%" class="title text-center"colspan="2">海关代码</td>
+                    <td  style="width: 16%" class="text-left">{{form.qydm}}</td>
+                    <td  style="width: 16%" class="title text-center"colspan="2">主管税务机关代码</td>
+                    <td  style="width: 20%" class="text-left">{{form.swcode}}</td>
+                </tr>
+                <tr>
+                    <td  class="title text-center" colspan="2">社会信用代码</td>
+                    <td  class="text-left">{{form.nsrdj_no}}</td>
+                    <td  class="title text-center" colspan="2">纳税人名称</td>
+                    <td  class="text-left">{{form.nsrmc}}</td>
+                    <td  class="title text-center" colspan="2">出口发票号码</td>
+                    <td  class="text-left">{{form.ckhw_wtzm_no}}</td>
+                </tr>
+                <tr>
+                    <td  style="width: 8%" class="title text-center" rowspan="2">出口报关单</td>
+                    <td  style="width: 8%" class="title text-center">号码</td>
+                    <td  class="text-left">{{form.bgd_no}}</td>
+                    <td  style="width: 8%" class="title text-center" rowspan="2">代理出口证明</td>
+                    <td  style="width: 8%" class="title text-center">号码</td>
+                    <td  class="text-left">{{form.ckhw_dlzm_no}}</td>
+                    <td  style="width: 8%" class="title text-center" rowspan="2">增值税进货凭证</td>
+                    <td  style="width: 8%" class="title text-center">号码</td>
+                    <td  class="text-left">{{form.pzhm}}</td>
+                </tr>
+                <tr>
+                    <td  class="title text-center">标识</td>
+                    <td  class="text-left">{{form.bgd_flag}}</td>
+                    <td  class="title text-center">标识</td>
+                    <td  class="text-left">{{form.ckhw_dlzm_flag}}</td>
+                    <td  class="title text-center">标识</td>
+                    <td  class="text-left">{{form.pzhm_flag}}</td>
+                </tr>
+                <tr>
+                    <td  class="title text-center"colspan="2">企业类型</td>
+                    <td  class="text-left">{{form.qylx}}</td>
+                    <td  class="title text-center"colspan="2">分类管理</td>
+                    <td  class="text-left">{{form.flglcd}}</td>
+                    <td  class="title text-center"colspan="2"></td>
+                    <td  class="text-left"></td>
+                </tr>
+            </table>
+            <table class="table">
+                <tr>
+                    <td class="title text-center" colspan="6">退税申报信息</td>
+                </tr>
+                <tr>
+                    <td style="width: 16%"  class="title text-center">申报标识</td>
+                    <td  style="width: 16%" class="text-left">{{form.sb_flag}}</td>
+                    <td  style="width: 16%" class="title text-center">申报日期</td>
+                    <td  style="width: 16%" class="text-left">{{form.firing}}</td>
+                    <td  style="width: 18%" class="title text-center">出口日期</td>
+                    <td  style="width: 18%" class="text-left">{{form.lj_date}}</td>
+                </tr>
+                <tr>
+                    <td  class="title text-center">美元离岸价</td>
+                    <td  class="text-right">{{form.usd_amt | number(2)}}</td>
+                    <td  class="title text-center">人民币金额</td>
+                    <td  class="text-right">{{form.rmb_amt | number(2)}}</td>
+                    <td  class="title text-center">计税金额</td>
+                    <td  class="text-right">{{form.jsje | number(2)}}</td>
+                </tr>
+                <tr>
+
+                    <td  class="title text-center">征税率</td>
+                    <td  class="text-left">{{form.zssl}}</td>
+                    <td  class="title text-center">征税税额</td>
+                    <td  class="text-right">{{form.zsse | number(2)}}</td>
+                    <td  class="title text-center">退税率</td>
+                    <td  class="text-left">{{form.tsl}}</td>
+                </tr>
+                <tr>
+                    <td  class="title text-center">可退税金额</td>
+                    <td  class="text-right">{{form.tse | number(2)}}</td>
+                    <td  class="title text-center"></td>
+                    <td  class="text-left"></td>
+                    <td  class="title text-center"></td>
+                    <td  class="text-left"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+</div>

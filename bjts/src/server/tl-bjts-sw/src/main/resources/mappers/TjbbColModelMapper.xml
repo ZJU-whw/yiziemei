@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tl.bjts.sw.dao.TjbbColModelMapper">
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.TjbbColModel">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" jdbcType="DECIMAL" property="id" />
+    <result column="BBDM" jdbcType="VARCHAR" property="bbdm" />
+    <result column="FNAME" jdbcType="VARCHAR" property="fname" />
+    <result column="CNAME" jdbcType="VARCHAR" property="cname" />
+    <result column="FNAMEHZ" jdbcType="VARCHAR" property="fnamehz" />
+    <result column="FTYPE" jdbcType="VARCHAR" property="ftype" />
+    <result column="MAXLEN" jdbcType="DECIMAL" property="maxlen" />
+    <result column="DEGREE" jdbcType="DECIMAL" property="degree" />
+    <result column="DEFVAL" jdbcType="VARCHAR" property="defval" />
+    <result column="NULLABLE" jdbcType="CHAR" property="nullable" />
+    <result column="FMT" jdbcType="VARCHAR" property="fmt" />
+    <result column="SHOWORDER" jdbcType="DECIMAL" property="showorder" />
+    <result column="XLSCOL" jdbcType="VARCHAR" property="xlscol" />
+    <result column="ALLOWUPDATE" jdbcType="CHAR" property="allowupdate" />
+    <result column="NOTE" jdbcType="VARCHAR" property="note" />
+    <result column="QYBJ" jdbcType="CHAR" property="qybj" />
+    <result column="ALIGN" jdbcType="CHAR" property="align" />
+    <result column="ALLOWFORMULA" jdbcType="CHAR" property="allowformula" />
+    <result column="ALLOWSUM" jdbcType="CHAR" property="allowsum" />
+    <result column="HZTYPE" jdbcType="CHAR" property="hztype" />
+    <result column="HZOBJ" jdbcType="VARCHAR" property="hzobj" />
+  </resultMap>
+</mapper>

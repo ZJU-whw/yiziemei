@@ -1,0 +1,108 @@
+<div class="hcglbj" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        单证备案-编辑核查任务(核查序号：{{@params.inspectNo}})
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <form name="hcgl-form">
+          <div class="select-wrapper" style="padding-bottom: 0;">
+              <div class="select-main">
+                <div class="select-item">
+                  <label title="社会信用码">社会信用码</label>
+                  <input disabled name="nsrsbh" type="text" ms-duplex="nsrxx.nsrsbh">
+                </div>
+                <div class="select-item">
+                  <label title="海关代码">海关代码</label>
+                  <input disabled name="qyhgdm" type="text" ms-duplex="nsrxx.qyhgdm">
+                </div>
+                <div class="select-item">
+                  <label title="退税方式">退税方式</label>
+                  <input disabled name="tsjsfsName" type="text" ms-duplex="nsrxx.tsjsfsName">
+                </div>
+                <div class="select-item">
+                  <label title="管理等级">管理等级</label>
+                  <input disabled name="gllb" type="text" ms-duplex="nsrxx.gllb">
+                </div>
+                <div class="select-item">
+                  <label title="纳税人名称">纳税人名称</label>
+                  <input disabled name="nsrmc" type="text" ms-duplex="nsrxx.nsrmc">
+                </div>
+                <div class="select-item">
+                  <label title="联系人">联系人</label>
+                  <input disabled name="lxr" type="text" ms-duplex="nsrxx.lxr">
+                </div>
+                <div class="select-item">
+                  <label title="企业地址">企业地址</label>
+                  <input disabled name="jydz" type="text" ms-duplex="nsrxx.jydz">
+                </div>
+                <div class="select-item">
+                  <label title="联系电话">联系电话</label>
+                  <input disabled name="lxrDh" type="text" ms-duplex="nsrxx.lxrDh">
+                </div>
+              </div>
+          </div>
+      </form>
+      <div class="form" style="float: left;width: 480px; padding-top: 76px;overflow: hidden;">
+        <div>
+          <div class="btn" ms-click="@add">添加批次及明细</div>
+          <span class="form-title" style="padding: 0 2px 0 0;">申报批次</span>
+          <select style="width: calc(100% - 174px);" ms-duplex="@searchData.sbnypc" data-duplex-changed="search">
+            <option value=""></option>
+            <option ms-for="item in @sbnypcList" ms-attr="{value:item.sbnypcCode}" >{{item.sbnypcName}}</option>
+          </select>
+        </div>
+        <table id="hcglbj-sbpc-table"></table>
+      </div>
+      <div class="shfz-center-btns"style="float: left;">
+        <div class="shfz-center-btn-inner">
+            <span class="shfz-center-btn__item toright" ms-click="addItem"></span>
+            <span class="shfz-center-btn__item toleft" ms-click="delItem"></span>
+        </div>
+      </div>
+      <div class="form" style="float: left;width: 480px; padding-top: 76px;;overflow: hidden">
+        <div class="form-title">待核查申报批次及出口业务</div>
+        <table id="hcglbj-dsbpc-table"></table>
+      </div>
+      <div class="dztype">
+        <div class="form-title" style="line-height: 22px;">核查单证类型</div>
+        <ul id="hcglbjTree" class='ztree treeDiv'></ul>
+      </div>
+  </div>
+  <div class="page-model page-model-pc" style="height: 450px;width: 1060px;margin-left: -530px;">
+    <div class="model-title">筛选批次</div>
+    <div class="model-content" style="height: 360px;">
+      <div class="select-wrapper">
+        <div class="reset" title="重置" ms-click="@resetPc">重置：</div>
+        <div class="select-main">
+          <div class="select-item w-30per">
+            <label title="申报业务种类">申报业务种类</label>
+            <select ms-duplex="@searchPcData.sbywzl" data-duplex-changed="getSbpcs">
+              <option ms-for="el in @sbywzlOption" ms-attr="{value: el.value}">{{el.name}}</option>
+            </select>
+          </div>
+          <div class="select-item w-30per">
+            <label title="申报年月">申报年月</label>
+            <input type="text" readonly class="datepicker date-month" name="date_field" ms-duplex="@searchPcData.sssq" data-duplex-changed="getSbpcs">
+          </div>
+          <div class="select-item w-20per">
+            <label title="申报批次">申报批次</label>
+            <select ms-duplex="@searchPcData.sbpc">
+              <option value=""></option>
+              <option ms-for="el in @sbpcList" ms-attr="{value: el.sbpc}">{{el.sbpc}}</option>
+            </select>
+          </div>
+          <div class="select-item" style="vertical-align: middle; margin-bottom: 10px;width: auto;">
+            <div class="btn" ms-click="searchPc(1)">查询</div>
+          </div>
+        </div>
+      </div>
+      <table id="hcglbj-pc-table"></table>
+      <div id="hcglbj-pc-tablePager"></div>
+    </div>
+    <div class="model-btns">
+      <div class="btn" ms-click="addPc">添加</div>
+      <div class="btn" ms-click="hideModel">取消</div>
+    </div>
+  </div>
+</div>

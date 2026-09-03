@@ -1,0 +1,77 @@
+<div class="hdsjtjMx">
+    <div class="pageTabs">
+        <div class="pageTitle">
+            函调数据查询
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@normalSearch()">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+            <div class="btn dropdown" ms-on-click="showMenu">
+                配置表格▼
+                <ul class="dropdown-menu">
+                    <li ms-for="(index,item) in @tableOption"><label><input type="checkbox"
+                                ms-duplex-checked="item.show"
+                                ms-on-click="@setTableOption(item,$event)">{{item.label}}</label></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']">
+        <form name="hdsjtjMx-form">
+            <div class="select-wrapper">
+                <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+                <div class="select-main">
+                    <div class="select-item" style="width: 25%;">
+                        <label title="查询单位">查询单位:</label>
+                        <input readonly type="text" ms-duplex="@tsjgmc" ms-click="@showTree" />
+                        <ul id="hdsjtjMxtree" class="ztree treeDiv" style="left: 90px"></ul>
+                    </div>
+                    <div class="select-item" style="width: 25%;">
+                        <label title="日期类型">日期类型</label>
+                        <select ms-duplex="@searchData.rqlx">
+                            <option value="0">发函日期</option>
+                            <option value="1">回函日期</option>
+                        </select>
+                    </div>
+                    <div class="select-item" style="width: 25%;">
+                        <label>查询期间起</label>
+                        <div class="select-item-inner">
+                            <input type="text" class="datepicker date-month" ms-duplex="@searchData.startDate | change"
+                                :on-change="@filMonth" />
+                            <span>止</span>
+                            <input type="text" class="datepicker date-month" ms-duplex="@searchData.endDate | change"
+                                :on-change="@filMonth" />
+                        </div>
+                    </div>
+                    
+                    <div class="select-item" style="width: 25%;">
+                        <label title="选中指标类型">选中指标类型</label>
+                        <select ms-duplex="@searchData.selectType">
+                            <option value="">　</option>
+                            <option value="0">发函数量</option>
+                            <option value="1">未回函数量</option>
+                            <option value="2">正常回函</option>
+                            <option value="3">异常回函</option>
+                            <option value="4">其他回函数量</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="select-sub">
+                    <div class="select-item" style="width: 25%;">
+                        <label title="企业税号">企业税号</label>
+                        <input class="width-l" type="text" ms-duplex="searchData.ghqynsrsbh">
+                    </div>
+                    <div class="select-item" style="width: 25%;">
+                        <label title="企业名称">企业名称</label>
+                        <input class="width-l" type="text" ms-duplex="searchData.ghfqymc">
+                    </div>
+                </div>
+
+            </div>
+        </form>
+        <div class="form" style="padding-top: 54px">
+            <table id="hdsjtjMx-table"></table>
+            <div id="hdsjtjMx-tablePager"></div>
+        </div>
+    </div>
+</div>

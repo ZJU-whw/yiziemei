@@ -1,0 +1,5 @@
+{
+  "svn.delete.ignoredRulesForDeletedFiles": [
+    "dist\\static\\pdfjs"
+  ]
+}

@@ -1,0 +1,254 @@
+<div class="wsbgdMx" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            未申报报关单查询 / 未申报报关单明细
+        </div>
+        <!--<div class="btns">-->
+            <!--<div class="btn rt" ms-click="@printForm($event)">打印</div>-->
+        <!--</div>-->
+    </div>
+    <div class="page active">
+        <div class="form wsbgdMx-form" style="padding-top: 0">
+            <table class="table">
+                <tr>
+                    <td style="width: 12.5%" class="title text-left">出口报关单号</td>
+                    <td style="width: 12.5%" class="text-left">{{form.bgd_no}}</td>
+                    <td style="width: 12.5%" class="title text-left">企业代码</td>
+                    <td style="width: 12.5%" class="text-left">{{form.qydm}}</td>
+                    <td style="width: 12.5%" class="title text-left">出口年度</td>
+                    <td style="width: 12.5%" class="text-left">{{form.ym}}</td>
+                    <td style="width: 12.5%" class="title text-left">出口日期</td>
+                    <td style="width: 12.5%" class="text-left">{{form.lj_date}}</td>
+                </tr>
+                <tr>
+                    <td class="title text-left">商品代码</td>
+                    <td class="text-left">{{form.cmcode}}</td>
+                    <td class="title text-left">原商品代码</td>
+                    <td class="text-left">{{form.cmcodez}}</td>
+                    <td class="title text-left">商品名称</td>
+                    <td class="text-left">{{form.cmname}}</td>
+                    <td class="title text-left">计量单位</td>
+                    <td class="text-left">{{form.cmunit}}</td>
+                </tr>
+                <tr>
+                    <td class="title text-left">出口国别码</td>
+                    <td class="text-left">{{form.gbcode	}}</td>
+                    <td class="title text-left">货源地代码</td>
+                    <td class="text-left">{{form.hzdwdqdm}}</td>
+                    <td class="title text-left">口岸代码</td>
+                    <td class="text-left">{{form.kacode}}</td>
+                    <td class="title text-left">原贸易方式</td>
+                    <td class="text-left">{{form.tdcodez}}</td>
+                </tr>
+                <tr>
+                    <td class="title text-left">贸易方式</td>
+                    <td class="text-left">{{form.tdcode}}</td>
+                    <td class="title text-left">原计量单位</td>
+                    <td class="text-left">{{form.dwcodez}}</td>
+                    <td class="title text-left">单位代码</td>
+                    <td class="text-left">{{form.dwcode}}</td>
+                    <td class="title text-left">第二单位转换</td>
+                    <td class="text-left">{{form.dwcode2z}}</td>
+                </tr>
+                <tr>
+                    <td class="title text-left">第二单位代码</td>
+                    <td class="text-left">{{form.dwcode2}}</td>
+                    <td class="title text-left">出口数量</td>
+                    <td class="text-left">{{form.bg_qnt}}</td>
+                    <td class="title text-left">第二出口数量</td>
+                    <td class="text-left">{{form.bg_qnt2}}</td>
+                    <td class="title text-left">人民币离岸价</td>
+                    <td class="text-right">{{form.rmb_amt | number(2)}}</td>
+                </tr>
+                <tr>
+                    <td class="title text-left">美元离岸价</td>
+                    <td class="text-right">{{form.usd_amt | number(2)}}</td>
+                    <td class="title text-left">原关别代码</td>
+                    <td class="text-left">{{form.hgcodez}}</td>
+                    <td class="title text-left">关别代码</td>
+                    <td class="text-left">{{form.hgcode}}</td>
+                    <td class="title text-left">成交币种</td>
+                    <td class="text-left">{{form.cjbz}}</td>
+                </tr>
+                <tr>
+                    <td class="title text-left">成交总价</td>
+                    <td class="text-right">{{form.cjzj| number(2)}}</td>
+                    <td class="title text-left">经营单位名称</td>
+                    <td class="text-left">{{form.jydwmc}}</td>
+                    <td class="title text-left">运输方式</td>
+                    <td class="text-left">{{form.ysfs}}</td>
+                    <td class="title text-left">提货单号</td>
+                    <td class="text-left">{{form.tydh}}</td>
+                </tr>
+                <tr>
+                    <td class="title text-left">征免性质</td>
+                    <td class="text-left">{{form.zmxz}}</td>
+                    <td class="title text-left">结汇方式</td>
+                    <td class="text-left">{{form.jhfs}}</td>
+                    <td class="title text-left">许可证号</td>
+                    <td class="text-left">{{form.xkzh}}</td>
+                    <td class="title text-left">指运港</td>
+                    <td class="text-left">{{form.zyg}}</td>
+                </tr>
+                <tr>
+                    <td class="title text-left">成交方式</td>
+                    <td class="text-left">{{form.cjfs}}</td>
+                    <td class="title text-left">运费标志</td>
+                    <td class="text-left">{{form.yf_flag}}</td>
+                    <td class="title text-left">运费币种</td>
+                    <td class="text-left">{{form.yfbz}}</td>
+                    <td class="title text-left">运费汇率</td>
+                    <td class="text-left">{{form.yfl}}</td>
+                </tr>
+                <tr>
+                    <td class="title text-left">保费标志</td>
+                    <td class="text-left">{{form.bf_flag}}</td>
+                    <td class="title text-left">保费币种</td>
+                    <td class="text-left">{{form.bfbz}}</td>
+                    <td class="title text-left">保费汇率</td>
+                    <td class="text-left">{{form.bfl}}</td>
+                </tr>
+                <tr>
+                    <td class="title text-left">杂费标志</td>
+                    <td class="text-left">{{form.zf_flag}}</td>
+                    <td class="title text-left">杂费币种</td>
+                    <td class="text-left">{{form.zfbz}}</td>
+                    <td class="title text-left">杂费汇率</td>
+                    <td class="text-left">{{form.zfl}}</td>
+                    <td class="title text-left">合同协议号</td>
+                    <td class="text-left">{{form.htxy_no}}</td>
+                </tr>
+                <tr>
+                    <td class="title text-left">备案号</td>
+                    <td class="text-left">{{form.ba_no}}</td>
+                    <td class="title text-left">行政区别</td>
+                    <td class="text-left">{{form.xzqh}}</td>
+                    <td class="title text-left">核销单号</td>
+                    <td class="text-left">{{form.hxd_no}}</td>
+                    <td class="title text-left">数据中心编号</td>
+                    <td class="text-left">{{form.sjzxtybh}}</td>
+                </tr>
+                <tr>
+                    <td class="title text-left">申报单位代码</td>
+                    <td class="text-left">{{form.sbdwdm}}</td>
+                    <td class="title text-left">申报单位名称</td>
+                    <td class="text-left">{{form.sbdwmc}}</td>
+                    <td class="title text-left">生产销售单位</td>
+                    <td class="text-left">{{form.hzdwmc}}</td>
+                    <td class="title text-left">商品规格型号</td>
+                    <td class="text-left">{{form.spggxh	}}</td>
+                </tr>
+                <tr>
+                    <td class="title text-left">最终目的国</td>
+                    <td class="text-left">{{form.zzmdg}}</td>
+                    <td class="title text-left">申报计量单位</td>
+                    <td class="text-left">{{form.sbjldw}}</td>
+                    <td class="title text-left">申报数量</td>
+                    <td class="text-left">{{form.sb_qnt}}</td>
+                    <td class="title text-left">申报单价</td>
+                    <td class="text-right">{{form.sb_dj	 | number(2)}}</td>
+                </tr>
+                <tr>
+                    <td class="title text-left">申报日期</td>
+                    <td class="text-left">{{form.sb_date}}</td>
+                    <td class="title text-left">测算退税率</td>
+                    <td class="text-left">{{form.tsl}}</td>
+                    <td class="title text-left">测算退增值税</td>
+                    <td class="text-right">{{form.zzs_amt| number(2)}}</td>
+                    <td class="title text-left">测算退消费税</td>
+                    <td class="text-right">{{form.xfs_amt | number(2)}}</td>
+                </tr>
+                <tr>
+                    <td class="title text-left">关联项号</td>
+                    <td class="text-left">{{form.sb_ym_no}}</td>
+                    <td class="title text-left">包装种类</td>
+                    <td class="text-left">{{form.bz_zl}}</td>
+                    <td class="title text-left">货主单位代码</td>
+                    <td class="text-left">{{form.hzdw_dm}}</td>
+                    <td class="title text-left">件数</td>
+                    <td class="text-left">{{form.js}}</td>
+                </tr>
+                <tr>
+                    <td class="title text-left">毛重</td>
+                    <td class="text-left">{{form.mz}}</td>
+                    <td class="title text-left">净重</td>
+                    <td class="text-left">{{form.jz}}</td>
+                    <td class="title text-left">退税申报数量</td>
+                    <td class="text-left">{{form.tssb_qnt}}</td>
+                    <td class="title text-left">退税申报金额（人名币）</td>
+                    <td class="text-right">{{form.tssb_rmb_amt | number(2)}}</td>
+                </tr>
+                <tr>
+                    <td class="title text-left">退税申报金额（美元）</td>
+                    <td class="text-right">{{form.tssb_usd_amt | number(2)}}</td>
+                    <td class="title text-left">代理申报数量</td>
+                    <td class="text-left">{{form.dlsb_qnt}}</td>
+                    <td class="title text-right">代理申报金额（人名币）</td>
+                    <td class="text-left">{{form.dlsb_rmb_amt | number(2)}}</td>
+                    <td class="title text-left">代理申报金额（美元）</td>
+                    <td class="text-right">{{form.dlsb_usd_amt | number(2)}}</td>
+                </tr>
+                <tr>
+                    <td class="title text-left">退运申报数量</td>
+                    <td class="text-left">{{form.tysb_qnt}}</td>
+                    <td class="title text-left">退运申报金额（人名币）</td>
+                    <td class="text-right">{{form.tysb_rmb_amt | number(2)}}</td>
+                    <td class="title text-left">退运申报金额（美元）</td>
+                    <td class="text-right">{{form.tysb_usd_amt | number(2)}}</td>
+                    <td class="title text-left">海关名称1</td>
+                    <td class="text-left">{{form.hgcmname_1}}</td>
+                </tr>
+                <tr>
+                    <td class="title text-left">报关日期</td>
+                    <td class="text-left">{{form.bg_date}}</td>
+                    <td class="title text-left">已查询标识</td>
+                    <td class="text-left">{{form.cx_flag}}</td>
+                    <td class="title text-left">已分解标识</td>
+                    <td class="text-left">{{form.fj_flag}}</td>
+                    <td class="title text-left">标识</td>
+                    <td class="text-left">{{form.flag}}</td>
+                </tr>
+                <tr>
+                    <td class="title text-left">系统保留标识</td>
+                    <td class="text-left">{{form.rsv_flag}}</td>
+                    <td class="title text-left">审核区号</td>
+                    <td class="text-left">{{form.shq_no}}</td>
+                    <td class="title text-left">读入日期</td>
+                    <td class="text-left">{{form.readin_date}}</td>
+                    <td class="title text-left">数据标志38</td>
+                    <td class="text-left">{{form.flag_38}}</td>
+                </tr>
+                <tr>
+                    <td class="title text-left">数据标志001</td>
+                    <td class="text-left">{{form.flag_001}}</td>
+                    <td class="title text-left">数据标志002</td>
+                    <td class="text-left">{{form.flag_002}}</td>
+                    <td class="title text-left">数据来源</td>
+                    <td class="text-left">{{form.sjly_flag}}</td>
+                    <td class="title text-left">运输工具名称</td>
+                    <td class="text-left">{{form.transport_name}}</td>
+                </tr>
+                <tr>
+                    <td class="title text-left">海关名称</td>
+                    <td class="text-left">{{form.hgcmname}}</td>
+                    <td class="title text-left">未到港标识</td>
+                    <td class="text-left">{{form.exp_flag}}</td>
+                    <td class="title text-left">撤销标识</td>
+                    <td class="text-left">{{form.del_flag}}</td>
+                    <td class="title text-left">税务代码</td>
+                    <td class="text-left">{{form.swcode}}</td>
+                </tr>
+                <tr>
+                    <td class="title text-left">代理证明挑过标志</td>
+                    <td class="text-left">{{form.dlzm_tg_flag}}</td>
+                    <td class="title text-left">退运挑过标志</td>
+                    <td class="text-left">{{form.tzzm_tg_flag}}</td>
+                    <td class="title text-left">不可退税标志</td>
+                    <td class="text-left">{{form.byts_flag}}</td>
+                    <td class="title text-left"></td>
+                    <td class="text-left"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

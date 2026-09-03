@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.GcMtsTshzbModelMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.GcMtsTshzbModel" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="UUID" property="UUID" jdbcType="VARCHAR" />
+    <result column="LCSLID" property="LCSLID" jdbcType="VARCHAR" />
+    <result column="NO_1" property="NO_1" jdbcType="DECIMAL" />
+    <result column="RQ" property="RQ" jdbcType="DATE" />
+    <result column="CPCODE" property="CPCODE" jdbcType="VARCHAR" />
+    <result column="SB_YM" property="SB_YM" jdbcType="VARCHAR" />
+    <result column="SB_PC" property="SB_PC" jdbcType="VARCHAR" />
+    <result column="CKSQB_NUM" property="CKSQB_NUM" jdbcType="DECIMAL" />
+    <result column="CKJL_NUM" property="CKJL_NUM" jdbcType="DECIMAL" />
+    <result column="INV_NUM" property="INV_NUM" jdbcType="DECIMAL" />
+    <result column="CK_AMT" property="CK_AMT" jdbcType="DECIMAL" />
+    <result column="BGD_NUM" property="BGD_NUM" jdbcType="DECIMAL" />
+    <result column="DLZM_NUM" property="DLZM_NUM" jdbcType="DECIMAL" />
+    <result column="HXD_NUM" property="HXD_NUM" jdbcType="DECIMAL" />
+    <result column="SH_AMT" property="SH_AMT" jdbcType="DECIMAL" />
+    <result column="YQ_NUM" property="YQ_NUM" jdbcType="DECIMAL" />
+    <result column="QTCK_NUM" property="QTCK_NUM" jdbcType="DECIMAL" />
+    <result column="JHSQB_NUM" property="JHSQB_NUM" jdbcType="DECIMAL" />
+    <result column="JHJL_NUM" property="JHJL_NUM" jdbcType="DECIMAL" />
+    <result column="ZYSP_NUM" property="ZYSP_NUM" jdbcType="DECIMAL" />
+    <result column="ZYFP_NUM" property="ZYFP_NUM" jdbcType="DECIMAL" />
+    <result column="FSKFP_NUM" property="FSKFP_NUM" jdbcType="DECIMAL" />
+    <result column="NXDKFP_NUM" property="NXDKFP_NUM" jdbcType="DECIMAL" />
+    <result column="BTSFP_NUM" property="BTSFP_NUM" jdbcType="DECIMAL" />
+    <result column="PTFP_NUM" property="PTFP_NUM" jdbcType="DECIMAL" />
+    <result column="QTJH_NUM" property="QTJH_NUM" jdbcType="DECIMAL" />
+    <result column="AMT" property="AMT" jdbcType="DECIMAL" />
+    <result column="SE" property="SE" jdbcType="DECIMAL" />
+    <result column="ZZS_SE" property="ZZS_SE" jdbcType="DECIMAL" />
+    <result column="XFS_SE" property="XFS_SE" jdbcType="DECIMAL" />
+    <result column="TS_AMT" property="TS_AMT" jdbcType="DECIMAL" />
+    <result column="ZZS_TS_AMT" property="ZZS_TS_AMT" jdbcType="DECIMAL" />
+    <result column="XFS_TS_AMT" property="XFS_TS_AMT" jdbcType="DECIMAL" />
+    <result column="DLCK_NUM" property="DLCK_NUM" jdbcType="DECIMAL" />
+    <result column="DLCK_REC" property="DLCK_REC" jdbcType="DECIMAL" />
+    <result column="DLJK_NUM" property="DLJK_NUM" jdbcType="DECIMAL" />
+    <result column="DLJK_REC" property="DLJK_REC" jdbcType="DECIMAL" />
+    <result column="JLJG_NUM" property="JLJG_NUM" jdbcType="DECIMAL" />
+    <result column="JLJG_REC" property="JLJG_REC" jdbcType="DECIMAL" />
+    <result column="YDK_AMT" property="YDK_AMT" jdbcType="DECIMAL" />
+    <result column="ZNX_NUM" property="ZNX_NUM" jdbcType="DECIMAL" />
+    <result column="ZNX_REC" property="ZNX_REC" jdbcType="DECIMAL" />
+    <result column="LLJG_NUM" property="LLJG_NUM" jdbcType="DECIMAL" />
+    <result column="LLJG_REC" property="LLJG_REC" jdbcType="DECIMAL" />
+    <result column="BBGD_NUM" property="BBGD_NUM" jdbcType="DECIMAL" />
+    <result column="BBGD_REC" property="BBGD_REC" jdbcType="DECIMAL" />
+    <result column="BHXD_NUM" property="BHXD_NUM" jdbcType="DECIMAL" />
+    <result column="BHXD_REC" property="BHXD_REC" jdbcType="DECIMAL" />
+    <result column="BDLZM_NUM" property="BDLZM_NUM" jdbcType="DECIMAL" />
+    <result column="BDLZM_REC" property="BDLZM_REC" jdbcType="DECIMAL" />
+    <result column="DZ1_NUM" property="DZ1_NUM" jdbcType="DECIMAL" />
+    <result column="DZ1_REC" property="DZ1_REC" jdbcType="DECIMAL" />
+    <result column="DZ2_NUM" property="DZ2_NUM" jdbcType="DECIMAL" />
+    <result column="DZ2_REC" property="DZ2_REC" jdbcType="DECIMAL" />
+    <result column="NOTE" property="NOTE" jdbcType="VARCHAR" />
+    <result column="FLAG" property="FLAG" jdbcType="VARCHAR" />
+    <result column="OP_USER" property="OP_USER" jdbcType="VARCHAR" />
+    <result column="OP_DATE" property="OP_DATE" jdbcType="DATE" />
+    <result column="QR_USER" property="QR_USER" jdbcType="VARCHAR" />
+    <result column="QR_DATE" property="QR_DATE" jdbcType="DATE" />
+    <result column="ZZJK_NUM" property="ZZJK_NUM" jdbcType="DECIMAL" />
+    <result column="XFJK_NUM" property="XFJK_NUM" jdbcType="DECIMAL" />
+    <result column="FPD_NUM" property="FPD_NUM" jdbcType="DECIMAL" />
+    <result column="BYSS_AMT" property="BYSS_AMT" jdbcType="DECIMAL" />
+    <result column="BNSS_AMT" property="BNSS_AMT" jdbcType="DECIMAL" />
+    <result column="BYZZ_AMT" property="BYZZ_AMT" jdbcType="DECIMAL" />
+    <result column="BNZZ_AMT" property="BNZZ_AMT" jdbcType="DECIMAL" />
+    <result column="BYXF_AMT" property="BYXF_AMT" jdbcType="DECIMAL" />
+    <result column="BNXF_AMT" property="BNXF_AMT" jdbcType="DECIMAL" />
+    <result column="LLJGHX_NUM" property="LLJGHX_NUM" jdbcType="DECIMAL" />
+    <result column="LLJGHX_REC" property="LLJGHX_REC" jdbcType="DECIMAL" />
+    <result column="TGBS_NUM" property="TGBS_NUM" jdbcType="DECIMAL" />
+    <result column="TGBS_REC" property="TGBS_REC" jdbcType="DECIMAL" />
+    <result column="HJCP_NUM" property="HJCP_NUM" jdbcType="DECIMAL" />
+    <result column="HJCP_REC" property="HJCP_REC" jdbcType="DECIMAL" />
+    <result column="AMT_HW" property="AMT_HW" jdbcType="DECIMAL" />
+    <result column="AMT_FW" property="AMT_FW" jdbcType="DECIMAL" />
+    <result column="ZZS_SE_HW" property="ZZS_SE_HW" jdbcType="DECIMAL" />
+    <result column="ZZS_SE_FW" property="ZZS_SE_FW" jdbcType="DECIMAL" />
+    <result column="ZZS_TS_HW" property="ZZS_TS_HW" jdbcType="DECIMAL" />
+    <result column="ZZS_TS_FW" property="ZZS_TS_FW" jdbcType="DECIMAL" />
+    <result column="BYZZ_HW" property="BYZZ_HW" jdbcType="DECIMAL" />
+    <result column="BYZZ_FW" property="BYZZ_FW" jdbcType="DECIMAL" />
+    <result column="BNZZ_HW" property="BNZZ_HW" jdbcType="DECIMAL" />
+    <result column="BNZZ_FW" property="BNZZ_FW" jdbcType="DECIMAL" />
+    <result column="SWCODE" property="SWCODE" jdbcType="VARCHAR" />
+    <result column="BG_USER" property="BG_USER" jdbcType="VARCHAR" />
+    <result column="BG_DATE" property="BG_DATE" jdbcType="DATE" />
+    <result column="IS_WZH" property="IS_WZH" jdbcType="VARCHAR" />
+    <result column="FLGLCD" property="FLGLCD" jdbcType="VARCHAR" />
+  </resultMap>
+</mapper>

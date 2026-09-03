@@ -1,0 +1,176 @@
+.bgd-detail .bgd-modal {
+  width: 100%;
+  height: 100%;
+  background: #000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  opacity: 0.5;
+  z-index: 340;
+}
+
+.bgd-detail .bgd-ct {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  border-radius: 5px;
+  background: #ffffff;
+  z-index: 350;
+  width: 1120px;
+  margin-left: -560px;
+  height: 540px;
+  margin-top: -270px;
+  display: block;
+}
+
+.bgd-detail .bgd-ct .model-title {
+  position: relative;
+  height: 30px;
+  line-height: 30px;
+  font-size: 16px;
+  padding-left: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.bgd-detail .bgd-ct .model-title h3 {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 20px;
+}
+
+.bgd-detail .bgd-ct .model-title .model-close {
+  position: absolute;
+  top: 2px;
+  right: 10px;
+  width: 20px;
+  height: 20px;
+  line-height: 19px;
+  text-align: center;
+  background: #ccc;
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.bgd-detail .bgd-ct .model-title .model-close:hover {
+  background: red;
+}
+
+.bgd-detail .bgd-ct .model-content {
+  overflow: auto;
+  padding: 10px;
+  box-shadow: none;
+  height: calc(100% - 70px);
+}
+
+.bgd-detail .bgd-ct .model-content .text-center {
+  text-align: center;
+}
+
+.bgd-detail .bgd-ct .model-content .row {
+  margin: 0;
+}
+
+.bgd-detail .bgd-ct .model-content .col-xs-1 {
+  width: 8.33%;
+  display: inline-block;
+}
+
+.bgd-detail .bgd-ct .model-content .col-xs-2 {
+  width: 16.66%;
+  display: inline-block;
+}
+
+.bgd-detail .bgd-ct .model-content .col-xs-3 {
+  width: 25%;
+  display: inline-block;
+}
+
+.bgd-detail .bgd-ct .model-content .col-xs-4 {
+  width: 33.33%;
+  display: inline-block;
+}
+
+.bgd-detail .bgd-ct .model-content .col-xs-8 {
+  width: 66.66%;
+  display: inline-block;
+}
+
+.bgd-detail .bgd-ct .model-content .col-xs-9 {
+  width: 75%;
+  display: inline-block;
+}
+
+.bgd-detail .bgd-ct .model-content .col-xs-12 {
+  width: 100%;
+  display: inline-block;
+}
+
+.bgd-detail .bgd-ct .model-content .col-xs-1,
+.bgd-detail .bgd-ct .model-content .col-xs-2,
+.bgd-detail .bgd-ct .model-content .col-xs-3,
+.bgd-detail .bgd-ct .model-content .col-xs-4,
+.bgd-detail .bgd-ct .model-content .col-xs-8,
+.bgd-detail .bgd-ct .model-content .col-xs-9,
+.bgd-detail .bgd-ct .model-content .col-xs-12 {
+  float: left;
+}
+
+.bgd-detail .bgd-ct .model-content .row .col {
+  padding: 0;
+}
+
+.bgd-detail .bgd-ct .model-content .preview-table thead,
+.bgd-detail .bgd-ct .model-content .preview-table tr {
+  border: 1px solid #333;
+  margin-top: -1px;
+}
+
+.bgd-detail .bgd-ct .model-content .preview-title-left {
+  text-align: left;
+  font-size: 14px;
+}
+
+.bgd-detail .bgd-ct .model-content .preview-title-right {
+  text-align: right;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.bgd-detail .bgd-ct .model-content .wrapper {
+  position: relative;
+  width: 100%;
+  height: 40px;
+  border-top: 1px solid #333;
+  border-left: 1px solid #333;
+  overflow: hidden;
+}
+
+.bgd-detail .bgd-ct .model-content .wrapper .preview-title {
+  position: absolute;
+  top: 0;
+  left: 4px;
+  font-size: 12px;
+}
+
+.bgd-detail .bgd-ct .model-content .wrapper .preview-content {
+  display: block;
+  padding: 15px 0 5px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.bgd-detail .bgd-ct .model-content .wrapper.last-child {
+  border-right: 1px solid #333;
+}
+
+.bgd-detail .bgd-ct .model-content .preview-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bgd-detail .bgd-ct .model-content .preview-table .bgd-mx-num {
+  text-align: right;
+  padding-right: 15px;
+}

@@ -1,0 +1,316 @@
+<div class="atfxqyjcxx">
+  <div class="form qyjcxxMx-form pt-0">
+    <table class="table qyjcxxMx-table mb-0">
+      <tr>
+        <td class="text-center title" colspan="8">企业基本情况</td>
+      </tr>
+      <tr>
+        <td style="width: 15%" class="title">统一社会信用代码</td>
+        <td style="width: 35%" colspan="3">{{info.shxydm}}
+        </td>
+        <td style="width: 15%" class="title">纳税人名称</td>
+        <td style="width: 35%" colspan="3">{{info.nsrmc}}
+          <span ms-if="isShow('nsrmc')" ms-mouseenter="showUniversalPopoverHandler($event, 'nsrmc')"
+            ms-mouseleave="hideUniversalPopover" class="linktext">{{getNum('nsrmc')}}</span>
+        </td>
+      </tr>
+      <tr>
+        <td style="width: 15%" class="title">海关企业代码</td>
+        <td style="width: 35%" colspan="3">{{info.hgqyDm}}
+        </td>
+        <td style="width: 15%" class="title">登记注册类型</td>
+        <td style="width: 35%" colspan="3">{{info.djzclxDm}}
+          <span ms-if="isShow('djzclxDm')" ms-mouseenter="showUniversalPopoverHandler($event, 'djzclxDm')"
+            ms-mouseleave="hideUniversalPopover" class="linktext">{{getNum('djzclxDm')}}</span>
+        </td>
+      </tr>
+      <tr>
+        <td style="width: 15%" class="title">出口退税企业类型</td>
+        <td style="width: 35%" colspan="3">{{info.cktsqylxDm}}
+          <span ms-if="isShow('cktsqylxDm')" ms-mouseenter="showUniversalPopoverHandler($event, 'cktsqylxDm')"
+            ms-mouseleave="hideUniversalPopover" class="linktext">{{getNum('cktsqylxDm')}}</span>
+        </td>
+        <td style="width: 15%" class="title">出口货物退(免)税计算方法</td>
+        <td style="width: 35%" colspan="3">{{info.ckhwtmsjsffDm}}
+          <span ms-if="isShow('ckhwtmsjsffDm')" ms-mouseenter="showUniversalPopoverHandler($event, 'ckhwtmsjsffDm')"
+            ms-mouseleave="hideUniversalPopover" class="linktext">{{getNum('ckhwtmsjsffDm')}}</span>
+        </td>
+      </tr>
+      <tr>
+        <td style="width: 15%" class="title" ms-mouseenter="showUniversalPopoverHandler($event, 'businessAddress')"
+          ms-mouseleave="hideUniversalPopover">注册地址</td>
+        <td style="width: 35%" colspan="3">{{info.zcdz}}
+          <span ms-if="isShow('zcdz')" ms-mouseenter="showUniversalPopoverHandler($event, 'zcdz')"
+            ms-mouseleave="hideUniversalPopover" class="linktext">{{getNum('zcdz')}}</span>
+        </td>
+        <td style="width: 15%" class="title">生产经营地址</td>
+        <td style="width: 35%" colspan="3">{{info.scjydz}}
+          <span ms-if="isShow('scjydz')" ms-mouseenter="showUniversalPopoverHandler($event, 'scjydz')"
+            ms-mouseleave="hideUniversalPopover" class="linktext">{{getNum('scjydz')}}</span>
+        </td>
+      </tr>
+      <tr>
+        <td style="width: 15%" class="title">经营范围</td>
+        <td style="width: 35%" colspan="7">
+          <div>{{info.jyfw}}
+            <span ms-if="isShow('jyfw')" ms-mouseenter="showUniversalPopoverHandler($event, 'jyfw')"
+              ms-mouseleave="hideUniversalPopover" class="linktext">{{getNum('jyfw')}}</span>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td style="width: 15%" class="title">开业(设立)日期</td>
+        <td style="width: 35%" colspan="3">{{info.djrq}}
+        </td>
+        <td style="width: 15%" class="title">出口退(免)税资格备案时间</td>
+        <td style="width: 35%" colspan="3">{{info.barq}}
+        </td>
+      </tr>
+      <tr>
+        <td style="width: 15%" class="title">一般纳税人认定时间</td>
+        <td style="width: 35%" colspan="3">{{info.ybnsrrdsj }}
+          <span ms-if="isShow('ybnsrrdsj')" ms-mouseenter="showUniversalPopoverHandler($event, 'ybnsrrdsj')"
+            ms-mouseleave="hideUniversalPopover" class="linktext">{{getNum('ybnsrrdsj')}}</span>
+        </td>
+        <td style="width: 15%" class="title">首次出口日期</td>
+        <td style="width: 35%" colspan="3">{{info.scckrq}}
+        </td>
+      </tr>
+      <tr>
+        <td style="width: 15%" class="title">登记从业人数</td>
+        <td style="width: 35%" colspan="3">{{info.cyrs}}
+          <span ms-if="isShow('cyrs')" ms-mouseenter="showUniversalPopoverHandler($event, 'cyrs')"
+            ms-mouseleave="hideUniversalPopover" class="linktext">{{getNum('cyrs')}}</span>
+        </td>
+        <td style="width: 15%" class="title">首次退税申报日期</td>
+        <td style="width: 35%" colspan="3">{{info.sctssbrq}}
+        </td>
+      </tr>
+      <tr>
+        <td style="width: 16%" class="title">法定代表人身份证件类型代码</td>
+        <td style="width: 34%" colspan="3">{{info.fddbrsfzjlxDm}}
+          <span ms-if="isShow('fddbrsfzjlxDm')" ms-mouseenter="showUniversalPopoverHandler($event, 'fddbrsfzjlxDm')"
+            ms-mouseleave="hideUniversalPopover" class="linktext">{{getNum('fddbrsfzjlxDm')}}</span>
+        </td>
+        <td style="width: 16%" class="title">财务负责人身份证件种类代码</td>
+        <td style="width: 34%" colspan="3">{{info.cwfzrsfzjzlDm}}
+          <span ms-if="isShow('cwfzrsfzjzlDm')" ms-mouseenter="showUniversalPopoverHandler($event, 'cwfzrsfzjzlDm')"
+            ms-mouseleave="hideUniversalPopover" class="linktext">{{getNum('cwfzrsfzjzlDm')}}</span>
+        </td>
+      </tr>
+      <tr>
+        <td style="width: 15%" class="title">法定代表人身份证号码</td>
+        <td style="width: 35%" colspan="3">{{info.fddbrsfzjhm}}
+          <span ms-if="isShow('fddbrsfzjhm')" ms-mouseenter="showUniversalPopoverHandler($event, 'fddbrsfzjhm')"
+            ms-mouseleave="hideUniversalPopover" class="linktext">{{getNum('fddbrsfzjhm')}}</span>
+        </td>
+        <td style="width: 15%" class="title">财务负责人身份证件号码</td>
+        <td style="width: 35%" colspan="3">{{info.cwfzrsfzjhm}}
+          <span ms-if="isShow('cwfzrsfzjhm')" ms-mouseenter="showUniversalPopoverHandler($event, 'cwfzrsfzjhm')"
+            ms-mouseleave="hideUniversalPopover" class="linktext">{{getNum('cwfzrsfzjhm')}}</span>
+        </td>
+      </tr>
+      <tr>
+        <td style="width: 15%" class="title">法定代表人姓名</td>
+        <td style="width: 35%" colspan="3">{{info.fddbrxm}}
+          <span ms-if="isShow('fddbrxm')" ms-mouseenter="showUniversalPopoverHandler($event, 'fddbrxm')"
+            ms-mouseleave="hideUniversalPopover" class="linktext">{{getNum('fddbrxm')}}</span>
+        </td>
+        <td style="width: 15%" class="title">财务负责人姓名</td>
+        <td style="width: 35%" colspan="3">{{info.cwfzrxm}}
+          <span ms-if="isShow('cwfzrxm')" ms-mouseenter="showUniversalPopoverHandler($event, 'cwfzrxm')"
+            ms-mouseleave="hideUniversalPopover" class="linktext">{{getNum('cwfzrxm')}}</span>
+        </td>
+      </tr>
+      <tr>
+        <td style="width: 15%" class="title">纳税人状态</td>
+        <td style="width: 35%" colspan="3">{{info.nsrztDm}}
+        </td>
+        <td style="width: 15%" class="title">出口退税分类管理等级</td>
+        <td style="width: 35%" colspan="3">{{info.flgldj}}
+          <span ms-if="isShow('flgldj')" ms-mouseenter="showUniversalPopoverHandler($event, 'flgldj')"
+            ms-mouseleave="hideUniversalPopover" class="linktext">{{getNum('flgldj')}}</span>
+        </td>
+      </tr>
+    </table>
+
+    <table class="table qyjcxxMx-table mb-0 mt--1"  ms-if="bgdTableV">
+      <tr>
+        <td style="width: 16%" class="title">股东信息</td>
+        <td style="width: 84%" colspan="5">{{info.zdgdXm}} <span
+            ms-if="info.gdxxAllSize>0">({{info.gdxxAllSize}})</span><span ms-if="info.gdxxAllSize>0" class="linktext"
+            ms-click="changTable('showAllgd','bgdTableV')">{{showAllgd?'收起':'展开'}}</span> </td>
+      </tr>
+      <tr ms-if="showAllgd">
+        <td class="title">投资方或合伙人证件类型</td>
+        <td class="title">证件号码</td>
+        <td class="title">投资方或合伙人名称</td>
+        <td style="text-align: right;" class="title">投资比例</td>
+        <td class="title">投资方国家或地区</td>
+        <td class="title">投资方经济性质</td>
+      </tr>
+      <tr ms-if="showAllgd" ms-for="item in showAllgdList">
+        <td>{{item.tzfhhhrzjzlDm}}</td>
+        <td>{{item.tzfhhhrzjhm}}</td>
+        <td>{{item.tzfhhhrmc}}</td>
+        <td style="text-align: right;">{{item.tzbl}}</td>
+        <td>{{item.gjhdqszMc}}</td>
+        <td>{{item.tzfjjxzMc}}</td>
+      </tr>
+    </table>
+    <table class="table qyjcxxMx-table mb-0 mt--1" ms-if="jcxxTableV">
+      <tr>
+        <td style="width: 16%" class="title">基础信息变更记录汇总</td>
+        <td style="width: 84%" colspan="3"><span ms-if="info.bgjlAllSize>0">登记、备案变更合计次数：{{info.bgjlAllSize}}</span> <span class="linktext" ms-if="info.bgjlAllSize>0"
+            ms-click="changTable('showAllJcxx','jcxxTableV')">{{showAllJcxx?'收起':'展开'}}</span> </td>
+      </tr>
+      <tr ms-if="showAllJcxx">
+        <td class="title">变更日期</td>
+        <td class="title">变更项目</td>
+        <td class="title">变更前内容</td>
+        <td class="title">变更后内容</td>
+      </tr>
+      <tr ms-if="showAllJcxx"  ms-for="item in showAllJcxxList">
+        <td>{{item.lrrq}}</td>
+        <td>{{item.bgxmmc}}</td>
+        <td>{{item.bgqnr}}</td>
+        <td>{{item.bghnr}}</td>
+      </tr>
+    </table>
+    <table class="table qyjcxxMx-table mb-0 mt--1" ms-if="syTableV">
+      <tr>
+        <td style="width: 16%" class="title">"三员"关联企业信息</td>
+        <td style="width: 84%" colspan="11"> <span ms-if="info.syglAllSize>0">关联企业数量：{{info.syglAllSize}}</span><span  ms-if="info.syglAllSize>0" class="linktext"
+            ms-click="changTable('showAllSy','syTableV')">{{showAllSy?'收起':'展开'}}</span> </td>
+      </tr>
+      <tr ms-if="showAllSy">
+        <td class="title">社会信用代码</td>
+        <td class="title">纳税人名称</td>
+        <td class="title">关联关系</td>
+        <td class="title">登记机关代码</td>
+        <td style="text-align: center;" class="title">登记日期</td>
+        <td class="title" style="text-align: center;">一般纳税人认定日期</td>
+        <td class="title">纳税人状态</td>
+        <td class="title">备案日期</td>
+        <td class="title">分类管理等级</td>
+        <td class="title" style="text-align: center;">备案撤回日期</td>
+        <td class="title" style="text-align: center;">注销日期</td>
+      </tr>
+      <tr ms-if="showAllSy" ms-for="item in showAllSyList">
+        <td>{{item.glqyShxydm}}</td>
+        <td>{{item.glqyNsrmc}}</td>
+        <td>{{item.gllxDm}}</td>
+        <td>{{item.glqyDjjgDm}}</td>
+        <td style="text-align: center;">{{item.glqyDjrq}}</td>
+        <td style="text-align: center;">{{item.glqyYbnsrrdrq}}</td>
+        <td>{{item.glqyNsrztDm}}</td>
+        <td>{{item.glqyBarq}}</td>
+        <td>{{item.glqyFlgldj}}</td>
+        <td style="text-align: center;">{{item.glqyBachrq}}</td>
+        <td style="text-align: center;">{{item.glqyZxrq}}</td>
+      </tr>
+    </table>
+    <table class="table qyjcxxMx-table mb-0 mt--1" ms-if="jclaTableV">
+      <tr>
+        <td style="width: 16%" class="title">稽查立案记录</td>
+        <td style="width: 84%" colspan="9"><span ms-if="info.jclaAllSize>0">次数合计：{{info.jclaAllSize}}</span> <span class="linktext"  ms-if="info.jclaAllSize>0"
+            ms-click="changTable('showAllJcla','jclaTableV')">{{showAllJcla?'收起':'展开'}}</span> </td>
+      </tr>
+      <tr ms-if="showAllJcla">
+        <td class="title">稽查案件编号</td>
+        <td class="title">案件名称</td>
+        <td style="text-align: center;" class="title">立案申请日期</td>
+        <td style="text-align: center;" class="title">立案日期</td>
+        <td style="text-align: center;" class="title">结案日期</td>
+        <td style="text-align: center;" class="title">检查期间起</td>
+        <td style="text-align: center;" class="title">检查期间止</td>
+        <td class="title">案件状态</td>
+        <td class="title">涉嫌税收违法行为</td>
+        <td class="title">选案分析及立案依据</td>
+      </tr>
+      <tr ms-if="showAllJcla" ms-for="item in showAllJclaList">
+        <td>{{item.jcajbh}}</td>
+        <td>{{item.ajmc}}</td>
+        <td style="text-align: center;">{{item.lasqrq}}</td>
+        <td style="text-align: center;">{{item.larq}}</td>
+        <td style="text-align: center;">{{item.jarq}}</td>
+        <td style="text-align: center;">{{item.jcssqjq}}</td>
+        <td style="text-align: center;">{{item.jcssqjz}}</td>
+        <td>{{item.ajjcztDm}}</td>
+        <td>{{item.sxsswfxw}}</td>
+        <td>{{item.xafxjlayj}}</td>
+      </tr>
+    </table>
+    <table class="table qyjcxxMx-table mt--1" ms-if="swxzTableV">
+      <tr>
+        <td style="width: 16%" class="title">税务行政处罚及不予处罚记录</td>
+        <td style="width: 84%" colspan="7"><span ms-if="info.xzcfAllSize>0">次数合计：{{info.xzcfAllSize}}</span> <span class="linktext"  ms-if="info.xzcfAllSize>0"
+            ms-click="changTable('showAllSwxz','swxzTableV')">{{showAllSwxz?'收起':'展开'}}</span> </td>
+      </tr>
+      <tr ms-if="showAllSwxz">
+        <td class="title">类型</td>
+        <td class="title">文号</td>
+        <td style="text-align: center;" class="title">文书制作日期</td>
+        <td class="title">违法事实</td>
+        <td class="title">违法手段</td>
+        <td class="title">税务行政处罚依据</td>
+        <td class="title">处罚决定</td>
+        <td style="text-align: right;" class="title">应缴罚款金额</td>
+      </tr>
+      <tr ms-if="showAllSwxz"  ms-for="item in showAllSwxzList">
+        <td>{{item.sjlx}}</td>
+        <td>{{item.wh}}</td>
+        <td  style="text-align: center;">{{item.wszzrq}}</td>
+        <td>{{item.wfss}}</td>
+        <td>{{item.wfsd}}</td>
+        <td>{{item.swxzcfyj}}</td>
+        <td>{{item.cfjd}}</td>
+        <td style="text-align: right;">{{formatMoney(item.yjfkje)}}</td>
+      </tr>
+    </table>
+        <div class="universal-popover ztpopover" ms-visible="showUniversalPopover"
+      ms-css="{top: popoverPosition.top + 'px', left: popoverPosition.left + 'px'}"
+      ms-mouseenter="clearPopoverTimer()" 
+      ms-mouseleave="hideUniversalPopover()">
+      <div class="popover-arrow"></div>
+      <div class="popover-body">
+        <table ms-if="curPopoverKey=='flgldj'" class="history-table">
+          <tr>
+            <th>分类管理等级</th>
+            <th style="width: 80px;text-align: center;">有效期起</th>
+            <th style="width: 80px;text-align: center;">有效期止</th>
+          </tr>
+          <tr ms-for="record in popoverData">
+            <td>{{record.kznr}}</td>
+            <td style="width: 80px;text-align: center;">{{record.yxqq}}</td>
+            <td style="width: 80px;text-align: center;">{{record.yxqz}}</td>
+          </tr>
+        </table>
+        <table ms-if="curPopoverKey=='ybnsrrdsj'" class="history-table">
+          <tr>
+            <th>纳税人资格类型名称</th>
+            <th style="width: 80px;text-align: center;">有效期起</th>
+            <th style="width: 80px;text-align: center;">有效期止</th>
+          </tr>
+          <tr ms-for="record in popoverData">
+            <td>{{record.nsrzglxmc}}</td>
+            <td style="width: 80px;text-align: center;">{{record.yxqq}}</td>
+            <td style="width: 80px;text-align: center;">{{record.yxqz}}</td>
+          </tr>
+        </table>
+        <table ms-if="curPopoverKey !=='flgldj'&&curPopoverKey !=='ybnsrrdsj'" class="history-table">
+          <tr>
+            <th style="width: 130px;text-align: center;">变更日期</th>
+            <th>变更前内容</th>
+            <th>变更后内容</th>
+          </tr>
+          <tr ms-for="record in popoverData">
+            <td style="width: 130px;text-align: center;">{{record.lrrq}}</td>
+            <td>{{record.bgqnr}}</td>
+            <td>{{record.bghnr}}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

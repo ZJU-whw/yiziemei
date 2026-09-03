@@ -1,0 +1,84 @@
+<div class="scmdtkacx" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            生产企业出口报关常见口岸
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <!--<div class="swjg" style="position: relative" ms-click="showSwjg">-->
+                <!--{{swjgMc}}-->
+                <!--<ul class='ztree treeDiv2' style="left: 0px;top:100%;"></ul>-->
+            <!--</div>-->
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <!--<div class="btn" ms-click="@newData">新增</div>-->
+            <!--<div class="btn" ms-click="@delData">删除</div>-->
+            <div class="btn" ms-click="@exform">导出</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="select-wrapper">
+            <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+            <div class="select-main">
+                <div class="select-item">
+                    <label class="width-s" title="口岸代码">口岸代码</label>
+                    <input class="width-m" type="text" ms-duplex="searchData.kaCode">
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="口岸名称">口岸名称</label>
+                    <input class="width-m" type="text" ms-duplex="searchData.kaName">
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 54px">
+            <table id="scmdtkacx-table"></table>
+            <div id="scmdtkacx-tablePager"></div>
+        </div>
+    </div>
+    <div class="page-model" >
+        <div class="model-title">新增</div>
+        <div class="model-content">
+            <p><label><span class="text-red">*</span>有效标志:</label><input type="radio" style="float: none" value="Y" name="yxbz" ms-duplex="modelData.yxbz">有效 <input type="radio" style="float: none" name="yxbz" value="N" ms-duplex="modelData.yxbz">无效</p>
+            <p><label><span class="text-red">*</span>口岸代码:</label><input type="text" ms-attr="{'disabled':modelData.yxbz=='N'?true:false}" class="width-l" ms-duplex="modelData.kacode"></p>
+            <p><label>口岸名称:</label><input type="text" ms-attr="{'disabled':modelData.yxbz=='N'?true:false}" class="width-l" ms-duplex="modelData.kaname"></p>
+            <p><label>所在省份:</label><select ms-attr="{'disabled':modelData.yxbz=='N'?true:false}" class="width-l" ms-duplex="modelData.qsrq" onmousedown="if(this.options.length>6){this.size=5}" onblur="this.size=1" onchange="this.size=1">
+                <option value="北京市">北京市</option>
+                <option value="天津市">天津市</option>
+                <option value="上海市">上海市</option>
+                <option value="重庆市">重庆市</option>
+                <option value="河北省">河北省</option>
+                <option value="山西省">山西省</option>
+                <option value="辽宁省">辽宁省</option>
+                <option value="吉林省">吉林省</option>
+                <option value="黑龙江省">黑龙江省</option>
+                <option value="江苏省">江苏省</option>
+                <option value="浙江省">浙江省</option>
+                <option value="安徽省">安徽省</option>
+                <option value="福建省">福建省</option>
+                <option value="江西省">江西省</option>
+                <option value="山东省">山东省</option>
+                <option value="河南省">河南省</option>
+                <option value="湖北省">湖北省</option>
+                <option value="湖南省">湖南省</option>
+                <option value="广东省">广东省</option>
+                <option value="海南省">海南省</option>
+                <option value="四川省">四川省</option>
+                <option value="贵州省">贵州省</option>
+                <option value="云南省">云南省</option>
+                <option value="陕西省">陕西省</option>
+                <option value="甘肃省">甘肃省</option>
+                <option value="青海省">青海省</option>
+                <option value="台湾省">台湾省</option>
+                <option value="内蒙古自治区">内蒙古自治区</option>
+                <option value="广西壮族自治区">广西壮族自治区</option>
+                <option value="西藏自治区">西藏自治区</option>
+                <option value="宁夏回族自治区">宁夏回族自治区</option>
+                <option value="新疆维吾尔自治区">新疆维吾尔自治区</option>
+                <option value="香港特别行政区">香港特别行政区</option>
+                <option value="澳门特别行政区">澳门特别行政区</option>
+            </select></p>
+        </div>
+        <div class="model-btns">
+            <div class="btn" ms-click="saveModel">保存</div>
+            <div class="btn" ms-click="hideModel">取消</div>
+        </div>
+    </div>
+</div>

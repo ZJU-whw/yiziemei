@@ -1,0 +1,9 @@
+<div class="pdf-viewer" :class="pdfContainerId+'-pdfmodel'">
+  <div class="pdf-viewer-overlay"></div>
+  <div class="page-model pdf-viewer-model">
+    <div class="pdf-viewer-header">{{title}}</div>
+    <div class="pdf-viewer-container" ms-attr="{id: @pdfContainerId}"></div>
+    <div class="close" title="关闭" ms-on-click="@hidePdf()">&times;</div>
+    <div class="pdf-viewer-results" ms-attr="{id: @pdfResultsId}"></div>
+  </div>
+</div>

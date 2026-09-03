@@ -1,0 +1,58 @@
+<div class="wmsppjdjcx" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            外贸企业商品平均单价
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <!--<div class="swjg" style="position: relative" ms-click="showSwjg">-->
+                <!--{{swjgMc}}-->
+                <!--<ul class='ztree treeDiv2' style="left: 0px;top:100%;"></ul>-->
+            <!--</div>-->
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <!--<div class="btn" ms-click="">保存</div>-->
+            <div class="btn" ms-click="@exform">导出</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="select-wrapper">
+            <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+            <div class="select-main">
+                <div class="select-item">
+                    <label class="width-s" title="商品代码">商品代码</label>
+                    <input class="width-m" type="text" ms-duplex="searchData.spdm">
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="商品名称">商品名称</label>
+                    <input class="width-m" type="text" ms-duplex="searchData.spmc">
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="平均单价范围">平均单价范围</label>
+                    <div class="select-item-inner">
+                        <input class="width-m" type="text" ms-duplex="searchData.djq">
+                        <span>-</span>
+                        <input class="width-m" type="text" ms-duplex="searchData.djz">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 54px">
+            <table id="wmsppjdjcx-table"></table>
+            <div id="wmsppjdjcx-tablePager"></div>
+        </div>
+    </div>
+    <div class="page-model" >
+        <div class="model-title">新增</div>
+        <div class="model-content">
+            <p><label>有效标志:</label><input type="radio" style="float: none" value="Y" name="yxbz" ms-duplex="modelData.yxbz">有效 <input type="radio" style="float: none" name="yxbz" value="N" ms-duplex="modelData.yxbz">无效</p>
+            <p><label>口岸代码:</label><input type="text" ms-attr="{'disabled':modelData.yxbz=='N'?true:false}" class="width-l" ms-duplex="modelData.kacode"></p>
+            <p><label>口岸名称:</label><input type="text" ms-attr="{'disabled':modelData.yxbz=='N'?true:false}" class="width-l" ms-duplex="modelData.kaname"></p>
+            <p><label>起始日期:</label><input type="text" ms-attr="{'disabled':modelData.yxbz=='N'?true:false}" class="width-l datepicker date-day" ms-duplex="modelData.qsrq"></p>
+            <p><label>截止日期:</label><input type="text" ms-attr="{'disabled':modelData.yxbz=='N'?true:false}" class="width-l datepicker date-day" ms-duplex="modelData.jzrq"></p>
+            <p><label>监控原因:</label><textarea rows="3" ms-attr="{'disabled':modelData.yxbz=='N'?true:false}" class="width-l" ms-duplex="modelData.yyms"></textarea></p>
+        </div>
+        <div class="model-btns">
+            <div class="btn" ms-click="saveModel">保存</div>
+            <div class="btn" ms-click="hideModel">取消</div>
+        </div>
+    </div>
+</div>

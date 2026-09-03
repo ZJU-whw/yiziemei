@@ -1,0 +1,47 @@
+<div class="bbgs" >
+    <div class="pageTabs">
+        <div style="height:24px;line-height:24px;width:35%;float: left;margin: 5px;">
+            【报表公式维护】
+        </div>
+        <div style="height:24px;line-height:24px;width:35%;float: left;margin: 5px;">
+            【报表代码】：<span>{{searchData.bbdm}}</span>
+        </div>
+        <div class="btns">
+            <div class="btn" ms-click="@search(1)">刷新</div>
+            <div class="btn" ms-click="@saveTable">保存</div>
+            <div class="btn" ms-click="@openEdit">添加公式</div>
+        </div>
+    </div>
+    <div class="page active">
+        <div class="form" style="padding-top: 0">
+            <table class="table">
+                <thead>
+                <tr>
+                    <td class="text-center" style="background: #eee;">公式类型</td>
+                    <td class="text-center" style="background: #eee;">公式</td>
+                    <td class="text-center" style="background: #eee;">是否除法运算</td>
+                    <td class="text-center" style="background: #eee;">优先级</td>
+                    <td class="text-center" style="background: #eee;">操作</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ms-for="(index,item) in tableData">
+                    <td><select disabled ms-duplex="item.type">
+                        <option value="">请选择</option>
+                        <option value="2">行公式</option>
+                        <option value="1">列公式</option>
+                    </select></td>
+                    <td><input type="text" disabled ms-duplex="item.formula"></td>
+                    <td><select ms-duplex="item.ishzjs">
+                        <option value="">请选择</option>
+                        <option value="0">否</option>
+                        <option value="1">是</option>
+                    </select></td>
+                    <td><input type="text" ms-duplex="item.yxj"></td>
+                    <td style="text-align: center"><div ms-click="delGs(item.id)" style="cursor:pointer;float: none;text-align: center; text-decoration: underline;color: #fe7481;">删除</div></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

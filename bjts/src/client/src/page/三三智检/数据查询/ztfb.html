@@ -1,0 +1,35 @@
+<div class="ztfb">
+  <div class="pageTabs">
+    <div class="pageTitle">
+      正态分布图
+    </div>
+  </div>
+  <div class="clear" ms-class="['page','active']" >
+    <div class="lf" id="ztfb-chart" style="width: 950px;height:500px;"></div>
+    <div class="lf" style="width: calc(100% - 950px);">
+      <div style="line-height: 20px;margin-top: 50px;">
+        <p>总长度：{{ data.length}}</p>
+        <p>总 和： {{sum()}}</p>
+        <p>平均值：{{average().toFixed(2)}}</p>
+        <p>最大值：{{max()}}</p>
+        <p>最小值：{{min()}}</p>
+        <!-- <p>{{isSample ? '样本' : '总体' }}方差：{{  variance().toFixed(2)}}</p> -->
+        <p>{{isSample ? '样本' : '总体' }}标准差：{{ standardDeviation().toFixed(2)}}</p>
+        <p>一倍标准差：{{ standarDevRangeOfOne().low.toFixed(2)  +" ~ "+ standarDevRangeOfOne().up.toFixed(2)}}</p>
+        <p>二倍标准差：{{ standarDevRangeOfTwo().low.toFixed(2) +" ~ "+ standarDevRangeOfTwo().up.toFixed(2)}}</p>
+        <p>三倍标准差：{{ standarDevRangeOfThree().low.toFixed(2) +" ~ "+ standarDevRangeOfThree().up.toFixed(2)}}</p>
+
+        <div style="margin-top: 20px;max-width: 450px;">
+          <p>说明：</p>
+          <p>1. 本图也叫频数分布图，横坐标数值对应的垂直线高度表示该数值的出现频数。</p>
+          <p>2. 若频数分布呈现中间最多，离中间越远频数越少，左右两侧基本对称的分布时，一般认为该数值变量服从数学上的正态分布。</p>
+          <p>3. 通过对正态分布图的分析，通常用于确定某数值变量合理范围的上限和下限阈值</p>
+          <br>
+          <p>注：超过3倍标准差的异常数据被剔除，因此正态分布图样本数据少于外部数据列表总长度。</p>
+        </div>
+        <!-- {{ dataAfterCleanX }} -->
+        <!-- {{ normalDistribution }} -->
+    </div>
+    </div>
+  </div>
+</div>

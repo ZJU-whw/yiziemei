@@ -1,0 +1,183 @@
+<div class="qyjcxxMx" >
+    <div class="pageTabs">
+        <div class="pageTitle">企业信息一户式查询 / 企业基础信息明细</div>
+        <!--<div class="btns">-->
+            <!--<div class="btn rt" ms-click="@printForm($event)">打印</div>-->
+        <!--</div>-->
+    </div>
+    <div class="page active">
+        <div class="form qyjcxxMx-form" style="padding-top: 0">
+            <h1 class="print-title text-center">企业基础信息表</h1>
+            <div class="clear print-tip">
+                <div class="lf" style="width: 25%">
+                    <p>海关企业代码：<span></span></p>
+                    <p>纳税人名称：<span></span></p>
+                    <p>纳税人识别号：<span></span></p>
+                </div>
+                <div class="lf" style="width: 25%">
+                    <p></p>
+                    <p></p>
+                    <p class="text-right">所属期：<span></span></p>
+                </div>
+                <div class="lf" style="width: 25%">
+                    <p></p>
+                    <p></p>
+                    <p></p>
+                </div>
+                <div class="lf" style="width: 25%">
+                    <p></p>
+                    <p></p>
+                    <p class="text-right">金额单位：元至角分</p>
+                </div>
+            </div>
+            <table class="table qyjcxxMx-table">
+                <tr>
+                    <td class="text-center title" colspan="8">企业基础信息表</td>
+                </tr>
+                <tr>
+                    <td style="width: 5%" class="text-center title" rowspan="11">企业信息</td>
+                    <td style="width: 15%" class="title">企业名称</td>
+                    <td style="width: 30%" colspan="2">{{form.qyxx.name}}</td>
+                    <td style="width: 15%" class="title">海关代码</td>
+                    <td style="width: 15%">{{form.qyxx.qydm}}</td>
+                    <td style="width: 10%" class="title">社会信用代码</td>
+                    <td style="width: 10%">{{form.qyxx.shxy_no}}</td>
+                </tr>
+                <tr>
+                    <td class="title">主管税务所（科、分局）</td>
+                    <td colspan="2">{{form.qyxx.zgswskfjmc}}</td>
+                    <td class="title">退税机关</td>
+                    <td>{{form.qyxx.tsswname}}</td>
+                    <td class="title">备案时间</td>
+                    <td>{{form.qyxx.sq_date}}</td>
+                </tr>
+                <tr>
+                    <td class="title">企业类型</td>
+                    <td colspan="2">{{form.qyxx.qylx}}</td>
+                    <td class="title">纳税人类型</td>
+                    <td>{{form.qyxx.nsrlb}}</td>
+                    <td class="title">企业状态</td>
+                    <td>{{form.qyxx.nsrzt}}</td>
+                </tr>
+                <tr>
+                    <td class="title">退（免）税计算方法</td>
+                    <td colspan="2">{{form.qyxx.js_mode}}</td>
+                    <td class="title">预算级次</td>
+                    <td>{{form.qyxx.ysjccode}}</td>
+                    <td class="title">调库级次</td>
+                    <td>{{form.qyxx.tkjc}}</td>
+                </tr>
+                <tr>
+                    <td class="title">是否提供税率服务</td>
+                    <td colspan="2">{{form.qyxx.ysfw}}</td>
+                    <td class="title">是否外综服</td>
+                    <td colspan="3">{{form.qyxx.wzfqy}}</td>
+                </tr>
+                <tr>
+                    <td class="title">是否水电气退税</td>
+                    <td colspan="2">{{form.qyxx.sdqqy}}</td>
+                    <td class="title">是否研发机构购进国产设备</td>
+                    <td colspan="3">{{form.qyxx.yfjg}}</td>
+                </tr>
+                <tr>
+                    <td class="title">是否无纸化</td>
+                    <td colspan="6">{{form.qyxx.wzhqy}}</td>
+                </tr>
+                <tr>
+                    <td rowspan="3" class="title">企业办理退（免）税人员1</td>
+                    <td class="title" style="width: 15%">姓名</td>
+                    <td style="width: 15%">{{form.qyxx.bsy}}</td>
+                    <td rowspan="3" class="title">企业办理退（免）税人员2</td>
+                    <td class="title">姓名</td>
+                    <td colspan="2">{{form.qyxx.bsy2}}</td>
+                </tr>
+                <tr>
+                    <td class="title">身份证</td>
+                    <td>{{form.qyxx.bsy_no}}</td>
+                    <td class="title">身份证</td>
+                    <td colspan="2">{{form.qyxx.bsy2_no}}</td>
+                </tr>
+                <tr>
+                    <td class="title">电话</td>
+                    <td>{{form.qyxx.bsy_tel}}</td>
+                    <td class="title">电话</td>
+                    <td colspan="2">{{form.qyxx.bsy2_tel}}</td>
+                </tr>
+                <tr>
+                    <td class="title">注册地址</td>
+                    <td colspan="2">{{form.qyxx.address}}</td>
+                    <td class="title">经营地址</td>
+                    <td colspan="3">{{form.qyxx.jy_address}}</td>
+                </tr>
+                <tr>
+                    <td colspan="8"></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td class="title">审核岗</td>
+                    <td colspan="2">{{form.qyxx.shgry}}</td>
+                    <td class="title">调查评估岗</td>
+                    <td colspan="3">{{form.qyxx.dcpggry}}</td>
+                </tr>
+                <tr>
+                    <td colspan="8"></td>
+                </tr>
+                <tr>
+                    <td class="text-center title" rowspan="4">对比信息</td>
+                    <td class="title">信用等级</td>
+                    <td colspan="2">{{form.dbxx.xydj}}</td>
+                    <td class="title">管理类别</td>
+                    <td colspan="3">{{form.dbxx.gllb}}</td>
+                </tr>
+                <tr>
+
+                    <td class="title">退税账号</td>
+                    <td colspan="2">{{form.dbxx.tszh}}</td>
+                    <td class="title">金三退税账号</td>
+                    <td>{{form.dbxx.jstszh}}</td>
+                    <td class="title">账号是否一致</td>
+                    <td>{{form.dbxx.tszh_sfyz}}</td>
+                </tr>
+                <tr>
+
+                    <td class="title">备案是否撤回</td>
+                    <td colspan="2">{{form.dbxx.basfch}}</td>
+                    <td class="title">金三是否注销</td>
+                    <td>{{form.dbxx.jssfzx}}</td>
+                    <td class="title">备案和注销一致标志</td>
+                    <td>{{form.dbxx.bzch_sfyz}}</td>
+                </tr>
+                <tr>
+
+                    <td class="title">金三是否归类</td>
+                    <td colspan="4">{{form.dbxx.jssfgl}}</td>
+                    <td class="title">备案和归类一致标志</td>
+                    <td>{{form.dbxx.glyz_flag}}</td>
+                </tr>
+                <tr>
+                    <td colspan="8"></td>
+                </tr>
+                <tr>
+                    <td class="text-center title" rowspan="4">风险提示</td>
+                    <td class="title">是否欠税</td>
+                    <td colspan="6">{{form.fxts.qfbz}}</td>
+                </tr>
+                <tr>
+
+                    <td class="title">金三是否存在三年内稽查评估信息</td>
+                    <td colspan="6">{{form.fxts.pgjc_flag}}</td>
+                </tr>
+                <tr>
+
+                    <td class="title">下户核查是否有记录</td>
+                    <td colspan="6">{{form.fxts.xhhc_flag}}</td>
+                </tr>
+                <tr>
+
+                    <td class="title">函调是否有记录</td>
+                    <td colspan="6">{{form.fxts.hd_flag}}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

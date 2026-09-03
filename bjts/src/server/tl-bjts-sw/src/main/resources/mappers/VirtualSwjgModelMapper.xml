@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tl.bjts.sw.dao.VirtualSwjgModelMapper">
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.VirtualSwjgModel">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="VIR_SWJGDM" jdbcType="VARCHAR" property="virSwjgdm" />
+    <id column="SWJG_DM" jdbcType="VARCHAR" property="swjgDm" />
+    <result column="VIR_NAME" jdbcType="VARCHAR" property="virName" />
+    <result column="YXBZ" jdbcType="CHAR" property="yxbz" />
+    <result column="VIR_FLAG" jdbcType="CHAR" property="virFlag" />
+  </resultMap>
+</mapper>

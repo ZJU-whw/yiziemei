@@ -1,0 +1,102 @@
+<div class="srths_sc" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            收入退还书清单生成
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@generate">生成</div>
+            <div class="btn" ms-click="@exform">导出</div>
+        </div>
+        <div class="btns" ms-if="@act==2">
+            <div class="btn rt" ms-click="@printForm($event)">打印</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="select-wrapper">
+            <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+            <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+            <div class="select-main">
+                <div class="select-item">
+                    <label  title="退还书日期">退还书日期起</label>
+                    <div class="select-item-inner">
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.thsrqq" :on-blur="@filDate" >
+                        <span>止</span>
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.thsrqz" :on-blur="@filDate">
+                    </div>
+                </div>
+                <div class="select-item">
+                    <label title="清单操作类型">清单操作类型</label>
+                    <select ms-duplex="@searchData.yjflag">
+                        <option value="">　</option>
+                        <option value="0">可生成</option>
+                        <option value="1">暂缓生成</option>
+                    </select>
+                </div>
+
+                <div class="select-item">
+                    <label style="font-size: medium;">{{@byjhyeDesc}}</label>
+                </div>
+            </div>
+            <div class="select-sub">
+                <div class="select-item">
+                    <label class="width-s" title="企业标识">企业标识<i class="question" title="企业海关代码或纳税人识别号"></i></label>
+                    <input  type="text" ms-duplex="@searchData.qybs">
+                </div>
+                <div class="select-item">
+                    <label title="企业类型">企业类型</label>
+                    <select ms-duplex="@searchData.qylx_dm">
+                        <option value="">　</option>
+                        <option value="11">内资生产企业</option>
+                        <option value="12">外商投资企业</option>
+                        <option value="21">外贸（工贸）企业</option>
+                        <option value="90">其他企业（特许退税企业）</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="管理类别">管理类别</label>
+                    <select  ms-duplex="@searchData.flglcd">
+                        <option value="">　</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label title="单证类型">单证类型</label>
+                    <select ms-duplex="@searchData.sbywbdm">
+                        <option value="">　</option>
+                        <option value="A0301001">外贸企业免退税申报</option>
+                        <option value="A0305001">生产企业免抵退申报</option>
+                        <option value="A0302001">出口非自产货物退消费税申报</option>
+                        <option value="A0303001">出口已使用旧设备免退税申报</option>
+                        <option value="A0304001">购进自用货物免退税申报</option>
+                        <option value="A0309001">航天发射免退税申报</option>
+                        <option value="A0310001">综服企业代办退税申报</option>
+                        <option value="A0300000">分流或其他特殊事项</option>
+                    </select>
+                </div>
+                <div class="select-item" style="position: relative">
+                    <label  title="收入退还书号码">收入退还书号码</label>
+                    <input type="text" ms-duplex="@searchData.no">
+                </div>
+                <div class="select-item">
+                    <label title="生成人">生成人</label>
+                    <input type="text" ms-duplex="@searchData.scr">
+                </div>
+                <div class="select-item" style="position: relative">
+                    <label   title="审批人">审批人</label>
+                    <input type="text" ms-duplex="@searchData.spr">
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 54px">
+            <table id="srths_sc-table"></table>
+            <div id="srths_sc-tablePager"></div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==3&&'active']">
+        <div class="chartDiv"></div>
+    </div>
+</div>

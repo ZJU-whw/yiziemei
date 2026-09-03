@@ -1,0 +1,30 @@
+<div class="zhzbfzhztjmx" >
+  <div class="mask">
+    <img src="../../../static/image/loading2.gif" width="64" height="64"/>
+  </div>
+  <div class="pageTabs">
+      <div class="pageTitle">
+        综合指标分组汇总统计明细表
+      </div>
+      <div class="btns">
+        <div class="btn" ms-click="@search(1)">查询</div>
+        <div class="btn dropdown" ms-on-click="showDropdown">
+          导出▼
+          <ul class="dropdown-menu">
+            <li>
+              <a style="cursor: pointer;" ms-click="@exformCurrentPage">导出当前页</a>
+            </li>
+            <li>
+              <a style="cursor: pointer;" ms-click="@exformAll">导出全部</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <div class="form" style="padding-top: 10px">
+        <table id="zhzbfzhztjmx-table"></table>
+        <div id="zhzbfzhztjmx-tablePager"></div>
+      </div>
+  </div>
+</div>

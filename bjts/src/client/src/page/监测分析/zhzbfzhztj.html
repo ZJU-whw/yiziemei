@@ -1,0 +1,164 @@
+<div class="zhzbfzhztj jcfx" >
+  <div class="mask bg">
+    <img src="../../../static/image/loading2.gif" width="64" height="64"/>
+  </div>
+  <div class="pageTabs">
+      <div class="pageTitle">
+        <span>综合指标分组汇总统计</span>
+        <span ms-visible="@dataSsny.dataSsnyStart">(可统计范围：{{@dataSsny.dataSsnyStart}}-{{@dataSsny.dataSsnyEnd}})</span>
+      </div>
+      <div class="btns">
+          <div class="btn" ms-click="@search(1, false, true)">查询</div>
+          <div class="btn dropdown" ms-on-click="showDropdown">
+            导出▼
+            <ul class="dropdown-menu">
+              <li>
+                <a style="cursor: pointer;" ms-click="@exformCurrentPage">导出当前页</a>
+              </li>
+              <li>
+                <a style="cursor: pointer;" ms-click="@exformAll">导出全部</a>
+              </li>
+            </ul>
+          </div>
+          <!-- <div class="btn" ms-click="@exform">导出</div> -->
+          <div class="btn" ms-click="@reset">重置</div>
+          <div class="btn" ms-click="@showModel">历史记录</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+    <form name="zhzbfzhztj-form">
+        <div class="select-wrapper">
+          <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+          <div class="select-main clear mb-5">
+            <div class="select-item text-right lf" style="width: 72px;">统计范围</div>
+            <div class="select-item lf">
+                <label class="item-label" title="税务机关">税务机关</label>
+                <input class="item-content" readonly type="text" ms-duplex="swjgmc" ms-click="@showTree">
+                <ul id="zhzbfzhztjTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+            </div>
+            <div class="select-item lf">
+              <label class="item-label" title="统计年月">统计年月</label>
+              <div class="select-item-inner item-content">
+                <input type="text" class="datepicker date-month ssnyStart" ms-duplex="@searchData.ssnyStart" :on-blur="@filDate($event, 'ssnyStart')" ms-click="@showDatetimepicker">
+                <span>至</span>
+                <input type="text" class="datepicker date-month ssnyEnd" ms-duplex="@searchData.ssnyEnd" :on-blur="@filDate($event, 'ssnyEnd')" ms-click="@showDatetimepicker">
+              </div>
+            </div>
+            <div class="select-item lf"  style="width: calc(50% - 50px)">
+              <label class="item-label" title="样本企业">样本企业</label>
+              <select style="width: calc(100% - 150px);" ms-duplex="searchData.zid" >
+                <option value=""></option>
+                <option ms-for="el in @qyfzList" ms-attr="{value: el.zid}">{{el.sname}}</option>
+              </select>
+              <span class="link ml-10" ms-click="toYbqywh">维护</span>
+            </div>
+          </div>
+          <div class="select-sub clear mb-5">
+            <div class="select-item text-right" style="width: 72px;float: left;">汇总数据</div>
+            <div class="select-item sjhz lf" style="width: 350px;">
+              <label class="item-label" title="数据类型">数据类型</label>
+              <label class="sjhz-label" for="zhzbfzhztj-bll">
+                <input id="zhzbfzhztj-bll" type="radio" name="sjlx" value="hzItemsBl" ms-duplex="sjlx" ms-change="@sjlxChange">办理类
+              </label>
+              <label class="sjhz-label" for="zhzbfzhztj-tsl">
+                <input id="zhzbfzhztj-tsl" type="radio" name="sjlx" value="hzItemsTs" ms-duplex="sjlx" ms-change="@sjlxChange">退税类
+              </label>
+              <label class="sjhz-label" for="zhzbfzhztj-ckl">
+                <input id="zhzbfzhztj-ckl" type="radio" name="sjlx" value="hzItemsCk" ms-duplex="sjlx" ms-change="@sjlxChange">出口类
+              </label>
+              <!-- <label class="sjhz-label" for="zhzbfzhztj-zhl">
+                <input id="zhzbfzhztj-zhl" type="radio" name="sjlx" value="hzItemsZh" ms-duplex="searchData.sjlx" ms-change="@sjlxChange">组合（效应）类
+              </label> -->
+            </div>
+            <div class="select-item sjhz lf" style="width: calc(25% - 25px);">
+              <label class="item-label" title="显示同比">显示同比</label>
+              <label class="sjhz-label" for="zhzbfzhztj-tb2">
+                <input id="zhzbfzhztj-tb2" type="radio" name="tb" value="0" ms-duplex="searchData.isHaveTb">否
+              </label>
+              <label class="sjhz-label" for="zhzbfzhztj-tb1">
+                <input id="zhzbfzhztj-tb1" type="radio" name="tb" value="1" ms-duplex="searchData.isHaveTb">是
+              </label>
+            </div>
+          </div>
+          <div class="select-sub" style="height: 29px;">
+            <div class="select-item text-right" style="width: 72px;"></div>
+            <div class="select-item sjhz clear">
+              <label class="item-label" title="数据项目">数据项目</label>
+              <div class="item-content lf" style="width: calc(100% - 80px);">
+                <!-- <label
+                  ms-for="item in @hzItems[@sjlx]"
+                  class="sjhz-label"
+                  ms-attr="{for: 'zhzbfzhztj-'+@sjlx+item.zbxmbm}">
+                  <input
+                    id="zhzbfzhztj-qyhs"
+                    type="checkbox"
+                    name="sjxm"
+                    ms-attr="{id: 'zhzbfzhztj-'+@sjlx+item.zbxmbm, value: item.zbxmbm}"
+                    ms-duplex="@searchData.hzItems">{{item.zbxmmc}}
+                </label> -->
+                <div class="bootstrap-multiselect lf sjxm" ms-for="item in @sjlxList" ms-visible="item == @sjlx">
+                  <select ms-attr="{id:'zhzbfzhztj-sjxm-'+item}" multiple="multiple"></select>
+                </div>
+                <div class="lf text-ellipsis ml-10" style="width: calc(100% - 70px);" ms-attr="{title: @hzItemsMc}">{{@hzItemsMc}}</div>
+              </div>
+            </div>
+          </div>
+          <div class="select-sub">
+            <div class="select-item text-right" style="width: 72px;float: left;">分组指标</div>
+            <div class="select-item fzzb sjhz">
+              <div class="clear" ms-for="(i,fzItem) in @fzItemsList" ms-visible="fzItem.show.indexOf(@sjlx)>-1">
+                <label class="item-label" ms-attr="{title: fzItem.name}">{{fzItem.name}}</label>
+                <div class="item-content clear fz">
+                  <div class="clear" ms-for="(index,item) in @fzItems[fzItem.key]" style="width: 33.33%; float: left;">
+                    <label
+                      class="fzzb-label"
+                      ms-attr="{for: 'zhzbfzhztj_'+item.zbxmbm}">
+                      <input
+                        ms-attr="{id: 'zhzbfzhztj_'+item.zbxmbm, value: item.zbxmbm}"
+                        type="checkbox"
+                        name="fzzb"
+                        data-duplex-changed="checkListChange"
+                        ms-duplex="@checkList">{{item.zbxmmc}}
+                    </label>
+                    <div class="item-content fz clear lf" style="max-width: 230px;">
+                      <select
+                        ms-if="item.zbxmbm.indexOf('cksp')>-1 && @selectMc[item.zbxmbm]"
+                        class="ckspSelect"
+                        ms-duplex="@selectMc[item.zbxmbm].range"
+                        data-duplex-changed="@ckspLevelChange(item.zbxmbm)">
+                        <option ms-for="item in @ckspList" ms-attr="{value: item.value}">{{item.name}}</option>
+                      </select>
+                      <div
+                        class="bootstrap-multiselect lf"
+                        ms-if="item.isTree=='0' && ['fzts.cksp','fzck.cksp'].indexOf(item.zbxmbm) == -1">
+                        <select ms-attr="{id:'zhzbfzhztj_select_'+item.zbxmbm.split('.')[0]+'_'+item.zbxmbm.split('.')[1]}" multiple="multiple"></select>
+                      </div>
+                      <div
+                        ms-css="{width: item.zbxmbm.indexOf('cksp')>-1? 'calc(100% - 76px)': '100%'}"
+                        class="tree clear lf"
+                        ms-if="item.isTree=='1' || ['fzts.cksp','fzck.cksp'].indexOf(item.zbxmbm) > -1">
+                        <div
+                          class="item-content showSelect text-ellipsis"
+                          ms-click="@showTree"
+                          ms-attr="{title: @selectMc[item.zbxmbm]&&@selectMc[item.zbxmbm].name}">{{@selectMc[item.zbxmbm]&&(@selectMc[item.zbxmbm].value.length>3 ? @selectMc[item.zbxmbm].value.length+ '项已选择':@selectMc[item.zbxmbm].name)}}</div>
+                        <ul
+                          ms-css="{height: item.zbxmbm.indexOf('cksp')>-1? '250px': '200px'}"
+                          ms-attr="{id:'zhzbfzhztj_tree_'+item.zbxmbm.split('.')[0]+'_'+item.zbxmbm.split('.')[1]}"
+                          class='treeSelect ztree treeDiv'></ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </form>
+    <div class="form" style="padding-top: 54px">
+      <table id="zhzbfzhztj-table"></table>
+      <div id="zhzbfzhztj-tablePager"></div>
+    </div>
+  </div>
+  <!-- 历史记录 -->
+  <wbr ms-widget="[{is:'historyTable'}, @historyConfig]"/>
+</div>

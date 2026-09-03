@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tl.bjts.sw.dao.RwglYbclXxzbModelMapper">
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.RwglYbclXxzbModel">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="RWLX" jdbcType="VARCHAR" property="rwlx" />
+    <id column="RWHASH" jdbcType="VARCHAR" property="rwhash" />
+    <result column="RWNAME" jdbcType="VARCHAR" property="rwname" />
+    <result column="RWBW" jdbcType="VARCHAR" property="rwbw" />
+    <result column="RWMS" jdbcType="VARCHAR" property="rwms" />
+    <result column="RWZT" jdbcType="CHAR" property="rwzt" />
+    <result column="TQBZ" jdbcType="VARCHAR" property="tqbz" />
+    <result column="TQCS" jdbcType="DECIMAL" property="tqcs" />
+    <result column="TQSJ" jdbcType="TIMESTAMP" property="tqsj" />
+    <result column="FRTIME" jdbcType="TIMESTAMP" property="frtime" />
+    <result column="FRNUM" jdbcType="DECIMAL" property="frnum" />
+    <result column="READNUM" jdbcType="DECIMAL" property="readnum" />
+    <result column="READTOTAL" jdbcType="DECIMAL" property="readtotal" />
+    <result column="CZRYDM" jdbcType="VARCHAR" property="czrydm" />
+    <result column="CZRYMC" jdbcType="VARCHAR" property="czrymc" />
+    <result column="CRTIME" jdbcType="TIMESTAMP" property="crtime" />
+    <result column="SWJGDM" jdbcType="VARCHAR" property="swjgdm" />
+    <result column="BZ" jdbcType="VARCHAR" property="bz" />
+  </resultMap>
+</mapper>

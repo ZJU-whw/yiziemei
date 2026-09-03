@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.GcYgzGjysMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.GcYgzGjys" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="UUID" property="UUID" jdbcType="VARCHAR" />
+    <result column="LCSLID" property="LCSLID" jdbcType="VARCHAR" />
+    <result column="CPCODE" property="CPCODE" jdbcType="VARCHAR" />
+    <result column="SB_YM" property="SB_YM" jdbcType="VARCHAR" />
+    <result column="SB_NO" property="SB_NO" jdbcType="VARCHAR" />
+    <result column="SS_YEAR" property="SS_YEAR" jdbcType="VARCHAR" />
+    <result column="LJ_DATE" property="LJ_DATE" jdbcType="DATE" />
+    <result column="CMCODE" property="CMCODE" jdbcType="VARCHAR" />
+    <result column="CMNAME" property="CMNAME" jdbcType="VARCHAR" />
+    <result column="CMUNIT" property="CMUNIT" jdbcType="VARCHAR" />
+    <result column="YSCS_NUM" property="YSCS_NUM" jdbcType="DECIMAL" />
+    <result column="ZYCD_NUM" property="ZYCD_NUM" jdbcType="DECIMAL" />
+    <result column="ZYTD_NUM" property="ZYTD_NUM" jdbcType="DECIMAL" />
+    <result column="RMB_AMT" property="RMB_AMT" jdbcType="DECIMAL" />
+    <result column="USD_HL" property="USD_HL" jdbcType="DECIMAL" />
+    <result column="USD_AMT" property="USD_AMT" jdbcType="DECIMAL" />
+    <result column="ZFJK_AMT" property="ZFJK_AMT" jdbcType="DECIMAL" />
+    <result column="JS_AMT" property="JS_AMT" jdbcType="DECIMAL" />
+    <result column="ZSSL" property="ZSSL" jdbcType="DECIMAL" />
+    <result column="TSL" property="TSL" jdbcType="DECIMAL" />
+    <result column="ZTSCE" property="ZTSCE" jdbcType="DECIMAL" />
+    <result column="TS_AMT" property="TS_AMT" jdbcType="DECIMAL" />
+    <result column="MDTS_YM" property="MDTS_YM" jdbcType="VARCHAR" />
+    <result column="JBSH_FLAG" property="JBSH_FLAG" jdbcType="VARCHAR" />
+    <result column="ZHSH_FLAG" property="ZHSH_FLAG" jdbcType="VARCHAR" />
+    <result column="OP_USER" property="OP_USER" jdbcType="VARCHAR" />
+    <result column="OP_DATE" property="OP_DATE" jdbcType="DATE" />
+    <result column="NOTE" property="NOTE" jdbcType="VARCHAR" />
+    <result column="RSV_STR" property="RSV_STR" jdbcType="VARCHAR" />
+    <result column="FLAG" property="FLAG" jdbcType="VARCHAR" />
+    <result column="BICODE" property="BICODE" jdbcType="VARCHAR" />
+    <result column="YB_AMT" property="YB_AMT" jdbcType="DECIMAL" />
+    <result column="HT_NO" property="HT_NO" jdbcType="VARCHAR" />
+    <result column="BG_USER" property="BG_USER" jdbcType="VARCHAR" />
+    <result column="BG_DATE" property="BG_DATE" jdbcType="DATE" />
+    <result column="SWCODE" property="SWCODE" jdbcType="VARCHAR" />
+    <result column="ZH_FLAG" property="ZH_FLAG" jdbcType="VARCHAR" />
+    <result column="BY_FLAG" property="BY_FLAG" jdbcType="VARCHAR" />
+    <result column="Y_UUID" property="y_UUID" jdbcType="VARCHAR" />
+    <result column="ZH_TYPE" property="ZH_TYPE" jdbcType="VARCHAR" />
+    <result column="BY_TYPE" property="BY_TYPE" jdbcType="VARCHAR" />
+    <result column="RGSH_FLAG" property="RGSH_FLAG" jdbcType="VARCHAR" />
+    <result column="RGSH_PASS" property="RGSH_PASS" jdbcType="VARCHAR" />
+    <result column="RGSH_USER" property="RGSH_USER" jdbcType="VARCHAR" />
+    <result column="RGSH_DATE" property="RGSH_DATE" jdbcType="DATE" />
+    <result column="RGSH_INFO" property="RGSH_INFO" jdbcType="VARCHAR" />
+  </resultMap>
+</mapper>

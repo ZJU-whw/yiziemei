@@ -1,0 +1,81 @@
+<div class="ywybacx" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+          业务员备案查询
+      </div>
+      <div class="btns" ms-if="@act==1">
+          <div class="btn" ms-click="@search(1)">查询</div>
+          <div class="btn" ms-click="@exform">导出</div>
+      </div>
+  </div>
+  <div ms-class="['page',@act==1&&'active']" >
+      <div class="select-wrapper">
+          <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+          <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+          <div class="select-main">
+              <div class="select-item">
+                  <label  title="海关代码">海关代码</label>
+                  <input  type="text" ms-duplex="@searchData.qyhgdm">
+              </div>
+              <div class="select-item">
+                  <label title="纳税人识别号">纳税人识别号</label>
+                  <input type="text" ms-duplex="searchData.nsrsbh">
+              </div>
+              <div class="select-item">
+                  <label  title="税务机关">税务机关</label>
+                  <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree">
+                  <ul id="ywybzZtree" class='ztree treeDiv' style="left: 90px;top:100%;"></ul>
+              </div>
+          </div>
+          <div class="select-sub">
+              <div class="select-item">
+                  <label title="备案年度">备案年度</label>
+                  <input type="text" ms-duplex="searchData.year">
+              </div>
+              <div class="select-item">
+                  <label title="企业类型">企业类型</label>
+                  <select ms-duplex="@searchData.qylx">
+                      <option value="">　</option>
+                      <option value="11">内资生产企业</option>
+                      <option value="12">外商投资企业</option>
+                      <option value="21">外贸（工贸）企业</option>
+                      <option value="90">其他企业（特许退税企业）</option>
+                  </select>
+              </div>
+              <div class="select-item">
+                  <label  title="管理类别">管理类别</label>
+                  <select  ms-duplex="@searchData.gllb">
+                      <option value="">　</option>
+                      <option value="A">A</option>
+                      <option value="B">B</option>
+                      <option value="C">C</option>
+                      <option value="D">D</option>
+                  </select>
+              </div>
+              <div class="select-item">
+                  <label title="业务员姓名">业务员姓名</label>
+                  <input type="text" ms-duplex="searchData.ywyxm">
+              </div>
+              <div class="select-item">
+                  <label title="身份证件号">身份证件号</label>
+                  <input type="text" ms-duplex="searchData.sfzh">
+              </div>
+              <div class="select-item">
+                  <label title="是否涉嫌挂靠">是否涉嫌挂靠</label>
+                  <select ms-duplex="searchData.sfsxgk">
+                      <option value="">　</option>
+                      <option value="N">否</option>
+                      <option value="Y">是</option>
+                  </select>
+              </div>
+          </div>
+      </div>
+      <div class="form" style="padding-top: 54px">
+          <table id="ywybacx-table"></table>
+          <div id="ywybacx-tablePager"></div>
+      </div>
+  </div>
+  <div ms-class="['page',@act==3&&'active']">
+      <div class="chartDiv"></div>
+  </div>
+</div>

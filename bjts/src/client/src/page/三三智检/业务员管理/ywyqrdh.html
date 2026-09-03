@@ -1,0 +1,41 @@
+<div class="ywyqrdh tableLine" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+          业务员单户确认
+      </div>
+      <div class="btns">
+          <div class="btn" ms-click="@search(1)">查询</div>
+          <div class="btn" ms-click="@plqr">批量确认</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+    <div class="form" style="padding-top: 0;">
+      <table id="ywyqrdh-table"></table>
+      <div id="ywyqrdh-tablePager"></div>
+    </div>
+  </div>
+  <div class="page-model qr-page-model" style="height: 250px;width: 500px;margin-left: -250px;">
+    <div class="model-title">确认</div>
+    <div class="model-content" style="height: 160px;">
+      <p>
+        <label><span class="text-red">*</span>审核结果:</label>
+        <input type="radio" style="float: none;margin-top: 0;vertical-align: middle;" value="1" name="ywydhqr-result" ms-duplex="modelData.flag">确认
+        <input type="radio" style="float: none;margin-top: 0;vertical-align: middle;" value="0" name="ywydhqr-result" ms-duplex="modelData.flag">退回
+      </p>
+      <p class="thyy">
+        <label><span ms-if="modelData.flag == '0'" class="text-red">*</span>退回原因:</label>
+        <textarea rows="3" ms-attr="{'disabled':modelData.flag=='1'?true:false}" class="width-l" ms-duplex="modelData.thyy"></textarea>
+        <p ms-if="isShowErrorMsg" class="text-red error-tips">退回原因不能为空</p>
+      </p>
+    </div>
+    <div class="model-btns">
+      <div class="btn" ms-click="confirmModel">确定</div>
+      <div class="btn" ms-click="hideModel">取消</div>
+    </div>
+  </div>
+  <div class="page-model img-page-model" >
+    <div class="close" ms-click="hideModelImg()">&times;</div>
+    <span class="emptyTips" ms-if="!@imgSrc">暂无证件图片</span>
+    <img style="width: 100%;height:100%;" ms-attr="{src: @imgSrc}" alt="">
+</div>
+</div>

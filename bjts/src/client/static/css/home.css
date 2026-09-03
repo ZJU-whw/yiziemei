@@ -1,0 +1,94 @@
+.homepage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: url("../image/bg-home.png") no-repeat center center;
+  background-size: cover;
+}
+.homepage .foot {
+  height: 24px;
+  line-height: 24px;
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+  left: 0;
+}
+.homepage .foot p {
+  text-align: center;
+  height: 24px;
+  line-height: 24px;
+  color: #333333;
+}
+.homepage .home-content {
+  width: 850px;
+  margin: 100px auto 0;
+  height: 100%;
+  overflow: hidden;
+}
+.homepage .home-content img {
+  width: 400px;
+  height: auto;
+  vertical-align: middle;
+}
+.homepage .home-content img:first-child {
+  margin-right: 40px;
+}
+.homepage .row {
+  padding-left: 1%;
+}
+.homepage .row .col {
+  padding: 0 10px;
+}
+.homepage .alert {
+  padding: 10px 15px;
+  background: #f2f2f2 url("../image/location.png") left center no-repeat;
+  border-color: #c6c8ca;
+}
+.homepage .title {
+  padding-left: 20px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 16px;
+  color: #333333;
+}
+.homepage .card {
+  width: 100%;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f1f1f1;
+  box-sizing: border-box;
+}
+.homepage .card .card-body {
+  padding: 20px;
+  color: #999;
+}
+.homepage .card .card-body .card-title {
+  font-weight: 700;
+}
+.homepage .card.isValid {
+  background: #e0f2fa url("../image/active.png") 90% 80% no-repeat;
+  border-color: #0079c8;
+}
+.homepage .card.isValid .card-body {
+  color: #333;
+}
+.homepage .card.isValid .card-body .card-title {
+  color: #333;
+}
+.homepage .card.active {
+  background: #fff url("../image/isValid.png") 90% 80% no-repeat;
+  border-color: #ccc;
+}
+#loading {
+  display: none;
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  top: 50%;
+  left: 50%;
+  margin-top: -32px;
+  margin-left: -32px;
+}

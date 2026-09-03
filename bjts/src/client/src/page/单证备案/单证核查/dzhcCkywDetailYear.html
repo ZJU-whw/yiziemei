@@ -1,0 +1,457 @@
+<div class="dzhc-ckyw-detail dzhc-ckyw-detail-year">
+  <!-- 弹窗 -->
+  <div class="page-model page-model-edit-ai"
+    style="width: 95vw;max-width: 1800px;margin-left: 0px;height: 90vh; margin-top: 0px;transform: translate(-50%,-50%);">
+    <div class="model-title" style="display: flex; align-items: center; justify-content: space-between;">
+      <span>{{@editData.status=='0' && @isEdit? '编辑': '查看'}}（序号：{{@editData.id}}，状态：{{@editData.statusName}}）</span>
+      <div style="display: flex; align-items: center; gap: 16px; font-size: 14px; color: #333; margin-right: 30px;">
+        <span ms-if="@aiJobId">任务编号：{{@aiJobId}}</span>
+        <span ms-if="@aiSnapshotAt">快照时间：{{@aiSnapshotAt}}</span>
+        <span>任务状态：<span
+            ms-css="{color: @aiRefreshState=='refreshing'? '#faad14': @aiRefreshState=='ready'? '#52c41a': '#333'}">{{@aiRefreshStateText}}</span></span>
+        <!-- <span>工作流状态：<span ms-css="{color: @aiBusinessStatusColor}">{{@aiBusinessStatusText}}</span></span> -->
+        <div class="btn" ms-click="@reAiReview" style="padding: 2px 10px; font-size: 12px;">重新智审</div>
+        <div class="btn" ms-click="@refreshAiResult" style="padding: 2px 10px; font-size: 12px;">刷新结果</div>
+      </div>
+      <span class="model-close" ms-click="hideEdit">&times;</span>
+    </div>
+    <div class="model-content" style="height: calc(90vh - 64px); display: flex; padding: 0;">
+      <!-- 左侧：原有业务详情 -->
+      <div class="detail-left"
+        style="width: 38%; overflow-y: auto; padding: 10px 15px; border-right: 1px solid #e8e8e8; position: relative;">
+        <div class="btns clear" style="float: right; height: 20px;">
+          <div ms-if="(@editData.status=='0' && @isEdit && editData.balx!=1)" class="btn rt" ms-click="@saveEdit">保存
+          </div>
+          <div ms-if="isWindows" class="btn rt" ms-class="[(editData.status >=3 && editData.balx!=1)?'': 'disabled']" ms-click="searchDz">
+            查看单证</div>
+          <div ms-if="!isWindows" class="btn rt" ms-class="[(editData.status >=3 && editData.balx!=1 && hasTypeTreeFiles())?'': 'disabled']" ms-click="showMultiPdf">
+            查看单证</div>
+        </div>
+        <div class="g-form">
+          <div class="g-form-item lf" style="width: 100%;margin-bottom: 0;">
+            <label class="g-form-item_label" style="width: 100%;text-align: left;"><b>一、纳税人信息:</b></label>
+          </div>
+          <div class="g-form-item lf w-50per">
+            <label class="g-form-item_label">纳税人识别号</label>
+            <div class="g-form-item__content">
+              <input class="g-input" type="text" ms-duplex="@editData.nsrsbh" disabled
+                ms-attr="{title: @editData.nsrsbh}">
+            </div>
+          </div>
+          <div class="g-form-item lf w-50per">
+            <label class="g-form-item_label">纳税人名称</label>
+            <div class="g-form-item__content">
+              <input class="g-input" type="text" ms-duplex="@editData.nsrmc" disabled
+                ms-attr="{title: @editData.nsrmc}">
+            </div>
+          </div>
+          <div class="g-form-item lf w-50per">
+            <label class="g-form-item_label">联系人</label>
+            <div class="g-form-item__content">
+              <input class="g-input" type="text" ms-duplex="@editData.lxr" disabled ms-attr="{title: @editData.lxr}">
+            </div>
+          </div>
+          <div class="g-form-item lf w-50per">
+            <label class="g-form-item_label">联系电话</label>
+            <div class="g-form-item__content">
+              <input class="g-input" type="text" ms-duplex="@editData.lxrDh" disabled
+                ms-attr="{title: @editData.lxrDh}">
+            </div>
+          </div>
+          <div class="g-form-item lf" style="width: 100%;">
+            <label class="g-form-item_label">联系地址</label>
+            <div class="g-form-item__content">
+              <input class="g-input" type="text" ms-duplex="@editData.jydz" disabled ms-attr="{title: @editData.jydz}">
+            </div>
+          </div>
+          <div class="g-form-item lf" style="width: 100%;">
+            <label class="g-form-item_label">备注信息</label>
+            <div class="g-form-item__content">
+              <textarea class="g-textarea" rows="1" ms-duplex="@editData.note"
+                ms-attr="{disabled: @editData.status!='0' || !@isEdit, title: (@editData.status!='0' || !@isEdit) && @editData.note}"></textarea>
+            </div>
+          </div>
+          <div class="g-form-item lf" style="width: 100%;">
+            <label class="g-form-item_label" style="width: 100%;text-align: left;"><b>二、核查单证类型:</b></label>
+            <div ms-if="isWindows || !(editData.status >=3 && editData.balx!=1)">
+              <div class="clear mb-5" ms-for="item in @typeTreeData" style="font-size: 14px;">
+                <div class="lf width-s" style="text-align: right;padding-right: 12px;">{{item.name}}:</div>
+                <div style="overflow: hidden;">
+                  <div class="lf mr-10" style="width: 147px;" ms-for="tmp in item.item">
+                    <input class="vertical-middle" type="checkbox" ms-duplex="editRangeList"
+                      ms-attr="{value: tmp.value, disabled: (tmp.chkDisabled || @editData.status!='0' || !@isEdit || editData.balx==1), id: @templateName+tmp.value}" />
+                    <label ms-attr="{for: @templateName+tmp.value}">{{tmp.name}}</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div ms-if="!isWindows && (editData.status >=3 && editData.balx!=1)">
+              <wbr ms-widget="[{is:'dzhcTypeTree'}, {typeTreeData: @typeTreeData, detailInfo: @editData, configContainerId: 'ckywDetail'}]" />
+            </div>
+          </div>
+          <div class="g-form-item lf" style="width: 100%;margin-bottom: 0px;">
+            <label class="g-form-item_label" style="width: 100%;text-align: left;"><b>三、业务数据</b>:</label>
+          </div>
+          <div class="g-form-item lf w-50per" ms-for="item in @finisnList.slice(4,@finisnList.length)">
+            <label class="g-form-item_label">{{item.label}}</label>
+            <div class="g-form-item__content">
+              <input ms-if="item.type!='number'" type="text"
+                ms-attr="{value: @editData[item.key]||'', title: @editData[item.key]||''}" disabled>
+              <input ms-if="item.type=='number'" type="text" ms-duplex="@editData[item.key] | number(2)"
+                ms-attr="{title: @editData[item.key]||''}" disabled>
+            </div>
+          </div>
+          <div class="g-form-item lf" style="width: 100%;margin-bottom: 0px;">
+            <label class="g-form-item_label" style="width: 100%;text-align: left;"><b>四、核查任务退回记录</b>: <b
+                ms-visible="!hasBackList">无退回记录</b></label>
+          </div>
+          <div class="g-table" ms-visible="hasBackList" style="position: relative; width: 100%; max-height: 300px; overflow-y: auto; margin-bottom: 10px;">
+            <table ms-attr="{id: @templateName + '-back-table'}"></table>
+          </div>
+        <div ms-if="@editData.status=='4'">
+          <div class="g-form-item lf" style="width: 100%;margin-bottom: 0px;">
+            <label class="g-form-item_label" style="width: 100%;text-align: left;"><b>五、审核信息</b>:</label>
+          </div>
+          <div class="g-form-item lf" style="width: 100%;">
+            <label class="g-form-item_label">审核结果</label>
+            <div class="g-form-item__content">
+              <input class="g-input" type="text" ms-duplex="@editData.examineResult" disabled
+                ms-attr="{title: @editData.examineResult}">
+            </div>
+          </div>
+          <div class="g-form-item lf" style="width: 100%;">
+            <label class="g-form-item_label">审核意见</label>
+            <div class="g-form-item__content">
+              <textarea class="g-textarea" rows="1" disabled
+                ms-attr="{value: @editData.examineNote? @editData.examineNote: '',title: @editData.examineNote}"></textarea>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <!-- 右侧：智审详情 / 跨单证比对 -->
+      <div class="detail-right"
+        style="width: 62%; display: flex; flex-direction: column; overflow: hidden; background: #fff;">
+        <!-- Tab 切换栏 -->
+        <div
+          style="display: flex; height: 30px; background: #f0f0f0; flex-shrink: 0; padding: 4px; border-radius: 6px; margin: 6px 12px 0;">
+          <div ms-click="@aiTabIndex=0"
+            style="flex: 1; text-align: center; line-height: 30px; font-size: 14px; cursor: pointer; border-radius: 4px;"
+            ms-css="{background: @aiTabIndex==0? 'linear-gradient(135deg, #4f6ef2, #7c5cbf)': 'transparent', color: @aiTabIndex==0? '#fff': '#666', fontWeight: @aiTabIndex==0? 'bold': 'normal'}">
+            智审详情
+          </div>
+          <div ms-click="@aiTabIndex=1"
+            style="flex: 1; text-align: center; line-height: 30px; font-size: 14px; cursor: pointer; border-radius: 4px;"
+            ms-css="{background: @aiTabIndex==1? 'linear-gradient(135deg, #4f6ef2, #7c5cbf)': 'transparent', color: @aiTabIndex==1? '#fff': '#666', fontWeight: @aiTabIndex==1? 'bold': 'normal'}">
+            跨单证比对
+          </div>
+        </div>
+
+        <!-- Tab内容：智审详情 -->
+        <div ms-visible="@aiTabIndex==0" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column;">
+          <div style="padding: 14px 20px 0; flex-shrink: 0;">
+            <!-- 第一行：标题 + tag统计 + 筛选 -->
+            <div style="display: flex; align-items: center; flex-wrap: wrap; margin-bottom: 8px;">
+              <span style="font-size: 15px; font-weight: bold; color: #333; margin-right: 8px;">智审结果列表</span>
+              <span style="font-size: 12px; color: #999; margin-right: 12px;" ms-if="@aiTaskId">任务 {{@aiTaskId}}</span>
+              <!-- tag 样式统计 -->
+              <span
+                style="display: inline-block; padding: 0 8px; height: 22px; line-height: 22px; border-radius: 4px; font-size: 12px; background: #fff1f0; color: #f5222d; border: 1px solid #ffa39e; margin-right: 6px;">严重
+                {{@aiSummary.errors}}</span>
+              <span style="color: #d9d9d9; margin-right: 6px;">/</span>
+              <span
+                style="display: inline-block; padding: 0 8px; height: 22px; line-height: 22px; border-radius: 4px; font-size: 12px; background: #fffbe6; color: #faad14; border: 1px solid #ffe58f; margin-right: 6px;">警告
+                {{@aiSummary.warnings}}</span>
+              <!-- <span style="color: #d9d9d9; margin-right: 6px;">/</span>
+              <span
+                style="display: inline-block; padding: 0 8px; height: 22px; line-height: 22px; border-radius: 4px; font-size: 12px; background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; margin-right: 6px;">未处理
+                {{@aiSummary.non_ok_rules}}</span>
+              <span style="color: #d9d9d9; margin-right: 6px;">/</span> -->
+              <span
+                style="display: inline-block; padding: 0 8px; height: 22px; line-height: 22px; border-radius: 4px; font-size: 12px; background: #f5f5f5; color: #666; border: 1px solid #d9d9d9;">总数
+                {{@aiSummary.rules_total}}</span>
+              <!-- 右侧筛选 -->
+              <div style="margin-left: auto; display: flex; align-items: center; gap: 6px;">
+                <select class="bt-form-control"
+                  style="width: 80px; height: 26px; font-size: 12px; border: 1px solid #d9d9d9; border-radius: 3px;"
+                  ms-duplex="@aiFilterSeverity" data-duplex-changed="@filterAiItems">
+                  <option value="">全部</option>
+                  <option value="error">严重</option>
+                  <option value="warning">警告</option>
+                  <option value="info">提示</option>
+                </select>
+                <select class="bt-form-control"
+                  style="width: 80px; height: 26px; font-size: 12px; border: 1px solid #d9d9d9; border-radius: 3px;"
+                  ms-duplex="@aiFilterStatus" data-duplex-changed="@filterAiItems">
+                  <option value="">全部</option>
+                  <option value="mismatch">不一致</option>
+                  <option value="ok">一致</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 当前重审输入 Hash -->
+            <div ms-if="@aiInputHash"
+              style="margin-bottom: 8px; padding: 8px 12px; background: #f6f8fa; border: 1px solid #e8e8e8; border-radius: 3px; font-size: 12px; color: #999; line-height: 1.8;">
+              <div>当前重审输入 Hash</div>
+              <div style="word-break: break-all;">{{@aiInputHash}}</div>
+            </div>
+
+            <!-- 列表表头 -->
+            <div
+              style="display: flex; align-items: center; height: 36px; background: #fafafa; border: 1px solid #f0f0f0; font-size: 13px; color: #999; padding: 0 12px;">
+              <span style="width: 28px;"></span>
+              <span style="flex: 1;">单证对照</span>
+            </div>
+          </div>
+
+          <!-- 列表内容区 -->
+          <div style="flex: 1; overflow-y: auto; padding: 0 20px 16px;">
+            <!-- 空状态 -->
+            <div ms-if="@aiFilteredItems.length==0"
+              style="text-align: center; padding: 80px 0; color: #999; border: 1px solid #f0f0f0; border-top: none;">
+              <div ms-if="@aiWorkflowStatus=='succeeded' || @aiWorkflowStatus=='completed'">
+                <span style="color: #52c41a; font-size: 18px;">✓ 通过</span>
+                <p style="margin-top: 8px; font-size: 13px;">该批单证无疑点</p>
+              </div>
+              <div
+                ms-if="@aiWorkflowStatus=='failed' || @aiWorkflowStatus=='blocked' || @aiWorkflowStatus=='cancelled'">
+                <span style="color: #f5222d; font-size: 18px;">✗ 失败</span>
+                <p style="margin-top: 8px; font-size: 13px;">{{@aiWorkflowError || '智审执行失败'}}</p>
+              </div>
+              <div
+                ms-if="@aiWorkflowStatus!='succeeded' && @aiWorkflowStatus!='completed' && @aiWorkflowStatus!='failed' && @aiWorkflowStatus!='blocked' && @aiWorkflowStatus!='cancelled'">
+                <p style="font-size: 13px;">暂无结果</p>
+              </div>
+            </div>
+
+            <!-- 卡片列表 -->
+            <div ms-for="(idx, item) in @aiFilteredItems"
+              style="border: 1px solid #f0f0f0; border-top: none; padding: 16px 12px; background: #fff;">
+              <div style="display: flex; align-items: flex-start;">
+                <!-- 行号 -->
+                <span
+                  style="color: #999; min-width: 28px; text-align: center; font-size: 13px; line-height: 22px; flex-shrink: 0;">{{idx
+                  + 1}}</span>
+                <!-- 内容区 -->
+                <div style="flex: 1; min-width: 0;">
+                  <!-- 严重等级标签 + 规则名称 -->
+                  <div style="margin-bottom: 4px;">
+                    <span
+                      style="display: inline-block; padding: 1px 12px; border-radius: 10px; font-size: 12px; line-height: 20px; color: #fff; margin-right: 8px; vertical-align: middle;"
+                      ms-css="{background: item.severity=='error'? '#f5222d': item.severity=='warning'? '#faad14': item.severity=='pass'? '#52c41a': '#1890ff'}">{{item.severityText}}</span>
+                    <span
+                      style="font-weight: bold; font-size: 13px; color: #333; vertical-align: middle;">{{item.ruleName}}</span>
+                  </div>
+                  <!-- 描述 -->
+                  <div ms-if="item.description"
+                    style="font-size: 12px; color: #666; margin-bottom: 10px; line-height: 1.6; padding-left: 2px;">
+                    {{item.description}}</div>
+                  <!-- 左右单证对照 - 分离的两个区块 -->
+                  <div style="display: flex; gap: 12px; font-size: 12px;">
+                    <!-- 左侧单证 -->
+                    <div
+                      style="flex: 1; min-width: 0; background: #fafbfc; border: 1px solid #eef0f2; border-radius: 4px; padding: 8px 10px;">
+                      <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+                        <tr style="height: 28px;">
+                          <td style="color: #999; width: 42px; white-space: nowrap; vertical-align: middle;">单证</td>
+                          <td
+                            style="color: #333; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                            ms-attr="{title: item.leftDocumentName || ''}">{{item.leftDocumentName || '-'}}</td>
+                          <td
+                            style="color: #999; width: 42px; white-space: nowrap; vertical-align: middle; padding-left: 10px;">
+                            文件</td>
+                          <td
+                            style="color: #333; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                            ms-attr="{title: item.leftDocTypeName || ''}">{{item.leftDocTypeName || '-'}}</td>
+                        </tr>
+                        <tr style="height: 28px;">
+                          <td style="color: #999; width: 42px; white-space: nowrap; vertical-align: middle;">字段</td>
+                          <td
+                            style="color: #333; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                            ms-attr="{title: item.leftFieldLabel || ''}">{{item.leftFieldLabel || '-'}}</td>
+                          <td
+                            style="color: #999; width: 42px; white-space: nowrap; vertical-align: middle; padding-left: 10px;">
+                            字段值</td>
+                          <td
+                            style="color: #333; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                            ms-attr="{title: item.leftValue || ''}">{{item.leftValue || '-'}}</td>
+                        </tr>
+                      </table>
+                    </div>
+                    <!-- 右侧单证 -->
+                    <div
+                      style="flex: 1; min-width: 0; background: #fafbfc; border: 1px solid #eef0f2; border-radius: 4px; padding: 8px 10px;">
+                      <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+                        <tr style="height: 28px;">
+                          <td style="color: #999; width: 42px; white-space: nowrap; vertical-align: middle;">单证</td>
+                          <td
+                            style="color: #333; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                            ms-attr="{title: item.rightDocumentName || ''}">{{item.rightDocumentName || '-'}}</td>
+                          <td
+                            style="color: #999; width: 42px; white-space: nowrap; vertical-align: middle; padding-left: 10px;">
+                            文件</td>
+                          <td
+                            style="color: #333; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                            ms-attr="{title: item.rightDocTypeName || ''}">{{item.rightDocTypeName || '-'}}</td>
+                        </tr>
+                        <tr style="height: 28px;">
+                          <td style="color: #999; width: 42px; white-space: nowrap; vertical-align: middle;">字段</td>
+                          <td
+                            style="color: #333; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                            ms-attr="{title: item.rightFieldLabel || ''}">{{item.rightFieldLabel || '-'}}</td>
+                          <td
+                            style="color: #999; width: 42px; white-space: nowrap; vertical-align: middle; padding-left: 10px;">
+                            字段值</td>
+                          <td
+                            style="color: #333; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                            ms-attr="{title: item.rightValue || ''}">{{item.rightValue || '-'}}</td>
+                        </tr>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab内容：跨单证比对 -->
+        <div ms-visible="@aiTabIndex==1" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column;">
+          <div style="padding: 14px 20px 0; flex-shrink: 0;">
+            <!-- 标题栏 -->
+            <div style="display: flex; align-items: center; flex-wrap: wrap; margin-bottom: 10px;">
+              <span style="font-size: 15px; font-weight: bold; color: #333; margin-right: 10px;">跨单证比对</span>
+              <span
+                style="display: inline-block; padding: 0 12px; height: 26px; line-height: 26px; border-radius: 13px; font-size: 12px; color: #666; border: 1px solid #d9d9d9; background: #fff;"
+                ms-if="@ccGroupTags.length > 0">
+                <span ms-for="(gi, g) in @ccGroupTags">{{g.label}} {{g.count}}<span ms-if="gi < @ccGroupTags.length - 1"
+                    style="margin: 0 4px;">·</span></span>
+              </span>
+              <!-- 图例 -->
+              <div
+                style="margin-left: auto; display: flex; align-items: center; gap: 12px; font-size: 12px; color: #666;">
+                <span><img src="/static/image/dzhc1.png"
+                    style="width: 14px; height: 14px; vertical-align: text-bottom; margin-right: 2px;"> 一致</span>
+                <span><img src="/static/image/dzhc2.png"
+                    style="width: 14px; height: 14px; vertical-align: text-bottom; margin-right: 2px;"> 不一致</span>
+                <span><img src="/static/image/dzhc3.png"
+                    style="width: 14px; height: 14px; vertical-align: text-bottom; margin-right: 2px;"> 需确认</span>
+                <span><img src="/static/image/dzhc4.png"
+                    style="width: 14px; height: 14px; vertical-align: text-bottom; margin-right: 2px;"> 无数据</span>
+              </div>
+            </div>
+
+            <!-- 时间线 -->
+            <div ms-if="@ccTimeline.length > 0" style="margin-bottom: 14px; padding: 12px 0; position: relative;">
+              <div style="display: flex; align-items: flex-start;">
+                <div ms-for="(ti, titem) in @ccTimeline"
+                  style="flex: 1; text-align: center; position: relative; min-width: 0;">
+                  <!-- 左侧连线 -->
+                  <div ms-if="ti > 0" style="position: absolute; top: 12px; left: 0; right: 50%; height: 2px;"
+                    ms-css="{background: (titem.value && titem.value != '-' && @ccTimeline[ti-1].value && @ccTimeline[ti-1].value != '-')? '#9ebdb2': '#e8e8e8'}"></div>
+                  <!-- 右侧连线 -->
+                  <div ms-if="ti < @ccTimeline.length - 1"
+                    style="position: absolute; top: 12px; left: 50%; right: 0; height: 2px;"
+                    ms-css="{background: (titem.value && titem.value != '-' && @ccTimeline[ti+1].value && @ccTimeline[ti+1].value != '-')? '#9ebdb2': '#e8e8e8'}"></div>
+                  <!-- 编号圆点 -->
+                  <div
+                    style="width: 22px; height: 22px; border-radius: 50%; line-height: 22px; font-size: 11px; margin: 0 auto 6px; position: relative; z-index: 1; border: 2px solid;"
+                    ms-css="{background: (titem.value && titem.value != '-')? '#defaf5': '#fff', color: (titem.value && titem.value != '-')? '#52c41a': '#999', borderColor: (titem.value && titem.value != '-')? '#b4f5e9': '#d9d9d9'}">
+                    {{ti + 1}}</div>
+                  <!-- 标签 -->
+                  <div style="font-size: 11px; color: #333; line-height: 1.4; padding: 0 2px;">{{titem.label}}</div>
+                  <!-- 日期 -->
+                  <div style="font-size: 11px; color: #999; margin-top: 2px;">{{titem.value || '-'}}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 环节标签栏 -->
+            <div ms-for="group in @ccGroups" ms-if="group.fields.length > 0" style="margin-bottom: 6px;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+                <span style="font-size: 13px; font-weight: bold; color: #333;">{{group.label}}</span>
+                <span
+                  style="display: inline-block; padding: 0 10px; height: 24px; line-height: 24px; border-radius: 12px; font-size: 12px; color: #666; border: 1px solid #d9d9d9; background: #fff;">{{group.docCount}}
+                  份单证</span>
+                <span
+                  style="display: inline-block; padding: 0 10px; height: 24px; line-height: 24px; border-radius: 12px; font-size: 12px; color: #fff; background: #49beff">{{group.fieldCount}}
+                  个字段</span>
+                <span ms-if="group.mismatchCount > 0" style="font-size: 12px; color: #333;">不一致 <span
+                    style="color: #f46f78;">{{group.mismatchCount}}</span></span>
+                <span ms-if="group.mismatchCount > 0 && group.warningCount > 0" style="color: #d9d9d9;">·</span>
+                <span ms-if="group.warningCount > 0" style="font-size: 12px; color: #333;">需确认 <span
+                    style="color: #b9895e;">{{group.warningCount}}</span></span>
+              </div>
+
+              <!-- 比对主表 -->
+              <div style="overflow-x: auto; margin-bottom: 14px;">
+                <table
+                  style="width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; min-width: 600px;">
+                  <thead>
+                    <tr style="background: #fafafa;">
+                      <th
+                        style="text-align: left; padding: 8px 10px; border: 1px solid #f0f0f0; width: 130px; font-weight: bold; color: #333;">
+                        共有字段</th>
+                      <th ms-for="doc in group.docTypes"
+                        style="text-align: center; padding: 8px 6px; border: 1px solid #f0f0f0; font-weight: bold; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                        ms-attr="{title: doc.name}">{{doc.name}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ms-for="row in group.fields"
+                      ms-css="{background: row.statusIcon=='mismatch'? '#fef5f5': row.statusIcon=='warning'? '#fef3db': '#fff'}">
+                      <td style="padding: 8px 10px; border: 1px solid #f0f0f0; color: #333; white-space: nowrap;">
+                        <img ms-if="row.statusIcon=='match'" src="/static/image/dzhc1.png"
+                          style="width: 14px; height: 14px; vertical-align: text-bottom; margin-right: 4px;">
+                        <img ms-if="row.statusIcon=='mismatch'" src="/static/image/dzhc2.png"
+                          style="width: 14px; height: 14px; vertical-align: text-bottom; margin-right: 4px;">
+                        <img ms-if="row.statusIcon=='warning'" src="/static/image/dzhc3.png"
+                          style="width: 14px; height: 14px; vertical-align: text-bottom; margin-right: 4px;">
+                        <img ms-if="row.statusIcon=='empty'" src="/static/image/dzhc4.png"
+                          style="width: 14px; height: 14px; vertical-align: text-bottom; margin-right: 4px;">
+                        {{row.fieldName}}
+                      </td>
+                      <td ms-for="cell in row.cells"
+                        style="padding: 0; border: 1px solid #f0f0f0; vertical-align: middle;"
+                        ms-css="{background: cell.status=='mismatch'? '#fce3e3': cell.status=='warning'? '#fde9bd': 'transparent'}">
+                        <div style="display: flex; align-items: center;">
+                          <div style="flex: 1; padding: 8px 6px; text-align: center; word-break: break-all;"
+                            ms-css="{color: cell.status=='mismatch'? '#f46f78': cell.status=='warning'? '#b9895e': cell.status=='empty'? '#d9d9d9': '#333'}">
+                            {{cell.value || '-'}}</div>
+                          <div ms-if="cell.status=='mismatch' || cell.status=='warning'"
+                            style="width: 20px; flex-shrink: 0; text-align: center;">
+                            <img ms-if="cell.status=='mismatch'" src="/static/image/dzhc2.png"
+                              style="width: 12px; height: 12px; vertical-align: text-bottom;">
+                            <img ms-if="cell.status=='warning'" src="/static/image/dzhc3.png"
+                              style="width: 12px; height: 12px; vertical-align: text-bottom;">
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 空状态 -->
+          <div ms-if="@ccGroups.length==0" style="text-align: center; padding: 100px 0; color: #999; font-size: 13px;">
+            暂无数据
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 退回文件弹框 -->
+  <div class="page-model-back-file-overlay" style="display: none;" ms-on-click="hideBackFile"></div>
+  <div class="page-model page-model-back-file" style="display: none;">
+    <div class="model-title">
+      <span>退回文件</span>
+      <span class="model-close" ms-click="hideBackFile">&times;</span>
+    </div>
+    <div class="model-content" style="padding: 10px;">
+      <wbr ms-widget="[{is:'dzhcTypeTree'}, {typeTreeData: @backFileTreeData, detailInfo: @editData, configContainerId: 'backFile', customApi: 'dzbaInspectDailyBackFileViewPdf'}]" />
+    </div>
+  </div>
+</div>

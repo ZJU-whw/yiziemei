@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.SysParamModelMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.SysParamModel" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" property="id" jdbcType="DECIMAL" />
+    <result column="DCODE" property="dcode" jdbcType="VARCHAR" />
+    <result column="DVALUE" property="dvalue" jdbcType="VARCHAR" />
+    <result column="DTYPE" property="dtype" jdbcType="VARCHAR" />
+    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+</mapper>

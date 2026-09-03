@@ -1,0 +1,85 @@
+<div class="ybqywh" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        样本企业维护
+      </div>
+  </div>
+  <div class="clear" ms-class="['page','active']" >
+    <div class="form qyfz lf">
+      <div class="clear">
+        <div class="subTitle lf">企业样本</div>
+        <div class="btns rt">
+          <div class="btn" ms-click="@addQyfz">添加</div>
+        </div>
+      </div>
+      <div style="padding-top: 2px">
+        <table id="ybqywh-qyfz-table"></table>
+        <div id="ybqywh-qyfz-tablePager"></div>
+      </div>
+    </div>
+    <div class="qyList lf">
+      <div class="yxqy">
+        <div class="clear">
+          <div class="subTitle lf">已选企业</div>
+          <div class="btns rt">
+            <div class="btn" ms-click="@exportYxqy" title="导出">导出</div>
+            <div class="btn fileupload" ms-click="beforeImport">导入
+              <input id="ybqywh-fileupload" title="" type="file" name="file" data-url="/bjtssw/sjjc/qyxx/import">
+            </div>
+            <div class="btn" ms-click="@downMB" title="下载用于导入的excel模板">下载模板</div>
+            <div class="btn" ms-click="@delYxqy">移除</div>
+          </div>
+        </div>
+        <div style="padding-top: 2px">
+          <table id="ybqywh-yxqy-table"></table>
+          <div id="ybqywh-yxqy-tablePager"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 添加 -->
+  <div class="page-model page-model-add" style="height: 200px;width: 400px;margin-left: -200px;">
+    <div class="model-title">
+      <span>添加企业样本</span>
+      <span class="g-close" ms-click="hideModel('page-model-add')">&times;</span>
+    </div>
+    <div class="model-content" style="height: 114px;">
+      <div class="model-item clear">
+        <label>样本名称：</label>
+        <input type="text" ms-duplex="modelData.sname">
+      </div>
+      <div class="model-item clear mt-10">
+        <label>适用范围：</label>
+        <input class="item-content" readonly type="text" ms-duplex="swjgmc" ms-click="@showTree">
+        <ul id="ybqywhTree" class='ztree treeDiv' style="left: 120px;width:230px"></ul>
+      </div>
+    </div>
+    <div class="model-btns">
+      <div class="btn" ms-click="saveModel">确定</div>
+      <div class="btn" ms-click="hideModel('page-model-add')">取消</div>
+    </div>
+  </div>
+  <!-- 编辑 -->
+  <div class="page-model page-model-edit" style="height: 200px;width: 400px;margin-left: -200px;">
+    <div class="model-title">
+      <span>编辑企业样本</span>
+      <span class="g-close" ms-click="hideModel('page-model-edit')">&times;</span>
+    </div>
+    <div class="model-content" style="height: 114px;">
+      <div class="model-item clear">
+        <label>样本名称：</label>
+        <input type="text" ms-duplex="@editData.sname">
+      </div>
+      <div class="model-item clear mt-10">
+        <label>启用标志：</label>
+        <div class="switchBtn">
+          <span class="easyswitch onSwitch" ms-attr="{'data-default': @editData.qybz}"></span>
+        </div> 
+      </div>
+    </div>
+    <div class="model-btns">
+      <div class="btn" ms-click="saveEditModel">确定</div>
+      <div class="btn" ms-click="hideModel('page-model-edit')">取消</div>
+    </div>
+  </div>
+</div>

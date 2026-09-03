@@ -1,0 +1,115 @@
+<div class="bbmx bbmxb03101">
+    <div class="pageTabs">
+        <div class="pageTitle" ms-for="(index,item) in pageTitle">
+            <span>{{item}}</span>
+            <span ms-if="index!=(pageTitle.length-1)">-</span>
+        </div>
+        <div class="rt text-blue" style="line-height: 33px;">
+            计量单位：万元、万美元
+        </div>
+    </div>
+    <div class="pageTabs" style="top:33px">
+        <div style="height:33px;line-height:33px;float: left;">
+            <span style="margin: 0 5px">{{"【申报年月】"+searchData.ssny}}</span>
+            <span style="margin: 0 5px">{{"【税务机关】"+searchData.swjgmc}}</span>
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">刷新</div>
+            <div ms-if="TZswitch=='1'&&form.bbtype!='1'" class="btn" ms-click="@addRow">增加行</div>
+            <div ms-if="TZswitch=='1'&&form.bbtype!='1'" class="btn" ms-click="@delRow">删除行</div>
+            <div ms-if="TZswitch=='1'" class="btn" ms-click="@calTable">计算</div>
+            <div ms-if="TZswitch=='1'" class="btn" ms-click="@saveBB">保存</div>
+            <!--<div ms-if="@zbxxFlag" class="btn" ms-click="@showModel">制表信息</div>-->
+            <div class="btn dropdown" ms-on-click="showMenu">
+                导出报表▼
+                <ul class="dropdown-menu">
+                    <li style="padding: 2px;overflow: hidden"><div class="btn" ms-click="@exform('0')">原始数据</div></li>
+                    <li style="padding: 2px;overflow: hidden"><div class="btn" ms-click="@exform('1')">上报数据</div></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="form" style="padding-top: 33px">
+            <div id="bbmxb03101-chart" style="min-width: 600px;height:400px;"></div>
+            <div class="table-wrapper bbtype1" ms-if="form.bbtype=='1'">
+                <table class="table">
+                        <thead>
+                        <tr ms-for="row in tableOption.header">
+                            <th ms-for="cell in row" ms-attr="{colspan:cell.w,rowspan:cell.h}">
+                                <div ms-css="{'min-width':'100%',width:cell.dispwidth?cell.dispwidth+'px':'auto',height:cell.dispheight?cell.dispheight+'px':'auto',overflow:'hidden'}">
+                                    {{cell.showname}}
+                                </div>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ms-for="(index,row) in tableOption.liner">
+                            <td ms-for="cell in row" ms-attr="{colspan:cell.w,rowspan:cell.h}" style="background:#eee;">
+                                <div ms-css="{width:cell.dispwidth?cell.dispwidth+'px':'auto',height:cell.dispheight?cell.dispheight+'px':'auto','text-align':'center',overflow:'hidden'}">
+                                    {{cell.showname}}
+                                </div>
+                            </td>
+                            <td ms-for="(colIndex,col) in tableOption.column">
+                                <div class="tableDataCell" ms-if="tableData.rows[index]&&tableData.rows[index][col.fname]!==undefind">
+                                    <div class="redDelta" ms-visible="@checkRed(index,col.fname)"></div>
+                                    <input
+                                        ms-class="[@defaultData[index][col.fname]!==''&&@location.indexOf((index+1)+'-'+(colIndex+1))>-1&&'link']"
+                                        ms-css="{'text-align':col.align=='0'?'left':col.align=='1'?'center':'right'}"
+                                        ms-duplex="tableData.rows[index][col.fname]" ms-on-change="degree(index,col.fname,col.degree)"
+                                        ms-attr="[{disabled:(col.allowupdate=='N'||tableData.rows[index].ALLOWUPDATE=='N')?true:false},{title:@checkHz(index,col.fname)}]"
+                                        ms-dblclick="@getProfile(col.fname,index,index+1,colIndex+1, tableData.rows[index].BBLC)"
+                                    >
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+            </div>
+            <div class="table-wrapper" ms-if="form.bbtype=='2'">
+                <table class="table">
+                        <thead>
+                        <tr ms-for="row in tableOption.header">
+                            <th ms-for="cell in row" ms-attr="{colspan:cell.w,rowspan:cell.h}">
+                                <div :css="cell.css" class="header-cell">
+                                    {{cell.showname}}
+                                </div>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ms-for="(index,row) in tableData.rows" ms-on-click='@myActiveRow($event)'>
+                            <td  ms-for="(colIndex,col) in tableOption.column" class="tablecell">
+                                <div class="tableDataCell" ms-if="tableData.rows[index]&&tableData.rows[index][col.fname]!==undefind">
+                                    <div class="redDelta" ms-visible="@checkRed(index,col.fname)"></div>
+                                    <input
+                                        ms-class="[@defaultData[index][col.fname]!==''&&@location.indexOf('0-'+(colIndex+1))>-1&&'link']"
+                                        ms-css="{'text-align':col.align=='0'?'left':col.align=='1'?'center':'right'}"
+                                        ms-duplex="tableData.rows[index][col.fname]"
+                                        ms-on-change="degree(index,col.fname,col.degree)"
+                                        ms-attr="{disabled:@checkDisabled(col,index),title:@checkHz(index,col.fname)}"
+                                        ms-dblclick="@getProfile(col.fname,index,0,colIndex+1, row.BBLC,'1')">
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-model zbxxModel">
+        <div class="model-title">制表信息</div>
+        <div class="model-content">
+            <p><label>制表税局：</label><input type="text" class="width-l" ms-duplex="modelData.swjgmc"> </p>
+            <p><label>报表期别：</label><input type="text" class="width-l" ms-duplex="modelData.ssny"> </p>
+            <p><label>计量单位：</label><input type="text" class="width-l" ms-duplex="modelData.unit"> </p>
+            <p><label>填 报 人：</label><input type="text" class="width-l" ms-duplex="modelData.zbr"> </p>
+            <p><label>填报日期：</label><input type="text" class="datepicker date-day width-l" ms-duplex="modelData.zbdate | change" :on-blur="@filDate"></p>
+        </div>
+        <div class="model-btns">
+            <div class="btn" ms-click="saveModel">保存</div>
+            <div class="btn" ms-click="hideModel">取消</div>
+        </div>
+    </div>
+</div>

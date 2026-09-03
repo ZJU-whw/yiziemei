@@ -1,0 +1,200 @@
+<div class="dshywcl jcfx">
+    <div class="pageTabs">
+      <div class="pageTitle">
+        待审核业务处理
+      </div>
+      <div class="btns" ms-if="@act==1">
+        <div class="btn" ms-click="@normalSearch()">查询</div>
+        <div class="btn" ms-click="@exform">导出</div>
+        <div class="btn" ms-click="@review" title="批量审核" ms-visible="@shFlag&&@hasHsPermission">批量审核</div>
+        <div class="btn" title="机审状态为机审通过时可用" style="background-color: #ccc;" ms-visible="!@shFlag&&@hasHsPermission">批量审核</div>
+        <div class="btn" ms-click="@showModel" title="批量审核" ms-visible="@yjFlag&&@hasHsPermission">批量退回</div>
+        <div class="btn" title="机审状态为机审有意见时可用" style="background-color: #ccc;" ms-visible="!@yjFlag&&@hasHsPermission">批量退回</div>
+        <div class="btn dropdown" ms-on-click="showMenu">
+          配置表格▼
+          <ul class="dropdown-menu">
+            <li ms-for="(index,item) in @tableOption"><label><input type="checkbox" ms-duplex-checked="item.show"
+                  ms-on-click="@setTableOption(item,$event)">{{item.label}}</label></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']">
+      <form name="dshywcl-form">
+        <div class="select-wrapper">
+          <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+          <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+          <div class="select-main">
+            <div class="select-item"  ms-visible="searchData.keyValue=='1'" style="width: 25%;">
+              <select  data-duplex-changed="changeZTS" style="margin-left: 70px;width: calc(40% - 70px);" ms-duplex="@searchData.keyValue">
+                <option value="1">征收机关</option>
+                <option value="2">退税机关</option>
+              </select>
+              <input readonly type="text" ms-duplex="@tsjgmc" ms-click="@showTree" />
+              <ul id="dshywcltree" class="ztree treeDiv" style="left: 90px"></ul>
+            </div>
+            <div  ms-visible="searchData.keyValue=='2'" class="select-item" style="width: 25%;">
+              <select  data-duplex-changed="changeZTS" style="margin-left: 70px;width: calc(40% - 70px);" ms-duplex="@searchData.keyValue">
+                <option value="1">征收机关</option>
+                <option value="2">退税机关</option>
+              </select>
+              <input readonly type="text" ms-duplex="@swjgMc" ms-click="@showTree" />
+              <ul id="dshywcltreeTs" class="ztree treeDiv" style="left: 90px"></ul>
+            </div>
+            <div class="select-item" style="width: 25%;">
+              <label title="机审意见">机审意见</label>
+              <select ms-duplex="@searchData.jsdm">
+                <option value=""></option>
+                <option ms-for="item in @jsList" ms-attr="{value: item.dcode}">{{item.dname}}</option>
+              </select>
+            </div>
+          <div class="select-item" style="width: 25%;">
+            <label title="企业确认状态">企业确认状态</label>
+            <select ms-duplex="@searchData.qyqrzt">
+              <option value="">全部</option>
+              <option value="1">适用征税</option>
+              <option value="2">适用免税</option>
+              <option value="3">已全部退税</option>
+              <option value="5">非销售业务</option>
+            </select>
+          </div>
+          <div class="select-item" style="width: 25%;">
+            <label title="机审状态">机审状态</label>
+            <select ms-duplex="@searchData.jszt">
+              <option value=""></option>
+              <option value="0">未审核</option>
+              <option value="1">机审通过</option>
+              <option value="2">机审有意见</option>
+            </select>
+          </div>
+          </div>
+          <div class="select-sub">
+            <div class="select-item nsrsbh-group" style="width: 25%;">
+              <label>
+                <select class="bt-form-control select-nsrsbh" ms-duplex="rqSearchType"
+                  data-duplex-changed="rqSearchTypeChg">
+                  <option value="ckrq">出口日期</option>
+                  <option value="cjrq">新增日期</option>
+                  <option value="qrrq">确认日期</option>
+                  <option value="jsrq">机审日期</option>
+                </select>
+              </label>
+              <div class="select-item-inner" ms-visible="@rqSearchType=='ckrq'">
+                <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate"
+                  ms-duplex="@searchData.ckrqQ">
+                <span style="margin:0;">止</span>
+                <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate"
+                  ms-duplex="@searchData.ckrqZ">
+              </div>
+              <div class="select-item-inner" ms-visible="@rqSearchType=='cjrq'">
+                <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate"
+                  ms-duplex="@searchData.cjrqQ">
+                <span style="margin:0;">止</span>
+                <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate"
+                  ms-duplex="@searchData.cjrqZ">
+              </div>
+              <div class="select-item-inner" ms-visible="@rqSearchType=='qrrq'">
+                <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate"
+                  ms-duplex="@searchData.qrrqQ">
+                <span style="margin:0;">止</span>
+                <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate"
+                  ms-duplex="@searchData.qrrqZ">
+              </div>
+              <div class="select-item-inner" ms-visible="@rqSearchType=='jsrq'">
+                <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate"
+                  ms-duplex="@searchData.jsrqQ">
+                <span style="margin:0;">止</span>
+                <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate"
+                  ms-duplex="@searchData.jsrqZ">
+              </div>
+            </div>
+            <div class="select-item" style="width: 25%;">
+              <label title="监管方式">监管方式</label>
+              <div style="width:60%;height: 21px;" class="tree clear lf">
+                <div
+                  class="item-content showSelect text-ellipsis"
+                  ms-click="@showTree"
+                  ms-attr="{title: @selectMc.name}">{{(@selectMc.value.length>3 ? @selectMc.value.length+ '项已选择':@selectMc.name)}}</div>
+                <ul
+                  style="height: 200px;"
+                  id="dshywclJgfs"
+                  class='treeSelect ztree treeDiv'></ul>
+              </div>
+            </div>
+            <div class="select-item" style="width: 25%;">
+              <label title="报关单/代理证明号">报关单号/代理证明号</label>
+              <input class="width-l" type="text" ms-duplex="searchData.ckpzhm" maxlength="21">
+            </div>
+            <div class="select-item" style="position: relative;">
+              <label  title="街道乡镇">街道乡镇</label>
+              <input readonly type="text" ms-duplex="jdxz_mc" ms-click="@showTree">
+              <ul  class='ztree treeDiv' id="dshywclJdxz" style="left: 90px;"></ul>
+          </div>
+            <div class="select-item nsrsbh-group" style="width: 25%;">
+              <label>
+                <select class="bt-form-control select-nsrsbh" ms-duplex="qyqrxxSearchType" data-duplex-changed="qyqrxxSearchTypeChg">
+                  <option value="ckfphm">出口发票号</option>
+                  <option value="jhpzhm">进货凭证号</option>
+                </select>
+              </label>
+              <input ms-visible="@qyqrxxSearchType=='ckfphm'" type="text" class="bt-form-control"
+                ms-duplex="@searchData.ckfphm" maxlength="20">
+              <input ms-visible="@qyqrxxSearchType=='jhpzhm'" type="text" class="bt-form-control"
+                ms-duplex="@searchData.jhpzhm" maxlength="20">
+            </div>
+            <div class="select-item nsrsbh-group" style="width: 25%;">
+              <label>
+                <select class="bt-form-control select-nsrsbh" ms-duplex="qytjSearchType"
+                  data-duplex-changed="qytjSearchTypeChg">
+                  <option value="nsrsbh">企业税号</option>
+                  <option value="qyhgdm">企业海关代码</option>
+                  <option value="nsrmc">企业名称</option>
+                </select>
+              </label>
+              <input ms-visible="@qytjSearchType=='nsrsbh'" type="text" class="bt-form-control"
+                ms-duplex="@searchData.nsrsbh" maxlength="21">
+              <input ms-visible="@qytjSearchType=='qyhgdm'" type="text" class="bt-form-control"
+                ms-duplex="@searchData.qyhgdm" maxlength="50">
+              <input ms-visible="@qytjSearchType=='nsrmc'" type="text" class="bt-form-control"
+                ms-duplex="@searchData.nsrmc" maxlength="30">
+            </div>
+            <div class="select-item" style="width: 25%;">
+              <label title="退税计算方式">退税计算方式</label>
+              <select ms-duplex="@searchData.tsjsfs">
+                <option value=""></option>
+                <option value="1">免抵退</option>
+                <option value="2">免退税</option>
+              </select>
+            </div>
+          </div>
+  
+        </div>
+      </form>
+      <div class="form" style="padding-top: 54px">
+        <table id="dshywcl-table"></table>
+        <div id="dshywcl-tablePager"></div>
+      </div>
+    </div>
+    <div class="page-model hscl-page-model" style="height:270px;width: 500px;margin-top: -140px;" >
+      <div class="model-title">
+        <span>批量退回</span>
+        <span class="model-close" ms-mousedown="$event.preventDefault()" ms-click="hideModel">&times;</span>
+      </div>
+      <div class="model-content g-form clear" style="height: 170px;padding: 10px 20px;">
+        <div class="g-form-item">
+          <div class="g-form-item_label">税务审核意见：</div>
+          <div class="g-form-item__content">
+            <textarea rows="3" style="height: 80px;" class="g-textarea" ms-duplex="@submitData.swshHtyj"></textarea>
+          </div>
+        </div>
+        <div style="line-height: 1.6;">
+        <p style="color: #666;">
+          税务审核意见非空时，企业端展现税务审核意见；税务审核意见为空时，企业端直接展现机审意见。
+        </p>
+      </div>
+      </div>
+      <div class="model-btns">
+        <div class="btn" ms-click="@reviewBack">审核</div>
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,29 @@
+<div class="pxry" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            培训报名信息
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="select-wrapper" style="padding-bottom: 10px">
+            <div class="select-main" style="line-height: 1">
+                <div class="select-item">
+                    <label  title="是否签到">是否签到</label>
+                    <select ms-duplex="@searchData.signFlag">
+                        <option value="" ></option>
+                        <option value="1" >已签到</option>
+                        <option value="0" >未签到</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 40px">
+            <table id="pxry-table"></table>
+            <div id="pxry-tablePager"></div>
+        </div>
+    </div>
+</div>

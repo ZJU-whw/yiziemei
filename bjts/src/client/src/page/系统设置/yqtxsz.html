@@ -1,0 +1,31 @@
+<div class="yqtxsz">
+  <div class="pageTabs">
+      <div class="pageTitle">
+        逾期提醒设置
+      </div>
+      <!-- <div class="btns">
+        <div class="btn" ms-click="@save">保存</div>
+      </div> -->
+  </div>
+  <div ms-class="['page','active']" >
+    <table class="yqtxsz-table">
+      <tr>
+        <th style="width: 120px;">分类管理等级</th>
+        <th>即将逾期期限</th>
+        <th>逾期期限</th>
+      </tr>
+      <tr ms-for="(index, item) in @dataList">
+        <td>{{@codeMap[item.dcode]}}</td>
+        <td>
+          <input class="append" type="text" ms-duplex="@dataList[index].dvalue1" data-duplex-changed="numberValid(index, 'dvalue1')" disabled>
+          <span class="append-content">天</span>
+        </td>
+        <td>
+          <input class="append" type="text" ms-duplex="@dataList[index].dvalue2" data-duplex-changed="numberValid(index, 'dvalue2')" disabled>
+          <span class="append-content">天</span>
+        </td>
+      </tr>
+    </table>
+    <p class="tips">注：即将逾期当天下午、逾期当天下午发送短信提醒</p>
+  </div>
+</div>

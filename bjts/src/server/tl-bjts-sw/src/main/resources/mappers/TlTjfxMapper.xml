@@ -1,0 +1,1393 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.TlTjfxMapper">
+    <delete id="deleteTempData">
+        DELETE from tl_admin.tjbb_dt_d01006 where PARAMHASH = 'TEMP-'||#{pramHash} and swjgdm=#{swjgdm}
+    </delete>
+
+    <select id="selectStatesByDq" resultType="com.tl.bjts.sw.model.vo.StateVo$State">
+        select m.gb_code as code,m.gb_name as name from tl_admin.dm_dqgroup t ,tl_admin.dm_gbcode m
+        where t.gb_code=m.gb_code and dq_code=#{dqCode} order by m.gb_code
+    </select>
+
+    <select id="selectStates" resultType="com.tl.bjts.sw.model.vo.StateVo$State">
+        select c.gb_code as code,c.gb_name as name
+          from tl_admin.dm_dqcode a,tl_admin.dm_dqgroup b, tl_admin.dm_gbcode c
+        where a.dq_code=b.dq_code and b.gb_code=c.gb_code and a.dq_type='DQ'
+    </select>
+
+    <select id="selectDyncTableData" resultType="map" >
+        select
+        row_number() over (order by t.bblc) rn,
+        t.*
+        from tl_admin.${tablename}  t
+        where t.paramhash=#{paramhash}
+    </select>
+
+    <!--  查询出口退税审核审批表 -->
+    <select id="selectTjbbCxCktsshspqk" resultType="map" >
+         select
+        swjg.swjg_jc as "swjgmc",
+         bqtse_fh as "bqtse_fh",
+         ljtse_fh as "ljtse_fh",
+         bqtse_hz as "bqtse_hz",
+         ljtse_hz as "ljtse_hz",
+         bqtse_sp as "bqtse_sp",
+         ljtse_sp as "ljtse_sp",
+         bqtse_kp as "bqtse_kp",
+         ljtse_kp as "ljtse_kp",
+         dqdhztse as "dqdhztse",
+         dqdsptse as "dqdsptse",
+         dqdkptse as "dqdkptse"
+        from tl_admin.tjbb_cx_cktsshspqk  t left outer join tl_admin.dm_swjg swjg on (t.swjgdm= swjg.swjg_dm)
+        where t.paramhash=#{pramHash}
+    </select>
+
+    <select id="selectD01003" resultType="map" >
+        select
+        row_number() over (order by b.spml) rn,
+        b.mldm as spml,b.mlmc,c.*
+        from (select * from tl_admin.Tjbb_Dt_D01003  a  where a.paramhash=#{pramHash} ) c
+        right join tl_admin.dm_spml b on c.mldm=b.spml
+    </select>
+
+    <select id="selectD01007" resultType="map" >
+        select
+        decode(length(hydm),1,hymc,'') main_hymc,
+        decode(length(hydm),1,'',hymc) sub_hymc,
+        row_number() over (order by sjhy_dm,length(bblc), bblc) rn,
+        t.* from tl_admin.Tjbb_Dt_D01007 t where paramhash=#{pramHash}
+    </select>
+
+    <select id="selectExistHashRecord" resultType="java.lang.Integer">
+        select count(1) from tl_admin.${tablename} where paramhash=#{pramHash}
+    </select>
+
+    <select id="selectD01010" resultType="java.util.Map">
+        select * from tl_admin.Tjbb_Dt_D01010 where paramhash=#{pramHash} order by sjxzqh,bblc
+    </select>
+
+    <select id="getWmghqymx" resultType="com.tl.bjts.sw.model.vo.WmGhqyMxVo">
+
+        select mx.ghfnsrsbh_1 as ghfns_no,nsrmc,
+        sum(case when kprq between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.jsje else 0 end) as jhamt_sq,
+        sum(case when kprq between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.tse else 0 end) as tse_sq,
+        sum(case when kprq between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.jsje else 0 end) as jhamt,
+        sum(case when kprq between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.tse else 0 end) as tse
+        from tl_tssh.glxt_bb_shxt_djxx dj,
+        tl_tssh.ckts_sb_mts_jhmx mx
+        where dj.swjgdm like #{cxtjDTO.swjgDm}||'%' and
+        mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%' and
+        dj.djxh_js=mx.djxh
+        <choose>
+            <when test=" cxtjDTO.sjxzqh!=null and cxtjDTO.sjxzqh !=''">
+                and mx.xzqh like #{cxtjDTO.sjxzqh}||'%'
+            </when>
+            <otherwise>
+                and mx.xzqh =#{cxtjDTO.xzqh}
+            </otherwise>
+        </choose>
+        and
+        ((kprq between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+        (kprq between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+
+        <if test=" '1'.toString()==cxtjDTO.tjlx and haveGbcode==true">
+            and exists(select 1 from tl_tssh.ckts_sb_mts_ckmx ck where ck.djxh=mx.djxh and ck.glh=mx.glh
+            and ck.tsswjg_dm=mx.tsswjg_dm
+            and ck.gbcode in
+            <foreach collection="cxtjDTO.gbcode" item="item" index="index" open="(" separator="," close=")" >
+                #{item}
+            </foreach>
+            )
+        </if>
+        <if test=" '2'.toString()==cxtjDTO.tjlx  and haveSpmlcode==true">
+            and substr(mx.cksp_dm,1,2) in
+            (select spdl from tl_admin.dm_spfl  where spml in
+            <foreach collection="cxtjDTO.spmlcode" item="item" index="index" open="(" separator="," close=")" >
+                #{item}
+            </foreach>
+            )
+        </if>
+        <if test=" '3'.toString()==cxtjDTO.tjlx  and haveTslcode==true">
+            and round(mx.tsl,0) in
+            <foreach collection="cxtjDTO.tslcode" item="item" index="index" open="(" separator="," close=")" >
+                #{item}
+            </foreach>
+        </if>
+
+        group by mx.ghfnsrsbh_1,dj.nsrmc
+        <if test=" '1'.toString()==cxtjDTO.pmlx ">
+            order by jhamt desc
+        </if>
+        <if test=" '2'.toString()==cxtjDTO.pmlx ">
+            order by tse desc
+        </if>
+    </select>
+
+    <select id="getYears" resultType="java.lang.String">
+        select distinct(ssny) as year from tl_admin.tjbb_dt_e01001 t
+        where swjgdm=#{swjgdm}
+        order by ssny desc
+    </select>
+
+
+    <update id="updateDynZbJs" parameterType="com.tl.bjts.sw.model.JsZbModel">
+        update tl_admin.${tablename}
+        set
+        paramhash=#{paramhash},
+        <foreach collection="zblist" item="item" index="index" separator="," >
+            ${item.updateColumn}=decode(
+            (select sum(nvl(${item.jsColumn},0))  from tl_admin.${tablename} t
+            where t.paramhash='TEMP-'||#{paramhash}),0,99.99,
+            round(${item.jsColumn}*100/(select sum(nvl(${item.jsColumn},0))  from tl_admin.${tablename} t
+            where t.paramhash='TEMP-'||#{paramhash}),2))
+        </foreach>
+        where paramhash='TEMP-'||#{paramhash}
+    </update>
+
+
+    <update id="updateDynZbJsD01007" parameterType="com.tl.bjts.sw.model.JsZbModel">
+        update tl_admin.${tablename}
+        set
+        paramhash=#{paramhash},
+        <foreach collection="zblist" item="item" index="index" separator="," >
+            ${item.updateColumn}=decode(
+            (select sum(nvl(${item.jsColumn},0))  from tl_admin.${tablename} t
+            where t.paramhash='TEMP-'||#{paramhash} and length(hydm)=1 ),0,99.99,
+            round(${item.jsColumn}*100/(select sum(nvl(${item.jsColumn},0))  from tl_admin.${tablename} t
+            where t.paramhash='TEMP-'||#{paramhash} and length(hydm)=1),2))
+        </foreach>
+        where paramhash='TEMP-'||#{paramhash}
+    </update>
+
+    <update id="updateDynZbJsD01010" parameterType="com.tl.bjts.sw.model.JsZbModel">
+        update tl_admin.${tablename}
+        set
+        paramhash=#{paramhash},
+        <foreach collection="zblist" item="item" index="index" separator="," >
+            ${item.updateColumn}=decode(
+            (select sum(nvl(${item.jsColumn},0))  from tl_admin.${tablename} t
+            where t.paramhash='TEMP-'||#{paramhash} and length(xzqh)=2 ),0,99.99,
+            round(${item.jsColumn}*100/(select sum(nvl(${item.jsColumn},0))  from tl_admin.${tablename} t
+            where t.paramhash='TEMP-'||#{paramhash} and length(xzqh)=2),2))
+        </foreach>
+        where paramhash='TEMP-'||#{paramhash}
+
+    </update>
+
+
+
+
+    <insert id="insertInitD01003Data">
+
+        insert into tl_admin.tjbb_dt_d01003(swjgdm,bblc,mldm,paramhash,usd_amt_sq,ts_amt_sq,usd_amt,ts_amt,
+        usd_amt_tb,ts_amt_tb)
+        select #{swjgdm},
+        to_char(row_number() over (order by mldm),'0000') bblc,
+        mldm,'TEMP-'||#{pramHash},sum(usd_amt_sq),sum(ts_amt_sq),sum(usd_amt),sum(ts_amt),
+        decode(sum(usd_amt_sq),0,0,ROUND((sum(usd_amt)-sum(usd_amt_sq))/sum(usd_amt_sq),4)),
+        decode(sum(ts_amt_sq),0,0,ROUND((sum(ts_amt)-sum(ts_amt_sq))/sum(ts_amt_sq),4))
+        from (
+        select '1' as mldm,1 as usd_amt_sq ,1 as ts_amt_sq,1 as usd_amt,1 as ts_amt from dual where 1>2
+        <if test="haveSc">
+            union all
+            select
+            ml.spml as mldm,sum(T.usd_amt_sq) as usd_amt_sq,sum(T.ts_amt_sq) as ts_amt_sq,sum(T.usd_amt) as usd_amt,sum(T.ts_amt) ts_amt
+            from(
+            select substr(mx.cksp_dm,1,2) as mxCode,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mdtse else 0 end) as ts_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mdtse else 0 end) as ts_amt
+            from tl_tssh.glxt_bb_shxt_djxx dj,tl_tssh.ckts_sb_mdt_ckmx mx
+            where dj.swjgdm like #{cxtjDTO.swjgDm}||'%' and
+            mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%' and
+            dj.djxh_js=mx.djxh and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+            <if test="haveGbcode">
+                and
+                mx.gbcode in
+                <foreach collection="cxtjDTO.gbcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+            </if>
+
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and dj.qyhgdm = #{cxtjDTO.qyhgdm}
+            </if>
+            <if test="cxtjDTO.cmcode != null and cxtjDTO.cmcode!=''">
+                and mx.cksp_dm like  #{cxtjDTO.cmcode} || '%'
+            </if>
+            group by substr(mx.cksp_dm,1,2)
+            ) T ,tl_admin.dm_spfl sp,tl_admin.dm_spml ml
+            where
+            sp.spdl=T.mxCode and ml.spml=sp.spml
+            group by ml.spml
+        </if>
+
+        <if test="haveWm">
+            union all
+            select
+            ml.spml as mldm,sum(T.usd_amt_sq) as usd_amt_sq,sum(T.ts_amt_sq) as ts_amt_sq,sum(T.usd_amt) as usd_amt,sum(T.ts_amt) ts_amt
+            from(
+            select substr(mx.cksp_dm,1,2) as mxCode,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)  then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.tse else 0 end) as ts_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.tse else 0 end) as ts_amt
+            from tl_tssh.glxt_bb_shxt_djxx dj, tl_tssh.ckts_sb_mts_ckmx mx
+            where dj.swjgdm like #{cxtjDTO.swjgDm}||'%' and
+            mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%' and
+            dj.djxh_js=mx.djxh and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+            <if test="haveGbcode">
+                and
+                mx.gbcode in
+                <foreach collection="cxtjDTO.gbcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and dj.qyhgdm = #{cxtjDTO.qyhgdm}
+            </if>
+            <if test="cxtjDTO.cmcode != null and cxtjDTO.cmcode!=''">
+                and mx.cksp_dm like  #{cxtjDTO.cmcode} || '%'
+            </if>
+            group by substr(mx.cksp_dm,1,2)
+            ) T ,tl_admin.dm_spfl sp,tl_admin.dm_spml ml
+            where
+            sp.spdl=T.mxCode and ml.spml=sp.spml
+            group by ml.spml
+        </if>
+
+        <if test="haveWzf">
+            union all
+            select
+            ml.spml as mldm,sum(T.usd_amt_sq) as usd_amt_sq,sum(T.ts_amt_sq) as ts_amt_sq,sum(T.usd_amt) as usd_amt,sum(T.ts_amt) ts_amt
+            from(
+            select substr(mx.cksp_dm,1,2) as mxCode,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.tse else 0 end) as ts_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.tse else 0 end) as ts_amt
+            from tl_tssh.glxt_bb_shxt_djxx dj, tl_tssh.ckts_sb_wzf_ckmx mx
+            where dj.swjgdm like #{cxtjDTO.swjgDm}||'%' and
+            mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%' and
+            dj.djxh_js=mx.djxh and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+            <if test="haveGbcode">
+                and
+                mx.gbcode in
+                <foreach collection="cxtjDTO.gbcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and dj.qyhgdm = #{cxtjDTO.qyhgdm}
+            </if>
+            <if test="cxtjDTO.cmcode != null and cxtjDTO.cmcode!=''">
+                and mx.cksp_dm like  #{cxtjDTO.cmcode} || '%'
+            </if>
+            group by substr(mx.cksp_dm,1,2)
+            ) T ,tl_admin.dm_spfl sp,tl_admin.dm_spml ml
+            where
+            sp.spdl=T.mxCode and ml.spml=sp.spml
+            group by ml.spml
+        </if>
+
+        )  u group by mldm
+    </insert>
+
+
+    <insert id="insertInitD01004Data4Gb">
+
+        insert into tl_admin.tjbb_dt_d01004(swjgdm,bblc,code,name,paramhash,usd_amt_sq,usd_amt,
+        usd_amt_tb)
+
+        select #{swjgdm},
+        to_char(row_number() over (order by sum(usd_amt)),'0000') bblc,
+        code,name,'TEMP-'||#{pramHash},sum(usd_amt_sq),sum(usd_amt),
+        decode(sum(usd_amt_sq),0,0,ROUND((sum(usd_amt)-sum(usd_amt_sq))/sum(usd_amt_sq),4))
+        from (
+
+        select '1' as code,'1' as name,1 as usd_amt_sq , 1 as usd_amt from dual where 1>2
+
+        <if test="haveSc">
+            union all
+            select T.code,gb.gb_name as name,usd_amt_sq, usd_amt
+            from (
+            select mx.gbcode as code,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt
+            from tl_tssh.ckts_sb_mdt_ckmx mx
+            where mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%' and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+            <if test="haveGbcode">
+                and
+                mx.gbcode in
+                <foreach collection="cxtjDTO.gbcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and mx.djxh = (select djxh_js from tl_tssh.glxt_bb_shxt_djxx dj where dj.qyhgdm = #{cxtjDTO.qyhgdm} and rownum = 1)
+            </if>
+            group by mx.gbcode
+            )T  LEFT JOIN tl_admin.dm_gbcode gb on gb.gb_code=T.code
+        </if>
+
+        <if test="haveWm">
+            union all
+            select T.code,gb.gb_name as name,usd_amt_sq, usd_amt
+            from (
+            select mx.gbcode as code,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt
+            from tl_tssh.ckts_sb_mts_ckmx mx
+            where mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%' and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+            <if test="haveGbcode">
+                and
+                mx.gbcode in
+                <foreach collection="cxtjDTO.gbcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and mx.djxh = (select djxh_js from tl_tssh.glxt_bb_shxt_djxx dj where dj.qyhgdm = #{cxtjDTO.qyhgdm} and rownum = 1)
+            </if>
+            group by mx.gbcode
+            )T  LEFT JOIN tl_admin.dm_gbcode gb on gb.gb_code=T.code
+        </if>
+
+        <if test="haveWzf">
+            union all
+            select T.code,gb.gb_name as name,usd_amt_sq, usd_amt
+            from (
+            select mx.gbcode as code,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt
+            from tl_tssh.ckts_sb_wzf_ckmx mx
+            where mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%' and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+            <if test="haveGbcode">
+                and
+                mx.gbcode in
+                <foreach collection="cxtjDTO.gbcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and mx.djxh = (select djxh_js from tl_tssh.glxt_bb_shxt_djxx dj where dj.qyhgdm = #{cxtjDTO.qyhgdm} and rownum = 1)
+            </if>
+            group by mx.gbcode
+            )T  LEFT JOIN tl_admin.dm_gbcode gb on gb.gb_code=T.code
+
+        </if>
+
+        )  u group by code,name
+    </insert>
+
+
+    <insert id="insertInitD01004Data4Dq">
+
+        insert into tl_admin.tjbb_dt_d01004(swjgdm,bblc,code,name,paramhash,usd_amt_sq,usd_amt,
+        usd_amt_tb)
+
+        select #{swjgdm},
+        to_char(row_number() over (order by sum(usd_amt)),'0000') bblc,
+        code,name,'TEMP-'||#{pramHash},sum(usd_amt_sq),sum(usd_amt),
+        decode(sum(usd_amt_sq),0,0,ROUND((sum(usd_amt)-sum(usd_amt_sq))/sum(usd_amt_sq),4))
+        from (
+
+        select '1' as code,'1' as name,1 as usd_amt_sq , 1 as usd_amt from dual where 1>2
+
+        <if test="haveSc">
+            union all
+            select dc.dq_code as code ,dc.dq_name as name,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt
+            from tl_tssh.ckts_sb_mdt_ckmx mx,
+            tl_admin.dm_dqgroup dp,tl_admin.dm_dqcode dc
+            where   mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%'
+            and dp.dq_code=dc.dq_code
+            and mx.gbcode=dp.gb_code
+            <if test=" '2'.toString()==cxtjDTO.tjlx ">
+                and dc.dq_type='DQ'
+            </if>
+            <if test=" '3'.toString()==cxtjDTO.tjlx ">
+                and dc.dq_type='ZZ'
+            </if>
+            <if test="haveDqcode">
+                and
+                dc.dq_code in
+                <foreach collection="cxtjDTO.dqcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and mx.djxh = (select djxh_js from tl_tssh.glxt_bb_shxt_djxx dj where dj.qyhgdm = #{cxtjDTO.qyhgdm} and rownum = 1)
+            </if>
+            group by dc.dq_code,dc.dq_name
+        </if>
+
+        <if test="haveWm">
+            union all
+            select dc.dq_code as code ,dc.dq_name as name,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt
+            from tl_tssh.ckts_sb_mts_ckmx mx,
+            tl_admin.dm_dqgroup dp,tl_admin.dm_dqcode dc
+            where   mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%'
+            and dp.dq_code=dc.dq_code
+            and mx.gbcode=dp.gb_code
+            <if test=" '2'.toString()==cxtjDTO.tjlx ">
+                and dc.dq_type='DQ'
+            </if>
+            <if test=" '3'.toString()==cxtjDTO.tjlx ">
+                and dc.dq_type='ZZ'
+            </if>
+            <if test="haveDqcode">
+                and
+                dc.dq_code in
+                <foreach collection="cxtjDTO.dqcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and mx.djxh = (select djxh_js from tl_tssh.glxt_bb_shxt_djxx dj where dj.qyhgdm = #{cxtjDTO.qyhgdm} and rownum = 1)
+            </if>
+            group by dc.dq_code,dc.dq_name
+        </if>
+
+        <if test="haveWzf">
+            union all
+            select dc.dq_code as code ,dc.dq_name as name,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt
+            from tl_tssh.ckts_sb_wzf_ckmx mx,
+            tl_admin.dm_dqgroup dp,tl_admin.dm_dqcode dc
+            where   mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%'
+            and dp.dq_code=dc.dq_code
+            and mx.gbcode=dp.gb_code
+            <if test=" '2'.toString()==cxtjDTO.tjlx ">
+                and dc.dq_type='DQ'
+            </if>
+            <if test=" '3'.toString()==cxtjDTO.tjlx ">
+                and dc.dq_type='ZZ'
+            </if>
+            <if test="haveDqcode">
+                and
+                dc.dq_code in
+                <foreach collection="cxtjDTO.dqcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and mx.djxh = (select djxh_js from tl_tssh.glxt_bb_shxt_djxx dj where dj.qyhgdm = #{cxtjDTO.qyhgdm} and rownum = 1)
+            </if>
+            group by dc.dq_code,dc.dq_name
+        </if>
+        )  u group by code,name
+    </insert>
+
+
+    <insert id="insertInitD01005Data">
+
+        insert into tl_admin.tjbb_dt_d01005(swjgdm,bblc,nsrsbh,nsrmc,paramhash,usd_amt_sq,ts_amt_sq,usd_amt,ts_amt,
+        usd_amt_tb,ts_amt_tb)
+        select #{swjgdm},
+        <if test=" '1'.toString()==cxtjDTO.pmlx ">
+            to_char(row_number() over (order by usd_amt desc),'00000') bblc,
+
+        </if>
+        <if test=" '2'.toString()==cxtjDTO.pmlx ">
+            to_char(row_number() over (order by ts_amt desc),'00000') bblc,
+        </if>
+        nsrsbh,nsrmc,
+        #{pramHash},usd_amt_sq,ts_amt_sq,usd_amt,ts_amt,
+        decode(usd_amt_sq,0,0,ROUND((usd_amt-usd_amt_sq)/usd_amt_sq,4)),
+        decode(ts_amt_sq,0,0,ROUND((ts_amt-ts_amt_sq)/ts_amt_sq,4))
+        from (
+
+        select '1' as nsrsbh,'1' as nsrmc,
+        1 as usd_amt_sq ,1 as ts_amt_sq,1 as usd_amt,1 as ts_amt from dual where 1>2
+
+        <if test="haveSc">
+            union all
+
+            select nvl(dj.shxyno,dj.nsrdjno) as nsrsbh,
+            dj.nsrmc,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mdtse else 0 end) as ts_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mdtse else 0 end) as ts_amt
+            from tl_tssh.glxt_bb_shxt_djxx dj, tl_tssh.ckts_sb_mdt_ckmx mx
+            where dj.swjgdm like #{cxtjDTO.swjgDm}||'%' and
+            mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%' and
+            dj.djxh_js=mx.djxh and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+<!--
+            <if test=" '1'.toString()==cxtjDTO.tjkj ">
+                and mx.shpass='1'
+            </if>
+-->
+            <if test=" '1'.toString()==cxtjDTO.tjlx ">
+                <if test="haveGbcode">
+                    and mx.gbcode in
+                    <foreach collection="cxtjDTO.gbcode" item="item" index="index" open="(" separator="," close=")" >
+                        #{item}
+                    </foreach>
+                </if>
+            </if>
+            <if test=" '2'.toString()==cxtjDTO.tjlx ">
+                <if test="haveSpmlcode">
+                    and substr(mx.cksp_dm,1,2) in
+                    (select spdl from tl_admin.dm_spfl  where spml in
+                    <foreach collection="cxtjDTO.spmlcode" item="item" index="index" open="(" separator="," close=")" >
+                        #{item}
+                    </foreach>
+                    )
+                </if>
+
+            </if>
+            <if test=" '3'.toString()==cxtjDTO.tjlx ">
+                <if test="haveTslcode">
+                    and round(mx.tsl,0) in
+                    <foreach collection="cxtjDTO.tslcode" item="item" index="index" open="(" separator="," close=")" >
+                        #{item}
+                    </foreach>
+                </if>
+
+            </if>
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and dj.qyhgdm = #{cxtjDTO.qyhgdm}
+            </if>
+            group by nvl(dj.shxyno,dj.nsrdjno),dj.nsrmc
+        </if>
+
+        <if test="haveWm">
+            union all
+
+            select nvl(dj.shxyno,dj.nsrdjno) as nsrsbh,
+            dj.nsrmc,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)  then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.tse else 0 end) as ts_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.tse else 0 end) as ts_amt
+            from tl_tssh.glxt_bb_shxt_djxx dj, tl_tssh.ckts_sb_mts_ckmx mx
+            where dj.swjgdm like #{cxtjDTO.swjgDm}||'%' and
+            mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%' and
+            dj.djxh_js=mx.djxh and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+<!--
+            <if test=" '1'.toString()==cxtjDTO.tjkj ">
+                and mx.shpass='1'
+            </if>
+-->
+            <if test=" '1'.toString()==cxtjDTO.tjlx ">
+                <if test="haveGbcode">
+                    and mx.gbcode in
+                    <foreach collection="cxtjDTO.gbcode" item="item" index="index" open="(" separator="," close=")" >
+                        #{item}
+                    </foreach>
+                </if>
+            </if>
+            <if test=" '2'.toString()==cxtjDTO.tjlx ">
+                <if test="haveSpmlcode">
+                    and substr(mx.cksp_dm,1,2) in
+                    (select spdl from tl_admin.dm_spfl  where spml in
+                    <foreach collection="cxtjDTO.spmlcode" item="item" index="index" open="(" separator="," close=")" >
+                        #{item}
+                    </foreach>
+                    )
+                </if>
+            </if>
+            <if test=" '3'.toString()==cxtjDTO.tjlx ">
+                <if test="haveTslcode">
+                    and round(case when mylaj=0 then 0 else mx.tse/mx.mylaj end,0) in
+                    <foreach collection="cxtjDTO.tslcode" item="item" index="index" open="(" separator="," close=")" >
+                        #{item}
+                    </foreach>
+                </if>
+            </if>
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and dj.qyhgdm = #{cxtjDTO.qyhgdm}
+            </if>
+            group by nvl(dj.shxyno,dj.nsrdjno),dj.nsrmc
+        </if>
+
+        <if test="haveWzf">
+            union all
+
+            select nvl(dj.shxyno,dj.nsrdjno) as nsrsbh,
+            dj.nsrmc,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.tse else 0 end) as ts_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.tse else 0 end) as ts_amt
+            from tl_tssh.glxt_bb_shxt_djxx dj, tl_tssh.ckts_sb_wzf_ckmx mx
+            where dj.swjgdm like #{cxtjDTO.swjgDm}||'%' and
+            mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%' and
+            dj.djxh_js=mx.djxh and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+<!--
+            <if test=" '1'.toString()==cxtjDTO.tjkj ">
+                and mx.shpass='1'
+            </if>
+-->
+            <if test=" '1'.toString()==cxtjDTO.tjlx ">
+                <if test="haveGbcode">
+                    and mx.gbcode in
+                    <foreach collection="cxtjDTO.gbcode" item="item" index="index" open="(" separator="," close=")" >
+                        #{item}
+                    </foreach>
+                </if>
+            </if>
+            <if test=" '2'.toString()==cxtjDTO.tjlx ">
+                <if test="haveSpmlcode">
+                    and substr(mx.cksp_dm,1,2) in
+                    (select spdl from tl_admin.dm_spfl  where spml in
+                    <foreach collection="cxtjDTO.spmlcode" item="item" index="index" open="(" separator="," close=")" >
+                        #{item}
+                    </foreach>
+                    )
+                </if>
+            </if>
+            <if test=" '3'.toString()==cxtjDTO.tjlx ">
+                <if test="haveTslcode">
+                    and round(mx.tsl,0) in
+                    <foreach collection="cxtjDTO.tslcode" item="item" index="index" open="(" separator="," close=")" >
+                        #{item}
+                    </foreach>
+                </if>
+            </if>
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and dj.qyhgdm = #{cxtjDTO.qyhgdm}
+            </if>
+            group by nvl(dj.shxyno,dj.nsrdjno),dj.nsrmc
+        </if>
+        )  u
+    </insert>
+
+
+    <insert id="insertInitD01006Data">
+        insert into tl_admin.tjbb_dt_d01006(swjgdm,bblc,tsl,paramhash,usd_amt_sq,usd_amt,
+        usd_amt_tb)
+
+        select #{swjgdm},
+        to_char(row_number() over (order by tsl),'0000') bblc,
+        tsl||'%','TEMP-'||#{pramHash},sum(usd_amt_sq),sum(usd_amt),
+        decode(sum(usd_amt_sq),0,0,ROUND((sum(usd_amt)-sum(usd_amt_sq))/sum(usd_amt_sq),4))
+        from (
+        select 1 as tsl,1 as usd_amt_sq , 1 as usd_amt from dual where 1>2
+        <if test="haveSc">
+            union all
+
+            select round(mx.tsl,0),
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt
+            from tl_tssh.glxt_bb_shxt_djxx dj, tl_tssh.ckts_sb_mdt_ckmx mx
+            where dj.swjgdm like #{cxtjDTO.swjgDm}||'%' and
+            mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%' and
+            dj.djxh_js=mx.djxh and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+            <if test="haveGbcode">
+                and mx.gbcode in
+                <foreach collection="cxtjDTO.gbcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and dj.qyhgdm = #{cxtjDTO.qyhgdm}
+            </if>
+            group by round(mx.tsl,0)
+
+        </if>
+
+        <if test="haveWm">
+            union all
+
+            select round(case when mylaj=0 then 0 else mx.tse/mx.mylaj end,0),
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt
+            from tl_tssh.glxt_bb_shxt_djxx dj, tl_tssh.ckts_sb_mts_ckmx mx
+            where dj.swjgdm like #{cxtjDTO.swjgDm}||'%' and
+            mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%' and
+            dj.djxh_js=mx.djxh and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+            <if test="haveGbcode">
+                and mx.gbcode in
+                <foreach collection="cxtjDTO.gbcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and dj.qyhgdm = #{cxtjDTO.qyhgdm}
+            </if>
+            group by round(case when mylaj=0 then 0 else mx.tse/mx.mylaj end,0)
+        </if>
+        <if test="haveWzf">
+            union all
+
+            select round(mx.tsl,0),
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt
+            from tl_tssh.glxt_bb_shxt_djxx dj, tl_tssh.ckts_sb_wzf_ckmx mx
+            where dj.swjgdm like #{cxtjDTO.swjgDm}||'%' and
+            mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%' and
+            dj.djxh_js=mx.djxh and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+            <if test="haveGbcode">
+                and mx.gbcode in
+                <foreach collection="cxtjDTO.gbcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and dj.qyhgdm = #{cxtjDTO.qyhgdm}
+            </if>
+            group by round(mx.tsl,0)
+        </if>
+        )  u group by tsl
+    </insert>
+
+    <insert id="insertInitD01007Data">
+
+        insert into tl_admin.tjbb_dt_d01007(swjgdm,bblc,
+        sjhy_dm,hydm,hymc,qyhs,paramhash,usd_amt_sq,ts_amt_sq,usd_amt,ts_amt,
+        usd_amt_tb,ts_amt_tb)
+        select #{swjgdm},
+        to_char(row_number() over (order by sjhy_dm,hydm),'0000') bblc,
+        sjhy_dm,hydm,max(hymc),sum(qyhs),
+        'TEMP-'||#{pramHash},sum(usd_amt_sq),sum(ts_amt_sq),sum(usd_amt),sum(ts_amt),
+        decode(sum(usd_amt_sq),0,0,ROUND((sum(usd_amt)-sum(usd_amt_sq))/sum(usd_amt_sq),4)),
+        decode(sum(ts_amt_sq),0,0,ROUND((sum(ts_amt)-sum(ts_amt_sq))/sum(ts_amt_sq),4))
+        from (
+
+        select '1' as sjhy_dm,'1' as hydm,'1' as hymc,1 as qyhs,
+        1 as usd_amt_sq ,1 as ts_amt_sq,1 as usd_amt,1 as ts_amt from dual where 1>2
+
+        <if test="haveSc">
+            union all
+
+            select t.sjhy_dm,ZZ.hydm,ZZ.hymc,qyhs,ZZ.usd_amt_sq,ZZ.ts_amt_sq,ZZ.usd_amt,ZZ.ts_amt  from
+            (
+            select dj.hydm,hy.hymc,count(distinct dj.djxh_js) as qyhs,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mdtse else 0 end) as ts_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mdtse else 0 end) as ts_amt
+            from tl_tssh.glxt_bb_shxt_djxx dj,
+            tl_tssh.ckts_sb_mdt_ckmx mx,
+            tl_admin.dm_hy_js hy
+            where dj.swjgdm like #{cxtjDTO.swjgDm}||'%' and
+            mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%' and
+            dj.djxh_js=mx.djxh and
+            dj.hydm=hy.hy_dm and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+            <if test="haveGbcode">
+                and mx.gbcode in
+                <foreach collection="cxtjDTO.gbcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and dj.qyhgdm = #{cxtjDTO.qyhgdm}
+            </if>
+            group by dj.hydm,hy.hymc
+            )ZZ left join tl_admin.dm_hy_js t on t.hy_dm=substr(ZZ.hydm,1,2) and t.dlbz='Y'
+        </if>
+
+        <if test="haveWm">
+            union all
+
+            select t.sjhy_dm,ZZ.hydm,ZZ.hymc,qyhs,ZZ.usd_amt_sq,ZZ.ts_amt_sq,ZZ.usd_amt,ZZ.ts_amt  from
+            (
+            select dj.hydm,hy.hymc,count(distinct dj.djxh_js) as qyhs,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)  then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.tse else 0 end) as ts_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.tse else 0 end) as ts_amt
+            from tl_tssh.glxt_bb_shxt_djxx dj,
+            tl_tssh.ckts_sb_mts_ckmx mx,
+            tl_admin.dm_hy_js hy
+            where dj.swjgdm like #{cxtjDTO.swjgDm}||'%' and
+            mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%' and
+            dj.djxh_js=mx.djxh and
+            dj.hydm=hy.hy_dm and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+            <if test="haveGbcode">
+                and mx.gbcode in
+                <foreach collection="cxtjDTO.gbcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and dj.qyhgdm = #{cxtjDTO.qyhgdm}
+            </if>
+            group by dj.hydm,hy.hymc
+            )ZZ left join tl_admin.dm_hy_js t on t.hy_dm=substr(ZZ.hydm,1,2) and t.dlbz='Y'
+        </if>
+
+
+        <if test="haveWzf">
+            union all
+
+            select t.sjhy_dm,ZZ.hydm,ZZ.hymc,qyhs,ZZ.usd_amt_sq,ZZ.ts_amt_sq,ZZ.usd_amt,ZZ.ts_amt  from
+            (
+            select dj.hydm,hy.hymc,count(distinct dj.djxh_js) as qyhs,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.tse else 0 end) as ts_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.tse else 0 end) as ts_amt
+            from tl_tssh.glxt_bb_shxt_djxx dj,
+            tl_tssh.ckts_sb_wzf_ckmx mx,
+            tl_admin.dm_hy_js hy
+            where dj.swjgdm like #{cxtjDTO.swjgDm}||'%' and
+            mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%' and
+            dj.djxh_js=mx.djxh and
+            dj.hydm=hy.hy_dm and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+            <if test="haveGbcode">
+                and mx.gbcode in
+                <foreach collection="cxtjDTO.gbcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and dj.qyhgdm = #{cxtjDTO.qyhgdm}
+            </if>
+            group by dj.hydm,hy.hymc
+            )ZZ left join tl_admin.dm_hy_js t on t.hy_dm=substr(ZZ.hydm,1,2) and t.dlbz='Y'
+        </if>
+        )  u group by sjhy_dm,hydm
+    </insert>
+
+
+    <insert id="insertInitHyD01007Data">
+        insert into tl_admin.tjbb_dt_d01007(swjgdm,bblc,
+        sjhy_dm,usd_amt_sq,ts_amt_sq,usd_amt,ts_amt,qyhs,
+        usd_amt_tb,ts_amt_tb,hymc,hydm,paramhash)
+        select
+        #{swjgdm},
+        to_char(row_number() over (order by a.sjhy_dm),'000') bblc,
+        a.*,b.hymc,b.hy_dm,'TEMP-'||#{pramHash} from
+        (select t.sjhy_dm,sum(usd_amt_sq),sum(ts_amt_sq),sum(usd_amt),sum(ts_amt),sum(qyhs),
+        decode(sum(usd_amt_sq),0,0,ROUND((sum(usd_amt)-sum(usd_amt_sq))/sum(usd_amt_sq),4)),
+        decode(sum(ts_amt_sq),0,0,ROUND((sum(ts_amt)-sum(ts_amt_sq))/sum(ts_amt_sq),4))
+        from tjbb_dt_d01007 t where t.paramhash='TEMP-'||#{pramHash}
+        group by sjhy_dm) a
+        inner join dm_hy_js b on (a.sjhy_dm=b.hy_dm and b.mlbz='Y')
+
+    </insert>
+
+
+    <insert id="insertInitD01008Data">
+
+        insert into tl_admin.tjbb_dt_d01008(swjgdm,bblc,hgcode,hgmc,paramhash,usd_amt_sq,usd_amt,
+        usd_amt_tb)
+
+        select #{swjgdm},
+        to_char(row_number() over (order by hgcode),'0000') bblc,
+        hgcode,hgmc,'TEMP-'||#{pramHash},sum(usd_amt_sq),sum(usd_amt),
+        decode(sum(usd_amt_sq),0,0,ROUND((sum(usd_amt)-sum(usd_amt_sq))/sum(usd_amt_sq),4))
+        from (
+
+        select '1' as hgcode,'1' as hgmc,1 as usd_amt_sq , 1 as usd_amt from dual where 1>2
+
+        <if test="haveSc">
+            union all
+
+            select mx.hgcode,hg.hgmc,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt
+            from tl_tssh.glxt_bb_shxt_djxx dj,
+            tl_tssh.ckts_sb_mdt_ckmx mx,
+            tl_admin.dm_hgcode hg
+            where dj.swjgdm like #{cxtjDTO.swjgDm}||'%' and
+            mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%' and
+            dj.djxh_js=mx.djxh and
+            mx.hgcode=hg.hgcode and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+            <if test="haveGbcode">
+                and mx.gbcode in
+                <foreach collection="cxtjDTO.gbcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and dj.qyhgdm = #{cxtjDTO.qyhgdm}
+            </if>
+            group by mx.hgcode,hg.hgmc
+        </if>
+
+        <if test="haveWm">
+            union all
+
+            select mx.hgcode,hg.hgmc,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt
+            from tl_tssh.glxt_bb_shxt_djxx dj,
+            tl_tssh.ckts_sb_mts_ckmx mx,
+            tl_admin.dm_hgcode hg
+            where dj.swjgdm like #{cxtjDTO.swjgDm}||'%' and
+            mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%' and
+            dj.djxh_js=mx.djxh and
+            mx.hgcode=hg.hgcode and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+            <if test="haveGbcode">
+                and mx.gbcode in
+                <foreach collection="cxtjDTO.gbcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and dj.qyhgdm = #{cxtjDTO.qyhgdm}
+            </if>
+            group by mx.hgcode,hg.hgmc
+        </if>
+
+        <if test="haveWzf">
+            union all
+
+            select mx.hgcode,hg.hgmc,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt
+            from tl_tssh.glxt_bb_shxt_djxx dj,
+            tl_tssh.ckts_sb_wzf_ckmx mx,
+            tl_admin.dm_hgcode hg
+            where dj.swjgdm like #{cxtjDTO.swjgDm}||'%' and
+            mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%' and
+            dj.djxh_js=mx.djxh and
+            mx.hgcode=hg.hgcode and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+            <if test="haveGbcode">
+                and mx.gbcode in
+                <foreach collection="cxtjDTO.gbcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and dj.qyhgdm = #{cxtjDTO.qyhgdm}
+            </if>
+            group by mx.hgcode,hg.hgmc
+        </if>
+        )  u group by hgcode,hgmc
+    </insert>
+
+
+    <insert id="insertInitD01009Data">
+
+        insert into tl_admin.tjbb_dt_d01009(swjgdm,bblc,tdcode,tdmc,paramhash,usd_amt_sq,usd_amt,
+        usd_amt_tb)
+
+        select #{swjgdm},
+        to_char(row_number() over (order by tdcode),'0000') bblc,
+        tdcode,tdmc,'TEMP-'||#{pramHash},sum(usd_amt_sq),sum(usd_amt),
+        decode(sum(usd_amt_sq),0,0,ROUND((sum(usd_amt)-sum(usd_amt_sq))/sum(usd_amt_sq),4))
+        from (
+
+        select '1' as tdcode,'1' as tdmc,1 as usd_amt_sq , 1 as usd_amt from dual where 1>2
+
+        <if test="haveSc">
+            union all
+
+            select mx.tdcode,td.tdmc,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt
+            from tl_tssh.glxt_bb_shxt_djxx dj,
+            tl_tssh.ckts_sb_mdt_ckmx mx,
+            tl_admin.dm_tdcode td
+            where dj.swjgdm like #{cxtjDTO.swjgDm}||'%' and
+            mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%' and
+            dj.djxh_js=mx.djxh and
+            mx.tdcode=td.tdcode and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+            <if test="haveGbcode">
+                and mx.gbcode in
+                <foreach collection="cxtjDTO.gbcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and dj.qyhgdm = #{cxtjDTO.qyhgdm}
+            </if>
+            group by mx.tdcode,td.tdmc
+        </if>
+
+        <if test="haveWm">
+            union all
+
+            select mx.tdcode,td.tdmc,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt
+            from tl_tssh.glxt_bb_shxt_djxx dj,
+            tl_tssh.ckts_sb_mts_ckmx mx,
+            tl_admin.dm_tdcode td
+            where dj.swjgdm like #{cxtjDTO.swjgDm}||'%' and
+            mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%' and
+            dj.djxh_js=mx.djxh and
+            mx.tdcode=td.tdcode and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+            <if test="haveGbcode">
+                and mx.gbcode in
+                <foreach collection="cxtjDTO.gbcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and dj.qyhgdm = #{cxtjDTO.qyhgdm}
+            </if>
+            group by mx.tdcode,td.tdmc
+        </if>
+        <if test="haveWzf">
+            union all
+
+            select mx.tdcode,td.tdmc,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt
+            from tl_tssh.glxt_bb_shxt_djxx dj,
+            tl_tssh.ckts_sb_wzf_ckmx mx,
+            tl_admin.dm_tdcode td
+            where dj.swjgdm like #{cxtjDTO.swjgDm}||'%' and
+            mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%' and
+            dj.djxh_js=mx.djxh and
+            mx.tdcode=td.tdcode and
+            ((ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+            <if test="haveGbcode">
+                and mx.gbcode in
+                <foreach collection="cxtjDTO.gbcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and dj.qyhgdm = #{cxtjDTO.qyhgdm}
+            </if>
+            group by mx.tdcode,td.tdmc
+        </if>
+        )  u group by tdcode,tdmc
+    </insert>
+
+
+    <insert id="insertInitD01010Data">
+
+        insert into tl_admin.tjbb_dt_d01010(swjgdm,bblc,
+        sjxzqh,xzqh,mc,paramhash,jhamt_sq,tse_sq,jhamt,tse,
+        jhamt_tb,tse_tb)
+        select #{swjgdm},
+        to_char(row_number() over (order by xzqh,mc),'0000') bblc,
+        max(sjxzqh) as sjxzqh,xzqh,max(mc),
+        'TEMP-'||#{pramHash},sum(jhamt_sq),sum(tse_sq),sum(jhamt),sum(tse),
+        decode(sum(jhamt_sq),0,0,ROUND((sum(jhamt)-sum(jhamt_sq))/sum(jhamt_sq),4)),
+        decode(sum(tse_sq),0,0,ROUND((sum(tse)-sum(tse_sq))/sum(tse_sq),4))
+        from (
+
+        select '1' as sjxzqh,'1' as xzqh,'1' as mc,
+        1 as jhamt_sq ,1 as tse_sq,1 as jhamt,1 as tse from dual where 1>2
+
+        <if test="haveWm">
+            union all
+
+            select substr(mx.xzqh,1,2) as sjxzqh ,mx.xzqh,dm.mc,
+            sum(case when kprq between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.jsje else 0 end) as jhamt_sq,
+            sum(case when kprq between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.tse else 0 end) as tse_sq,
+            sum(case when kprq between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.jsje else 0 end) as jhamt,
+            sum(case when kprq between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.tse else 0 end) as tse
+            from tl_tssh.glxt_bb_shxt_djxx dj,
+            tl_tssh.ckts_sb_mts_jhmx mx,
+            tl_admin.dm_xzqh dm
+            where dj.swjgdm  like #{cxtjDTO.swjgDm}||'%' and
+            mx.tsswjg_dm like #{cxtjDTO.swjgDm}||'%' and
+            dj.djxh_js=mx.djxh and
+            mx.xzqh=dm.dm and
+            ((kprq between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12)) or
+            (kprq between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd}))
+
+            <if test=" '1'.toString()==cxtjDTO.tjlx and haveGbcode==true">
+                and exists(select 1 from tl_tssh.ckts_sb_mts_ckmx ck where ck.djxh=mx.djxh and ck.glh=mx.glh
+                and ck.tsswjg_dm=mx.tsswjg_dm
+                and ck.gbcode in
+                <foreach collection="cxtjDTO.gbcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+                )
+            </if>
+            <if test=" '2'.toString()==cxtjDTO.tjlx  and haveSpmlcode==true">
+                and substr(mx.cksp_dm,1,2) in
+                (select spdl from tl_admin.dm_spfl  where spml in
+                <foreach collection="cxtjDTO.spmlcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+                )
+            </if>
+            <if test=" '3'.toString()==cxtjDTO.tjlx  and haveTslcode==true">
+                and round(mx.tsl,0) in
+                <foreach collection="cxtjDTO.tslcode" item="item" index="index" open="(" separator="," close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="cxtjDTO.qyhgdm != null and cxtjDTO.qyhgdm!=''">
+                and dj.qyhgdm = #{cxtjDTO.qyhgdm}
+            </if>
+            group by mx.xzqh,dm.mc
+        </if>
+        )  u group by xzqh,mc
+    </insert>
+
+    <insert id="insertInitCX10001Data">
+        insert into tl_admin.tjbb_cx_cktsshspqk(swjgdm,bblc,
+           paramhash,bqtse_fh,ljtse_fh,bqtse_hz,ljtse_hz,
+            bqtse_sp,ljtse_sp,bqtse_kp,ljtse_kp,dqdhztse,dqdsptse,dqdkptse)
+        )values(
+
+        )
+    </insert>
+
+    <insert id="insertInitSjXzqhD01010Data">
+
+        insert into tl_admin.tjbb_dt_d01010(swjgdm,bblc,
+                    sjxzqh,jhamt_sq,tse_sq,jhamt,tse,
+                                            jhamt_tb,tse_tb,mc,xzqh,paramhash)
+        select
+        #{swjgdm},
+        to_char(row_number() over (order by a.sjxzqh),'000') bblc,
+        a.*,b.mc,b.dm,'TEMP-'||#{pramHash} from
+        (select t.sjxzqh,sum(jhamt_sq),sum(tse_sq),sum(jhamt),sum(tse),
+        decode(sum(jhamt_sq),0,0,ROUND((sum(jhamt)-sum(jhamt_sq))/sum(jhamt_sq),4)),
+        decode(sum(tse_sq),0,0,ROUND((sum(tse)-sum(tse_sq))/sum(tse_sq),4))
+         from tjbb_dt_d01010 t where t.paramhash='TEMP-'||#{pramHash}
+         group by sjxzqh) a
+         inner join dm_xzqh b on a.sjxzqh=b.dm
+    </insert>
+
+
+    <insert id="updateBgdData" parameterType="map">
+        begin
+        <foreach collection="months" item="item" index="index" separator="" >
+            update tl_admin.TJBB_DT_E01001 t
+            set
+            ${item.month} =(
+            select
+            decode(nvl(sum(usd_amt),0),0,t.${item.month},sum(usd_amt))
+            from
+            (
+            select nvl(sum(mylaj),0) as usd_amt from TL_TSSH.ckts_sb_mdt_ckmx
+            where to_char(ckrq_1,'yyyymm')=concat(#{ssny},#{item.yue})
+            and tsswjg_dm like #{qxdm}||'%'
+            union all
+            select nvl(sum(mylaj),0) as usd_amt from TL_TSSH.ckts_sb_mts_ckmx
+            where to_char(ckrq_1,'yyyymm')=concat(#{ssny},#{item.yue})
+            and tsswjg_dm like #{qxdm}||'%'
+            union all
+            select nvl(sum(mylaj),0) as usd_amt from TL_TSSH.ckts_sb_wzf_ckmx
+            where to_char(ckrq_1,'yyyymm')=concat(#{ssny},#{item.yue})
+            and tsswjg_dm like #{qxdm}||'%'
+            )) where bblc='07' and swjgdm=#{swjgdm} and ssny=#{ssny};
+
+            update TJBB_DT_E01001 t
+            set
+            ${item.month} =
+            (
+            select decode(nvl(${item.month},0),0,t.${item.month},${item.month}) from TJBB_DT_E01001 a
+            where a.bblc='07' and swjgdm=#{swjgdm} and ssny=#{lastssny}
+            ) where bblc='08' and swjgdm=#{swjgdm} and ssny=#{ssny};
+
+            update TJBB_DT_E01001 t
+            set
+            ${item.month} =
+            (
+            select decode(nvl(${item.month},0),0,t.${item.month},${item.month}) from TJBB_DT_E01001 a
+            where a.bblc='04' and swjgdm=#{swjgdm} and ssny=#{lastssny}
+            ) where bblc='05' and swjgdm=#{swjgdm} and ssny=#{ssny};
+
+            update TJBB_DT_E01001 t
+            set
+            ${item.month} =
+            (
+            select decode(nvl(${item.month},0),0,t.${item.month},${item.month}) from TJBB_DT_E01001 a
+            where a.bblc='01' and swjgdm=#{swjgdm} and ssny=#{lastssny}
+            ) where bblc='02' and swjgdm=#{swjgdm} and ssny=#{ssny};
+        </foreach>
+        COMMIT;
+        end;
+    </insert>
+
+    <!-- 更新出口退税和外贸出口情况的出口退税额 -->
+    <update id="updateE01001Cktse" parameterType="map">
+        update tl_admin.TJBB_DT_E01001
+        set ${updateColumn} = #{updateValue}
+        where bblc=#{bblc} and swjgdm=#{swjgdm} and ssny=#{ssny}
+    </update>
+
+    <insert id="insertInitD01002Data">
+
+        insert into tl_admin.tjbb_dt_d01002(swjgdm,bblc,paramhash,je,je_sq,tb)
+
+        select #{swjgdm},bblc,
+        #{pramHash},
+        round(decode(usd_amt,0,0,ts_amt/usd_amt),2) as je,
+        round(decode(usd_amt_sq,0,0,ts_amt_sq/usd_amt_sq),2) je_sq,
+        round(
+        decode(round(decode(usd_amt_sq,0,0,ts_amt_sq*100/usd_amt_sq),2),0,0,
+        round(decode(usd_amt,0,0,ts_amt*100/usd_amt),2)/round(decode(usd_amt_sq,0,0,ts_amt_sq*100/usd_amt_sq),2)-1),4) as tb
+        from (
+        <if test="haveSc">
+
+
+            select '01' as bblc,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mdtse else 0 end) as ts_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mdtse else 0 end) as ts_amt
+            from tl_tssh.ckts_sb_mdt_ckmx  mx  where tsswjg_dm  like #{cxtjDTO.swjgDm}||'%'
+
+            union all
+
+            select  '02' as bblc,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mdtse else 0 end)*100 as ts_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mdtse else 0 end)*100 as ts_amt
+            from tl_tssh.ckts_sb_mdt_ckmx  mx where tsswjg_dm  like #{cxtjDTO.swjgDm}||'%'
+
+        </if>
+
+        <if test="haveWm">
+
+            select '01' as bblc,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.tse else 0 end) as ts_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.tse else 0 end) as ts_amt
+            from tl_tssh.ckts_sb_mts_ckmx  mx where tsswjg_dm  like #{cxtjDTO.swjgDm}||'%'
+
+            union all
+
+            select  '02' as bblc,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.mylaj else 0 end) as usd_amt_sq,
+            sum(case when ckrq_1 between add_months(#{cxtjDTO.cksjStart},-12) and add_months(#{cxtjDTO.cksjEnd},-12) then mx.tse else 0 end)*100 as ts_amt_sq,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.mylaj else 0 end) as usd_amt,
+            sum(case when ckrq_1 between #{cxtjDTO.cksjStart} and #{cxtjDTO.cksjEnd} then mx.tse else 0 end)*100 as ts_amt
+            from tl_tssh.ckts_sb_mts_ckmx  mx where tsswjg_dm  like #{cxtjDTO.swjgDm}||'%'
+        </if>
+        )
+    </insert>
+
+
+    <insert id="insertInitD01002Data4Mdbz">
+
+        insert into tl_admin.tjbb_dt_d01002(swjgdm,bblc,paramhash,je,je_sq,tb)
+
+        select #{swjgdm},'03',
+        #{pramHash},
+        decode(#{MDTSE},0,0,ROUND(#{MDSE}*100/#{MDTSE},2)) as je,
+        decode(#{MDTSE_SQ},0,0,ROUND(#{MDSE_SQ}*100/#{MDTSE_SQ},2)) as je_sq,
+        decode(
+          decode(#{MDTSE_SQ},0,0,ROUND(#{MDSE_SQ}*100/#{MDTSE_SQ},2)),0,0,
+          round(decode(#{MDTSE},0,0,ROUND(#{MDSE}*100/#{MDTSE},2))/decode(#{MDTSE_SQ},0,0,ROUND(#{MDSE_SQ}*100/#{MDTSE_SQ},2))-1,4)
+        ) from dual
+    </insert>
+
+
+    <select id="getSwjgdms4E01001" resultType="java.lang.String">
+        select distinct(swjgdm) as swjgdm from tl_admin.tjbb_dt_e01001 t
+    </select>
+
+    <select id="getShspb1" resultType="hashmap">
+        select swcode,sum(tse_fh) as tse_fh,sum(tse_hz) as tse_hz,
+         sum(tse_sp) as tse_sp,sum(tse_kp) as tse_kp
+         from (
+         select tsswjg_dm_1 as swcode,
+         case when RN=1 then tse_fh else 0 end as tse_fh,
+         case when RN=1 then tse_hz else 0 end as tse_hz,
+         tse_sp,tse_kp
+         from (
+         select a.tsswjg_dm_1,a.fszzstse + a.fsxfstse as tse_fh,
+         case when a.ywhzwcbz='Y' then a.fszzstse + a.fsxfstse else 0 end as tse_hz,
+         b.sehzzzstse + b.sehzxfstse as tse_sp,
+         case when b.scsssrthsbz='Y' then b.sehzzzstse + b.sehzxfstse else 0 end as tse_kp,
+         row_number() over(partition by a.ywhzbuuid order by b.xh_4) as RN
+         from hx_ckts.ckts_ty_ywhzb a left join hx_ckts.ckts_ty_sehzb b on a.ywhzbuuid=b.ywhzbuuid
+         where a.tsswjg_dm_1 like #{swjgdm}||'%'
+         and a.ywhzsj between #{rqq} and #{rqz}
+         ) pt
+         ) ps
+         group by swcode
+
+    </select>
+
+    <select id="getShspb2" resultType="hashmap">
+        <![CDATA[
+       select tsswjg_dm_1 as swcode,
+        sum(a.fszzstse - a.fsxfstse) as tse_whz
+        from hx_ckts.ckts_ty_ywhzb a
+        where a.tsswjg_dm_1 like #{swjgdm}||'%'
+        and nvl(a.ywhzwcbz,'N')='N'
+        group by tsswjg_dm_1
+ ]]>
+    </select>
+
+    <select id="getShspb3" resultType="hashmap">
+        <![CDATA[
+      select swcode,
+         sum(tse_hz - tse_sp) as tse_wsp,
+         sum(tse_sp - tse_kp) as tse_wkp
+         from (
+         select tsswjg_dm_1 as swcode,
+         case when RN=1 then tse_hz else 0 end as tse_hz,
+         tse_sp,tse_kp
+         from (
+         select a.tsswjg_dm_1,
+         a.fszzstse + a.fsxfstse as tse_hz,
+         b.sehzzzstse + b.sehzxfstse as tse_sp,
+         case when b.scsssrthsbz='Y' or b.zzssssrthsbh is not null or b.xfssssrthsbh is not null then b.sehzzzstse + b.sehzxfstse else 0 end as tse_kp,
+         row_number() over(partition by a.ywhzbuuid order by b.xh_4) as RN
+         from hx_ckts.ckts_ty_ywhzb a left join hx_ckts.ckts_ty_sehzb b on a.ywhzbuuid=b.ywhzbuuid
+        where a.tsswjg_dm_1 like #{swjgdm}||'%'
+         and a.ywhzwcbz='Y'
+         ) pt
+         ) ps
+         group by swcode
+     ]]>
+    </select>
+
+    <!-- 写入审核审批表 -->
+    <insert id="insertShspb" parameterType="com.tl.bjts.sw.model.dto.ShspqkSaveDTO">
+        insert into TL_ADMIN.TJBB_CX_CKTSSHSPQK(PARAMHASH,BBLC,SWJGDM,BQTSE_FH,BQTSE_HZ,BQTSE_SP,BQTSE_KP,
+                LJTSE_FH,LJTSE_HZ,LJTSE_SP,LJTSE_KP,DQDHZTSE,DQDSPTSE,DQDKPTSE,crtime)
+                values(#{paramhash},#{bblc},#{swjgdm},#{bqtse_fh},#{bqtse_hz},#{bqtse_sp},#{bqtse_kp},
+                #{ljtse_fh},#{ljtse_hz},#{ljtse_sp},#{ljtse_kp},#{dqdhztse},#{dqdsptse},#{dqdkptse},sysdate)
+    </insert>
+
+</mapper>

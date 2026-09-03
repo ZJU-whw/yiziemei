@@ -1,0 +1,150 @@
+<div class="sqtxxxgl">
+    <div class="pageTabs">
+      <div class="pageTitle">
+        事前提醒信息管理
+      </div>
+    </div>
+    <div class="page active clear">
+      <div class="sqtx sqtx-left">
+        <div class="partTitle">内控风险点树结构展示区</div>
+        <ul id="sqtxTree" class='sqtxTree ztree'></ul>
+      </div>
+      <div class="sqtx sqtx-right">
+        <div class="partTitle">风险处理区</div>
+        <div class="tab clear">
+          <div class="tab-item" :class="activeIndex == '0' && 'active'" ms-click="changeTab('0')">未取消</div>
+          <div class="tab-item" :class="activeIndex == '1' && 'active'" ms-click="changeTab('1')">已取消</div>
+        </div>
+        <div class="btns clear">
+          <div class="select-item">
+            <label title="发生时间">发生时间:</label>
+            <div class="select-item-inner">
+              <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate" ms-duplex="@searchData.
+              fssjQ">
+              <span style="margin:0;">止</span>
+              <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate" ms-duplex="@searchData.fssjZ">
+            </div>
+          </div>
+          <div class="btn" ms-click="@search(1)">查询</div>
+          <div class="btn" ms-click="@exportHandler">导出</div>
+        </div>
+        <div style="padding-top: 10px;" ms-visible="activeIndex == '0'">
+          <table id="sqtxxxgl-wwc-table"></table>
+          <div id="sqtxxxgl-wwc-tablePager"></div>
+        </div>
+        <div style="padding-top: 10px;" ms-visible="activeIndex == '1'">
+          <table id="sqtxxxgl-ywc-table"></table>
+          <div id="sqtxxxgl-ywc-tablePager"></div>
+        </div>
+      </div>
+    </div>
+    <div class="page-model hscl-page-model" style="height:580px;width: 500px;margin-top: -290px;" >
+      <div class="model-title">
+        <span>{{@titleName}}</span>
+        <span class="model-close" ms-mousedown="$event.preventDefault()" ms-click="hideModel">&times;</span>
+      </div>
+      <div class="model-content g-form clear" style="height: 480px;padding: 10px 20px;">
+        <div class="g-form-item">
+          <div class="g-form-item_label">内控指标类别：</div>
+          <div class="g-form-item__content">
+            <input disabled type="text" ms-duplex="modelData.nkzblb">
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">内控指标名称：</div>
+          <div class="g-form-item__content">
+            <input disabled type="text" ms-duplex="modelData.nkzbmc">
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">纳税人识别号：</div>
+          <div class="g-form-item__content">
+            <input disabled type="text" ms-duplex="modelData.nsrsbh">
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">纳税人名称：</div>
+          <div class="g-form-item__content">
+            <input disabled type="text" ms-duplex="modelData.nsrmc">
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">地区：</div>
+          <div class="g-form-item__content">
+            <input disabled type="text" ms-duplex="modelData.area">
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">流程税务事项代码：</div>
+          <div class="g-form-item__content">
+            <div class="inp">{{@modelData.lcswsxDm}}</div>
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">流程实例ID：</div>
+          <div class="g-form-item__content">
+            <div class="inp">{{@modelData.lcslid}}</div>
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">创建时间：</div>
+          <div class="g-form-item__content">
+            <div class="inp">{{@modelData.cjsj}}</div>
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">更新时间：</div>
+          <div class="g-form-item__content">
+            <div class="inp">{{@modelData.gxsj}}</div>
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">内控金额：</div>
+          <div class="g-form-item__content">
+            <div class="inp je">{{@modelData.nkje | number(2)}}</div>
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">内控税额：</div>
+          <div class="g-form-item__content">
+            <div class="inp je">{{@modelData.nkse | number(2)}}</div>
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">内控业务描述：</div>
+          <div class="g-form-item__content">
+            <textarea class="g-textarea" style="height: 100px;" disabled type="text" ms-duplex="modelData.nkywms"></textarea>
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">取消状态：</div>
+          <div class="g-form-item__content">
+            <div class="inp">{{@modelData.qxztStr}}</div>
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">取消时间：</div>
+          <div class="g-form-item__content">
+            <div class="inp">{{@modelData.qxsj}}</div>
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">取消人员：</div>
+          <div class="g-form-item__content">
+            <div class="inp">{{@modelData.qxry}}</div>
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label"><span ms-if="@hasHsPermission" class="text-red">*</span>取消原因说明：</div>
+          <div class="g-form-item__content">
+            <textarea ms-attr="{disabled: @titleName=='查看'}" class="g-textarea" ms-duplex="modelData.qxyysm"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="model-btns">
+        <!-- <div class="btn" ms-click="@hideModel" ms-visible="@titleName=='查看'">确定</div> -->
+        <div class="btn" ms-click="@saveModel" ms-visible="@titleName=='编辑'">保存</div>
+        <div class="btn" ms-click="@hideModel">退出</div>
+      </div>
+    </div>
+  </div>

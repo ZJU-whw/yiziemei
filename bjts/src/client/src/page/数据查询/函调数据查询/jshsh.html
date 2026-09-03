@@ -1,0 +1,111 @@
+<div class="jshsh" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            接收核实函查询
+        </div>
+
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+            <div class="btn dropdown" ms-on-click="showMenu">
+                配置表格▼
+                <ul class="dropdown-menu">
+                    <li ms-for="(index,item) in @tableOption"><label><input type="checkbox" ms-duplex-checked="item.show" ms-on-click="@setTableOption(item,$event)">{{item.label}}</label></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="select-wrapper">
+            <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+            <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+            <div class="select-main">
+                <div class="select-item">
+                    <label  title="收函机关">收函机关</label>
+                    <input  type="text" ms-duplex="searchData.shjg">
+                </div>
+                <div class="select-item">
+                    <label title="核查函编号">核查函编号</label>
+                    <input type="text" ms-duplex="searchData.jchbh">
+                </div>
+                <div class="select-item">
+                    <label  title="是否已复函">是否已复函</label>
+                    <select  ms-duplex="@searchData.sfyfh">
+                        <option value="">　</option>
+                        <option value="N">否</option>
+                        <option value="Y">是</option>
+                    </select>
+                </div>
+            </div>
+            <div class="select-sub">
+                <div class="select-item">
+                    <label  title="是否逾期">是否逾期</label>
+                    <select  ms-duplex="@searchData.sfyq">
+                        <option value="">　</option>
+                        <option value="N">否</option>
+                        <option value="Y">是</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="向上游发函">向上游发函</label>
+                    <select  ms-duplex="@searchData.xsyfh">
+                        <option value="">　</option>
+                        <option value="N">否</option>
+                        <option value="Y">是</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="购方名称">购方名称</label>
+                    <input  type="text" ms-duplex="searchData.gfmc">
+                </div>
+                <div class="select-item">
+                    <label  title="购方税号">购方税号</label>
+                    <input  type="text" ms-duplex="searchData.gfsh">
+                </div>
+                <div class="select-item">
+                    <label  title="销方名称">销方名称</label>
+                    <input  type="text" ms-duplex="searchData.xfmc">
+                </div>
+                <div class="select-item">
+                    <label  title="销方税号">销方税号</label>
+                    <input  type="text" ms-duplex="searchData.xfsh">
+                </div>
+                <div class="select-item">
+                    <label  title="回复类型">回复类型</label>
+                    <select  ms-duplex="@searchData.hflx">
+                        <option value="">　</option>
+                        <option value="1">正常业务</option>
+                        <option value="2">存在不予退（免）税发票</option>
+                        <option value="3">延期复函</option>
+                        <option value="4">暂缓办理退（免）税</option>
+                        <option value="5">办理税务登记2年内被认定非正常户或登记为一般纳税人2年内注销</option>
+                        <option value="6">二次复函</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="收函时间">收函时间起</label>
+                    <div class="select-item-inner">
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.shsjq| change" :on-blur="@filDate">
+                        <span>止</span>
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.shsjz| change" :on-blur="@filDate">
+                    </div>
+                </div>
+                <div class="select-item">
+                    <label  title="复函时间">复函时间起</label>
+                    <div class="select-item-inner">
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.fhsjq | change" :on-blur="@filDate">
+                        <span>止</span>
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.fhsjz | change" :on-blur="@filDate">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 54px">
+            <table id="jshsh-table"></table>
+            <div id="jshsh-tablePager"></div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==3&&'active']">
+        <div class="chartDiv"></div>
+    </div>
+</div>

@@ -1,0 +1,84 @@
+<div class="qylstz" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            通知管理 / 企业历史通知查询
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="select-wrapper">
+            <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+            <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+            <div class="select-main">
+                <div class="select-item">
+                    <label  title="通知类型">通知类型</label>
+                    <select ms-duplex="@searchData.notitype" ms-change="handleChange">
+                        <option value=""></option>
+                        <option value="1">群发</option>
+                        <option value="2">定向</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label title="标题">标题</label>
+                    <input type="text" ms-duplex="searchData.title">
+                </div>
+                <div class="select-item">
+                    <label  title="通知对象">通知对象</label>
+                    <input type="text"  disabled ms-if="searchData.notitype == ''"  />
+                    <input ms-if="searchData.notitype == '1'" readonly type="text" ms-duplex="objvalMc" ms-click="showTree" ms-attr="{placeholder:@getPH}">
+                    <input ms-if="searchData.notitype == '2'" type="text"  ms-duplex="searchData.objval" ms-attr="{placeholder:@getPH}">
+                    <ul id="qylstzZtree1" class='ztree treeDiv' style="left: 90px;top:100%;"></ul>
+                </div>
+            </div>
+            <div class="select-sub">
+                <div class="select-item">
+                    <label title="是否到期">是否到期</label>
+                    <select ms-duplex="@searchData.sfdq">
+                        <option value="">　</option>
+                        <option value="Y">是</option>
+                        <option value="N">否</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label title="附件">附件</label>
+                    <select ms-duplex="@searchData.exist_upfile">
+                        <option value="">　</option>
+                        <option value="1">有</option>
+                        <option value="0">无</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="发布人">发布人</label>
+                    <input ype="text" ms-duplex="searchData.release_user">
+                </div>
+                <div class="select-item">
+                    <label title="发布机关">发布机关</label>
+                    <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree">
+                    <ul id="qylstzZtree2" class='ztree treeDiv' style="left: 90px;top:100%;"></ul>
+                </div>
+                <div class="select-item">
+                    <label title="发布日期">发布日期</label>
+                    <div class="select-item-inner">
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.release_timeq" :on-blur="@filDate" >
+                        <span>止</span>
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.release_timez" :on-blur="@filDate">
+                    </div>
+                </div>
+                <div class="select-item">
+                    <label title="备注">备注</label>
+                    <input type="text" ms-duplex="searchData.bz">
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 54px">
+            <table id="qylstz-table"></table>
+            <div id="qylstz-tablePager"></div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==3&&'active']">
+        <div class="chartDiv"></div>
+    </div>
+</div>

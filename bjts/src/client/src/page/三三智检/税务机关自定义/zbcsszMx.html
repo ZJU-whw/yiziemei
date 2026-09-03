@@ -1,0 +1,89 @@
+<div class="zbcsszMx zbpzWarp tableLine" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        <span>指标参数设置详情</span>
+        <span style="font-size: 13px;">（指标标识：{{@params.zbId}}</span>
+        <span style="font-size: 13px;margin-left: 20px;">指标全称：{{@params.zbCname}}</span>
+        <span style="font-size: 13px;margin: 0 20px;">适用企业：{{@dapplyQyMap[@params.applyQy]}}</span>
+        <span style="font-size: 13px;">刷新周期：{{@params.refreshCycle}}）</span>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+    <div class="form" style="padding-top: 0;">
+      <div class="clear ml-10 msg">
+        <div class="clear lf w-50per">
+          <div class="lf" style="width: 30px;">指标描述</div>
+          <div class="lf more1" style="width: calc(100% - 38px);max-height:72px;min-height:50px;border: 1px solid #ccc;padding: 0 3px;">{{@params.ywms}}</div>
+        </div>
+        <div class="clear lf ml-20" style="width: calc(50% - 20px);">
+          <div class="lf" style="width: 30px;">指标公式</div>
+          <div class="lf more2" style="width: calc(100% - 40px);max-height:72px;min-height:50px;border: 1px solid #ccc;padding: 0 3px;">{{@params.zbFomula}}</div>
+        </div>
+      </div>
+      <div class="subTitle clear">
+        <span class="lf">异常赋分规则配置</span>
+      </div>
+      <div class="ycff">
+        <table id="zbcsszMx-ycff-table"></table>
+        <div id="zbcsszMx-ycff-tablePager"></div>
+      </div>
+      <div class="subTitle clear">
+        <span class="lf">指标参数配置</span>
+      </div>
+      <div class="cs">
+        <table id="zbcsszMx-cs-table"></table>
+        <div id="zbcsszMx-cs-tablePager"></div>
+      </div>
+    </div>
+  </div>
+  <!-- 新增/编辑 异常赋分 -->
+  <div class="page-model add-page-model ycff-page-model" style="width: 500px;margin-left: -250px;height:244px;">
+    <div class="model-title">编辑异常赋分规则配置</div>
+    <div class="model-content g-form" style="height:144px;">
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>自定义赋分：</div>
+        <div class="g-form-item__content">
+          <input type="text" ms-duplex="modelYcffData.customScore" maxlength="10" data-duplex-changed="numberLimit">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>有效标志：</div>
+        <div class="g-form-item__content">
+          <select class="g-select" ms-duplex="@modelYcffData.yxbz">
+            <option value="Y">是</option>
+            <option value="N">否</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="model-btns">
+        <div class="btn" ms-click="saveModelYcff">保存</div>
+        <div class="btn" ms-click="hideModelYcff">取消</div>
+    </div>
+  </div>
+  <!-- 新增/编辑 参数 -->
+  <div class="page-model add-page-model cs-page-model" style="width: 500px;margin-left: -250px;height: 224px;">
+    <div class="model-title">编辑指标参数配置</div>
+    <div class="model-content g-form" style="height:120px;">
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>自定义值：</div>
+        <div class="g-form-item__content">
+          <input type="text" ms-duplex="modelCsData.customValDef" maxlength="10" data-duplex-changed="customValDefChange">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>有效标志：</div>
+        <div class="g-form-item__content">
+          <select class="g-select" ms-duplex="@modelCsData.yxbz">
+            <option value="Y">有效</option>
+            <option value="N">无效</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="model-btns">
+        <div class="btn" ms-click="saveModelCs">保存</div>
+        <div class="btn" ms-click="hideModelCs">取消</div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,29 @@
+<div class="tztx">
+    <div class="tabs-wrapper">
+        <div class="tabs-list">
+            <div :class="['tabs-item',activeIndex == index && 'active']"  ms-for="(index,item) in tabs" ms-click="@handleClick(index)">{{item}}</div>
+        </div>
+        <div class="tabs-underline"></div>
+    </div>
+    <div class="pageTabs" style="top: 34px;">
+        <div class="lf" style="height: 33px;line-height: 33px;">
+            <span>标题：</span>
+            <input type="text" ms-duplex="@searchData.title"/>
+        </div>
+        <div class="btns" style="float: left;margin-top: 4px;">
+            <div class="btn" ms-click="@search(1)">查询</div>
+        </div>
+    </div>
+    <div :class="['page',activeIndex == 0 && 'active']">
+        <div class="table-wrapper" style="margin-top: 32px;">
+            <table id="tztxwd-table"></table>
+            <div id="tztxwd-pager"></div>
+        </div>
+    </div>
+    <div :class="['page',activeIndex == 1 && 'active']">
+        <div class="table-wrapper" style="margin-top: 32px;">
+            <table id="tztxyd-table"></table>
+            <div id="tztxyd-pager"></div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,146 @@
+<div class="tsyczdqymc">
+    <div class="pageTabs">
+        <div class="pageTitle">
+            退税预测重点企业名册
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@showModel('新增')" ms-visible="@hasHsPermission">新增</div>
+            <div class="btn" ms-click="@exform">导出</div>
+            <div class="btn dropdown" ms-on-click="showMenu" ms-visible="@hasHsPermission">
+                导入▼
+                <ul class="dropdown-menu">
+                  <li style="padding: 2px;overflow: hidden"><a  ms-click="@showImportModel('0')">追加更新导入</a></li>
+                  <li style="padding: 2px;overflow: hidden"><a  ms-click="@showImportModel('1')">清空并导入</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']">
+        <div class="select-wrapper">
+            <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+            <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+            <div class="select-main">
+                <div class="select-item">
+                    <label title="纳税人标识">纳税人标识</label>
+                    <input type="text" ms-duplex="searchData.nsrbs">
+                </div>
+                <div class="select-item">
+                    <label title="纳税人税务机关">纳税人税务机关</label>
+                    <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree">
+                    <ul id="tsyczdqymcZtree" class='ztree treeDiv' style="left: 90px;top:100%;"></ul>
+                </div>
+                <div class="select-item">
+                    <label title="退税计算方法">退税计算方法</label>
+                    <select ms-duplex="@searchData.tsjsfs">
+                        <option value=""></option>
+                        <option value="1">生产</option>
+                        <option value="2">外贸</option>
+                    </select>
+                </div>
+            </div>
+            <div class="select-sub">
+                <div class="select-item">
+                    <label title="企业重点标志">企业重点标志</label>
+                    <select ms-duplex="@searchData.zdbz">
+                        <option value=""></option>
+                        <option value="Y">是</option>
+                        <option value="N">否</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label title="启用标志">启用标志</label>
+                    <select ms-duplex="@searchData.qybz">
+                        <option value=""></option>
+                        <option value="Y">启用</option>
+                        <option value="N">不启用</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 54px">
+            <table id="tsyczdqymc-table"></table>
+            <div id="tsyczdqymc-tablePager"></div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==3&&'active']">
+        <div class="chartDiv"></div>
+    </div>
+    <!-- 新增/编辑 -->
+    <div class="page-model add-page-model g-model"
+        style="height:300px;width: 700px;margin-left: -350px;top: 190px; margin-top: 0;">
+        <div class="model-title">{{@addTitle}}</div>
+        <div class="model-content g-form" style="height: 200px;padding: 10px 0;">
+            <div class="g-form-item" ms-if="!isEdit">
+                <div class="g-form-item_label"><span class="text-red"></span>企业搜索：</div>
+                <div class="g-form-item__content">
+                    <input class="g-input" type="text" ms-duplex="@editData.nsrbs" placeholder="纳税人识别号/纳税人名称" ms-on-blur="@searchQy"
+                        style="width: 45%;">
+                    <select id="yourBoxId" style="width: 45%;height: 30px;margin-left: 20px;" class="g-select" ms-duplex="@nsrmc"
+                        ms-on-change="@onchange($event)">
+                        <option value=""></option>
+                        <option ms-attr="{value:item.nsrmc}" ms-for="(index,item) in @nsrdzdahList">{{item.nsrmc}}
+                        </option>
+                    </select>
+                    <!-- <div class="btn" style="float: right;" ms-click="@searchQy">搜索</div> -->
+                </div>
+            </div>
+            <div class="g-form-item">
+                <div class="g-form-item_label"><span class="text-red">*</span>纳税人名称：</div>
+                <div class="g-form-item__content">
+                    <input class="g-input" type="text" ms-attr="{'disabled':isEdit}" ms-duplex="@editData.nsrmc">
+                </div>
+            </div>
+            <div class="g-form-item">
+                <div class="g-form-item_label"><span class="text-red">*</span>纳税人识别号：</div>
+                <div class="g-form-item__content">
+                    <input class="g-input" type="text" ms-attr="{'disabled':isEdit}" ms-duplex="@editData.nsrsbh">
+                </div>
+            </div>
+            <div class="g-form-item" ms-if="isEdit">
+                <div class="g-form-item_label"><span class="text-red">*</span>启用标志：</div>
+                <div class="g-form-item__content">
+                    <select style="width: 100%;height: 30px;" class="g-select" ms-duplex="@editData.qybj">
+                        <option value=""></option>
+                        <option value="Y">启用</option>
+                        <option value="N">不启用</option>
+                    </select>
+                </div>
+            </div>
+            <div class="g-form-item" ms-if="isEdit">
+                <div class="g-form-item_label"><span class="text-red">*</span>重点户标志：</div>
+                <div class="g-form-item__content">
+                    <select style="width: 100%;height: 30px;" class="g-select" ms-duplex="@editData.zdhbz">
+                        <option value=""></option>
+                        <option value="Y">是</option>
+                        <option value="N">否</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="model-btns">
+            <div class="btn" ms-click="@saveModel">保存</div>
+            <div class="btn" ms-click="@hideModel">取消</div>
+        </div>
+    </div>
+    <!-- 导入 -->
+    <div class="page-model import-page-model"
+        style="height: 240px; margin-top: -120px; width: 400px; margin-left: -200px;">
+        <div class="model-title">
+            <span>导入</span>
+            <span class="model-close" ms-mousedown="$event.preventDefault()" ms-click="hideImportModel">&times;</span>
+        </div>
+        <div class="model-content" style="height: 134px;">
+            <p>1.请按模板填写数据，再进行导入；</p>
+            <p>2.点击下载<a class="btn-import" ms-click='@exformModel'>导入模板</a>。</p>
+        </div>
+        <div class="model-btns">
+            <div class="btn" ms-click="hideImportModel" ms-visible="@modelTag==0">
+                <input id="tsyczdqymcFileupload" type="file" name="file" data-url="/glfw/tseyc/zdqy/import/update">导入
+            </div>
+            <div class="btn" ms-click="hideImportModel" ms-visible="@modelTag==1">
+                <input id="tsyczdqymcFileupload1" type="file" name="file" data-url="/glfw/tseyc/zdqy/import">导入
+            </div>
+        </div>
+    </div>
+</div>

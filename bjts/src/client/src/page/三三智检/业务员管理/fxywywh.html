@@ -1,0 +1,111 @@
+<div class="fxywywh tableLine" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        风险业务员维护
+      </div>
+      <div class="btns">
+          <div class="btn" ms-click="@search(1)">查询</div>
+          <div class="btn" ms-click="@showModel('新增')">新增</div>
+          <div class="btn" ms-click="@showImportModel">导入</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <div class="select-wrapper">
+          <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+          <div class="select-main">
+            <div class="select-item">
+              <label  title="企业标识">企业标识</label>
+              <input  type="text" ms-duplex="@searchData.qybs" placeholder="海关代码/税号/名称，支持模糊查询">
+            </div>
+            <div class="select-item">
+              <label title="业务员证件号码">业务员证件号码</label>
+              <input type="text" ms-duplex="searchData.zjhm">
+            </div>
+            <div class="select-item">
+                <label title="业务员姓名">业务员姓名</label>
+                <input type="text" ms-duplex="searchData.xm">
+            </div>
+          </div>
+      </div>
+      <div class="form" style="padding-top: 54px">
+          <table id="fxywywh-table"></table>
+          <div id="fxywywh-tablePager"></div>
+      </div>
+  </div>
+  <!-- 新增/编辑 -->
+  <div class="page-model add-page-model" style="height:410px;width: 500px;margin-left: -250px;" >
+    <div class="model-title">{{addTitle}}</div>
+    <div class="model-content g-form" style="height: 326px;">
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>业务员证件号码：</div>
+        <div class="g-form-item__content">
+          <input type="text" ms-duplex="modelData.zjhm" ms-keyup="@getYwyxx | enter" ms-blur="@getYwyxx">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>业务员姓名：</div>
+        <div class="g-form-item__content">
+          <input type="text" ms-duplex="modelData.xm">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">备案企业户数：</div>
+        <div class="g-form-item__content">
+          <input
+            type="text"
+            disabled
+            ms-duplex="modelData.sjqyhs"
+            data-duplex-changed="numberLimit">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>风险情况：</div>
+        <div class="g-form-item__content">
+          <div class="g-radio">
+            <input id="fxywywh-ps" type="radio" value="1" name="fxqk" ms-duplex="@modelData.fxlx">
+            <label for="fxywywh-ps">骗税</label>
+          </div>
+          <div class="g-radio">
+            <input id="fxywywh-wgts" type="radio" value="2" name="fxqk" ms-duplex="@modelData.fxlx">
+            <label for="fxywywh-wgts">违规退税</label>
+          </div>
+          <div class="g-radio">
+            <input id="fxywywh-ckfxsp" type="radio" value="3" name="fxqk" ms-duplex="@modelData.fxlx">
+            <label for="fxywywh-ckfxsp">出口风险商品</label>
+          </div>
+          <div class="g-radio">
+            <input id="fxywywh-qt" type="radio" value="4" name="fxqk" ms-duplex="@modelData.fxlx">
+            <label for="fxywywh-qt">其他</label>
+          </div>
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">风险具体情况：</div>
+        <div class="g-form-item__content">
+          <textarea rows="3" class="g-textarea" ms-duplex="modelData.fxqkms"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="model-btns">
+        <div class="btn" ms-click="saveModel">保存</div>
+        <div class="btn" ms-click="hideModel">取消</div>
+    </div>
+  </div>
+  <!-- 导入 -->
+  <div class="page-model import-page-model" style="height: 240px; margin-top: -120px; width: 400px; margin-left: -200px;">
+    <div class="model-title">
+      <span>导入</span>
+      <span class="model-close" ms-mousedown="$event.preventDefault()" ms-click="hideImportModel">&times;</span>
+    </div>
+    <div class="model-content" style="height: 134px;">
+      <p>1.请按模板填写数据，再进行导入；</p>
+      <p>2.点击下载<a class="btn-import" ms-click='@exformModel'>导入模板</a>。</p>
+    </div>
+    <div class="model-btns">
+      <div class="btn" ms-click="hideImportModel">
+        <input id="fxywywhFileupload" type="file" name="file"
+          data-url="/sszj/fxywy/import">导入
+      </div>
+    </div>
+  </div>
+</div>

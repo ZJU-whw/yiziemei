@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.GcYgzYfsjMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.GcYgzYfsj" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="UUID" property="UUID" jdbcType="VARCHAR" />
+    <result column="LCSLID" property="LCSLID" jdbcType="VARCHAR" />
+    <result column="CPCODE" property="CPCODE" jdbcType="VARCHAR" />
+    <result column="SB_YM" property="SB_YM" jdbcType="VARCHAR" />
+    <result column="SB_NO" property="SB_NO" jdbcType="VARCHAR" />
+    <result column="SS_YEAR" property="SS_YEAR" jdbcType="VARCHAR" />
+    <result column="LJ_DATE" property="LJ_DATE" jdbcType="DATE" />
+    <result column="CMCODE" property="CMCODE" jdbcType="VARCHAR" />
+    <result column="CMNAME" property="CMNAME" jdbcType="VARCHAR" />
+    <result column="CMUNIT" property="CMUNIT" jdbcType="VARCHAR" />
+    <result column="HT_NO" property="HT_NO" jdbcType="VARCHAR" />
+    <result column="JWDW_NAME" property="JWDW_NAME" jdbcType="VARCHAR" />
+    <result column="GBCODE" property="GBCODE" jdbcType="VARCHAR" />
+    <result column="RMB_TOTAL" property="RMB_TOTAL" jdbcType="DECIMAL" />
+    <result column="USD_HL" property="USD_HL" jdbcType="DECIMAL" />
+    <result column="USD_TOTAL" property="USD_TOTAL" jdbcType="DECIMAL" />
+    <result column="SKPZ_NUM" property="SKPZ_NUM" jdbcType="DECIMAL" />
+    <result column="SK_RMB_AMT" property="SK_RMB_AMT" jdbcType="DECIMAL" />
+    <result column="SK_USD_AMT" property="SK_USD_AMT" jdbcType="DECIMAL" />
+    <result column="RMB_AMT" property="RMB_AMT" jdbcType="DECIMAL" />
+    <result column="USD_AMT" property="USD_AMT" jdbcType="DECIMAL" />
+    <result column="ZFJK_AMT" property="ZFJK_AMT" jdbcType="DECIMAL" />
+    <result column="JS_AMT" property="JS_AMT" jdbcType="DECIMAL" />
+    <result column="ZSSL" property="ZSSL" jdbcType="DECIMAL" />
+    <result column="TSL" property="TSL" jdbcType="DECIMAL" />
+    <result column="ZTSCE" property="ZTSCE" jdbcType="DECIMAL" />
+    <result column="TS_AMT" property="TS_AMT" jdbcType="DECIMAL" />
+    <result column="MDTS_YM" property="MDTS_YM" jdbcType="VARCHAR" />
+    <result column="JBSH_FLAG" property="JBSH_FLAG" jdbcType="VARCHAR" />
+    <result column="ZHSH_FLAG" property="ZHSH_FLAG" jdbcType="VARCHAR" />
+    <result column="OP_USER" property="OP_USER" jdbcType="VARCHAR" />
+    <result column="OP_DATE" property="OP_DATE" jdbcType="DATE" />
+    <result column="NOTE" property="NOTE" jdbcType="VARCHAR" />
+    <result column="RSV_STR" property="RSV_STR" jdbcType="VARCHAR" />
+    <result column="FLAG" property="FLAG" jdbcType="VARCHAR" />
+    <result column="HX_FLAG" property="HX_FLAG" jdbcType="VARCHAR" />
+    <result column="HX_AMT" property="HX_AMT" jdbcType="DECIMAL" />
+    <result column="ZS_FLAG" property="ZS_FLAG" jdbcType="VARCHAR" />
+    <result column="SK_BICODE" property="SK_BICODE" jdbcType="VARCHAR" />
+    <result column="SK_YB_AMT" property="SK_YB_AMT" jdbcType="DECIMAL" />
+    <result column="BICODE" property="BICODE" jdbcType="VARCHAR" />
+    <result column="YB_AMT" property="YB_AMT" jdbcType="DECIMAL" />
+    <result column="BG_USER" property="BG_USER" jdbcType="VARCHAR" />
+    <result column="BG_DATE" property="BG_DATE" jdbcType="DATE" />
+    <result column="SWCODE" property="SWCODE" jdbcType="VARCHAR" />
+    <result column="ZH_FLAG" property="ZH_FLAG" jdbcType="VARCHAR" />
+    <result column="BY_FLAG" property="BY_FLAG" jdbcType="VARCHAR" />
+    <result column="Y_UUID" property="y_UUID" jdbcType="VARCHAR" />
+    <result column="ZH_TYPE" property="ZH_TYPE" jdbcType="VARCHAR" />
+    <result column="BY_TYPE" property="BY_TYPE" jdbcType="VARCHAR" />
+    <result column="RGSH_FLAG" property="RGSH_FLAG" jdbcType="VARCHAR" />
+    <result column="RGSH_PASS" property="RGSH_PASS" jdbcType="VARCHAR" />
+    <result column="RGSH_USER" property="RGSH_USER" jdbcType="VARCHAR" />
+    <result column="RGSH_DATE" property="RGSH_DATE" jdbcType="DATE" />
+    <result column="RGSH_INFO" property="RGSH_INFO" jdbcType="VARCHAR" />
+    <result column="NO" property="NO" jdbcType="VARCHAR" />
+    <result column="YWLXCODE" property="YWLXCODE" jdbcType="VARCHAR" />
+    <result column="YWLX" property="YWLX" jdbcType="VARCHAR" />
+    <result column="MDTS_FLAG" property="MDTS_FLAG" jdbcType="VARCHAR" />
+    <result column="BYTS_YM" property="BYTS_YM" jdbcType="VARCHAR" />
+  </resultMap>
+</mapper>

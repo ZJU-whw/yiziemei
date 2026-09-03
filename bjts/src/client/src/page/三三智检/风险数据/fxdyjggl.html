@@ -1,0 +1,229 @@
+<div class="fxdyjggl">
+    <div class="pageTabs">
+        <div class="pageTitle">
+            风险应对结果管理
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@normalSearch()">查询</div>
+            <div class="btn" ms-click="@showModel('新增')" ms-visible="@hasHsPermission">新增</div>
+            <div class="btn" ms-click="@exform">导出</div>
+            <div class="btn dropdown" ms-on-click="showMenu">
+                配置表格▼
+                <ul class="dropdown-menu">
+                    <li ms-for="(index,item) in @tableOption"><label><input type="checkbox"
+                                ms-duplex-checked="item.show"
+                                ms-on-click="@setTableOption(item,$event)">{{item.label}}</label></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']">
+        <form name="fxdyjggl-form">
+            <div class="select-wrapper">
+                <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+                <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+                <div class="select-main">
+                    <div class="select-item">
+                        <label title="税务机关">税务机关</label>
+                        <input readonly type="text" ms-duplex="tsjgmc" ms-click="@showTree">
+                        <ul id="fxdyjggltree" class='ztree treeDiv' style="left: 90px;"></ul>
+                    </div>
+                    <div class="select-item">
+                        <label title="统一社会信用代码">统一社会信用代码</label>
+                        <input name="qybs" class="width-l" type="text" ms-duplex="searchData.shxyno">
+                    </div>
+                    <div class="select-item">
+                        <label title="企业名称">企业名称</label>
+                        <input class="width-l" type="text" ms-duplex="searchData.nsrmc">
+                    </div>
+                </div>
+                <div class="select-sub">
+                    <div class="select-item">
+                        <label title="风险企业来源">风险企业来源</label>
+                        <select ms-duplex="@searchData.fxly">
+                            <option value=""></option>
+                            <option ms-for="item in @fxlyList" ms-attr="{value:item.DCODE}">{{item.DNAME}}</option>
+                        </select>
+                    </div>
+                    <div class="select-item">
+                        <label title="填报日期">填报日期</label>
+                        <div class="select-item-inner">
+                            <input type="text" class="datepicker date-month" ms-duplex="@searchData.startTbrq | change"
+                                :on-change="@filMonth">
+                            <span>止</span>
+                            <input type="text" class="datepicker date-month" ms-duplex="@searchData.endTbrq | change"
+                                :on-change="@filMonth">
+                        </div>
+                    </div>
+                    <div class="select-item">
+                        <label title="所属年月">所属年月</label>
+                        <input class="width-l" type="text" ms-duplex="searchData.ssny">
+                    </div>
+                    <!-- <div class="select-item">
+                        <label title="所属年月">所属年月</label>
+                        <div class="select-item-inner">
+                            <input type="text" class="datepicker date-month" ms-duplex="@searchData.startDate | change"
+                                :on-change="@filMonth">
+                            <span>止</span>
+                            <input type="text" class="datepicker date-month" ms-duplex="@searchData.endDate | change"
+                                :on-change="@filMonth">
+                        </div>
+                    </div> -->
+                </div>
+            </div>
+        </form>
+        <div class="form" style="padding-top: 54px">
+            <table id="fxdyjggl-table"></table>
+            <div id="fxdyjggl-tablePager"></div>
+        </div>
+    </div>
+    <!-- 查看 -->
+    <div class="page-model add-page-model g-model"
+        style="height:522px;width: 900px;margin-left: -450px;top: 50px; margin-top: 0;">
+        <div class="model-title">{{@addTitle}}</div>
+        <div class="model-content g-form" style="height: 430px;padding: 10px 0;">
+            <div class="clear mt-10">
+                <div class="g-form-item">
+                    <div class="g-form-item_label"><span class="text-red">*</span>填报单位：</div>
+                    <div class="g-form-item__content">
+                        <input type="text" class="datepicker date-month" ms-duplex="@modelData.ssny | change"
+                            :on-change="@filMonth" ms-attr="{disabled: @addTitle=='查看'}">
+                    </div>
+                </div>
+                <div class="g-form-item">
+                    <div class="g-form-item_label"><span class="text-red">*</span>填报人：</div>
+                    <div class="g-form-item__content">
+                        <input type="text" class="datepicker date-month" ms-duplex="@modelData.ssny | change"
+                            :on-change="@filMonth" ms-attr="{disabled: @addTitle=='查看'}">
+                    </div>
+                </div>
+                <div class="g-form-item">
+                    <div class="g-form-item_label"><span class="text-red">*</span>填报日期：</div>
+                    <div class="g-form-item__content">
+                        <input type="text" class="datepicker date-month" ms-duplex="@modelData.ssny | change"
+                            :on-change="@filMonth" ms-attr="{disabled: @addTitle=='查看'}">
+                    </div>
+                </div>
+            </div>
+            
+
+            <!-- <div class="g-form-item">
+                <div class="g-form-item_label"><span class="text-red">*</span>所属年月：</div>
+                <div class="g-form-item__content">
+                    <input type="text" class="datepicker date-month" ms-duplex="@modelData.ssny | change"
+                        :on-change="@filMonth" ms-attr="{disabled: @addTitle=='查看'}">
+                </div>
+            </div>
+            <div class="g-form-item" style="position: relative;">
+                <div class="g-form-item_label"><span class="text-red">*</span>统一社会信用代码：</div>
+                <div class="g-form-item__content">
+                    <input type="text" ms-duplex="modelData.shxyno" ms-on-focus="@selectFocus" ms-on-blur="@selectBlur" ms-on-keydown="@changeOption($event)" ms-on-keyup="@getQymc($event)" ms-attr="{disabled: @addTitle=='查看'}">
+                </div>
+                <div class="g-autoselect" ms-if="@isFocus">
+                    <div ms-for="(k,item) in @qymcList" class="select-list" ms-click="chooseOption(k)"  ms-mouseenter="setActiveOption(k)" :class="k === activeOption?'active':''">{{item.nsrmc}}</div>
+                </div>
+            </div>
+            <div class="g-form-item">
+                <div class="g-form-item_label"><span class="text-red">*</span>企业名称：</div>
+                <div class="g-form-item__content">
+                    <input type="text" ms-duplex="modelData.nsrmc" ms-attr="{disabled: @addTitle=='查看'}">
+                </div>
+            </div>
+            <div class="g-form-item">
+                <div class="g-form-item_label"><span class="text-red">*</span>风险企业来源：</div>
+                <div class="g-form-item__content">
+                    <select class="g-select" ms-duplex="@modelData.fxrwlyDm" ms-attr="{disabled: @addTitle=='查看'}"
+                        style="width: 100%;">
+                        <option value="">　</option>
+                        <option ms-for="item in @fxlyList" ms-attr="{value:item.DCODE}">{{item.DNAME}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="g-form-item">
+                <div class="g-form-item_label"><span class="text-red">*</span>下发任务分析期间涉及出口额（万美元）：</div>
+                <div class="g-form-item__content">
+                    <input type="text" ms-duplex="modelData.rwfxqjMycke" ms-attr="{disabled: @addTitle=='查看'}">
+                </div>
+            </div>
+            <div class="g-form-item">
+                <div class="g-form-item_label"><span class="text-red">*</span>下发任务分析期间涉及申报退税出口额（万美元）：</div>
+                <div class="g-form-item__content">
+                    <input type="text" ms-duplex="modelData.rwfxqjSbmycke" ms-attr="{disabled: @addTitle=='查看'}">
+                </div>
+            </div>
+            <div class="g-form-item">
+                <div class="g-form-item_label"><span class="text-red">*</span>任务分析期间内办理退税额（万元）：</div>
+                <div class="g-form-item__content">
+                    <input type="text" ms-duplex="modelData.rwfxqjBltse" ms-attr="{disabled: @addTitle=='查看'}">
+                </div>
+            </div>
+            <div class="g-form-item">
+                <div class="g-form-item_label"><span class="text-red">*</span>风险应对措施：</div>
+                <div class="g-form-item__content" style="height: 30px;">
+                    <div class="custom-bootstrap-multiselect bootstrap-multiselect lf" style="height: 100%;width: 100%;">
+                        <select id="jczlcjb_select_gllb" multiple="multiple" ms-attr="{disabled: @addTitle=='查看'}"></select>
+                      </div>
+                </div>
+            </div>
+            <div class="g-form-item">
+                <div class="g-form-item_label"><span class="text-red"></span>不予退税额（万元）：</div>
+                <div class="g-form-item__content">
+                    <input type="text" ms-duplex="modelData.byts" ms-attr="{disabled: @addTitle=='查看'}">
+                </div>
+            </div>
+            <div class="g-form-item">
+                <div class="g-form-item_label"><span class="text-red"></span>追回（补缴方式）退税额（万元）：</div>
+                <div class="g-form-item__content">
+                    <input type="text" ms-duplex="modelData.yzhts" ms-attr="{disabled: @addTitle=='查看'}">
+                </div>
+            </div>
+            <div class="g-form-item">
+                <div class="g-form-item_label"><span class="text-red"></span>视同内销征税额（万元）：</div>
+                <div class="g-form-item__content">
+                    <input type="text" ms-duplex="modelData.stnxzs" ms-attr="{disabled: @addTitle=='查看'}">
+                </div>
+            </div>
+            <div class="g-form-item">
+                <div class="g-form-item_label"><span class="text-red"></span>暂缓退税额（万元）：</div>
+                <div class="g-form-item__content">
+                    <input type="text" ms-duplex="modelData.zhts" ms-attr="{disabled: @addTitle=='查看'}">
+                </div>
+            </div>
+            <div class="g-form-item">
+                <div class="g-form-item_label"><span class="text-red"></span>进项转出税额（万元）：</div>
+                <div class="g-form-item__content">
+                    <input type="text" ms-duplex="modelData.jxsezc" ms-attr="{disabled: @addTitle=='查看'}">
+                </div>
+            </div>
+            <div class="g-form-item">
+                <div class="g-form-item_label"><span class="text-red"></span>应补交增值税税款额（万元）：</div>
+                <div class="g-form-item__content">
+                    <input type="text" ms-duplex="modelData.ybjzzs" ms-attr="{disabled: @addTitle=='查看'}">
+                </div>
+            </div>
+            <div class="g-form-item">
+                <div class="g-form-item_label"><span class="text-red"></span>应补缴或调增企业所得税税款额（万元）：</div>
+                <div class="g-form-item__content">
+                    <input type="text" ms-duplex="modelData.ybjsds" ms-attr="{disabled: @addTitle=='查看'}">
+                </div>
+            </div>
+            <div class="g-form-item">
+                <div class="g-form-item_label"><span class="text-red"></span>应补缴其他税种税款额（万元）：</div>
+                <div class="g-form-item__content">
+                    <input type="text" ms-duplex="modelData.ybjqtsz" ms-attr="{disabled: @addTitle=='查看'}">
+                </div>
+            </div>
+            <div class="g-form-item">
+                <div class="g-form-item_label"><span class="text-red"></span>备注：</div>
+                <div class="g-form-item__content">
+                    <textarea class="g-textarea" ms-duplex="modelData.bz"
+                        ms-attr="{disabled: @addTitle=='查看'}"></textarea>
+                </div>
+            </div> -->
+        </div>
+        <div class="model-btns">
+            <div class="btn" ms-click="@saveModel" ms-visible="@addTitle!=='查看'">保存</div>
+            <div class="btn" ms-click="@hideModel">退出</div>
+        </div>
+    </div>
+</div>

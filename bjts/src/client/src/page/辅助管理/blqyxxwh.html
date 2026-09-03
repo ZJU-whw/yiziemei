@@ -1,0 +1,110 @@
+<div class="blqyxxwh tzgl" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            不良企业信息 / 不良企业信息维护
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@showModal('1')">新增</div>
+            <div class="btn" ms-click="@showModal('2')">修改</div>
+            <div class="btn" ms-click="delData">删除</div>
+            <div class="btn btn-container" ms-click="@toggle">批量导入
+                <div class="btn-wrapper">
+                    <div class="btn fileupload">导入Excel<input name="file" type="file"  /></div>
+                    <div class="btn" ms-click="loadFile">下载模板</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="select-wrapper" style="padding-bottom: 0px;">
+            <div class="select-main">
+                <div class="select-item">
+                    <label  title="海关代码">海关代码</label>
+                    <input  type="text" ms-duplex="@searchData.qyhgdm">
+                </div>
+                <div class="select-item">
+                    <label title="纳税人识别号">纳税人识别号</label>
+                    <input type="text" ms-duplex="searchData.nsrsbh">
+                </div>
+            </div>
+            <div class="select-sub">
+            </div>
+        </div>
+        <div class="form" style="padding-top: 40px">
+            <table class="table" style="width: 800px;margin: 10px;">
+                <tr>
+                    <td style="width: 10%" class="title">海关代码</td>
+                    <td style="width: 13%">{{form.qyxx.qyhgdm}}</td>
+                    <td style="width: 10%" class="title">纳税人识别号</td>
+                    <td style="width: 13%">{{form.qyxx.nsrsbh}}</td>
+                    <td style="width: 10%" class="title">社会信用代码</td>
+                    <td style="width: 13%">{{form.qyxx.shxydm}}</td>
+                </tr>
+                <tr>
+                    <td class="title">企业名称</td>
+                    <td>{{form.qyxx.nsrmc}}</td>
+                    <td class="title">企业类型</td>
+                    <td>{{form.qyxx.qylx}}</td>
+                    <td  class="title">退税计算方式</td>
+                    <td>{{form.qyxx.tsjsfs}}</td>
+                </tr>
+                <tr>
+                    <td class="title">管理等级</td>
+                    <td>{{form.qyxx.gldj}}</td>
+                    <td class="title">行业</td>
+                    <td>{{form.qyxx.hydm}}</td>
+                    <td  class="title">纳税人税务机关</td>
+                    <td>{{form.qyxx.nsrswjg}}</td>
+                </tr>
+            </table>
+            <table id="blqyxxwh-table"></table>
+            <div id="blqyxxwh-tablePager"></div>
+        </div>
+        <div class="page-model">
+            <div ms-if="addOrEdit == '1'" class="model-title">新增不良企业信息</div>
+            <div ms-if="addOrEdit == '2'" class="model-title">编辑不良企业信息</div>
+            <div class="model-content" style="padding: 10px 0;">
+                <div ms-if="addOrEdit == '1'">
+                    <p><label style="width: 140px">海关代码：</label><input type="text" class="width-l" ms-duplex="modalData.qyhgdm"/></p>
+                    <p><label style="width: 140px">纳税人识别号：</label><input type="text" class="width-l" ms-duplex="modalData.nsrsbh"/></p>
+                </div>
+                <div ms-if="addOrEdit == '2'">
+                    <p><label style="width: 140px">海关代码：</label><span>{{modalData.qyhgdm}}</span></p>
+                    <p><label style="width: 140px">纳税人识别号：</label><span>{{modalData.nsrsbh}}</span></p>
+                </div>
+                <p style="position: relative;">
+                    <label style="width: 140px">纳税人税务机关：</label><input ms-click="showTree" type="text" readonly class="width-l" ms-duplex="modalData.nsr_swjg_dm"/>
+                    <ul id="blqyxxwhZtree" class="ztree treeDiv"></ul>
+                </p>
+                <!--<p><label style="width: 140px">企业名称：</label><span>{{modalData.nsrmc}}</span></p>-->
+                <p><label style="width: 140px">事件类型：</label><select class="width-l" ms-duplex="modalData.sjlx">
+                    <option value=""></option>
+                    <option value="1">函调</option>
+                    <option value="2">实地核查</option>
+                    <option value="3">稽查案件</option>
+                    <option value="4">评估核查</option>
+                    <option value="9">其他</option>
+                </select></p>
+                <p><label style="width: 140px">不良信息内容：</label><textarea style="max-width: 255px;" rows="3" class="width-l" ms-duplex="modalData.blxxnr"></textarea></p>
+                <p><label style="width: 140px">风险级别：</label><select class="width-l" ms-duplex="modalData.fxjb">
+                    <option value=""></option>
+                    <option value="1">一级风险-低</option>
+                    <option value="2">二级风险-中</option>
+                    <option value="3">三级风险-高</option>
+                </select></p>
+                <p><label style="width: 140px">风险描述：</label><textarea style="max-width: 255px;" rows="3" class="width-l" ms-duplex="modalData.fxms"></textarea></p>
+                <p><label style="width: 140px">风险日期起：</label><input type="text" class="width-l datepicker date-day" ms-duplex="@modalData.rqq" :on-blur="@filDate"></p>
+                <p><label style="width: 140px">风险日期止：</label><input type="text" class="width-l datepicker date-day" ms-duplex="@modalData.rqz" :on-blur="@filDate"></p>
+                <p><label style="width: 140px">备注：</label><textarea rows="3" class="width-l" ms-duplex="modalData.bz"></textarea></p>
+            </div>
+            <div class="model-btns">
+                <div class="btn" ms-click="submit">确定</div>
+                <div class="btn" ms-click="closeModal">取消</div>
+            </div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==3&&'active']">
+        <div class="chartDiv"></div>
+    </div>
+</div>

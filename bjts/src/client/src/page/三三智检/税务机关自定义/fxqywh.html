@@ -1,0 +1,140 @@
+<div class="fxqywh zbpzWarp tableLine" ms-click="hideNsrsbh">
+  <div class="pageTabs">
+      <div class="pageTitle">
+        风险企业维护
+      </div>
+      <div class="btns">
+        <div class="btn" ms-click="@search(1)">查询</div>
+        <div class="btn" ms-click="@showModel('新增')">新增</div>
+        <div class="btn" ms-click="@delHandler()">批量注销</div>
+        <div class="btn" ms-click="@exform">导出</div>
+        <div class="btn" ms-click="@showImportModel">导入</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <div class="select-wrapper">
+          <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+          <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+          <div class="select-main">
+              <div class="select-item">
+                  <label  title="税务机关">税务机关</label>
+                  <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree">
+                  <ul id="fxqywhSwjgTree" class='ztree treeDiv fxqywhSwjgTree' style="left: 40%;width: 200px;"></ul>
+              </div>
+              <div class="select-item">
+                  <label title="风险企业">风险企业</label>
+                  <input type="text" ms-duplex="searchData.fxqy">
+              </div>
+              <div class="select-item">
+                <label title="有效期">有效期</label>
+                <div class="select-item-inner">
+                  <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate" ms-duplex="@searchData.yxqQ">
+                  <span style="margin:0;">止</span>
+                  <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate" ms-duplex="@searchData.yxqZ">
+                </div>
+              </div>
+          </div>
+          <div class="select-sub">
+              <div class="select-item">
+                <label title="启用标志">启用标志</label>
+                <select ms-duplex="@searchData.qybz">
+                    <option value="Y">启用</option>
+                    <option value="N">注销</option>
+                </select>
+              </div>
+              <div class="select-item">
+                <label title="风险描述">风险描述</label>
+                <input type="text" ms-duplex="@searchData.fxms" placeholder="支持模糊查询">
+              </div>
+          </div>
+      </div>
+      <div class="form" style="padding-top: 54px">
+          <table id="fxqywh-table"></table>
+          <div id="fxqywh-tablePager"></div>
+      </div>
+  </div>
+  <!-- 新增/编辑 -->
+  <div class="page-model add-page-model" style="height:400px;width: 500px;margin-left: -250px;" >
+    <div class="model-title">{{@addTitle}}</div>
+    <div class="model-content g-form" style="height: 300px;">
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>企业识别号：</div>
+        <div class="g-form-item__content nsrsbh-group">
+          <input ms-if="@addTitle == '查看'" type="text" ms-duplex="@modelData.qysbh">
+          <input
+            ms-if="@addTitle != '查看'"
+            name="nsrsbh"
+            type="text"
+            ms-duplex="@modelData.qysbh"
+            data-duplex-changed="inpChangeNsrsbh('modelData')"
+            ms-focus="@showNsrsbh"
+            ms-keyup="@nsrsbhEnterSearch | enter"
+            ms-keydown="@keydown($event, 'fxqywhNrsbhList')"
+            placeholder="请输入至少4位税号,支持模糊查询"
+            autocomplete="off">
+          <div ms-visible="@showNsrsbhList" class="nrsbhList" id="fxqywhNrsbhList">
+            <p
+              ms-for="(index,item) in @nsrsbhList"
+              ms-click="@setNsrsbh(item, 'modelData')"
+              ms-attr="{index: index}"
+              ms-mouseover="@activeBgIndex = index"
+              ms-class="{activeBg: @activeBgIndex == index}"
+              ms-css="{width: item.nsrmc.length * 12 + 150 +'px'}">
+              {{item.nsrxx}}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">企业名称：</div>
+        <div class="g-form-item__content">
+          <input type="text" ms-duplex="@modelData.qymc">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">有效期：</div>
+        <div class="g-form-item__content">
+          <input type="text" style="width: 134px;" class="bt-form-control datepicker date-day" :on-blur="@filDate" ms-duplex="@modelData.yxqQ" ms-attr="{disabled: @addTitle == '查看'}">
+          <span style="margin:0 5px;">止</span>
+          <input type="text" style="width: 134px;" class="bt-form-control datepicker date-day" :on-blur="@filDate" ms-duplex="@modelData.yxqZ" ms-attr="{disabled: @addTitle == '查看'}">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>启用标志：</div>
+        <div class="g-form-item__content">
+          <select class="g-select" ms-duplex="@modelData.qybz" style="width: 100%;" ms-attr="{disabled: @addTitle == '查看'}">
+            <option value="Y">启用</option>
+            <option value="N">注销</option>
+          </select>
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">风险描述：</div>
+        <div class="g-form-item__content" style="height: 90px;">
+          <textarea class="g-textarea" ms-duplex="modelData.fxms" style="resize: none;height:100%;" ms-attr="{disabled: @addTitle == '查看'}"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="model-btns">
+      <div ms-if="@addTitle != '查看'" class="btn" ms-click="saveModel">保存</div>
+      <div class="btn" ms-click="hideModel">取消</div>
+    </div>
+  </div>
+  <!-- 导入 -->
+  <div class="page-model import-page-model" style="height: 240px; margin-top: -120px; width: 400px; margin-left: -200px;">
+    <div class="model-title">
+      <span>导入</span>
+      <span class="model-close" ms-mousedown="$event.preventDefault()" ms-click="hideImportModel">&times;</span>
+    </div>
+    <div class="model-content" style="height: 134px;">
+      <p>1.请按模板填写数据，再进行导入；</p>
+      <p>2.点击下载<a class="btn-import" ms-click='@exformModel'>导入模板</a>。</p>
+    </div>
+    <div class="model-btns">
+      <div class="btn" ms-click="hideImportModel">
+        <input id="fxqywhFileupload" type="file" name="file"
+          data-url="/sszj/fxqy/import">导入
+      </div>
+    </div>
+  </div>
+</div>

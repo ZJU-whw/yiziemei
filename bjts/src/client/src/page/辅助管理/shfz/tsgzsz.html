@@ -1,0 +1,64 @@
+<div class="tsgzsz shfz">
+    <div class="pageTabs">
+        <div class="pageTitle">
+            审核分户分组 - 疑点分类推送规则设置
+        </div>
+    </div>
+    <div class="page active" >
+        <div class="form" style="padding-top: 0">
+            <div style="padding-left: 2%;line-height: 30px"><span>税务机关：</span><span>{{formData.swjgmc}}</span></div>
+            <table class="table" style="margin-top: 10px">
+                <tr>
+                    <td class="title text-center">申报疑点级别</td>
+                    <td class="title text-center">省默认推送岗位设置</td>
+                    <td class="title text-center">省默认参数说明</td>
+                    <td class="title text-center">本机关推送岗位设置</td>
+                </tr>
+                <tr>
+                    <td class="text-center">不可挑过疑点</td>
+                    <td class="text-center">{{formData.defaultSet.bktgydMc}}</td>
+                    <td class="text-center">申报有不可挑过疑点时，流程只推送到申报受理岗</td>
+                    <td class="text-center">
+                        <select ms-duplex="formData.customSet.bktgyd" ms-change="handleChange('1',$event)">
+                            <option value="">请选择</option>
+                            <option ms-for="item in opts1" ms-attr="{value:item.gwdm}">{{item.gwmc}}</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-center">可挑过疑点</td>
+                    <td class="text-center">{{formData.defaultSet.ktgydMc}}</td>
+                    <td class="text-center">申报有可挑过疑点时，流程只推送到审核岗</td>
+                    <td class="text-center">
+                        <select ms-duplex="formData.customSet.ktgyd" ms-change="handleChange('2',$event)">
+                            <option value="">请选择</option>
+                            <option ms-for="item in opts2" ms-attr="{value:item.gwdm}">{{item.gwmc}}</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-center">无疑点</td>
+                    <td class="text-center">{{formData.defaultSet.wydMc}}</td>
+                    <td class="text-center">申报每一道环节均无疑点，最多可推送到核准岗</td>
+                    <td class="text-center">
+                        <select ms-duplex="formData.customSet.wyd" ms-change="handleChange('3',$event)">
+                            <option value="">请选择</option>
+                            <option ms-for="item in opts3" ms-attr="{value:item.gwdm}">{{item.gwmc}}</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-center">零申报</td>
+                    <td class="text-center">{{formData.defaultSet.lsbMc}}</td>
+                    <td class="text-center">零申报可推送到发放环节</td>
+                    <td class="text-center">
+                        <select ms-duplex="formData.customSet.lsb" ms-change="handleChange('4',$event)">
+                            <option value="">请选择</option>
+                            <option ms-for="item in opts4" ms-attr="{value:item.gwdm}">{{item.gwmc}}</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

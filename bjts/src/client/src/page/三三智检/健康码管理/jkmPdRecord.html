@@ -1,0 +1,104 @@
+<div class="jkmPdRecord tableLine" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        健康码评定记录查询
+      </div>
+      <div class="btns">
+        <div class="btn" ms-click="@search(1)">查询</div>
+        <div class="btn" ms-click="@exform">导出</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <div class="select-wrapper">
+        <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+        <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+        <div class="select-main">
+            <div class="select-item">
+              <label  title="税务机关">税务机关</label>
+              <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree">
+              <ul id="jkmPdRecordswjgtree" class='ztree treeDiv jkmPdRecordswjgtree' style="left: 90px;top:100%;"></ul>
+            </div>
+            <div class="select-item">
+              <label  title="企业标识">企业标识</label>
+              <input  type="text" ms-duplex="@searchData.qybs" placeholder="海关代码/税号/名称，支持模糊匹配">
+            </div>
+            <div class="select-item">
+              <label  title="发起类型">发起类型</label>
+              <select ms-duplex="@searchData.fqlx">
+                <option value=""></option>
+                <option value="1">税务评定</option>
+                <option value="2">企业申述</option>
+              </select>
+            </div>
+            <div class="select-item">
+              <label  title="评定结果">评定结果</label>
+              <select ms-duplex="@searchData.pdjg">
+                <option value=""></option>
+                <option value="1">同意</option>
+                <option value="2">拒绝</option>
+              </select>
+            </div>
+        </div>
+        <div class="select-sub">
+          <div class="select-item">
+            <label title="原健康码">原健康码</label>
+            <select ms-duplex="@searchData.jkmY">
+              <option value="">　</option>
+              <option value="1">绿色</option>
+              <option value="2">黄色</option>
+              <option value="3">红色</option>
+            </select>
+          </div>
+          <div class="select-item">
+            <label title="新健康码">新健康码</label>
+            <select ms-duplex="@searchData.jkmN">
+              <option value="">　</option>
+              <option value="1">绿色</option>
+              <option value="2">黄色</option>
+              <option value="3">红色</option>
+            </select>
+          </div>
+          <div class="select-item">
+            <label title="退税计算方式">退税计算方式</label>
+            <select ms-duplex="@searchData.tsjsfs">
+              <option value="">　</option>
+              <option value="1">免抵退税</option>
+              <option value="2">免退税</option>
+              <option value="3">免税</option>
+              <option value="9">其他</option>
+            </select>
+          </div>
+          <div class="select-item">
+            <label title="有效期">有效期</label>
+            <div class="select-item-inner">
+              <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate" ms-duplex="@searchData.yxqQ">
+              <span style="margin:0;">止</span>
+              <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate" ms-duplex="@searchData.yxqZ">
+            </div>
+          </div>
+        </div>
+        <div class="select-sub">
+          <div class="select-item">
+            <label title="评定日期">评定日期</label>
+            <div class="select-item-inner">
+              <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate" ms-duplex="@searchData.pdrqQ">
+              <span style="margin:0;">止</span>
+              <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate" ms-duplex="@searchData.pdrqZ">
+            </div>
+          </div>
+          <div class="select-item">
+            <label title="复核日期">复核日期</label>
+            <div class="select-item-inner">
+              <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate" ms-duplex="@searchData.fhrqQ">
+              <span style="margin:0;">止</span>
+              <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate" ms-duplex="@searchData.fhrqZ">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form" style="padding-top: 54px">
+          <table id="jkmPdRecord-table"></table>
+          <div id="jkmPdRecord-tablePager"></div>
+      </div>
+  </div>
+</div>

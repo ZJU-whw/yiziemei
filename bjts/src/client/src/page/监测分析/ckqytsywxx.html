@@ -1,0 +1,43 @@
+<div class="ckqytsywxx" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        出口企业特殊业务信息综合查询表
+      </div>
+      <div class="btns">
+        <div class="btn" ms-click="@search(1)">查询</div>
+        <div class="btn" ms-click="@exform">导出</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <form name="ckqytsywxx-form">
+          <div class="select-wrapper">
+            <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+            <div class="select-main">
+              <div class="select-item">
+                  <label class="item-label" title="退税机关">退税机关</label>
+                  <input class="item-content" readonly type="text" ms-duplex="swjgmc" ms-click="@showTree">
+                  <ul id="ckqytsywxxTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+              </div>
+              <div class="select-item">
+                <label class="item-label" title="统计日期">统计日期</label>
+                <div class="select-item-inner item-content">
+                  <input type="text" class="datepicker date-month" ms-duplex="@searchData.ssnyStart":on-blur="@filDate($event, 'ssnyStart')" ms-click="@showDatetimepicker">
+                  <span>至</span>
+                  <input type="text" class="datepicker date-month" ms-duplex="@searchData.ssnyEnd":on-blur="@filDate($event, 'ssnyEnd')" ms-click="@showDatetimepicker">
+                </div>
+              </div>
+              <div class="select-item clear">
+                <label class="item-label" title="特殊业务">特殊业务</label>
+                <div class="bootstrap-multiselect item-content">
+                  <select id="ckqytsywxx_select_cx_tsyw" multiple="multiple"></select>
+                </div>
+              </div>
+            </div>
+          </div>
+      </form>
+      <div class="form" style="padding-top: 54px">
+        <table id="ckqytsywxx-table"></table>
+        <div id="ckqytsywxx-tablePager"></div>
+      </div>
+  </div>
+</div>

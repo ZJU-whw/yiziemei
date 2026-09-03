@@ -1,0 +1,27 @@
+.pxwh .qrcode-wrapper {
+  display: none;
+  position: absolute;
+  top: 50px;
+  left: 180px;
+  width: 240px;
+  height: 250px;
+  background: #eff6f8;
+  color: #000;
+}
+.pxwh .qrcode-wrapper .qrcode-header {
+  height: 30px;
+  line-height: 30px;
+  text-align: right;
+  padding-right: 10px;
+}
+.pxwh .qrcode-wrapper .qrcode-header .qrcode-close {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background: url("../image/close1.png") right center;
+}
+.pxwh .qrcode-wrapper .qrcode-img {
+  width: 200px;
+  height: 200px;
+  padding: 10px 20px;
+}

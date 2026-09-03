@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.NsrBadjModelMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.NsrBadjModel" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="DJXH" property="djxh" jdbcType="DECIMAL" />
+    <result column="NSRSBH" property="nsrsbh" jdbcType="VARCHAR" />
+    <result column="SHXYDM" property="shxydm" jdbcType="VARCHAR" />
+    <result column="NSRMC" property="nsrmc" jdbcType="VARCHAR" />
+    <result column="QYHGDM" property="qyhgdm" jdbcType="VARCHAR" />
+    <result column="CKQYLX" property="ckqylx" jdbcType="CHAR" />
+    <result column="FLGLCD" property="flglcd" jdbcType="CHAR" />
+    <result column="DJZCLX" property="djzclx" jdbcType="CHAR" />
+    <result column="HY" property="hy" jdbcType="CHAR" />
+    <result column="NSRZT" property="nsrzt" jdbcType="VARCHAR" />
+    <result column="NSRLB" property="nsrlb" jdbcType="CHAR" />
+    <result column="QYFZ" property="qyfz" jdbcType="VARCHAR" />
+    <result column="BACHBZ" property="bachbz" jdbcType="CHAR" />
+    <result column="BACHSJ" property="bachsj" jdbcType="DATE" />
+    <result column="SWJGDM" property="swjgdm" jdbcType="VARCHAR" />
+    <result column="KSSWJG_DM" property="ksswjgDm" jdbcType="VARCHAR" />
+    <result column="JDXZ_DM" property="jdxzDm" jdbcType="VARCHAR" />
+    <result column="NSRDZDAH" property="nsrdzdah" jdbcType="DECIMAL" />
+  </resultMap>
+</mapper>

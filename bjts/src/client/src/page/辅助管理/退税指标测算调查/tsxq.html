@@ -1,0 +1,38 @@
+<div class="tsxq" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            退税需求情况统计 <span style="font-size: 0.7em;float: none">金额单位：出口(万美元)、退税(万元)</span>
+        </div>
+        <div class="btns">
+            <div class="btn" ms-click="@normalSearch()">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+            <div class="btn" ms-click="@changeTab(3)" ms-if="@act==1">统计图</div>
+            <div class="btn" ms-click="@changeTab(1)" ms-if="@act==3">统计表</div>
+        </div>
+    </div>
+    <div class="page active" >
+        <div class="select-wrapper" style="padding-bottom: 10px;line-height: 1">
+            <div class="select-main">
+                <div class="select-item">
+                    <label  title="退税机关">退税机关</label>
+                    <input readonly type="text" ms-duplex="@searchData.swjgMc" ms-click="@showTree">
+                    <ul id="tsxqTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+                </div>
+                <div class="select-item">
+                    <label  title="统计年度">统计年度</label>
+                    <select type="text" ms-duplex="@searchData.tjnd">
+                        <option ms-for="item in tjndList" ms-attr="{value:item}">{{item}}</option>
+                    </select>
+                </div>
+            </div>
+
+        </div>
+        <div class="form" style="padding-top: 42px" ms-visible="@act==1">
+            <table id="tsxq-table"></table>
+            <div id="tsxq-tablePager"></div>
+        </div>
+        <div class="form" style="padding-top: 42px" ms-visible="@act==3">
+            <div id="tsxq-chart" style="height:100%"></div>
+        </div>
+    </div>
+</div>

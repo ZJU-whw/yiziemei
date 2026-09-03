@@ -1,0 +1,38 @@
+<div class="multi-pdf-viewer" :class="pdfContainerId+'-pdfmodel'">
+  <div class="multi-pdf-viewer-overlay"></div>
+  <div class="multi-pdf-viewer-model">
+    <div class="close" title="关闭" ms-on-click="@hidePdf()">&times;</div>
+    <div class="multi-pdf-viewer-main" ms-class="[@treeCollapsed && 'tree-collapsed']">
+      <div class="multi-pdf-viewer-tree-panel">
+        <div class="multi-pdf-viewer-tree-header">
+          <span>单证列表</span>
+          <button type="button" title="收起" ms-click="@toggleTreePanel()">&lt;</button>
+        </div>
+        <div class="multi-pdf-viewer-layouts">
+          <span class="multi-pdf-layout-label">窗口模式</span>
+          <button type="button" class="layout-btn layout-one" data-layout="1" title="单屏" ms-class="[@layoutCount == 1 && 'active']" ms-click="@changeLayout(1)">1</button>
+          <button type="button" class="layout-btn layout-two" data-layout="2" title="二等分" ms-class="[@layoutCount == 2 && 'active']" ms-click="@changeLayout(2)"><span>1</span><span>2</span></button>
+          <button type="button" class="layout-btn layout-three" data-layout="3" title="三等分" ms-class="[@layoutCount == 3 && 'active']" ms-click="@changeLayout(3)"><span>1</span><span>2</span><span>3</span></button>
+          <button type="button" class="layout-btn layout-left-two" data-layout="5" title="左一右二" ms-class="[@layoutCount == 5 && 'active']" ms-click="@changeLayout(5)"><span>1</span><span>2</span><span>3</span></button>
+          <button type="button" class="layout-btn layout-four" data-layout="4" title="四等分" ms-class="[@layoutCount == 4 && 'active']" ms-click="@changeLayout(4)"><span>1</span><span>2</span><span>3</span><span>4</span></button>
+          <span class="multi-pdf-help-wrap">
+            <button type="button" class="multi-pdf-help-btn">?</button>
+            <div class="multi-pdf-help-tip">
+              <div class="multi-pdf-help-tip-title">使用说明</div>
+              <ol>
+                <li>切换窗口模式，支持多窗口查看单证</li>
+                <li>支持鼠标拖动单证至任意一个窗口</li>
+                <li>滚轮支持上下翻动单证</li>
+                <li>Ctrl+滚轮支持放大对应子窗口的单证</li>
+              </ol>
+            </div>
+          </span>
+        </div>
+        <div class="multi-pdf-viewer-tree-body"></div>
+        <div class="multi-pdf-viewer-business-info"></div>
+      </div>
+      <button type="button" class="multi-pdf-viewer-tree-open" title="展开" ms-click="@toggleTreePanel()">&gt;</button>
+      <div class="multi-pdf-viewer-body"></div>
+    </div>
+  </div>
+</div>

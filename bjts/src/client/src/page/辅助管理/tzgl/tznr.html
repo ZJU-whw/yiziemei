@@ -1,0 +1,25 @@
+<div class="tznr">
+    <div class="tznr-wrapper">
+        <div class="tznr-title">{{formData.main.title}}</div>
+        <hr class="tznr-line"/>
+        <div class="tznr-info">
+            <div class="tznr-info-item">
+                <span>发布时间：</span>
+                <span>{{formData.main.release_time}}</span>
+            </div>
+            <div class="tznr-info-item">
+                <span>发布人：</span>
+                <span>{{formData.main.release_user}}</span>
+            </div>
+            <div class="tznr-info-item">
+                <span>发布机关：</span>
+                <span>{{formData.main.release_swjgmc}}</span>
+            </div>
+        </div>
+        <div class="tznr-content">{{formData.main.content}}</div>
+        <div class="tznr-extra">
+            <span class="tznr-extra-info">附件：</span>
+            <div class="tznr-extra-item" ms-for="(index,item) in formData.attach" ms-click="loadFile(item.id)">{{item.filename}}</div>
+        </div>
+    </div>
+</div>

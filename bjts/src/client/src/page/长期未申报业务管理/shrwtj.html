@@ -1,0 +1,87 @@
+<div class="shrwtj">
+    <div class="pageTabs">
+        <div class="pageTitle">
+            长期未申报业务审核任务统计
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@normalSearch()">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+            <div class="btn dropdown" ms-on-click="showMenu">
+                配置表格▼
+                <ul class="dropdown-menu">
+                    <li ms-for="(index,item) in @tableOption"><label><input type="checkbox"
+                                ms-duplex-checked="item.show"
+                                ms-on-click="@setTableOption(item,$event)">{{item.label}}</label></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']">
+        <form name="shrwtj-form">
+            <div class="select-wrapper">
+              <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+                <!-- <i class="icon" ms-click="showHyper" title="展开查询条件"></i> -->
+                <div class="select-main">
+                    <div class="select-item" style="width: 25%;">
+                        <label title="税务机关">税务机关:</label>
+                        <input readonly type="text" ms-duplex="@tsjgmc" ms-click="@showTree" />
+                        <ul id="shrwtjtree" class="ztree treeDiv" style="left: 90px"></ul>
+                    </div>
+                    <!-- <div class="select-item" style="width: 25%;">
+                        <label title="创建日期起">创建日期起</label>
+                        <div class="select-item-inner">
+                            <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate"
+                                ms-duplex="@searchData.fqsjQ">
+                            <span style="margin:0;">止</span>
+                            <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate"
+                                ms-duplex="@searchData.fqsjZ">
+                        </div>
+                    </div> -->
+                    <div class="select-item nsrsbh-group" style="width: 25%;">
+                        <label>
+                          <select class="bt-form-control select-nsrsbh" style="width: 90%;padding: 1px 6px;" ms-duplex="rqSearchType"
+                            data-duplex-changed="rqSearchTypeChg">
+                            <option value="cjrq">创建日期</option>
+                            <option value="ckrq">出口日期</option>
+                          </select>
+                        </label>
+                        <div class="select-item-inner" ms-visible="@rqSearchType=='cjrq'">
+                          <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate"
+                            ms-duplex="@searchData.fqsjQ">
+                          <span style="margin:0;">止</span>
+                          <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate"
+                            ms-duplex="@searchData.fqsjZ">
+                        </div>
+                        <div class="select-item-inner" ms-visible="@rqSearchType=='ckrq'">
+                          <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate"
+                            ms-duplex="@searchData.ckrqQ">
+                          <span style="margin:0;">止</span>
+                          <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate"
+                            ms-duplex="@searchData.ckrqZ">
+                        </div>
+                    </div>
+                    <div class="select-item" style="width: 25%;">
+                        <label title="退免税计算方式">退免税计算方式</label>
+                        <select ms-duplex="@searchData.tsjsfs">
+                          <option value=""></option>
+                          <option value="1">生产免抵退税</option>
+                          <option value="2">外贸免退税</option>
+                        </select>
+                      </div>
+                      <div class="select-item" style="width: 25%;">
+                        <label title="数据来源">数据来源</label>
+                        <select ms-duplex="@searchData.sjly">
+                          <option value=""></option>
+                          <option value="1">出口长期未申报</option>
+                          <option value="2">依职权（不适用退免税政策）</option>
+                        </select>
+                      </div>
+                </div>
+            </div>
+        </form>
+        <div class="form" style="padding-top: 54px">
+            <table id="shrwtj-table"></table>
+            <div id="shrwtj-tablePager"></div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,92 @@
+<div class="bbwh" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            统计报表维护
+        </div>
+        <div class="btns">
+            <div class="btn" ms-click="@search(1)">刷新</div>
+            <div class="btn" ms-click="@addRow">新增</div>
+            <div class="btn" ms-click="@editModel">编辑</div>
+            <div class="btn" ms-click="@showMB">模板导入</div>
+            <div class="btn" ms-click="@editZD">报表字段</div>
+            <div class="btn" ms-click="@editZB">报表指标</div>
+            <div class="btn" ms-click="@editGs">报表公式</div>
+        </div>
+    </div>
+    <div class="page active">
+        <div class="form" style="padding-top: 0">
+            <table id="bbwh-table"></table>
+            <div id="bbwh-tablePager"></div>
+        </div>
+    </div>
+    <div class="page-model" id="editModel">
+        <div class="model-title">设置</div>
+        <div class="model-content">
+            <p><label><span class="text-red">*</span>报表代码：</label><input type="text" class="width-l" ms-duplex="modelData.bbdm" ms-attr="{disabled:modelData.isAdd=='1'?false:true}"></p>
+            <p><label><span class="text-red">*</span>报表大类：</label><select class="width-l" ms-duplex="modelData.bbdldm">
+                <option value=""></option>
+                <option ms-for="item in @bbdlList" ms-attr="{value:item.bbdldm}">{{item.bbdlmc}}</option>
+            </select></p>
+            <p><label><span class="text-red">*</span>报表名称：</label><input type="text" class="width-l" ms-duplex="modelData.bbmc"></p>
+            <p><label>报表简称：</label><input type="text" class="width-l" ms-duplex="modelData.bbjc"></p>
+            <p><label><span class="text-red">*</span>显示序号：</label><input type="text" class="width-l" ms-duplex="modelData.showorder"></p>
+            <p><label><span class="text-red">*</span>展示类型：</label><select class="width-l" ms-duplex="modelData.bbtype">
+                <option value=""></option>
+                <option value="1">固定报表</option>
+                <option value="2">可变长报表</option>
+                <option value="3">可变长翻页表</option>
+            </select></p>
+            <p><label><span class="text-red">*</span>汇总类型：</label><select class="width-l" ms-duplex="modelData.hztype">
+                <option value=""></option>
+                <option value="1">指标汇总</option>
+                <option value="3">明细汇总</option>
+                <option value="5">合计汇总</option>
+            </select></p>
+            <p><label>初始过程：</label><input type="text" class="width-l" ms-duplex="modelData.proc"></p>
+            <p><label>汇总过程：</label><input type="text" class="width-l" ms-duplex="modelData.prochz"></p>
+            <!--<p><label>数据列标：</label><input type="text" class="width-l" ms-duplex="modelData.excelcol"></p>-->
+            <!--<p><label>数据行标：</label><input type="text" class="width-l" ms-duplex="modelData.excelrow"></p>-->
+        </div>
+        <div class="model-btns">
+            <div class="btn" ms-click="saveModel">保存</div>
+            <div class="btn" ms-click="hideModel">取消</div>
+        </div>
+    </div>
+    <div class="page-model" id="MBupload">
+        <div class="model-title">导入模板</div>
+        <div class="model-content">
+
+            <p><label><span class="text-red">*</span>标题起始行：</label><input type="number" class="width-l" ms-duplex="modelData2.headLine"></p>
+            <p><label><span class="text-red">*</span>标题起始列：</label><input type="number" class="width-l" ms-duplex="modelData2.headCol"></p>
+            <p><label><span class="text-red">*</span>数据起始行：</label><input type="number" class="width-l" ms-duplex="modelData2.dataLine"></p>
+            <p><label><span class="text-red">*</span>数据起始列：</label><input type="number" class="width-l" ms-duplex="modelData2.dataCol"></p>
+            <p><label><span class="text-red">*</span>模板结束行：</label><input type="number" class="width-l" ms-duplex="modelData2.endLine"></p>
+            <p><label><span class="text-red">*</span>导入类型：</label>
+            <select class="width-l" ms-duplex="modelData2.type">
+                <option value="1">首次创建</option>
+                <option value="2">模板更新</option>
+            </select></p>
+            <p ms-if="modelData2.type=='2'">
+                <label>&nbsp;</label>
+                <label style="width:auto;"><input type="checkbox" ms-duplex-checked="modelData2.isUpdateItem" style="float: none">更新指标</label>
+                <label style="width:auto;margin-left: 10px;"><input type="checkbox" ms-duplex-checked="modelData2.isUpdateFormula" style="float: none">更新公式</label>
+            </p>
+            <p style="line-height:20px;"><span class="text-red" style="white-space: normal;line-height:20px;">首次创建:自动生成默认字段列名，并生成模板标题指标公式配置。<br>模板更新:仅重新生成模板标题指标公式配置，不会重新生成字段列。</span></p>
+            <!--<p style="position: relative"><label><span class="text-red">*</span>Excel模 板：</label>-->
+                <!--<div id="fileAdd" class="width-l" style="word-break: break-all;white-space: nowrap;float:left;box-sizing: border-box;padding-left: 85px;overflow: hidden;text-align: right">-->
+
+                <!--</div>-->
+                <!--<div class="btn fileupload" style="position: absolute;left: 105px;top: 0;width: 60px;margin: 0;">选择文件-->
+                    <!--<input id="bbwh-fileupload" type="file" name="file" data-url="/bjtssw/tjbb/mgt/headTempt/auto">-->
+                <!--</div>-->
+            <!--</p>-->
+        </div>
+        <div class="model-btns">
+            <div class="btn fileupload" style="vertical-align: middle">上传
+                <input id="bbwh-fileupload2" type="file" name="file" data-url="/bjtssw/tjbb/mgt/headTempt/auto">
+            </div>
+            <!--<div class="btn" ms-click="sendData">上传</div>-->
+            <div class="btn" ms-click="hideMB" style="vertical-align: middle">取消</div>
+        </div>
+    </div>
+</div>

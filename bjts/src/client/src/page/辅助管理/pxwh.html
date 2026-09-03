@@ -1,0 +1,60 @@
+<div class="pxwh" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            培训发布维护
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@add">新增</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="select-wrapper" style="padding-bottom: 10px;line-height: 1">
+            <div class="select-main">
+                <div class="select-item">
+                    <label  title="标题">标题</label>
+                    <input  type="text" ms-duplex="@searchData.topic">
+                </div>
+                <div class="select-item">
+                    <label title="培训开始时间">培训开始时间</label>
+                    <input class="datepicker date-day" type="text" ms-duplex="searchData.start | change" :on-blur="@filDate">
+                </div>
+                <div class="select-item">
+                    <label  title="培训结束时间">培训结束时间</label>
+                    <input class="datepicker date-day" type="text" ms-duplex="searchData.end |change" :on-blur="@filDate">
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 40px">
+            <table id="pxwh-table"></table>
+            <div id="pxwh-tablePager"></div>
+        </div>
+        <div class="page-model modal">
+            <div ms-if="addOrEdit== '1'" class="model-title">新增培训信息</div>
+            <div ms-if="addOrEdit== '2'" class="model-title">编辑培训信息</div>
+            <div class="model-content">
+                <p><label style="width: 140px"><span class="text-red">*</span>发布人：</label><input maxlength="20" type="text" class="width-l" ms-duplex="modalData.originator"></p>
+                <p><label style="width: 140px"><span class="text-red">*</span>标题：</label><input type="text" class="width-l" ms-duplex="modalData.topic"></p>
+                <p><label style="width: 140px"><span class="text-red">*</span>培训简介：</label><input maxlength="500"  type="text" class="width-l" ms-duplex="modalData.synopsis"></p>
+                <p><label style="width: 140px"><span class="text-red">*</span>报名人数上限：</label><input type="text" class="width-l" ms-duplex="modalData.personLimit"></p>
+                <p><label style="width: 140px"><span class="text-red">*</span>培训开始时间：</label><input readonly  type="text" class="width-l datepicker date-time" ms-duplex="modalData.validDateStart"></p>
+                <p><label style="width: 140px"><span class="text-red">*</span>培训结束时间：</label><input readonly  type="text" class="width-l datepicker date-time" ms-duplex="modalData.validDateEnd"></p>
+                <p><label style="width: 140px"><span class="text-red">*</span>推送起始时间：</label><input readonly  type="text" class="width-l datepicker date-day" ms-duplex="modalData.tssjq"></p>
+                <p><label style="width: 140px"><span class="text-red">*</span>推送截止时间：</label><input readonly type="text" class="width-l datepicker date-day" ms-duplex="modalData.tssjz"></p>
+                <p><label style="width: 140px"><span class="text-red">*</span>培训地址：</label><input type="text" class="width-l" ms-duplex="modalData.address"></p>
+                <p><label style="width: 140px"><span class="text-red">*</span>联系人：</label><input maxlength="20" type="text" class="width-l" ms-duplex="modalData.contact"></p>
+                <p><label style="width: 140px"><span class="text-red">*</span>联系电话：</label><input type="text" class="width-l" ms-duplex="modalData.contactTel"></p>
+                <p ms-if="addOrEdit=='2'"><label style="width: 140px">二维码：</label><div class="btn" ms-click="showSignCode">报名二维码</div><div class="btn" ms-click="showTicket">签到二维码</div> </p>
+            </div>
+            <div class="qrcode-wrapper">
+                <div class="qrcode-header"><span class="qrcode-close" src="static/image/close1.png" ms-click="closeQrcode"></span></div>
+                <img ms-if="showBmCode" ms-attr="{src: @bmImg}" class="qrcode-img signQrCode" />
+                <img ms-if="showQdCode" ms-attr="{src: @qdImg}"  class="qrcode-img ticket"/>
+            </div>
+            <div class="model-btns">
+                <div class="btn" ms-click="saveInfo">保存</div>
+                <div class="btn" ms-click="closeModal">取消</div>
+            </div>
+        </div>
+    </div>
+</div>

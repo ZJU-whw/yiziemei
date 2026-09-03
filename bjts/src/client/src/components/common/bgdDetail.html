@@ -1,0 +1,198 @@
+<div class="bgd-detail" ms-visible="@visible">
+  <div class="bgd-modal"></div>
+  <div class="bgd-ct">
+    <div class="model-title">
+      <h3>中华人民共和国出口报关单</h3>
+      <span class="model-close" ms-click="@closeModel">×</span>
+    </div>
+    <div class="model-content">
+      <div class="row">
+        <div class="col col-xs-4 preview-title-left">海关编号：<span>{{info.entryId}}</span></div>
+        <div class="col col-xs-8 preview-title-right">&nbsp;<span>{{info.incode}}</span></div>
+      </div>
+      <div class="row">
+        <div class="col col-xs-4">
+          <div class="wrapper"><span class="preview-title">境内发货人&nbsp;&nbsp;(<span>{{info.cnsnTradeScc}}</span>)</span><span
+              class="preview-content">{{info.consignorCname}}</span></div>
+        </div>
+        <div class="col col-xs-2">
+          <div class="wrapper"><span class="preview-title">出境关别&nbsp;&nbsp;(<span>{{info.iEPort}}</span>)</span><span
+              class="preview-content">{{info.iEPortName}}</span></div>
+        </div>
+        <div class="col col-xs-2">
+          <div class="wrapper"><span class="preview-title">出口日期</span><span class="preview-content">{{info.iEDate}}</span>
+          </div>
+        </div>
+        <div class="col col-xs-2">
+          <div class="wrapper"><span class="preview-title">申报日期</span><span class="preview-content">{{info.dDate}}</span>
+          </div>
+        </div>
+        <div class="col col-xs-2">
+          <div class="wrapper last-child"><span class="preview-title">备案号</span><span class="preview-content">{{info.manualNo}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-xs-4">
+          <div class="wrapper"><span class="preview-title">境外收货人</span><span class="preview-content">{{info.consigneeEname}}</span></div>
+        </div>
+        <div class="col col-xs-2">
+          <div class="wrapper"><span class="preview-title">运输方式&nbsp;&nbsp;(<span>{{info.cusTrafMode}}</span>)</span><span
+              class="preview-content">{{info.cusTrafModeName}}</span></div>
+        </div>
+        <div class="col col-xs-2">
+          <div class="wrapper"><span class="preview-title">运输工具名称及航次</span>
+            <div class="preview-content"><span>{{info.trafName}}</span><span>{{info.cusVoyageNo}}</span></div>
+          </div>
+        </div>
+        <div class="col col-xs-4">
+          <div class="wrapper last-child"><span class="preview-title">提运单号</span><span
+              class="preview-content">{{info.billNo}}</span></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-xs-4">
+          <div class="wrapper"><span class="preview-title">生产销售单位&nbsp;&nbsp;(<span>{{info.ownerScc}}</span>)</span><span
+              class="preview-content">{{info.ownerName}}</span></div>
+        </div>
+        <div class="col col-xs-2">
+          <div class="wrapper"><span class="preview-title">监管方式&nbsp;&nbsp;(<span>{{info.supvModeCdde}}</span>)</span><span
+              class="preview-content">{{info.supvModeCddeName}}</span></div>
+        </div>
+        <div class="col col-xs-2">
+          <div class="wrapper"><span class="preview-title">征免性质&nbsp;&nbsp;(<span>{{info.cutMode}}</span>)</span><span
+              class="preview-content">{{info.cutModeName}}</span></div>
+        </div>
+        <div class="col col-xs-4">
+          <div class="wrapper last-child"><span class="preview-title">许可证号</span><span class="preview-content">{{info.licenseNo}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-xs-4">
+          <div class="wrapper"><span class="preview-title">合同协议号</span><span class="preview-content">{{info.contrNo}}</span>
+          </div>
+        </div>
+        <div class="col col-xs-2">
+          <div class="wrapper"><span class="preview-title">贸易国（地区）&nbsp;&nbsp;(<span>{{info.cusTradeNationCode}}</span>)</span><span
+              class="preview-content">{{info.cusTradeNationCodeName}}</span></div>
+        </div>
+        <div class="col col-xs-2">
+          <div class="wrapper"><span class="preview-title">运抵国（地区）&nbsp;&nbsp;(<span>{{info.cusTradeCountry}}</span>)</span><span
+              class="preview-content">{{info.cusTradeCountryName}}</span></div>
+        </div>
+        <div class="col col-xs-2">
+          <div class="wrapper"><span class="preview-title">指运港&nbsp;&nbsp;(<span>{{info.distinatePort}}</span>)</span><span
+              class="preview-content">{{info.distinatePortName}}</span></div>
+        </div>
+        <div class="col col-xs-2">
+          <div class="wrapper last-child"><span class="preview-title">出境口岸&nbsp;&nbsp;(<span>{{info.despPortCode}}</span>)</span><span
+              class="preview-content">{{info.despPortCodeName}}</span></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-xs-4">
+          <div class="wrapper"><span class="preview-title">包装种类&nbsp;&nbsp;(<span>{{info.wrapType}}</span>)</span><span
+              class="preview-content">{{info.wrapTypeName}}</span></div>
+        </div>
+        <div class="col col-xs-1">
+          <div class="wrapper"><span class="preview-title">件数</span><span class="preview-content">{{info.packNo}}</span></div>
+        </div>
+        <div class="col col-xs-1">
+          <div class="wrapper"><span class="preview-title">毛重（千克）</span><span class="preview-content">{{info.grossWt}}</span>
+          </div>
+        </div>
+        <div class="col col-xs-1">
+          <div class="wrapper"><span class="preview-title">净重（千克）</span><span class="preview-content">{{info.netWt}}</span>
+          </div>
+        </div>
+        <div class="col col-xs-1">
+          <div class="wrapper"><span class="preview-title">成交方式&nbsp;&nbsp;(<span>{{info.transMode}}</span>)</span><span
+              class="preview-content">{{info.transModeName}}</span></div>
+        </div>
+        <div class="col col-xs-4">
+          <div class="row">
+            <div class="col col-xs-4">
+              <div class="wrapper"><span class="preview-title">运费</span><span class="preview-content">{{info.yfZh}}</span></div>
+            </div>
+            <div class="col col-xs-4">
+              <div class="wrapper"><span class="preview-title">保费</span><span class="preview-content">{{info.bfZh}}</span></div>
+            </div>
+            <div class="col col-xs-4">
+              <div class="wrapper last-child"><span class="preview-title">杂费</span><span
+                  class="preview-content">{{info.zfZh}}</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-xs-12">
+          <div class="wrapper last-child" style="width: calc(100% - 0.8px);"><span class="preview-title">随附单证</span>
+            <div class="row" style="margin-top: 15px;">
+              <div class="col col-xs-12" style="padding-left: 4px">{{info.attaDocuCdstr}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-xs-12">
+          <div class="wrapper last-child" style="width: calc(100% - 1px);"><span class="preview-title">标记唛码及备注</span>
+            <div class="preview-content"><span>{{info.markNo}}</span>(<span>{{info.noteS}}</span>)</div>
+          </div>
+        </div>
+      </div>
+      <table class="preview-table">
+        <thead>
+          <th>项号</th>
+          <th>商品编号</th>
+          <th style="text-align: left;">商品名称及规格型号</th>
+          <th class="bgd-mx-num">数量及单位</th>
+          <th class="bgd-mx-num">单价/总价/币制</th>
+          <th>原产国（地区）</th>
+          <th>最终目的国（地区）</th>
+          <th>境内货源地</th>
+          <th>征免方式</th>
+        </thead>
+        <tbody style="min-height: 200px" id="previewTable">
+          <tr ms-for="hw in @hwxxs">
+            <td>
+              <div><span>{{hw.gNo}}</span><br><span>{{hw.contrItem}}</span></div>
+            </td>
+            <td><span>{{hw.codeTs}}</span></td>
+            <td style="width: 400px;"><span>{{hw.gName}}</span><br><span>{{hw.gModel}}</span></td>
+            <td class="bgd-mx-num"><span title="法定第一数量及单位"><span>{{hw.qty1}}</span><span>{{hw.unit1Name}}</span></span><br><span
+                title="法定第二数量及单位"><span>{{hw.qty2}}</span><span>{{hw.unit2Name}}</span></span><br><span
+                title="成交数量及单位"><span>{{hw.gQty}}</span><span>{{hw.gUnitName}}</span></span></td>
+            <td class="bgd-mx-num"><span title="单价"><span>{{hw.declPrice}}</span></span><br><span title="总价"><span>{{hw.declTotal}}</span></span><br><span
+                title="币制"><span>{{hw.tradeCurrName}}</span></span></td>
+            <td><span>{{hw.cusOriginCountryName}}</span></td>
+            <td><span>{{hw.destinationCountryName}}</span></td>
+            <td><span>{{hw.districtCodeName}}</span></td>
+            <td><span>{{hw.dutyModeName}}</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="row" style="border: 1px solid #333;margin-top: -1px;height: 17px;">
+        <div class="col col-xs-3 text-center">特殊关系确认：</div>
+        <div class="col col-xs-3 text-center">价格影响确认：</div>
+        <div class="col col-xs-3 text-center">支付特许权使用费确认：</div>
+        <div class="col col-xs-3 text-center">自报自缴：</div>
+      </div>
+      <div class="row" style="border: 1px solid #333;margin-top: -1px; height: 36px;">
+        <div class="col col-xs-9" style="border-right: 1px solid #333; box-sizing: border-box;">
+          <div class="row">
+            <div class="col col-xs-2">申报人员</div>
+            <div class="col col-xs-3">申报人员证号</div>
+            <div class="col col-xs-2">电话号码</div>
+            <div class="col col-xs-5">兹以上申明内容承担如实申报、依法纳税之法律责任</div>
+          </div>
+          <div class="row" style="margin-top: 20px">
+            <div class="col col-xs-8">申报单位</div>
+            <div class="col col-xs-4">申报单位签章</div>
+          </div>
+        </div>
+        <div class="col col-xs-3">海关单位批注及签章</div>
+      </div>
+    </div>
+  </div>
+</div>

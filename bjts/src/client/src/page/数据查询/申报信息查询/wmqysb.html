@@ -1,0 +1,143 @@
+<div class="wmqysb" >
+    <div class="pageTabs">
+        <div class="pageTitle">外贸企业申报查询</div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@normalSearch()">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+            <div class="btn dropdown" ms-on-click="showMenu">
+                配置表格▼
+                <ul class="dropdown-menu">
+                    <li ms-for="(index,item) in @tableOption"><label><input type="checkbox" ms-duplex-checked="item.show" ms-on-click="@setTableOption(item,$event)">{{item.label}}</label></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <form name="wmqysb-form">
+            <div class="select-wrapper">
+                <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+                <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+                <div class="select-main">
+                    <div class="select-item">
+                        <label  title="税务机关">税务机关</label>
+                        <input readonly type="text" ms-duplex="tsjgmc" ms-click="@showTree">
+                        <ul id="wmqysbtree" class='ztree treeDiv' style="left: 90px;"></ul>
+                    </div>
+                    <div class="select-item">
+                        <label  title="企业标识">企业标识<i class="question" title="企业海关代码或社会信用代码"></i></label>
+                        <input name="qybs"  class="width-l" type="text" ms-duplex="searchData.qybs">
+                    </div>
+                    <div class="select-item">
+                        <label  title="企业类型">企业类型</label>
+                        <select  ms-duplex="@searchData.qylx">
+                            <option value="">　</option>
+                            <option value="1">内资生产企业</option>
+                            <option value="2">外商投资企业</option>
+                            <option value="3">外贸（工贸）企业</option>
+                            <option value="9">其他（特许退税）企业</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="select-sub">
+                    <div class="select-item">
+                        <label  title="管理类别">管理类别</label>
+                        <select readonly  ms-duplex="@searchData.gllb">
+                            <option value="">　</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                    <div class="select-item">
+                        <label title="流程结束">流程结束</label>
+                        <select ms-duplex="@searchData.lcjsFlag">
+                            <option value="">　</option>
+                            <option value="Y">是</option>
+                            <option value="N">否</option>
+                        </select>
+                    </div>
+                    <div class="select-item">
+                        <label title="流程非正常情况">流程非正常情况</label>
+                        <select ms-duplex="@searchData.lcfzcFlag">
+                            <option value="">　</option>
+                            <option value="bybl">不予办理</option>
+                            <option value="byts">不予退税</option>
+                            <option value="zh">暂缓办理</option>
+                            <option value="zbbl">暂不办理</option>
+                            <option value="byhz">不予核准</option>
+                            <option value="zk">暂扣退税</option>
+                        </select>
+                    </div>
+                    <div class="select-item">
+                        <label  title="所属期">所属期起</label>
+                        <div class="select-item-inner">
+                            <input type="text" class="datepicker date-month" ms-duplex="@searchData.ssqq | change"  :on-change="@filMonth">
+                            <span>止</span>
+                            <input type="text" class="datepicker date-month" ms-duplex="@searchData.ssqz | change"  :on-change="@filMonth">
+                        </div>
+                    </div>
+                    <div class="select-item">
+                        <label title="受理日期">受理日期起</label>
+                        <div class="select-item-inner">
+                            <input type="text" class="datepicker date-day" ms-duplex="@searchData.slrqq | change"  :on-blur="@filDate">
+                            <span>止</span>
+                            <input type="text" class="datepicker date-day" ms-duplex="@searchData.slrqz | change"  :on-blur="@filDate">
+                        </div>
+                    </div>
+                    <div class="select-item">
+                        <label title="复审日期">复审日期起</label>
+                        <div class="select-item-inner">
+                            <input type="text" class="datepicker date-day" ms-duplex="@searchData.fhrqq | change"  :on-blur="@filDate">
+                            <span>止</span>
+                            <input type="text" class="datepicker date-day" ms-duplex="@searchData.fhrqz | change"  :on-blur="@filDate">
+                        </div>
+                    </div>
+                    <div class="select-item">
+                        <label  title="业务核准日期">业务核准日期起</label>
+                        <div class="select-item-inner">
+                            <input type="text" class="datepicker date-day" ms-duplex="@searchData.ywhzrqq | change" :on-blur="@filDate">
+                            <span >止</span>
+                            <input type="text" class="datepicker date-day" ms-duplex="@searchData.ywhzrqz | change" :on-blur="@filDate">
+                        </div>
+                    </div>
+                    <div class="select-item">
+                        <label  title="税额核准日期">税额核准日期起</label>
+                        <div class="select-item-inner">
+                            <input type="text" class="datepicker date-day" ms-duplex="@searchData.sehzrqq | change"  :on-blur="@filDate">
+                            <span >止</span>
+                            <input type="text" class="datepicker date-day" ms-duplex="@searchData.sehzrqz | change"  :on-blur="@filDate">
+                        </div>
+                    </div>
+                    <div class="select-item">
+                        <label title="开票日期">开票日期起</label>
+                        <div class="select-item-inner">
+                            <input type="text" class="datepicker date-day" ms-duplex="@searchData.kprqq | change"  :on-blur="@filDate">
+                            <span >止</span>
+                            <input type="text" class="datepicker date-day" ms-duplex="@searchData.kprqz | change"  :on-blur="@filDate">
+                        </div>
+                    </div>
+                    <div class="select-item">
+                        <label  title="申报退税额">申报退税额起</label>
+                        <div class="select-item-inner">
+                            <input type="text" ms-duplex="@searchData.sbtsAmtq | change">
+                            <span >止</span>
+                            <input type="text" ms-duplex="@searchData.sbtsAmtz | change">
+                        </div>
+                    </div>
+                    <div class="select-item">
+                        <label title="接单分组">接单分组</label>
+                        <select ms-duplex="@searchData.group">
+                            <option value="">　</option>
+                            <option ms-for="item in @groupList" ms-attr="{value: item.groupCode}">{{item.groupName}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="form" style="padding-top: 54px">
+            <table id="wmqysb-table"></table>
+            <div id="wmqysb-tablePager"></div>
+        </div>
+    </div>
+</div>

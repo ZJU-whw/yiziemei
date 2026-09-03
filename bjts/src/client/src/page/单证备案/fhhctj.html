@@ -1,0 +1,52 @@
+<div class="fhhctj" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        单证核查结果分户统计
+      </div>
+      <div class="btns">
+          <div class="btn" ms-click="@search(1)">查询</div>
+          <div class="btn" ms-click="@exform">导出</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <form name="fhhctj-form">
+          <div class="select-wrapper">
+              <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+              <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+              <div class="select-main">
+                <div class="select-item">
+                    <label title="税务机关">税务机关</label>
+                    <input readonly type="text" ms-duplex="swjgmc" ms-click="@showTree">
+                    <ul id="fhhctjTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+                </div>
+                <div class="select-item">
+                  <label title="纳税人识别号">纳税人识别号</label>
+                  <input name="nsrsbh" type="text" ms-duplex="searchData.nsrsbh">
+                </div>
+                <div class="select-item">
+                  <label  title="企业名称">企业名称</label>
+                  <input name="nsrmc"  type="text" ms-duplex="searchData.nsrmc">
+                </div>
+              </div>
+              <div class="select-sub">
+                <div class="select-item">
+                    <label title="企业海关代码">企业海关代码</label>
+                    <input name="qyhgdm" type="text" ms-duplex="searchData.qyhgdm">
+                </div>
+                <div class="select-item">
+                  <label title="审核时间">审核时间起</label>
+                  <div class="select-item-inner">
+                      <input type="text" class="datepicker date-day" ms-duplex="@searchData.examineTimeStart | change" :on-blur="@filDate">
+                      <span>止</span>
+                      <input type="text" class="datepicker date-day" ms-duplex="@searchData.examineTimeEnd | change" :on-blur="@filDate">
+                  </div>
+                </div>
+              </div>
+          </div>
+      </form>
+      <div class="form" style="padding-top: 54px">
+          <table id="fhhctj-table"></table>
+          <div id="fhhctj-tablePager"></div>
+      </div>
+  </div>
+</div>

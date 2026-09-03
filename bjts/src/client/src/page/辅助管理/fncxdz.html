@@ -1,0 +1,75 @@
+<div class="fncxdz" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            出口退税返纳 / 出口退税返纳对账
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@check">对账</div>
+            <div class="btn" ms-click="@exform">导出</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="select-wrapper">
+            <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+            <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+            <div class="select-main">
+                <div class="select-item">
+                    <label title="纳税人识别号">纳税人识别号</label>
+                    <input type="text" ms-duplex="searchData.nsrsbh">
+                </div>
+                <div class="select-item">
+                    <label  title="纳税人税务机关">纳税人税务机关</label>
+                    <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree">
+                    <ul id="fncxdzZtree" class='ztree treeDiv' style="left: 90px;top:100%;"></ul>
+                </div>
+                <div class="select-item">
+                    <label  title="对账结果">对账结果</label>
+                    <select  ms-duplex="@searchData.dzjg">
+                        <option value=""></option>
+                        <option value="10">对账结果正确</option>
+                        <option value="1">征管有出口无</option>
+                        <option value="2">征管无出口有</option>
+                        <option value="3">返纳税额不一致</option>
+                        <option value="4">出口未销号，征管已入库</option>
+                        <option value="5">出口已销号，征管未入库</option>
+                        <option value="6">出口已销号，征管仅部分入库</option>
+                    </select>
+                </div>
+            </div>
+            <div class="select-sub">
+                <div class="select-item">
+                    <label  title="应补缴税额">应补缴税额起</label>
+                    <div class="select-item-inner">
+                        <input type="text"  ms-duplex="@searchData.seq" :change="checkIsNum" >
+                        <span>止</span>
+                        <input type="text" ms-duplex="@searchData.sez" :change="checkIsNum">
+                    </div>
+                </div>
+                <div class="select-item">
+                    <label  title="处理标志">处理标志</label>
+                    <select  ms-duplex="@searchData.clbz">
+                        <option value=""></option>
+                        <option value="1">已处理</option>
+                        <option value="2">未处理</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="销号标志">销号标志</label>
+                    <select  ms-duplex="@searchData.xh_flag">
+                        <option value=""></option>
+                        <option value="Y">是</option>
+                        <option value="N">否</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 54px">
+            <table id="fncxdz-table"></table>
+            <div id="fncxdz-tablePager"></div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==3&&'active']">
+        <div class="chartDiv"></div>
+    </div>
+</div>

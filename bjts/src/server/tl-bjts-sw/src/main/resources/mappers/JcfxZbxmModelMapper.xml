@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.JcfxZbxmModelMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.JcfxZbxmModel" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ZBXMBM" property="zbxmbm" jdbcType="VARCHAR" />
+    <result column="ZBDLBM" property="zbdlbm" jdbcType="VARCHAR" />
+    <result column="ZBXMMC" property="zbxmmc" jdbcType="VARCHAR" />
+    <result column="FIELD" property="field" jdbcType="VARCHAR" />
+    <result column="DATATABLE" property="datatable" jdbcType="VARCHAR" />
+    <result column="DICTTABLE" property="dicttable" jdbcType="VARCHAR" />
+    <result column="ISVALID" jdbcType="CHAR" property="isvalid" />
+    <result column="ISSHOW" jdbcType="CHAR" property="isshow" />
+    <result column="PXNO" jdbcType="VARCHAR" property="pxno" />
+    <result column="FORMAT" property="zbxmmc" jdbcType="VARCHAR" />
+  </resultMap>
+</mapper>

@@ -1,0 +1,57 @@
+<div class="xtczlog" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            日志查询 / 系统操作日志查询
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="select-wrapper">
+            <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+            <div class="select-main">
+                <div class="select-item">
+                    <label  title="日志级别">日志级别</label>
+                    <select ms-duplex="@searchData.loglevel">
+                        <option value="">　</option>
+                        <option value="I">正常</option>
+                        <option value="W">警告</option>
+                        <option value="E">错误</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="日志时间">日志时间起</label>
+                    <div class="select-item-inner">
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.logtimeq" :on-blur="@filDate" >
+                        <span>止</span>
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.logtimez" :on-blur="@filDate">
+                    </div>
+                </div>
+                <div class="select-item">
+                    <label title="功能名">功能名</label>
+                    <input type="text" ms-duplex="searchData.funcno">
+                </div>
+            </div>
+            <div class="select-sub">
+                <div class="select-item">
+                    <label  title="操作名">操作名</label>
+                    <input type="text" ms-duplex="@searchData.actno">
+                </div>
+                <div class="select-item">
+                    <label  title="操作人员">操作人员</label>
+                    <input type="text" ms-duplex="@searchData.loguser">
+                </div>
+                <div class="select-item">
+                    <label  title="日志描述">日志描述</label>
+                    <input type="text" ms-duplex="@searchData.lognr">
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 54px">
+            <table id="xtczlog-table"></table>
+            <div id="xtczlog-tablePager"></div>
+        </div>
+    </div>
+</div>

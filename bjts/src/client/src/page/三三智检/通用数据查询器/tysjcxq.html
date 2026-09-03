@@ -1,0 +1,252 @@
+<div class="tysjcxq tableLine" >
+  <div class="pageTabs">
+    <div class="pageTitle">
+      通用数据查询
+    </div>
+    <div class="btns">
+      <div class="btn" ms-click="@toSearch">执行查询</div>
+      <div class="btn dropdown" ms-on-click="showMenu">
+        保存方案▼
+        <ul class="dropdown-menu">
+          <li style="padding: 2px;overflow: hidden">
+            <div class="btn" style="width: 36px;" ms-click="@showModelSavePlan('edit')">保存</div>
+          </li>
+          <li style="padding: 2px;overflow: hidden">
+            <div class="btn" ms-click="@showModelSavePlan('add')">另存为</div>
+          </li>
+        </ul>
+      </div>
+      <div class="btn" ms-click="@showModelPlanList">载入方案</div>
+      <div class="btn" ms-click="@exform">导出</div>
+  </div>
+  </div>
+  <div ms-class="['page','active']" >
+    <div class="mt-10">
+      <div class="g-form clear">
+        <div class="g-form-item lf">
+          <div class="g-form-item_label">数据源：</div>
+          <div class="g-form-item__content">
+            <select class="g-select" ms-duplex="@dtsId" data-duplex-changed="@getDtsPz">
+              <option ms-for="item in @dtsList" ms-attr="{value: item.dtsId}">{{item.dtsName}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="g-form-item lf mt-0">
+          <div class="g-form-item_label">输出项：</div>
+          <div class="g-form-item__content" style="position: relative;">
+            <input class="g-input" readonly type="text" ms-duplex="scxMc" ms-click="showSelect">
+            <ul class='treeDiv scxSelect' style="left: 0;width: 230px;">
+              <li ms-for="item in @selectOutList">{{item.dfName}}</li>
+            </ul>
+          </div>
+        </div>
+        <div ms-visible="@planObj.qpName" class="g-form-item rt mt-0 mr-10">
+          当前查询方案：{{@planObj.qpName}}
+        </div>
+        <div class="btn" ms-click="@showModelScx">选择</div>
+      </div>
+      <div class="expressArea">
+        <i class="icon" ms-click="showHyper" title="收起"></i>
+        <span class="total">查询条件行数：{{@dataList.length}}</span>
+        <div class="expressArea-box">
+          <div
+            ms-click="@getActiveLineIndex(index)"
+            class="expressArea-item"
+            ms-for="(index,item) in @dataList"
+            ms-class="[@activeLineIndex==index && 'activeBg', !item.checked && 'nochecked']">
+            <input type="checkbox" ms-duplex-checked="item.checked">
+            <div class="expressArea-query">
+              <span>{{item.lb}}</span>
+            </div>
+            <div class="expressArea-query hasDropdown">
+              <span class="link" ms-click="showDropdown('dfId',$event,index)">{{item.dfName}}</span>
+            </div>
+            <div class="expressArea-query hasDropdown">
+              <span ms-click="showDropdown('crelation',$event,index)">{{item.cRelationMc}}</span>
+            </div>
+            <div class="expressArea-query hasDropdown">
+              <span class="link" ms-click="showDropdown('cTargetval',$event,index)">{{item.cTargetval || '<?>'}}</span>
+            </div>
+            <div class="expressArea-query" ms-visible="item.rb">{{item.rb}}</div>
+            <div class="expressArea-query hasDropdown">
+              <span ms-click="showDropdown('cLogic',$event,index)">{{item.cLogic}}</span>
+            </div>
+          </div>
+        </div>
+        <div ms-css="{top: top,left:left}" ms-visible="@activeBz == 'dfId'" class="expressArea-dropdown hasDropdown">
+          <p ms-click="changeDfid(tmp)" ms-class="[item.dfId==tmp.dfId && 'activeBg']" ms-for="tmp in @condList">{{tmp.dfName}}</p>
+        </div>
+        <div ms-css="{top: top,left:left}" ms-visible="@activeBz == 'crelation'" class="expressArea-dropdown hasDropdown">
+          <p
+            ms-visible="['3'].indexOf(@condObj.datatype) > -1 && index>4 || ['1','2'].indexOf(@condObj.datatype) > -1"
+            ms-click="changeCrelation(tmp)"
+            ms-class="[item.cRelation==tmp.value && 'activeBg']"
+            ms-for="(index, tmp) in @cRelationList">{{tmp.label}}
+          </p>
+        </div>
+        <div
+          ms-css="{top: top,left:left, width: @condObj.dictEntry == '1'?'380px': '270px'}"
+          ms-visible="@activeBz == 'cTargetval'"
+          class="expressArea-dropdown inp hasDropdown clear">
+          <input
+            class="lf"
+            ms-class="[@dataList[@activeLineIndex].cRelation=='6' && 'cRelationPart' || 'cRelation']"
+            ms-visible="['1','2'].indexOf(@condObj.datatype) > -1"
+            type="text"
+            ms-attr="{placeholder: ['1','2','3','4','5'].indexOf(@dataList[@activeLineIndex].cRelation)>-1 ? '支持竖线分隔匹配多项，xxxx|xxx':''}"
+            ms-duplex="@cTargetval"
+            ms-focus="@targetIndex = '1'">
+          <div class="lf" ms-visible="@condObj.datatype == '3'">
+            <input ms-visible="@condObj.showformat == 'YYYY-MM-DD'" class="datepicker date-day" type="text" ms-duplex="@cTargetval">
+            <input ms-visible="@condObj.showformat == 'YYYY-MM'" class="datepicker date-month" type="text" ms-duplex="@cTargetval">
+            <input ms-visible="@condObj.showformat == 'YYYYMM'" class="datepicker date-mm" type="text" ms-duplex="@cTargetval">
+            <input ms-visible="@condObj.showformat == 'YYYY'" class="datepicker date-year" type="text" ms-duplex="@cTargetval">
+          </div>
+          <div class="lf" ms-visible="@dataList[@activeLineIndex].cRelation=='6'">
+            <span class="lf">-</span>
+            <div class="lf" ms-visible="@condObj.datatype == '3'">
+              <input ms-visible="@condObj.showformat == 'YYYY-MM-DD'" class="datepicker date-day" type="text" ms-duplex="@cTargetval2">
+              <input ms-visible="@condObj.showformat == 'YYYY-MM'" class="datepicker date-month" type="text" ms-duplex="@cTargetval2">
+              <input ms-visible="@condObj.showformat == 'YYYYMM'" class="datepicker date-mm" type="text" ms-duplex="@cTargetval2">
+              <input ms-visible="@condObj.showformat == 'YYYY'" class="datepicker date-year" type="text" ms-duplex="@cTargetval2">
+            </div>
+            <div class="lf" ms-visible="@condObj.datatype != '3'">
+              <input class="cRelationPart" type="text" ms-duplex="@cTargetval2" ms-focus="@targetIndex = '2'">
+            </div>
+          </div>
+          <div class="btn lf" ms-click="@getcTargetval()">确定</div>
+          <div class="filter" ms-visible="@condObj.dictEntry == '1'">
+            <input
+              style="margin: 10px 0; width: 210px;"
+              type="text"
+              ms-duplex="@dictValue"
+              placeholder="输入代码或名称，按回车键查询"
+              ms-keyup="@getDfDict('1') | enter">
+            <div>
+              <table id="tysjcxq-filter-table"></table>
+              <div id="tysjcxq-filter-tablePager"></div>
+            </div>
+          </div>
+        </div>
+        <div ms-css="{top: top,left:left}" ms-visible="@activeBz == 'cLogic'" class="expressArea-dropdown hasDropdown">
+          <p ms-click="changecLogic(tmp)" ms-class="[item.cLogic==tmp && 'activeBg']" ms-for="tmp in @cLogicList">{{tmp}}</p>
+        </div>
+        <div class="btns">
+          <span class="btns-item" ms-click="@addRow">&lt;添加条件&gt;</span>
+          <span class="btns-item" ms-click="@delRow">&lt;删除条件&gt;</span>
+          <span class="btns-item" ms-click="@insertBracket('left')">&lt;插入左括号&gt;</span>
+          <span class="btns-item" ms-click="@insertBracket('right')">&lt;插入右括号&gt;</span>
+          <span class="btns-item" ms-click="@delBracket('left')">&lt;删除左括号&gt;</span>
+          <span class="btns-item" ms-click="@delBracket('right')">&lt;删除右括号&gt;</span>
+          <span class="btns-item" ms-click="@toMove('up')">&lt;条件上移&gt;</span>
+          <span class="btns-item" ms-click="@toMove('down')">&lt;条件下移&gt;</span>
+        </div>
+      </div>
+    </div>
+    <div class="table" style="padding-top: 0;">
+      <table id="tysjcxq-table"></table>
+      <div id="tysjcxq-tablePager"></div>
+    </div>
+  </div>
+  <!-- 保存方案 -->
+  <div class="page-model savePlan-page-model g-model" style="height:270px;width: 500px;margin-left: -250px;" >
+    <div class="model-title">{{@addOrEdit == 'edit' ? '保存方案':'保存查询方案'}}</div>
+    <div class="model-content g-form" style="height: 170px;">
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>方案名称：</div>
+        <div class="g-form-item__content">
+          <input class="g-input" type="text" ms-duplex="@savePlanData.qpName">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">业务描述：</div>
+        <div class="g-form-item__content" style="height: 90px;">
+          <textarea class="g-textarea" ms-duplex="savePlanData.ywms" style="resize: none;height:100%;"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="model-btns">
+      <div class="btn" ms-click="savePlan">保存</div>
+      <div class="btn" ms-click="hideModelSavePlan">取消</div>
+    </div>
+  </div>
+  <!-- 历史方案列表 -->
+  <div class="page-model planlist-page-model g-model" style="height:400px;width: 800px;margin-left: -400px;" >
+    <div class="model-title">
+      <span>方案列表</span>
+      <span class="close" ms-click="hideModelPlanList">&times;</span>
+    </div>
+    <div class="model-content" style="height: 349px;">
+      <table id="tysjcxq-planlist-table"></table>
+      <div id="tysjcxq-planlist-tablePager"></div>
+    </div>
+  </div>
+  <!-- 选择输出项 -->
+  <div class="page-model scx-page-model" style="height:420px;width: 600px;margin-left: -300px;" >
+    <div class="model-title">
+      <span>选择输出项</span>
+      <span class="close" ms-click="hideModelScx">&times;</span>
+    </div>
+    <div class="model-content" style="height: 330px; padding: 20px;">
+      <div class="g-transfer">
+        <div class="g-transfer-panel">
+          <div class="g-transfer-panel_header">
+            <label for="tysjcxq-all">
+              <input type="checkbox" id="tysjcxq-all" ms-duplex-checked="@transferAllChecked" data-duplex-changed="@allChanged">
+              <span class="g-checkbox-label">
+                输出项
+              </span>
+            </label>
+          </div>
+          <div class="g-transfer-panel_body">
+            <label
+              ms-attr="{for: 'tysjcxq-all-'+index}"
+              class="g-transfer-panel_item"
+              ms-for="(index,item) in @outList">
+              <input
+                type="checkbox"
+                ms-attr="{id: 'tysjcxq-all-'+index}"
+                ms-duplex-checked="item.checked"
+                data-duplex-changed="@transferChangeAll">
+              {{item.dfName}}
+            </label>
+          </div>
+        </div>
+        <div class="g-transfer-btns">
+          <div class="btn" ms-class="[@moveIndex == -1 && 'disabled']" ms-click="toUp">上移</div>
+          <div class="btn" ms-class="[@moveIndex == -1 && 'disabled']" ms-click="toDown">下移</div>
+          <div class="btn" ms-click="toLeft">&lt;&lt;</div>
+          <div class="btn" ms-click="toRight">&gt;&gt;</div>
+        </div>
+        <div class="g-transfer-panel">
+          <div class="g-transfer-panel_header">
+            <label for="tysjcxq-select">
+              <input type="checkbox" id="tysjcxq-select" ms-duplex-checked="@transferSelectChecked" data-duplex-changed="@selectAllChanged">
+              <span class="g-checkbox-label">
+                已选项
+              </span>
+            </label>
+          </div>
+          <div class="g-transfer-panel_body">
+            <label
+              ms-click="@moveIndex=index"
+              ms-class="[@moveIndex==index&&'activeBg']"
+              ms-attr="{for: 'tysjcxq-select-'+index}"
+              class="g-transfer-panel_item"
+              ms-for="(index,item) in @selectOutList">
+              <input
+                type="checkbox"
+                ms-attr="{id: 'tysjcxq-select-'+index}"
+                ms-duplex-checked="item.checked"
+                data-duplex-changed="@transferChangeSelect">
+              {{item.dfName}}
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="model-btns">
+      <div class="btn" style="float: right;margin-right:60px;" ms-click="hideModelScx">确定</div>
+    </div>
+  </div>
+</div>

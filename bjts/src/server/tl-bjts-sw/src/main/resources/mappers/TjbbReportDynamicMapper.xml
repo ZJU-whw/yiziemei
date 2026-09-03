@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tl.bjts.sw.dao.TjbbReportDynamicMapper">
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.TjbbReportDynamic">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="BBDM" jdbcType="VARCHAR" property="bbdm" />
+    <id column="LOCATION" jdbcType="VARCHAR" property="location" />
+    <result column="BBLC_NAME" jdbcType="VARCHAR" property="bblcName" />
+    <result column="COLUMN_TITLE" jdbcType="VARCHAR" property="columnTitle" />
+    <result column="SQL_SCRIPT" jdbcType="VARCHAR" property="sqlScript" />
+    <result column="IS_VALID" jdbcType="CHAR" property="isValid" />
+    <result column="CRTIME" jdbcType="DATE" property="crtime" />
+    <result column="UPTIME" jdbcType="DATE" property="uptime" />
+    <result column="DB_TARGET" jdbcType="VARCHAR" property="dbTarget" />
+    <result column="REMARK" jdbcType="VARCHAR" property="remark" />
+  </resultMap>
+
+</mapper>

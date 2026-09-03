@@ -1,0 +1,29 @@
+.demo .form .main {
+  width: 800px;
+  margin: 0 auto;
+  padding-top: 90px;
+  height: auto;
+}
+.demo .form .main .row {
+  float: left;
+  height: 30px;
+  line-height: 30px;
+  width: 400px;
+  margin: 8px auto;
+}
+.demo .form .main .row input,
+.demo .form .main .row select {
+  box-sizing: border-box;
+  height: 30px;
+  padding: 1px;
+  border: 1px solid #999999;
+}
+.demo .form .main .row .title {
+  margin-right: 10px;
+  float: left;
+  width: 100px;
+  text-align: right;
+}
+.demo .form .main .row .btn {
+  white-space: nowrap;
+}

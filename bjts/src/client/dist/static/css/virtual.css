@@ -1,0 +1,241 @@
+#virtual .rightPanel table {
+  margin: 10px 0;
+}
+td,
+tr {
+  font-size: 12px;
+}
+#virtual div.box-ar {
+  user-select: none;
+  border: 1px solid #84CEF2;
+  height: 250px;
+  overflow: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+#virtual #virtual-zsjgList div {
+  cursor: pointer;
+  line-height: 1.2em;
+  user-select: none;
+}
+#virtual #virtual-zsjgList div input {
+  vertical-align: middle;
+}
+#virtual .rightPanel td {
+  padding: 10px 0;
+}
+#virtual #virtual-custreeDiv td {
+  padding: 0px 0;
+}
+#virtual .rightPanel td span {
+  margin: 0 10px;
+}
+#virtual #virtual-save-btn {
+  width: 80px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  background-color: #2c9ae8;
+  border-radius: 2px;
+  cursor: pointer;
+  border: 0;
+  color: #ffffff;
+}
+#virtual .leftPanel {
+  float: left;
+  width: 50%;
+  padding: 0 10px;
+  box-sizing: border-box;
+  height: 100%;
+  overflow: auto;
+}
+#virtual .leftPanel ul li {
+  height: 30px;
+  line-height: 30px;
+  background: #ffffff;
+  box-sizing: border-box;
+  border-bottom: 1px solid #dddddd;
+}
+#virtual .leftPanel ul li:hover,
+#virtual .leftPanel ul li.active {
+  background: #EFF8FD;
+}
+#virtual #virtual-qybz {
+  display: none;
+}
+#virtual .toggle-content {
+  padding: 0 10px;
+}
+#virtual .toggle-content .form-item {
+  height: 24px;
+  line-height: 24px;
+  margin: 10px 0;
+}
+#virtual .toggle-content .form-item p,
+#virtual .toggle-content .form-item input {
+  float: left;
+}
+#virtual .toggle-content .form-item input {
+  margin-left: 5px;
+}
+#virtual .rightPanel {
+  float: left;
+  width: 50%;
+  box-sizing: border-box;
+  height: 100%;
+  padding: 0 10px;
+  overflow: auto;
+}
+/* #virtual .buttomPanel{
+  height:49%;
+  overflow: auto;
+  border-top :1px solid #999;
+}*/
+#virtual .topPanel {
+  height: 100%;
+  overflow: auto;
+}
+#virtual .combo {
+  height: 32px;
+  background-color: #d5e7f1;
+  padding-top: 3px;
+  box-sizing: border-box;
+}
+#virtual .combo input,
+#virtual .combo select,
+#virtual .combo .btn {
+  height: 26px;
+  line-height: 26px;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  float: left;
+}
+#virtual .combo select {
+  width: 100px;
+}
+#virtual .combo input {
+  border: 1px solid #ddd;
+  border-right: none;
+  width: 160px;
+  margin-left: 50px;
+}
+#virtual .combo .btn {
+  border: none;
+  padding: 0 10px;
+  border-radius: 0 4px 4px 0;
+}
+#virtual .btn-group {
+  margin-top: 5px;
+  height: 35px;
+  border-top: 5px solid #84CEF2;
+  padding-left: 10px;
+  line-height: 35px;
+  background: #EFF8FD;
+}
+#virtual .btn-group input {
+  background-color: transparent;
+}
+#virtual .main-content td,
+#virtual .virtual-ramdom td {
+  padding-top: 10px;
+}
+#virtual .main-content td:nth-child(1) {
+  width: 15%;
+  max-width: 80px;
+}
+#virtual .main-content td:nth-child(2) {
+  width: 15%;
+  max-width: 180px;
+}
+#virtual .main-content {
+  width: 100%;
+}
+#virtual .custom-header {
+  background-color: #EFF8FD;
+  text-align: center;
+}
+#virtual .checkbox {
+  position: relative;
+  display: inline-block;
+  margin: 0 5px;
+  width: 80px;
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
+  border: 1px solid #ddd;
+  background-color: #f2f2f2;
+}
+#virtual .checkbox.checked {
+  background-color: #eff8fd;
+  border-color: #94CAE6;
+}
+#virtual .checkbox.checked:after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 13px;
+  height: 13px;
+  background: url("../image/checked.png") no-repeat center center;
+  margin-top: -5px;
+  margin-right: -5px;
+}
+#virtual #virtual-zsjgMc {
+  height: 200px;
+  overflow: auto;
+}
+#virtual .ms-container {
+  margin: 8px 0px 0px 10px;
+}
+#virtual .virtual-ramdom {
+  width: 100%;
+}
+#virtual .virtual-ramdom td {
+  width: 33.3%;
+}
+#virtual .virtual-ramdom .virtual-limit {
+  border-top: solid 1px #a7b5bc;
+  border-left: solid 1px #a7b5bc;
+  border-right: solid 1px #ced9df;
+  border-bottom: solid 1px #ced9df;
+  height: 19px;
+  font-size: 12px;
+  width: 60px;
+}
+#virtual #virtual-QY-btn {
+  margin-left: 10px;
+  height: 22px;
+  line-height: 22px;
+  padding: 0px 5px;
+  width: 36px;
+  text-align: right;
+  background: url("../image/switch-off.png") no-repeat;
+  cursor: pointer;
+  float: right;
+  margin-top: 5px;
+  border: 0;
+}
+#virtual #virtual-JY-btn {
+  margin-left: 10px;
+  height: 22px;
+  line-height: 22px;
+  padding: 0px 5px;
+  width: 36px;
+  text-align: left;
+  background: url("../image/switch-on.png") no-repeat;
+  cursor: pointer;
+  float: right;
+  margin-top: 5px;
+  border: 0;
+}
+#virtual .qy-group {
+  margin-right: 10px;
+  float: right;
+  width: 80px;
+}
+#virtual .qy-title {
+  float: left;
+}

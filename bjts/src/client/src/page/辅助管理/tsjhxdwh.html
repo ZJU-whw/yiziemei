@@ -1,0 +1,88 @@
+<div class="tsjhxdwh">
+    <div class="pageTabs">
+        <div class="pageTitle">
+            退税计划下达维护
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search">查询</div>
+            <div style="float:left;">
+                <div class="btn" ms-click="@createBatchBtn">创建批次</div>
+                <div class="btn" ms-click="@operateEffect">下达生效</div>
+                <div class="btn" ms-click="@download" ms-if="userSwjgDm=='13300000000'">下载模板</div>
+                <!--<div ms-visible="dataList.length>0 && dataList[0].sxbz==0" class="btn fileupload">指标导入-->
+                <div class="btn fileupload" ms-if="userSwjgDm=='13300000000'">指标导入
+                    <input id="tsjhxdwh-fileupload" type="file" name="file" data-url="/glfw/zbplan/importTmpt">
+                </div>
+            </div>
+            <div class="btn" ms-click="@save">保存</div>
+        </div>
+        <div class="btns" ms-if="@act==2">
+            <div class="btn rt" ms-click="@printForm($event)">打印</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']">
+        <div class="select-wrapper">
+            <div class="select-main">
+                <div class="select-item">
+                    <label title="指标下达机关">指标下达机关</label>
+                    <select ms-duplex="@searchData.swjgdm" data-duplex-changed="swjgdmChange">
+                        <option ms-for="item in @companyList" ms-attr="{value:item.code}">{{item.label}}</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label title="计划年月">计划年月</label>
+                    <select ms-duplex="@searchData.jhny" data-duplex-changed="jhnyChange">
+                        <option ms-for="item in @jhnyList" ms-attr="{value:item}">{{item}}</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="企业标识">批次</label>
+                    <select ms-duplex="@searchData.pc">
+                        <option ms-for="item in @pcList" ms-attr="{value:item}">{{item}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <p ms-if="showYe" style="padding-top: 60px;padding-left: 5px;">可分配指标余额: {{@byjhye}}</p>
+        <div class="form" ms-css="{'padding-top': showYe ? '10px' : '54px'}">
+            <table border="0" cellspacing="0" cellpadding="0">
+                <thead>
+                    <tr>
+                        <td class="table-til" style="width:20px;"></td>
+                        <td class="table-til" style="width:80px;">年月</td>
+                        <td class="table-til" style="width:60px;">批次</td>
+                        <td class="table-til" style="width:100px;">机关代码</td>
+                        <td class="table-til" style="width:220px;">机关名称</td>
+                        <td class="table-til" style="width:150px;">退税计划金额</td>
+                        <td class="table-til" style="width:150px;">状态</td>
+                        <td class="table-til" style="width:100px;">创建人</td>
+                        <td class="table-til" style="width:100px;">创建时间</td>
+                        <td class="table-til" style="width:150px;">修改人</td>
+                        <td class="table-til" style="width:150px;">修改时间</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ms-for="(index,item) in @dataList"
+                        ms-css="{backgroundColor: item.qxflag==0 ?'#f2f2f2':'#e6f5f2'}">
+                        <td style="width:20px;">{{index+1}}</td>
+                        <td style="width:80px;">{{item.tszbYn}}</td>
+                        <td style="width:60px;">{{item.tszbPc}}</td>
+                        <td style="width:150px; text-align: left;">{{item.zbjgDm}}</td>
+                        <td style="width:220px; text-align: left; padding-left: 10px;">{{item.zbjgMc}}</td>
+                        <td style="width:150px; text-align: right;">
+                            <span ms-visible="item.qxflag==0">{{item.tszbje | number(2)}}</span>
+                            <!-- <input ms-visible="item.qxflag==1" type="text"
+                                ms-duplex="dataList[index].tszbje"> -->
+                            <input ms-visible="item.qxflag==1" type="text" ms-duplex="dataList[index].tszbje | number(2)">
+                        </td>
+                        <td style="width:150px;">{{item.sxbz == 0? '尚未生效':'已生效'}}</td>
+                        <td style="width:150px;">{{item.lrrDm}}</td>
+                        <td style="width:150px;">{{item.lrsj}}</td>
+                        <td style="width:150px;">{{item.xgrDm}}</td>
+                        <td style="width:150px;">{{item.xgsj}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

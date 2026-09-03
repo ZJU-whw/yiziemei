@@ -1,0 +1,48 @@
+<div class="shareFaCx tableLine" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        共享方案查询
+      </div>
+      <div class="btns">
+          <div class="btn" ms-click="@search(1)">查询</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <div class="select-wrapper">
+          <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+          <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+          <div class="select-main">
+              <div class="select-item">
+                <label title="创建日期">创建日期</label>
+                <div class="select-item-inner">
+                  <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate" ms-duplex="@searchData.crTimeQ">
+                  <span style="margin:0;">止</span>
+                  <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate" ms-duplex="@searchData.crTimeZ">
+                </div>
+              </div>
+              <div class="select-item">
+                  <label title="方案目名称">方案名称</label>
+                  <input type="text" ms-duplex="searchData.famc" placeholder="支持模糊查询">
+              </div>
+              <div class="select-item">
+                <label title="企业类型">企业类型</label>
+                <select ms-duplex="@searchData.tsjsfsDm">
+                  <option value="">　</option>
+                  <option value="1">生产</option>
+                  <option value="2">外贸</option>
+                </select>
+              </div>
+          </div>
+          <div class="select-sub">
+            <div class="select-item">
+              <label title="备注说明">备注说明</label>
+              <input type="text" ms-duplex="searchData.note" placeholder="支持模糊查询">
+            </div>
+          </div>
+      </div>
+      <div class="form list" style="padding-top: 54px">
+          <table id="shareFaCx-table"></table>
+          <div id="shareFaCx-tablePager"></div>
+      </div>
+  </div>
+</div>

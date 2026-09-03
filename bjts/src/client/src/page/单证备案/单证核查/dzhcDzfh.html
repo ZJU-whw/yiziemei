@@ -1,0 +1,163 @@
+<div class="dzhc-new dzhc-dzfh" ms-click="hideNsrsbh">
+  <div class="pageTabs">
+    <div class="pageTitle">
+      单证核查复核
+    </div>
+    <div class="btns">
+      <div class="btn" ms-click="@search(1)">查询</div>
+      <div class="btn" ms-click="@reviewConfirm(true, '')">复核完成</div>
+      <div class="btn" ms-click="@backConfirm(true, '')">退回</div>
+    </div>
+  </div>
+  <div class="page active">
+    <form name="dzhc-lxgl-form">
+      <div class="select-wrapper">
+        <span class="reset" title="重置查询条件" ms-click="@resetSearchData">重置：</span>
+        <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+        <div class="select-main">
+          <div class="select-item">
+            <label title="税务机关">税务机关</label>
+            <input readonly type="text" ms-duplex="swjgmc" ms-click="@showTree" class="bt-form-control">
+            <ul id="lxglTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+          </div>
+          <div class="select-item nsrsbh-group">
+            <label>
+              <select class="bt-form-control width-m select-nsrsbh" ms-duplex="qySearchType"
+                data-duplex-changed="qySearchTypeChg">
+                <option value="nsrsbh">纳税人识别号</option>
+                <option value="qymc">企业名称</option>
+                <option value="hgdm">海关代码</option>
+              </select>
+            </label>
+            <input ms-if="qySearchType!='nsrsbh'" name="nsrsbh" type="text" class="bt-form-control"
+              ms-duplex="@qySearchVal">
+            <input ms-if="qySearchType=='nsrsbh'" name="nsrsbh" type="text" ms-duplex="@qySearchVal"
+              class="bt-form-control" data-duplex-changed="inpChangeNsrsbh('searchData')" ms-focus="@showNsrsbh"
+              ms-keyup="@nsrsbhEnterSearch | enter" ms-keydown="@keydown($event, 'dzfhNrsbhList')"
+              placeholder="请输入至少4位税号,支持模糊查询" autocomplete="off">
+            <div ms-visible="@showNsrsbhList" class="nrsbhList" id="dzfhNrsbhList" style="left: 40%;">
+              <p ms-for="(index,item) in @nsrsbhList" ms-click="@setNsrsbh(item, 'searchData')" ms-attr="{index: index}"
+                ms-mouseover="activeBgIndex = index" ms-class="{activeBg: activeBgIndex == index}"
+                ms-css="{width: item.nsrmc.length * 12 + 150 +'px'}">
+                {{item.nsrxx}}
+              </p>
+            </div>
+          </div>
+          <div class="select-item">
+            <label title="项目状态">项目状态</label>
+            <select class="bt-form-control width-m" ms-duplex="searchData.status">
+              <option value=""></option>
+              <option value="2">复核</option>
+              <option value="3">发放</option>
+              <option value="9">结案</option>
+            </select>
+          </div>
+        </div>
+        <div class="select-sub">
+          <div class="select-item">
+            <label title="企业类型">企业类型</label>
+            <select class="bt-form-control width-m" ms-duplex="searchData.qylx">
+              <option value=""></option>
+              <option value="1">内资生产企业</option>
+              <option value="2">外商投资企业</option>
+              <option value="3">外贸(工贸)企业</option>
+              <option value="9">其他(特许退税)企业</option>
+            </select>
+          </div>
+          <div class="select-item">
+            <label title="管理等级">管理等级</label>
+            <select class="bt-form-control width-m" ms-duplex="searchData.flglcd">
+              <option value=""></option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+            </select>
+          </div>
+          <div class="select-item">
+            <label title="年度">年度</label>
+            <input type="text" readonly class="bt-form-control datepicker date-year" name="date_field" ms-click="@showDatetimepicker($event)" ms-duplex="@searchData.year">
+          </div>
+        </div>
+        <div class="select-sub">
+          <div class="select-item">
+            <label title="企业规模">企业规模</label>
+            <select class="bt-form-control width-m" ms-duplex="searchData.qygm">
+              <option value=""></option>
+              <option ms-for="item in qygmList" ms-attr="{value: item.val}">{{item.label}}</option>
+            </select>
+          </div>
+          <div class="select-item">
+            <label title="备案方式">备案方式</label>
+            <select class="bt-form-control width-m" ms-duplex="searchData.balx">
+              <option value=""></option>
+              <option value="0">数字化备案</option>
+              <option value="1">纸质备案</option>
+            </select>
+          </div>
+          <div class="select-item">
+            <label title="项目结论">项目结论</label>
+            <select class="bt-form-control width-m" ms-duplex="searchData.projectResult">
+              <option value=""></option>
+              <option value="1">合格</option>
+              <option value="2">整改后合格</option>
+              <option value="3">不合格</option>
+            </select>
+          </div>
+        </div>
+        <div class="select-sub">
+          <div class="select-item">
+            <label title="审核人">审核人</label>
+            <select class="bt-form-control width-l g-select" ms-duplex="@searchData.inspector">
+              <option value=""></option>
+              <option ms-for="item in inspectorList" ms-attr="{value: item.inspector}">{{item.inspector}}
+              </option>
+            </select>
+          </div>
+          <div class="select-item">
+            <label title="复核人">复核人</label>
+            <input type="text" ms-duplex="@searchData.reviewer" class="bt-form-control">
+          </div>
+          <div class="select-item">
+            <label title="复核意见">复核意见</label>
+            <input type="text" ms-duplex="@searchData.reviewNote" class="bt-form-control">
+          </div>
+        </div>
+        <div class="select-sub">
+          <div class="select-item">
+            <label title="项目状态">逾期标志</label>
+            <select class="bt-form-control width-m" ms-duplex="searchData.yqbz">
+              <option value=""></option>
+              <option value="1">一周后逾期</option>
+              <option value="2">一月后逾期</option>
+              <option value="3">三月后逾期</option>
+              <option value="9">已逾期</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="form" style="padding-top: 53px">
+      <table id="dzhc-dzfh-table"></table>
+      <div id="dzhc-dzfh-tablePager"></div>
+    </div>
+  </div>
+
+  <!-- 项目详情 -->
+  <div class="page-model page-model-qyDetail"
+    style="height: 512px; margin-top: -256px; width: 1120px; margin-left: -560px;">
+    <div class="model-title">
+      <span>企业核查项目详情</span>
+      <span class="model-close" ms-click="hideModelBaseinfo">&times;</span>
+    </div>
+    <div class="model-content" style="height: 460px;">
+      <div class="base-info" ms-for="item in @jcxmmxDict">
+        <div class="title">{{item.baseTitle}}</div>
+        <div class="content">
+          <span class="info-ct" ms-class="[subItem.infoIndex]" ms-for="subItem in item.infos">{{subItem.infoLabel}}<span class="num" ms-attr="{title: jcxmmxInfo[subItem.infoIndex]? jcxmmxInfo[subItem.infoIndex]:''}">{{jcxmmxInfo[subItem.infoIndex] || ''}}</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tl.bjts.sw.dao.YjBgdgzxxMapper">
+
+    <!-- 查询报关单关注信息基础SQL（未申报/审核中-对应GCB表） -->
+    <sql id="listGcbWhere">
+        <where>
+            <if test="djxh != null and djxh != ''">
+                AND T.djxh = #{djxh,jdbcType=DECIMAL}
+            </if>
+            <if test="ckbgdh != null and ckbgdh != ''">
+                AND T.ckbgdh = #{ckbgdh,jdbcType=VARCHAR}
+            </if>
+            <if test="nsrsbh != null and nsrsbh != ''">
+                AND T.nsrsbh LIKE '%' || #{nsrsbh,jdbcType=VARCHAR} || '%'
+            </if>
+            <if test="nsrmc != null and nsrmc != ''">
+                AND T.nsrmc LIKE '%' || #{nsrmc,jdbcType=VARCHAR} || '%'
+            </if>
+            <if test="czrqStart != null and czrqStart != ''">
+                AND T.czrq >= TO_DATE(#{czrqStart,jdbcType=VARCHAR}, 'YYYY-MM-DD')
+            </if>
+            <if test="czrqEnd != null and czrqEnd != ''">
+                AND T.czrq &lt;= TO_DATE(#{czrqEnd,jdbcType=VARCHAR} || ' 23:59:59', 'YYYY-MM-DD HH24:MI:SS')
+            </if>
+        </where>
+    </sql>
+
+    <!-- 查询报关单关注信息基础SQL（审核结束-对应JGB表） -->
+    <sql id="listJgbWhere">
+        <where>
+            <if test="djxh != null and djxh != ''">
+                AND T.djxh = #{djxh,jdbcType=DECIMAL}
+            </if>
+            <if test="ckbgdh != null and ckbgdh != ''">
+                AND T.ckbgdh = #{ckbgdh,jdbcType=VARCHAR}
+            </if>
+            <if test="nsrsbh != null and nsrsbh != ''">
+                AND T.nsrsbh LIKE '%' || #{nsrsbh,jdbcType=VARCHAR} || '%'
+            </if>
+            <if test="nsrmc != null and nsrmc != ''">
+                AND T.nsrmc LIKE '%' || #{nsrmc,jdbcType=VARCHAR} || '%'
+            </if>
+            <if test="czrqStart != null and czrqStart != ''">
+                AND T.czrq >= TO_DATE(#{czrqStart,jdbcType=VARCHAR}, 'YYYY-MM-DD')
+            </if>
+            <if test="czrqEnd != null and czrqEnd != ''">
+                AND T.czrq &lt;= TO_DATE(#{czrqEnd,jdbcType=VARCHAR} || ' 23:59:59', 'YYYY-MM-DD HH24:MI:SS')
+            </if>
+        </where>
+    </sql>
+
+    <!-- 查询未申报/审核中关注信息列表（GCB表）- 支持报关单和代理证明号 -->
+    <select id="listGcb" parameterType="com.tl.bjts.sw.model.dto.YjBgdgzxxDTO"
+            resultType="com.tl.bjts.sw.model.vo.YjBgdgzxxVO">
+        SELECT T.djxh,
+               T.ckbgdh,
+               T.nsrsbh,
+               T.nsrmc,
+               T.ckrq,
+               T.ckspdm,
+               T.ckspmc,
+               T.cksl,
+               T.mylj,
+               T.rmbj,
+               T.cytssbjl,
+               T.gzxx,
+               T.czr_dm as czrDm,
+               T.czrq
+        FROM (
+            -- 报关单数据
+            SELECT g.djxh,
+                   g.ckbgdh,
+                   g.gzxx,
+                   g.czr_dm,
+                   g.czrq,
+                   d.nsrsbh,
+                   d.nsrmc,
+                   bgd.ckrq_1 as ckrq,
+                   bgd.cksp_dm as ckspdm,
+                   nvl(bgd.hgspmc, bgd.ckspmc) as ckspmc,
+                   bgd.cksl,
+                   bgd.mylaj as mylj,
+                   bgd.rmblaj as rmbj,
+                   bgd.cytssbjl
+            FROM ZJ_BJTS.yj_bgdgzxx_gcb g
+            INNER JOIN hx_ckts.ckts_ba_baxx_jgb a ON g.djxh = a.djxh
+            INNER JOIN hx_dj.dj_nsrxx d ON g.djxh = d.djxh
+            INNER JOIN hx_ckts.ckts_wbsj_hg_bgd201 bgd ON g.djxh=bgd.djxh and g.ckbgdh = bgd.ckbgdh
+            WHERE a.tsswjg_dm_1 like #{swjgdm}||'%'
+            <if test="ckbgdh != null and ckbgdh != ''">
+                AND g.ckbgdh = #{ckbgdh,jdbcType=VARCHAR}
+            </if>
+            <if test="nsrsbh != null and nsrsbh != ''">
+                AND d.nsrsbh LIKE '%' || #{nsrsbh,jdbcType=VARCHAR} || '%'
+            </if>
+            <if test="nsrmc != null and nsrmc != ''">
+                AND d.nsrmc LIKE '%' || #{nsrmc,jdbcType=VARCHAR} || '%'
+            </if>
+            <if test="czrqStart != null and czrqStart != ''">
+                AND g.czrq >= TO_DATE(#{czrqStart,jdbcType=VARCHAR}, 'YYYY-MM-DD')
+            </if>
+            <if test="czrqEnd != null and czrqEnd != ''">
+                AND g.czrq &lt;= TO_DATE(#{czrqEnd,jdbcType=VARCHAR} || ' 23:59:59', 'YYYY-MM-DD HH24:MI:SS')
+            </if>
+            UNION
+            -- 代理出口货物证明数据
+            SELECT g.djxh,
+                   g.ckbgdh,
+                   g.gzxx,
+                   g.czr_dm,
+                   g.czrq,
+                   d.nsrsbh,
+                   d.nsrmc,
+                   dlc.ckrq_1 as ckrq,
+                   dlc.cksp_dm as ckspdm,
+                   nvl(dlc.hgspmc, dlc.ckspmc) as ckspmc,
+                   dlc.cksl,
+                   dlc.mylaj as mylj,
+                   dlc.rmblaj as rmbj,
+                   dlc.cytssbjl as cytssb
+            FROM ZJ_BJTS.yj_bgdgzxx_gcb g
+            INNER JOIN hx_ckts.ckts_ba_baxx_jgb a ON g.djxh = a.djxh
+            INNER JOIN hx_dj.dj_nsrxx d ON g.djxh = d.djxh
+            INNER JOIN hx_ckts.ckts_wbsj_zj_dlckhwzm dlc ON g.djxh=dlc.djxh
+                        and a.tsswjg_dm_1=dlc.tsswjg_dm_1 and g.ckbgdh = dlc.dlckhwzmhm
+            WHERE a.tsswjg_dm_1 like #{swjgdm}||'%'
+            <if test="ckbgdh != null and ckbgdh != ''">
+                AND g.ckbgdh = #{ckbgdh,jdbcType=VARCHAR}
+            </if>
+            <if test="nsrsbh != null and nsrsbh != ''">
+                AND d.nsrsbh LIKE '%' || #{nsrsbh,jdbcType=VARCHAR} || '%'
+            </if>
+            <if test="nsrmc != null and nsrmc != ''">
+                AND d.nsrmc LIKE '%' || #{nsrmc,jdbcType=VARCHAR} || '%'
+            </if>
+            <if test="czrqStart != null and czrqStart != ''">
+                AND g.czrq >= TO_DATE(#{czrqStart,jdbcType=VARCHAR}, 'YYYY-MM-DD')
+            </if>
+            <if test="czrqEnd != null and czrqEnd != ''">
+                AND g.czrq &lt;= TO_DATE(#{czrqEnd,jdbcType=VARCHAR} || ' 23:59:59', 'YYYY-MM-DD HH24:MI:SS')
+            </if>
+        ) T
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY T.${orderSql}
+        </if>
+        <if test="orderSql == null or orderSql == ''">
+            ORDER BY T.czrq DESC
+        </if>
+    </select>
+
+    <!-- 查询审核结束关注信息列表（JGB表）- 支持报关单和代理证明号 -->
+    <select id="listJgb" parameterType="com.tl.bjts.sw.model.dto.YjBgdgzxxDTO"
+            resultType="com.tl.bjts.sw.model.vo.YjBgdgzxxVO">
+        SELECT T.djxh,
+               T.ckbgdh,
+               T.nsrsbh,
+               T.nsrmc,
+               T.ckrq,
+               T.ckspdm,
+               T.ckspmc,
+               T.cksl,
+               T.mylj,
+               T.rmbj,
+               T.cytssbjl,
+               T.gzxx,
+               T.czr_dm as czrDm,
+               T.czrq
+        FROM (
+            SELECT j.djxh,
+                   j.ckbgdh,
+                   j.gzxx,
+                   j.czr_dm,
+                   j.czrq,
+                   d.nsrdjno as nsrsbh,
+                   d.nsrmc,
+                   bgd.ckrq_1 as ckrq,
+                   bgd.cksp_dm as ckspdm,
+                   nvl(bgd.hgspmc, bgd.ckspmc) as ckspmc,
+                   bgd.cksl,
+                   bgd.mylaj as mylj,
+                   bgd.rmblaj as rmbj,
+                   bgd.cytssbjl
+            FROM TL_TSSH.yj_bgdgzxx_jgb j
+            INNER JOIN glxt_bb_shxt_djxx d ON j.djxh = d.djxh_js
+            INNER JOIN TL_TSSH.ckts_wbsj_hg_bgd bgd ON j.ckbgdh = bgd.ckbgdh and j.djxh=bgd.djxh
+            WHERE d.swjgdm like #{swjgdm}||'%'
+            <if test="ckbgdh != null and ckbgdh != ''">
+                AND j.ckbgdh = #{ckbgdh,jdbcType=VARCHAR}
+            </if>
+            <if test="nsrsbh != null and nsrsbh != ''">
+                AND d.nsrdjno LIKE '%' || #{nsrsbh,jdbcType=VARCHAR} || '%'
+            </if>
+            <if test="nsrmc != null and nsrmc != ''">
+                AND d.nsrmc LIKE '%' || #{nsrmc,jdbcType=VARCHAR} || '%'
+            </if>
+            <if test="czrqStart != null and czrqStart != ''">
+                AND j.czrq >= TO_DATE(#{czrqStart,jdbcType=VARCHAR}, 'YYYY-MM-DD')
+            </if>
+            <if test="czrqEnd != null and czrqEnd != ''">
+                AND j.czrq &lt;= TO_DATE(#{czrqEnd,jdbcType=VARCHAR} || ' 23:59:59', 'YYYY-MM-DD HH24:MI:SS')
+            </if>
+            UNION
+            SELECT j.djxh,
+                   j.ckbgdh,
+                   j.gzxx,
+                   j.czr_dm,
+                   j.czrq,
+                   d.nsrdjno as nsrsbh,
+                   d.nsrmc,
+                   dlc.ckrq_1 as ckrq,
+                   dlc.cksp_dm as ckspdm,
+                   nvl(dlc.hgspmc, dlc.ckspmc) as ckspmc,
+                   dlc.cksl,
+                   dlc.mylaj as mylj,
+                   dlc.rmblaj as rmbj,
+                   dlc.cytssbjl
+            FROM TL_TSSH.yj_bgdgzxx_jgb j
+            INNER JOIN glxt_bb_shxt_djxx d ON j.djxh = d.djxh_js
+            INNER JOIN tl_tssh.ckts_wbsj_zj_dlckhwzm dlc ON j.djxh=dlc.djxh and j.ckbgdh = dlc.dlckhwzmhm
+            WHERE  d.swjgdm like #{swjgdm}||'%'
+            <if test="ckbgdh != null and ckbgdh != ''">
+                AND j.ckbgdh = #{ckbgdh,jdbcType=VARCHAR}
+            </if>
+            <if test="nsrsbh != null and nsrsbh != ''">
+                AND d.nsrdjno LIKE '%' || #{nsrsbh,jdbcType=VARCHAR} || '%'
+            </if>
+            <if test="nsrmc != null and nsrmc != ''">
+                AND d.nsrmc LIKE '%' || #{nsrmc,jdbcType=VARCHAR} || '%'
+            </if>
+            <if test="czrqStart != null and czrqStart != ''">
+                AND j.czrq >= TO_DATE(#{czrqStart,jdbcType=VARCHAR}, 'YYYY-MM-DD')
+            </if>
+            <if test="czrqEnd != null and czrqEnd != ''">
+                AND j.czrq &lt;= TO_DATE(#{czrqEnd,jdbcType=VARCHAR} || ' 23:59:59', 'YYYY-MM-DD HH24:MI:SS')
+            </if>
+        ) T
+        <if test="orderSql != null and orderSql != ''">
+            ORDER BY T.${orderSql}
+        </if>
+        <if test="orderSql == null or orderSql == ''">
+            ORDER BY T.czrq DESC
+        </if>
+    </select>
+
+
+    <!-- 根据企业税号和报关单号查询报关单详情 - 支持报关单和代理证明号 -->
+    <select id="getBgdDetailByNsrsbh" resultType="com.tl.bjts.sw.model.vo.YjBgdgzxxDetailVO">
+        SELECT * FROM (
+            SELECT bgd.djxh as djxh,
+                   bgd.ckbgdh,
+                   d.nsrsbh,
+                   d.nsrmc,
+                   bgd.ckrq_1 as ckrq,
+                   bgd.cksp_dm as ckspdm,
+                   nvl(bgd.hgspmc, bgd.ckspmc) as ckspmc,
+                   bgd.cksl,
+                   bgd.mylaj as mylj,
+                   bgd.rmblaj as rmbj,
+                   bgd.cytssbjl
+            FROM hx_ckts.ckts_wbsj_hg_bgd201 bgd
+            INNER JOIN HX_DJ.DJ_NSRXX d ON bgd.djxh = d.djxh
+            WHERE d.nsrsbh = #{nsrsbh,jdbcType=VARCHAR}
+              AND bgd.ckbgdh = #{ckbgdh,jdbcType=VARCHAR} and  d.zgswj_dm like #{qxdm}||'%'
+            UNION ALL
+            SELECT dlc.djxh as djxh,
+                   dlc.dlckhwzmhm as ckbgdh,
+                   d.nsrsbh,
+                   d.nsrmc,
+                   dlc.ckrq_1 as ckrq,
+                   dlc.cksp_dm as ckspdm,
+                   nvl(dlc.hgspmc, dlc.ckspmc) as ckspmc,
+                   dlc.cksl,
+                   dlc.mylaj as mylj,
+                   dlc.rmblaj as rmbj,
+                   dlc.cytssbjl
+            FROM hx_ckts.ckts_wbsj_zj_dlckhwzm dlc
+            INNER JOIN HX_DJ.DJ_NSRXX d ON dlc.djxh = d.djxh
+            WHERE d.nsrsbh = #{nsrsbh,jdbcType=VARCHAR}
+              AND dlc.dlckhwzmhm = #{ckbgdh,jdbcType=VARCHAR}  and  d.zgswj_dm like #{qxdm}||'%'
+        ) WHERE rownum = 1
+    </select>
+
+
+    <!-- 查询zj_bjts用户下需要迁移的报关单列表（已转申报的） -->
+    <select id="listGcb4Transfer" resultType="com.tl.bjts.sw.model.domain.YjBgdgzxxGcbModel">
+        SELECT g.djxh, g.ckbgdh, g.gzxx, g.czr_dm as czrDm, g.czrq
+        FROM ZJ_BJTS.yj_bgdgzxx_gcb g
+        WHERE exists (
+            select 1
+            from hx_ckts.ckts_sb_mdt_tssb_jgb a
+            where a.djxh=g.djxh and nvl(a.ckbgdh,a.dlckhwzmhm)=g.ckbgdh
+            union all
+            select 1
+            from hx_ckts.ckts_sb_mts_tssb_jgb b
+            where b.djxh=g.djxh
+            and nvl(b.ckbgdh,b.dlzmh)=g.ckbgdh
+        )
+    </select>
+
+    <!-- 插入数据到tl_tssh用户下的JGB表 -->
+    <insert id="insertToJgb">
+        INSERT INTO TL_TSSH.yj_bgdgzxx_jgb (djxh, ckbgdh, gzxx, czr_dm, czrq)
+        VALUES (#{djxh,jdbcType=DECIMAL}, #{ckbgdh,jdbcType=VARCHAR}, #{gzxx,jdbcType=VARCHAR},
+                #{czrDm,jdbcType=VARCHAR}, #{czrq,jdbcType=DATE})
+    </insert>
+
+    <!-- 从zj_bjts用户下的GCB表批量删除数据 -->
+    <delete id="batchDeleteFromGcb">
+        DELETE FROM ZJ_BJTS.yj_bgdgzxx_gcb
+        WHERE (djxh, ckbgdh) IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            (#{item.djxh,jdbcType=DECIMAL}, #{item.ckbgdh,jdbcType=VARCHAR})
+        </foreach>
+    </delete>
+
+</mapper>

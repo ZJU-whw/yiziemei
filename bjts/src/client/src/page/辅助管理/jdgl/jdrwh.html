@@ -1,0 +1,94 @@
+<div class="jdrwh" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            接单人维护
+        </div>
+        <!--<div class="btns" ms-if="@act==1">-->
+            <!--<div class="btn" ms-click="@search(1)">查询</div>-->
+        <!--</div>-->
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div id="fpxxwh" style="width: 100%;height:100%;overflow: auto">
+            <div class="leftPanel">
+                <div class="combo">
+                    <input type="text" class="search" ms-duplex="searchData.czryDm" >
+                    <div class="btn" ms-click="search(1)">搜索</div>
+                </div>
+                <table id="jdrwh-table"></table>
+                <!--<div id="jdrwh-tablePager"></div>-->
+            </div>
+            <div class="rightPanel">
+                <div class="topPanel">
+                    <div class="btn-group clear">
+                        <span>操作员:</span><span>{{formData.czryMc}}</span>
+                        <span style="margin-left: 10px">代码:</span><span>{{formData.czryDm}}</span>
+                        <div class="qy-group">
+                            <span class="qy-title">启用:</span>
+                            <button id="fpxxwh-QY-btn" ms-visible="formData.qybz=='N'" ms-click="setQybz('Y')"></button>
+                            <button id="fpxxwh-JY-btn" ms-visible="formData.qybz=='Y'" ms-click="setQybz('N')"></button>
+                        </div>
+                    </div>
+                    <div class="toggle-content" ms-visible="formData.qybz=='Y'">
+                        <div class="lf" style="padding:10px; width:50% ;float:left;box-sizing: border-box;">
+                            <p>接单退税机关范围:</p>
+                            <div class="box-ar ztree" id='jdrwhTree'>
+                            </div>
+                        </div>
+                        <div class="lf" style="padding:10px; width:50% ;float:left;box-sizing: border-box;">
+                            <p>接单管理分组:</p>
+                            <div class="box-ar">
+                                <div id="fpxxwh-zsjgList">
+                                    <div ms-for="item in zsjgList">
+                                        <input type="checkbox" ms-duplex="formData.zsjgDm" ms-attr="{value:item.swjgDm}">
+                                        {{item.swjgMc}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <table class="main-content box-ar">
+                            <tr id="fpxxwh-flgl">
+                                <td>
+                                    <span>分类管理等级:</span>
+                                    <span class="checkbox" :class="[@isCheckedFlgl('A')&&'checked']" ms-click="@checkFlgl('A')" name="flgl" data-bind="A">一类</span>
+                                    <span class="checkbox" :class="[@isCheckedFlgl('B')&&'checked']" ms-click="@checkFlgl('B')" name="flgl" data-bind="B">二类</span>
+                                    <span class="checkbox" :class="[@isCheckedFlgl('C')&&'checked']" ms-click="@checkFlgl('C')" name="flgl" data-bind="C">三类</span>
+                                    <span class="checkbox" :class="[@isCheckedFlgl('D')&&'checked']" ms-click="@checkFlgl('D')" name="flgl" data-bind="D">四类</span>
+                                </td>
+                            </tr>
+                            <tr id="fpxxwh-jsMode">
+                                <td>
+                                    <span>退税计算方式:</span>
+                                    <span class="checkbox" :class="[@isCheckedJsMode('1')&&'checked']" ms-click="@checkJsMode('1')" name="jsMode" data-bind="1">生产</span>
+                                    <span class="checkbox" :class="[@isCheckedJsMode('2')&&'checked']" ms-click="@checkJsMode('2')" name="jsMode" data-bind="2">外贸</span>
+                                </td>
+                            </tr>
+                            <!--<tr ms-visible="formData.jdfs=='1'">-->
+                                <!--<td>-->
+                                    <!--<span>分片标志:</span>-->
+                                    <!--<select id="fpxxwh-qybz" ms-duplex="formData.fpbz" disabled="disabled">-->
+                                        <!--<option value="Y">启用</option>-->
+                                        <!--<option value="N">未启用</option>-->
+                                    <!--</select>-->
+                                <!--</td>-->
+                            <!--</tr>-->
+                        </table>
+
+                        <table class="fpxxwh-ramdom box-ar">
+                            <tr>
+                                <td><span>生产接单上限:</span><input class="fpxxwh-limit" type="text" ms-duplex="formData.limitSc"  ms-attr="{disabled:formData.jdfs=='0'}"></td>
+                                <td><span>外贸接单上限:</span><input class="fpxxwh-limit" type="text" ms-duplex="formData.limitWm"  ms-attr="{disabled:formData.jdfs=='0'}"></td>
+                                <td><span>其他接单上限:</span><input class="fpxxwh-limit" type="text" ms-duplex="formData.limitQt"  ms-attr="{disabled:formData.jdfs=='0'}"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><span>注：当接单方式为随机接单时可用。空表示无上限; 0表示不接单; 不允许小于0</span></td>
+                            </tr>
+                        </table>
+                        <div style="text-align: center;"><button id="fpxxwh-save-btn" ms-click="saveForm">保存</button></div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>

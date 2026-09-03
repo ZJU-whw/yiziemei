@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.TjfxExtraCktsMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.TjfxExtraCkts" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ND" property="ND" jdbcType="DECIMAL" />
+    <id column="SWCODE" property="SWCODE" jdbcType="VARCHAR" />
+    <id column="M_TYPE" property="m_TYPE" jdbcType="VARCHAR" />
+    <result column="M1" property="m1" jdbcType="DECIMAL" />
+    <result column="M2" property="m2" jdbcType="DECIMAL" />
+    <result column="M3" property="m3" jdbcType="DECIMAL" />
+    <result column="M4" property="m4" jdbcType="DECIMAL" />
+    <result column="M5" property="m5" jdbcType="DECIMAL" />
+    <result column="M6" property="m6" jdbcType="DECIMAL" />
+    <result column="M7" property="m7" jdbcType="DECIMAL" />
+    <result column="M8" property="m8" jdbcType="DECIMAL" />
+    <result column="M9" property="m9" jdbcType="DECIMAL" />
+    <result column="M10" property="m10" jdbcType="DECIMAL" />
+    <result column="M11" property="m11" jdbcType="DECIMAL" />
+    <result column="M12" property="m12" jdbcType="DECIMAL" />
+  </resultMap>
+</mapper>

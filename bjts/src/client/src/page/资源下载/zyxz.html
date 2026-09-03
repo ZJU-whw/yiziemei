@@ -1,0 +1,19 @@
+<div class="zyxz">
+  <div class="pageTabs">
+      <div class="pageTitle">
+        资源列表
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <div class="form" style="padding: 10px 0 0 20px">
+        <div ms-for="item in @list">
+          <p class="list-item" ms-if="item.downloadType && !@isAbsoluteLink(item.link)" ms-click="@getFileUrl(item.downloadType)">{{item.title}}</p>
+          <p class="list-item" ms-if="!item.downloadType || @isAbsoluteLink(item.link)">
+            <a ms-attr="{href: @getHref(item), target: @getTarget(item), download: @getFileName(item.link), title: item.title}" style="text-decoration: none; color: black;">
+              {{item.title}}
+            </a>
+          </p>
+        </div>
+      </div>
+  </div>
+</div>

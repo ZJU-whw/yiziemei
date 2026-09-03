@@ -1,0 +1,61 @@
+<div class="zbcssz zbcsszWarp tableLine" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        指标参数设置
+      </div>
+      <div class="btns">
+          <div class="btn" ms-click="@search(1)">查询</div>
+          <div class="btn" ms-click="@exform">导出</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+    <div class="select-wrapper">
+      <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+      <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+      <div class="select-main">
+          <div class="select-item">
+            <label  title="指标名称">指标名称</label>
+            <input  type="text" ms-duplex="@searchData.zbCname" placeholder="支持输入指标名称或指标标识">
+          </div>
+          <div class="select-item">
+            <label title="业务分类">业务分类</label>
+            <select class="g-select" ms-duplex="@searchData.ywflDm">
+              <option value=""></option>
+              <option ms-for="item in @ywflList" ms-attr="{value: item.ywflDm}">{{item.ywflJc}}</option>
+            </select>
+          </div>
+          <div class="select-item">
+            <label title="适用企业">适用企业</label>
+            <select class="g-select" ms-duplex="@searchData.applyQy">
+              <option value=""></option>
+              <option value="0">通用</option>
+              <option value="1">生产</option>
+              <option value="2">外贸</option>
+            </select>
+          </div>
+      </div>
+      <div class="select-sub">
+        <div class="select-item">
+          <label title="刷新周期">刷新周期</label>
+          <select class="g-select" ms-duplex="@searchData.refreshCycle">
+            <option value=""></option>
+            <option value="年">年</option>
+            <option value="季">季</option>
+          </select>
+        </div>
+        <div class="select-item">
+          <label title="有效标志">有效标志</label>
+          <select class="g-select" ms-duplex="@searchData.yxbz">
+            <option value=""></option>
+            <option value="Y">有效</option>
+            <option value="N">无效</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="form" style="padding-top: 54px;">
+        <table id="zbcssz-table"></table>
+        <div id="zbcssz-tablePager"></div>
+    </div>
+  </div>
+</div>

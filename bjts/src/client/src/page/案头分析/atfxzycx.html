@@ -1,0 +1,31 @@
+<div class="atfxzycx" style="height: calc(100vh - 140px);">
+    <div class="toolbar">
+        <button class="btn btn-primary" ms-click="toggleFilterRow">{{showFilterRow ? '隐藏筛选' : '筛选'}}</button>
+        <button class="btn btn-default" ms-click="exportList">导出</button>
+        <button class="btn btn-default" ms-click="searchInfo(1)">查询</button>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="tree-panel">
+            <div style="height: 75%;">
+                <div class="tree-header">案头分析数据表</div>
+                <ul id="atfxzycxTree" style="overflow: auto;height: calc(100% - 42px) ;" class='szyjTree ztree'></ul>
+            </div>
+            <div style="height: 25%;">
+                <div class="tree-header">多表链接查询方案</div>
+                <div style="height:  calc(100% - 42px) ">
+                    <div  ms-click="searchDb(item,index)"
+                        style="padding-left: 10px;cursor: pointer;" ms-for="(index,item) in dbArr[0].items">
+                        <div ms-class="@activeDb == item.tableName?'active-dbcx':''">
+                            {{item.tableCname}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="grid-container">
+            <table id="atfxzycx-grid"></table>
+            <div id="atfxzycx-pager"></div>
+        </div>
+    </div>
+</div>

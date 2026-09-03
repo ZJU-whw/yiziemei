@@ -1,0 +1,90 @@
+<div class="qypmsh" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            统计分析 - 出口企业排名
+        </div>
+        <div class="btns">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+            <!--<div class="btn" ms-click="@changeTab(3)" ms-if="@act==1">统计图</div>-->
+            <!--<div class="btn" ms-click="@changeTab(1)" ms-if="@act==3">统计表</div>-->
+        </div>
+    </div>
+    <div class="page active" >
+        <div class="select-wrapper" style="padding-bottom: 10px;line-height: 1">
+            <div class="select-main">
+                <div class="select-item">
+                    <label  title="退税机关">退税机关</label>
+                    <input readonly type="text" ms-duplex="@searchData.swjgMc" ms-click="@showTree">
+                    <ul id="qypmshTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+                </div>
+                <div class="select-item">
+                    <label title="企业类型">企业类型</label>
+                    <input readonly ms-attr="{value:@searchData.qylxMc}" ms-click="showSelect"/>
+                    <div class="select-container">
+                        <label ms-change="@selectChange()"  class="select-label"><input class="select-option" type="checkbox" ms-duplex="@searchData.qylx | change" value="1"/>生产企业</label>
+                        <label ms-change="@selectChange()"  class="select-label"><input class="select-option" type="checkbox" ms-duplex="@searchData.qylx | change" value="2"/>外贸企业</label>
+                        <label ms-change="@selectChange()"  class="select-label"><input class="select-option" type="checkbox" ms-duplex="@searchData.qylx | change" value="3"/>外综服企业</label>
+                    </div>
+                </div>
+                <div class="select-item">
+                    <label  title="出口时间">出口时间起</label>
+                    <div class="select-item-inner">
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.cksjStart" :on-blur="@filDate">
+                        <span>止</span>
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.cksjEnd" :on-blur="@filDate">
+                    </div>
+                </div>
+            </div>
+            <div class="select-sub" style="display: block">
+                <div class="select-item">
+                    <label title="企业代码">企业代码</label>
+                    <input type="text" ms-duplex="@searchData.qyhgdm">
+                </div>
+                <div class="select-item">
+                    <label title="排名标志">排名标志</label>
+                    <select  ms-duplex="searchData.pmlx">
+                        <option value="1">按出口额排名</option>
+                        <option value="2">按退税额排名</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label title="限定条件类型">限定条件类型</label>
+                    <select id="xdtjSelect"  ms-duplex="searchData.tjlx" ms-change="handleChange">
+                        <option value=""></option>
+                        <option value="1">出口贸易国</option>
+                        <option value="2">出口商品大类</option>
+                        <option value="3">退税率</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label>限定条件对应值</label>
+                    <input readonly ms-duplex="xdtjMc" ms-visible="searchData.tjlx==1" ms-click="showSelect2"/>
+                    <ul id="qypmshTree2" class='ztree treeDiv select1' ms-visible="searchData.tjlx==1" style="left: 40%;width:200px"></ul>
+                    <input readonly ms-visible="searchData.tjlx==2" ms-attr="{value:spdlMc}" ms-click="showSelect2"/>
+                    <div class="select-container select2">
+                        <label class="select-label" style="white-space: nowrap" ms-for="(index,item) in @spdl"><input class="select-option" ms-attr="{value:item.spml}" type="checkbox"  ms-duplex="@searchData.spmlcode | change"/>{{item.mldm}}</label>
+                    </div>
+                    <input readonly ms-visible="searchData.tjlx==3" ms-attr="{value:tslMc}" ms-click="showSelect2"/>
+                    <div class="select-container select3">
+                        <label class="select-label" ms-for="(index,item) in @slArray"><input class="select-option" ms-attr="{value:item}" type="checkbox"  ms-duplex="@searchData.tslcode | change"/>{{item+"%"}}</label>
+                    </div>
+                </div>
+                <div class="select-item">
+                    <label title="数据口径">数据口径</label>
+                    <select  ms-duplex="searchData.tjkj">
+                        <option value="1">审核通过数</option>
+                        <option value="2">收到报关单数</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 86px">
+            <table id="qypmsh-table"></table>
+            <div id="qypmsh-tablePager"></div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==3&&'active']">
+        <div class="chartDiv"></div>
+    </div>
+</div>

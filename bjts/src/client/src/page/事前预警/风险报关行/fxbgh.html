@@ -1,0 +1,43 @@
+<div class="fxbgh">
+    <div class="pageTabs">
+        <div class="pageTitle">
+            总局下发风险报关行
+        </div>
+        <div class="btns">
+            <div class="btn" ms-click="@normalSearch()">查询</div>
+            <div class="btn" ms-click="@exform()">导出</div>
+        </div>
+    </div>
+    <div class="page active">
+        <form name="fxbgh-form">
+            <div class="select-wrapper">
+                <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+                <div class="select-main">
+                    <div class="select-item">
+                        <label title="报关行名称">报关行名称</label>
+                        <input type="text" ms-duplex="searchData.bghmc">
+                    </div>
+                    <div class="select-item">
+                        <label title="报关行所在地">报关行所在地</label>
+                        <select ms-duplex="searchData.bghdq">
+                            <option value="">全部</option>
+                            <option ms-for="el in @dqList" ms-attr="{value: el}">{{el}}</option>
+                        </select>
+                    </div>
+                    <div class="select-item">
+                        <label title="数据导入月份">数据导入月份</label>
+                        <div class="select-item-inner">
+                            <input type="text" class="datepicker date-month begin" ms-duplex="@searchData.drnyBegin" readonly>
+                            <span>止</span>
+                            <input type="text" class="datepicker date-month end" ms-duplex="@searchData.drnyEnd" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="form" style="padding-top: 54px">
+            <table id="fxbgh-table"></table>
+            <div id="fxbgh-tablePager"></div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,137 @@
+<div class="atfxydyx" style="height: calc(100vh - 140px);">
+    <div class="toolbar">
+        <div style="display: inline-block; margin-right: 10px;">
+            <label style="margin-right: 5px;">分析期起：</label>
+            <input readonly class="datepicker date-fxqq" style="width: 120px; height: 28px; padding: 0 5px;" type="text" ms-duplex="@searchParams.fxqq" placeholder="请选择">
+        </div>
+        <div style="display: inline-block; margin-right: 10px;">
+            <label style="margin-right: 5px;">分析期止：</label>
+            <input readonly class="datepicker date-fxqz" style="width: 120px; height: 28px; padding: 0 5px;" type="text" ms-duplex="@searchParams.fxqz" placeholder="请选择">
+        </div>
+        <!-- yd_1_4特殊条件 -->
+        <div style="display: inline-block; margin-right: 10px;" ms-if="@showThresholdInput">
+            <label style="margin-right: 5px;">单一报关单重量单价与重量单价平均值偏差阈值：</label>
+            <input type="number" style="width: 80px; height: 28px; padding: 0 5px;" ms-duplex-number="@threshold" min="0" max="100" step="1">
+            <span style="margin-left: 2px;">%</span>
+        </div>
+        <!-- yd_8特殊条件 -->
+        <div style="display: inline-block; margin-right: 10px;" ms-if="@showYd8Inputs">
+            <label style="margin-right: 5px;">报关离岸价高于平均值偏差阈值下限：</label>
+            <input type="number" style="width: 80px; height: 28px; padding: 0 5px;" ms-duplex-number="@deviationThreshold" min="0" max="100" step="1">
+            <span style="margin-left: 2px;">%</span>
+        </div>
+        <div style="display: inline-block; margin-right: 10px;" ms-if="@showYd8Inputs">
+            <label style="margin-right: 5px;">单张报关美元离岸价金额阈值下限：</label>
+            <input type="number" style="width: 100px; height: 28px; padding: 0 5px;" ms-duplex-number="@amountThreshold" min="0" step="1000">
+            <span style="margin-left: 2px;">美元</span>
+        </div>
+        <!-- yd_9特殊条件 -->
+        <div style="display: inline-block; margin-right: 10px;" ms-if="@showYd9Input">
+            <label style="margin-right: 5px;">分单报关阈值下限：</label>
+            <input type="number" style="width: 80px; height: 28px; padding: 0 5px;" ms-duplex-number="@splitThreshold" min="1" step="1">
+            <span style="margin-left: 2px;">个</span>
+        </div>
+        <!-- yd_7特殊条件 -->
+        <div style="display: inline-block; margin-right: 10px;" ms-if="@showYd7Input">
+            <label style="margin-right: 5px;">四同报关单数量阈值下限：</label>
+            <input type="number" style="width: 80px; height: 28px; padding: 0 5px;" ms-duplex-number="@fourSameThreshold" min="1" step="1">
+            <span style="margin-left: 2px;">个</span>
+        </div>
+        <!-- yd_3特殊条件 -->
+        <div style="display: inline-block; margin-right: 10px;" ms-if="@showYd3Input">
+            <label style="margin-right: 5px;">重量单价上下偏差阈值：</label>
+            <input type="number" style="width: 80px; height: 28px; padding: 0 5px;" ms-duplex-number="@diffThreshold" min="0" step="1">
+            <span style="margin-left: 2px;">%</span>
+        </div>
+        <!-- yd_4特殊条件 -->
+        <div style="display: inline-block; margin-right: 10px;" ms-if="@showYd4Input">
+            <label style="margin-right: 5px;">目的国出口额大于收汇额的偏差阈值下限：</label>
+            <input type="number" style="width: 80px; height: 28px; padding: 0 5px;" ms-duplex-number="@yd4DiffThreshold" min="0" step="1">
+            <span style="margin-left: 2px;">%</span>
+        </div>
+        <!-- yd_6特殊条件 -->
+        <div style="display: inline-block; margin-right: 10px;" ms-if="@showYd6Input">
+            <label style="margin-right: 5px;">供应商个数阈值下限：</label>
+            <input type="number" style="width: 80px; height: 28px; padding: 0 5px;" ms-duplex-number="@supplierThreshold" min="1" step="1">
+            <span style="margin-left: 2px;">个</span>
+        </div>
+        <!-- yd_13特殊条件 -->
+        <div style="display: inline-block; margin-right: 10px;" ms-if="@showYd13Input">
+            <label style="margin-right: 5px;">出口日期与开票日期时间差阈值下限：</label>
+            <input type="number" style="width: 80px; height: 28px; padding: 0 5px;" ms-duplex-number="@dayThreshold" min="1" step="1">
+            <span style="margin-left: 2px;">天</span>
+        </div>
+        <!-- yd_11特殊条件 -->
+        <div style="display: inline-block; margin-right: 10px;" ms-if="@showYd11Input">
+            <label style="margin-right: 5px;">相同供货企业供货占比增加阈值下限：</label>
+            <input type="number" style="width: 80px; height: 28px; padding: 0 5px;" ms-duplex-number="@growthThreshold" min="0" step="1">
+            <span style="margin-left: 2px;">%</span>
+        </div>
+        <div style="display: inline-block; margin-right: 10px;" ms-if="@showYd11Input">
+            <label style="margin-right: 5px;">供货企业本期供货金额阈值下限：</label>
+            <input type="number" style="width: 80px; height: 28px; padding: 0 5px;" ms-duplex-number="@yd11AmountThreshold" min="0" step="1">
+            <span style="margin-left: 2px;">万</span>
+        </div>
+        <!-- yd_12特殊条件 -->
+        <div style="display: inline-block; margin-right: 10px;" ms-if="@showYd12Input">
+            <label style="margin-right: 5px;">新办类供货企业供货金额占比阈值下限：</label>
+            <input type="number" style="width: 80px; height: 28px; padding: 0 5px;" ms-duplex-number="@ratioThreshold" min="0" step="1">
+            <span style="margin-left: 2px;">%</span>
+        </div>
+        <div style="display: inline-block; margin-right: 10px;" ms-if="@showYd12Input">
+            <label style="margin-right: 5px;">新办类供货企业认定期限阈值上限：</label>
+            <input type="number" style="width: 80px; height: 28px; padding: 0 5px;" ms-duplex-number="@termThreshold" min="1" step="1">
+            <span style="margin-left: 2px;">个月</span>
+        </div>
+        <!-- yd_14_3特殊条件 -->
+        <div style="display: inline-block; margin-right: 10px;" ms-if="@showYd143Input">
+            <label style="margin-right: 5px;">能耗与销售变动的弹性系数阈值：</label>
+            <input type="number" style="width: 80px; height: 28px; padding: 0 5px;" ms-duplex-number="@elasticThreshold" min="0" max="10" step="0.1">
+        </div>
+        <!-- yd_15_1特殊条件 -->
+        <div style="display: inline-block; margin-right: 10px;" ms-if="@showYd151Input">
+            <label style="margin-right: 5px;">变化率差异阈值下限：</label>
+            <input type="number" style="width: 80px; height: 28px; padding: 0 5px;" ms-duplex-number="@yd151DiffThreshold" min="0" step="1">
+            <span style="margin-left: 2px;">%</span>
+        </div>
+        <!-- yd_15_3特殊条件 -->
+        <div style="display: inline-block; margin-right: 10px;" ms-if="@showYd153Input">
+            <label style="margin-right: 5px;">运输费用变动弹性系数阈值：</label>
+            <input type="number" style="width: 80px; height: 28px; padding: 0 5px;" ms-duplex-number="@yd153ElasticThreshold" min="0" step="0.1">
+        </div>
+        <!-- yd_10特殊条件 -->
+        <div style="display: inline-block; margin-right: 10px;" ms-if="@showYd10Input">
+            <label style="margin-right: 5px;">省外供货占比阈值下限：</label>
+            <input type="number" style="width: 80px; height: 28px; padding: 0 5px;" ms-duplex-number="@outProvinceThreshold" min="0" max="100" step="1">
+            <span style="margin-left: 2px;">%</span>
+        </div>
+        <!-- <button class="btn btn-primary" ms-click="toggleFilterRow">{{showFilterRow ? '隐藏筛选' : '筛选'}}</button> -->
+        <button class="btn btn-default" ms-click="exportList">导出</button>
+        <button class="btn btn-default" ms-click="searchInfo(1)">查询</button>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="tree-panel">
+            <div style="height: 100%;">
+                <div class="tree-header">疑点分析指引</div>
+                <ul id="atfxydyxTree" style="overflow: auto;height: calc(100% - 42px);" class='szyjTree ztree'></ul>
+            </div>
+        </div>
+        <div class="grid-container" ms-visible="@curNode.tableName !== 'yd_10'">
+            <table id="atfxydyx-grid"></table>
+            <div id="atfxydyx-pager"></div>
+        </div>
+        <!-- yd_10 省外企业供货比例偏高 - 双表格布局 -->
+        <div class="grid-container-yd10" ms-visible="@curNode.tableName === 'yd_10'" style="display: flex; flex-direction: column; height: 100%;">
+            <!-- 汇总表格（单行） -->
+            <div>
+                <table id="atfxydyx-grid-yd10-summary"></table>
+            </div>
+            <!-- 明细表格（带分页） -->
+            <div style="flex: 1; overflow: hidden;" class="grid-container-yd10-cont">
+                <table id="atfxydyx-grid-yd10-detail"></table>
+                <div id="atfxydyx-pager-yd10"></div>
+            </div>
+        </div>
+    </div>
+</div>

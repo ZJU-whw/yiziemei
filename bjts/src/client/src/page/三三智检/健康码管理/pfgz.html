@@ -1,0 +1,70 @@
+<div class="pfgz" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        评分规则配置
+      </div>
+      <div class="btns">
+        <div ms-visible="@isEdit" class="btn" ms-click="@save">保存</div>
+    </div>
+  </div>
+  <div ms-class="['page','active']" style="overflow-y: auto;padding: 34px 0 20px 20px;">
+    <p class="subtTitle">生产企业评分规则设置</p>
+    <table border cellspacing="0">
+      <tr>
+        <th width="90">分类维度</th>
+        <th width="90">指标总分</th>
+        <th width="90">折算总分</th>
+        <th width="90">红线分数</th>
+        <th width="90">黄线分数</th>
+      </tr>
+      <tr ms-for="(index,item) in @scList">
+        <td>{{item.ywflJc}}</td>
+        <td style="text-align: center;">{{item.zbTotal}}</td>
+        <td style="text-align: center;">
+          <div style="text-align: left;" ms-if="@isEdit">
+            <input ms-if="index != 6" type="text" ms-duplex="@scList[index].jkmTotal">
+            <span ms-if="index == 6">{{item.jkmTotal}}</span>
+          </div>
+          <span ms-if="!@isEdit">{{item.jkmTotal}}</span>
+        </td>
+        <td style="text-align: center;">
+          <input ms-if="@isEdit" type="text" ms-duplex="@scList[index].lineRed">
+          <span ms-if="!@isEdit">{{item.lineRed}}</span>
+        </td>
+        <td style="text-align: center;">
+          <input ms-if="@isEdit" type="text" ms-duplex="@scList[index].lineYellow">
+          <span ms-if="!@isEdit">{{item.lineYellow}}</span>
+        </td>
+      </tr>
+    </table>
+    <p class="subtTitle">外贸企业评分规则设置</p>
+    <table border cellspacing="0">
+      <tr>
+        <th width="90">分类维度</th>
+        <th width="90">指标总分</th>
+        <th width="90">折算总分</th>
+        <th width="90">红线分数</th>
+        <th width="90">黄线分数</th>
+      </tr>
+      <tr ms-for="(index,item) in @wmList">
+        <td>{{item.ywflJc}}</td>
+        <td style="text-align: center;">{{item.zbTotal}}</td>
+        <td style="text-align: center;">
+          <div style="text-align: left;" ms-if="@isEdit">
+            <input ms-if="index != 6" type="text" ms-duplex="@wmList[index].jkmTotal">
+            <span ms-if="index == 6">{{item.jkmTotal}}</span>
+          </div>
+          <span ms-if="!@isEdit">{{item.jkmTotal}}</span>
+        </td>
+        <td style="text-align: center;">
+          <input ms-if="@isEdit" type="text" ms-duplex="@wmList[index].lineRed">
+          <span ms-if="!@isEdit">{{item.lineRed}}</span>
+        </td>
+        <td style="text-align: center;">
+          <input ms-if="@isEdit" type="text" ms-duplex="@wmList[index].lineYellow">
+          <span ms-if="!@isEdit">{{item.lineYellow}}</span>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>

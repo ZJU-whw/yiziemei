@@ -1,0 +1,119 @@
+<div class="qyhxbg tableLine" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        企业画像报告
+      </div>
+      <div class="btns">
+        <div class="btn" ms-click="@search(1)">查询</div>
+        <div class="btn" ms-click="@generateReport">生成报告</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <div class="select-wrapper">
+          <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+          <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+          <div class="select-main">
+            <div class="select-item w-25per">
+              <label title="企业标识">企业标识</label>
+              <input type="text" ms-duplex="searchData.qybs" placeholder="支持税号、名称的模糊查询">
+            </div>
+            <div class="select-item w-25per">
+              <label title="报告年度">报告年度</label>
+              <select ms-duplex="@searchData.bgnd" data-duplex-changed="@search(1)">
+                <option value=""></option>
+                <option ms-for="item in @bgqList" ms-attr="{value: item}">{{item}}</option>
+              </select>
+            </div>
+            <div class="select-item w-25per">
+              <label title="状态标志">状态标志</label>
+              <select ms-duplex="@searchData.ztbz">
+                <option value=""></option>
+                <option value="10">未生成</option>
+                <option value="0">已申请</option>
+                <option value="1">处理中</option>
+                <option value="2">已生成</option>
+                <option value="9">异常中断</option>
+              </select>
+            </div>
+            <div class="select-item w-25per">
+              <label title="申请人">申请人</label>
+              <select ms-duplex="@searchData.sqr">
+                <option value=""></option>
+                <option value="1">本人</option>
+                <option value="2">他人</option>
+              </select>
+            </div>
+          </div>
+          <div class="select-sub">
+            <div class="select-item w-25per">
+              <label  title="税务机关">税务机关</label>
+              <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree">
+              <ul id="qyhxbgTree" class='ztree treeDiv swjgTree' style="left: 90px;top:100%;"></ul>
+            </div>
+            <div class="select-item w-25per">
+              <label title="申请时间">申请时间</label>
+              <div class="select-item-inner">
+                <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate" ms-duplex="@searchData.sqsjQ">
+                <span style="margin:0;">止</span>
+                <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate" ms-duplex="@searchData.sqsjZ">
+              </div>
+            </div>
+            <div class="select-item w-25per">
+              <label title="企业类型">企业类型</label>
+              <select ms-duplex="@searchData.qylx">
+                <option value=""></option>
+                <option value="1">生产</option>
+                <option value="2">外贸</option>
+              </select>
+            </div>
+            <div class="select-item w-25per">
+              <label title="备案状态">备案状态</label>
+              <select ms-duplex="@searchData.bazt">
+                <option value=""></option>
+                <option value="N">备案有效</option>
+                <option value="Y">备案注销</option>
+              </select>
+            </div>
+            <div class="select-item clear w-25per" ms-for="(index,item) in @fzItemsList">
+              <label ms-attr="{title:@zbxmmcMap[item.zbxmbm]}">{{@zbxmmcMap[item.zbxmbm]}} </label>
+              <div class="custom-multiselect item-content fz clear lf w-60per" style="max-width: 230px;">
+                <div
+                  class="custom-bootstrap-multiselect bootstrap-multiselect"
+                  style="height: 20px;"
+                  ms-if="item.isTree=='0'">
+                  <select ms-attr="{id:'qyhxbg_select_'+item.zbxmbm.split('.')[0]+'_'+item.zbxmbm.split('.')[1]}" multiple="multiple"></select>
+                </div>
+                <div
+                  ms-css="{width: '100%'}"
+                  class="tree clear lf"
+                  ms-if="item.isTree=='1'">
+                  <div
+                    class="item-content showSelect text-ellipsis tree"
+                    ms-click="@showTree"
+                    ms-attr="{title: @selectMc[item.zbxmbm]&&@selectMc[item.zbxmbm].name}">{{@selectMc[item.zbxmbm]&&(@selectMc[item.zbxmbm].value.length>3 ? @selectMc[item.zbxmbm].value.length+ '项已选择':@selectMc[item.zbxmbm].name)}}</div>
+                  <ul
+                    style="height:200px;left:123px;"
+                    ms-attr="{id:'qyhxbg_tree_'+item.zbxmbm.split('.')[0]+'_'+item.zbxmbm.split('.')[1]}"
+                    class='treeSelect ztree treeDiv'></ul>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+      <div class="form" style="padding-top: 54px">
+        <table id="qyhxbg-table"></table>
+        <div id="qyhxbg-tablePager"></div>
+      </div>
+  </div>
+  <!-- 编辑/新增 -->
+  <div class="page-model rz-page-model" style="height:380px;width: 600px;margin-left: -300px;" >
+    <div class="model-title">
+      <span>下载日志信息</span>
+      <span class="close" ms-click="@hideModel">&times;</span>
+    </div>
+    <div class="model-content" style="height: 328px;padding: 10px 20px;">
+      <table id="qyhxbg-rz-table"></table>
+      <div id="qyhxbg-rz-tablePager"></div>
+    </div>
+  </div>
+</div>

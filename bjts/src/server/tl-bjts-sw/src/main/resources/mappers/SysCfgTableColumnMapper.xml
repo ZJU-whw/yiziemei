@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.SysCfgTableColumnMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.SysCfgTableColumn" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <result column="T_CODE" property="t_CODE" jdbcType="VARCHAR" />
+    <result column="T_C_CODE" property="t_C_CODE" jdbcType="VARCHAR" />
+    <result column="T_C_NAME" property="t_C_NAME" jdbcType="VARCHAR" />
+    <result column="C_MIN_SIZE" property="c_MIN_SIZE" jdbcType="DECIMAL" />
+    <result column="C_MAX_SIZE" property="c_MAX_SIZE" jdbcType="DECIMAL" />
+    <result column="C_STD_SIZE" property="c_STD_SIZE" jdbcType="DECIMAL" />
+    <result column="NO" property="NO" jdbcType="DECIMAL" />
+    <result column="IS_FIXED" property="IS_FIXED" jdbcType="CHAR" />
+    <result column="IS_ORDER" property="IS_ORDER" jdbcType="CHAR" />
+    <result column="ALIGN" property="ALIGN" jdbcType="CHAR" />
+    <result column="ISVAILD" property="ISVAILD" jdbcType="CHAR" />
+    <result column="UPDATE_TIME" property="UPDATE_TIME" jdbcType="DATE" />
+    <result column="CREATE_TIME" property="CREATE_TIME" jdbcType="DATE" />
+    <result column="F1" property="f1" jdbcType="VARCHAR" />
+    <result column="F2" property="f2" jdbcType="VARCHAR" />
+    <result column="F3" property="f3" jdbcType="VARCHAR" />
+    <result column="F4" property="f4" jdbcType="VARCHAR" />
+    <result column="F5" property="f5" jdbcType="VARCHAR" />
+  </resultMap>
+</mapper>

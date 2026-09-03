@@ -1,0 +1,38 @@
+<div class="sdjcsjtj">
+    <div class="pageTabs">
+        <div class="pageTitle">
+            实地核查数据统计
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@normalSearch()">查询</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']">
+        <form name="sdjcsjtj-form">
+            <div class="select-wrapper">
+                <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+                <div class="select-main">
+                    <div class="select-item">
+                        <label title="税务机关">税务机关</label>
+                        <input readonly type="text" ms-duplex="tsjgmc" ms-click="@showTree">
+                        <ul id="sdjcsjtjtree" class='ztree treeDiv' style="left: 90px;"></ul>
+                    </div>
+                    <div class="select-item">
+                        <label title="进户实地核查台账登记去日期">查询期间起</label>
+                        <div class="select-item-inner">
+                            <input type="text" class="datepicker date-month" ms-duplex="@searchData.startDate | change"
+                                :on-change="@filMonth">
+                            <span>止</span>
+                            <input type="text" class="datepicker date-month" ms-duplex="@searchData.endDate | change"
+                                :on-change="@filMonth">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="form" style="padding-top: 54px">
+            <table id="sdjcsjtj-table"></table>
+            <div id="sdjcsjtj-tablePager"></div>
+        </div>
+    </div>
+</div>

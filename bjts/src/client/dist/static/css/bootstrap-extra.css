@@ -1,0 +1,47 @@
+/**
+ * bootstrap部分样式引入，避免与原有插件样式冲突
+*/
+.bt-form-control {
+  display: inline-block;
+  width: 100%;
+  height: 34px;
+  padding: 1px 12px;
+  font-size: 12px;
+  line-height: 1.42857143;
+  color: #555555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+.bt-form-control:focus {
+  border-color: #66afe9;
+  outline: 0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
+}
+.bt-form-control::-moz-placeholder {
+  color: #999;
+  opacity: 1;
+}
+.bt-form-control:-ms-input-placeholder {
+  color: #999;
+}
+.bt-form-control::-webkit-input-placeholder {
+  color: #999;
+}
+.bt-form-control::-ms-expand {
+  border: 0;
+  background-color: transparent;
+}
+textarea.bt-form-control {
+  height: auto;
+}
+.bt-form-control.datepicker:not(.date-year) {
+  padding: 1px 6px;
+}

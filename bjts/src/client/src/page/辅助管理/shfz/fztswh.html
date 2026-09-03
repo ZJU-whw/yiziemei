@@ -1,0 +1,209 @@
+<div class="fztswh tzgl" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            审核分户分组 / 分组推送企业清册维护
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn btn-container" ms-click="@toggle">批量导入
+                <div class="btn-wrapper">
+                    <div class="btn fileupload">选择导入文件<input name="file" type="file"  /></div>
+                    <div class="btn" ms-click="loadFile">下载模板文件</div>
+                </div>
+            </div>
+            <div class="btn" ms-click="@showModal">修改</div>
+            <div class="btn" ms-click="@delItem">删除</div>
+            <div class="btn" ms-click="@validate">数据校验</div>
+            <div class="btn" ms-click="@save">保存</div>
+            <div class="btn" ms-click="@exform">导出</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="select-wrapper">
+            <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+            <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+            <div class="select-main">
+                <div class="select-item">
+                    <label  title="企业标识">企业标识</label>
+                    <input  type="text" ms-duplex="@searchData.qybs">
+                </div>
+                <div class="select-item">
+                    <label title="申报受理岗">申报受理岗</label>
+                    <select  ms-duplex="@searchData.slg">
+                        <option value=""></option>
+                        <option ms-for="(index,item) in SH01" ms-attr="{value: item.user_id}">{{item.czry_mc}}</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="审核岗">审核岗</label>
+                    <select  ms-duplex="@searchData.shg">
+                        <option value=""></option>
+                        <option ms-for="(index,item) in SH02" ms-attr="{value: item.user_id}">{{item.czry_mc}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="select-sub">
+                <div class="select-item">
+                    <label  title="复核岗">复核岗</label>
+                    <select  ms-duplex="@searchData.fhg">
+                        <option value=""></option>
+                        <option ms-for="(index,item) in SH03" ms-attr="{value: item.user_id}">{{item.czry_mc}}</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="核准岗">核准岗</label>
+                    <select  ms-duplex="@searchData.hzg">
+                        <option value=""></option>
+                        <option ms-for="(index,item) in SH04" ms-attr="{value: item.user_id}">{{item.czry_mc}}</option>
+                    </select>
+                </div>
+                <div class="select-item" style="position: relative">
+                    <label  title="企业类型">企业类型</label>
+                    <select  ms-duplex="@searchData.qylx">
+                        <option value="">　</option>
+                        <option value="11">内资生产企业</option>
+                        <option value="12">外商投资企业</option>
+                        <option value="21">外贸（工贸）企业</option>
+                        <option value="90">其他企业（特许退税企业）</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="管理类别">管理类别</label>
+                    <select  ms-duplex="@searchData.gllb">
+                        <option value="">　</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="无纸化标志">无纸化标志</label>
+                    <select  ms-duplex="@searchData.wzhqy">
+                        <option value=""></option>
+                        <option value="1">是</option>
+                        <option value="0">否</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="备案状态">备案状态</label>
+                    <select  ms-duplex="@searchData.bazt">
+                        <option value=""></option>
+                        <option value="N">已注销</option>
+                        <option value="Y">正常</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="企业状态">企业状态</label>
+                    <select  ms-duplex="@searchData.qyzt">
+                        <option value=""></option>
+                        <option value="01">受理</option>
+                        <option value="02">筹建期</option>
+                        <option value="03">正常</option>
+                        <option value="04">停业</option>
+                        <option value="05">非正常</option>
+                        <option value="06">清算</option>
+                        <option value="07">注销</option>
+                        <option value="08">非正常户注销</option>
+                        <option value="09">报验</option>
+                        <option value="10">核销报验</option>
+                        <option value="11">中断缴费</option>
+                        <option value="12">恢复缴费</option>
+                        <option value="13">简易注销无异议</option>
+                        <option value="99">其他</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="校验标志">校验标志</label>
+                    <select  ms-duplex="@searchData.jybz">
+                        <option value=""></option>
+                        <option value="N">校验不通过</option>
+                        <option value="Y">校验通过</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+        <div class="form" style="padding-top: 54px">
+            <table id="fztswh-table"></table>
+            <div id="fztswh-tablePager"></div>
+            <div class="page-model">
+                <div class="model-title">修改</div>
+                <div class="model-content">
+                    <table class="table">
+                        <tr>
+                            <td style="width: 15%" class="title">海关代码</td>
+                            <td style="width: 18%">{{modalData.qyhgdm}}</td>
+                            <td style="width: 15%" class="title">企业名称</td>
+                            <td colspan="3">{{modalData.nsrmc}}</td>
+                        </tr>
+                        <tr>
+                            <td class="title">管理类别</td>
+                            <td>{{modalData.gllb}}</td>
+                            <td class="title">无纸化标志</td>
+                            <td style="width: 18%">{{modalData.wzhqy}}</td>
+                            <td style="width: 15%" class="title">备案状态</td>
+                            <td style="width: 18%">{{modalData.bazt}}</td>
+                        </tr>
+                        <tr>
+                            <td class="title">企业状态</td>
+                            <td>{{modalData.qyzt}}</td>
+                            <td class="title">企业类型</td>
+                            <td colspan="3">{{modalData.qylx}}</td>
+                        </tr>
+                        <tr>
+                            <td class="title">申报受理岗</td>
+                            <td>
+                                <select  ms-duplex="@modalData.slg">
+                                    <option value=""></option>
+                                    <option ms-for="(index,item) in SH01" ms-attr="{value: item.user_id}">{{item.czry_mc}}</option>
+                                </select>
+                            </td>
+                            <td class="title">审核岗</td>
+                            <td>
+                                <select  ms-duplex="@modalData.shg">
+                                    <option value=""></option>
+                                    <option ms-for="(index,item) in SH02" ms-attr="{value: item.user_id}">{{item.czry_mc}}</option>
+                                </select>
+                            </td>
+                            <td class="title">复审岗</td>
+                            <td>
+                                <select  ms-duplex="@modalData.fhg">
+                                    <option value=""></option>
+                                    <option ms-for="(index,item) in SH03" ms-attr="{value: item.user_id}">{{item.czry_mc}}</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="title">核准岗</td>
+                            <td>
+                                <select  ms-duplex="@modalData.hzg">
+                                    <option value=""></option>
+                                    <option ms-for="(index,item) in SH04" ms-attr="{value: item.user_id}">{{item.czry_mc}}</option>
+                                </select>
+                            </td>
+                            <td class="title">发放岗</td>
+                            <td colspan="3">
+                                <select  ms-duplex="@modalData.ffg">
+                                    <option value=""></option>
+                                    <option ms-for="(index,item) in SH05" ms-attr="{value: item.user_id}">{{item.czry_mc}}</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="title">校验结果</td>
+                            <td colspan="5">{{modalData.note}}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="model-btns">
+                    <div class="btn" ms-click="confirm">确定</div>
+                    <div class="btn" ms-click="closeModal('2')">取消</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==3&&'active']">
+        <div class="chartDiv"></div>
+    </div>
+</div>

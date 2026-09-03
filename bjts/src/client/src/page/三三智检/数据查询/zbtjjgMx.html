@@ -1,0 +1,77 @@
+<div class="zbtjjgMX zbpzWarp tableLine" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        出口企业指标统计（一户式）结果详情
+      </div>
+      <div class="btns">
+        <div class="btn" ms-click="@exform">导出</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+    <div class="form" style="padding-top: 0;">
+      <div>
+        <div class="clear msg">
+          <div class="msg-item clear">
+            <span class="lf" style="text-align: right;">企业海关代码：</span>
+            <span ms-attr="{title: @params.qyhgdm}">{{@params.qyhgdm}}</span>
+          </div>
+          <div class="msg-item clear"><span class="lf" style="text-align: right;">纳税人识别号：</span><span ms-attr="{title: @params.nsrsbh}">{{@params.nsrsbh}}</span></div>
+          <div class="msg-item clear"><span class="lf" style="text-align: right;">纳税人名称：</span><span ms-attr="{title: @params.nsrmc}">{{@params.nsrmc}}</span></div>
+          <div class="msg-item clear"><span class="lf" style="text-align: right;">报告期：</span><span ms-attr="{title: @params.bgqQ+'至'+@params.bgqZ}">{{@params.bgqQ}}至{{@params.bgqZ}}</span></div>
+        </div>
+        <div class="clear msg">
+          <div class="msg-item clear"><span class="lf" style="text-align: right;">退税税务机关代码：</span><span ms-attr="{title: @params.swjgDm}">{{@params.swjgDm}}</span></div>
+          <div class="msg-item clear"><span class="lf" style="text-align: right;">退税税务机关名称：</span><span ms-attr="{title: @params.swjgMc}">{{@params.swjgMc}}</span></div>
+          <div class="msg-item clear"><span class="lf" style="text-align: right;">基期：</span><span ms-visible="@params.jqQ" ms-attr="{title: @params.jqQ+'至'+@params.jqZ}">{{@params.jqQ}}至{{@params.jqZ}}</span></div>
+        </div>
+        
+      </div>
+      <div class="g-tabs">
+        <div class="tab-title mb-5">
+          <div class="tab-title-wrap">
+            <div
+              ms-for="(index,item) in @tabList"
+              class="tab-title-item"
+              :class="[@activeName == item.activeName&&'active', item.activeName]"
+              ms-click="changeTab(item.activeName,index,item.tabNum)">
+              {{item.name}}
+          </div>
+          </div>
+        </div>
+        <div class="tab-content">
+          <div
+            ms-for="item in @tabList"
+            class="tab-content-item"
+            ms-class="[item.activeName]"
+            ms-visible="@activeName == item.activeName">
+            <table ms-attr="{id: item.activeName + '-table'}"></table>
+            <div ms-if="item.isPager" ms-attr="{id: item.activeName + '-tablePager'}"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 报告期值下钻 -->
+  <div class="page-model result-page-model" style="height:392px;width: 500px;margin-left: -250px;" >
+    <div class="model-title">
+      <span>指标结果值详情</span>
+      <span class="close" ms-click="hideModelResult">&times;</span>
+      </div>
+    <div class="model-content" style="height: 340px;">
+      <div class="table">
+        <div class="table-item">指标 {{@zbsjObj.zbId}}（{{@zbsjObj.zbSname}}）</div>
+        <div class="table-item" ms-for="item in @zbsjXzDataList">{{item}}</div>
+      </div>
+    </div>
+  </div>
+  <div class="page-model gbkamx-page-model" style="height:392px;width: 500px;margin-left: -250px;" >
+    <div class="model-title">
+      <span>明细</span>
+      <span class="close" ms-click="hideModelGbKa">&times;</span>
+      </div>
+    <div class="model-content" style="height: 340px;padding: 0 20px;">
+      <table id="gbkamx-table"></table>
+      <div id="gbkamx-tablePager"></div>
+    </div>
+  </div>
+</div>

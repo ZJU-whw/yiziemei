@@ -1,0 +1,106 @@
+<div class="yjxxzhcx" >
+    <div class="pageTabs">
+        <div class="pageTitle">事前预警信息综合查询</div>
+        <div class="btns" ms-if="@act==1">
+            <!--<div class="swjg" style="position: relative" ms-click="showSwjg">-->
+                <!--{{swjgMc}}-->
+                <!--<ul class='ztree treeDiv2' style="left: 0px;top:100%;"></ul>-->
+            <!--</div>-->
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+            <div class="btn dropdown" ms-on-click="showMenu">
+                配置表格▼
+                <ul class="dropdown-menu">
+                    <li ms-for="(index,item) in @tableOption"><label><input type="checkbox" ms-duplex-checked="item.show" ms-on-click="@setTableOption(item,$event)">{{item.label}}</label></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="select-wrapper">
+            <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+            <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+            <div class="select-main">
+                <div class="select-item" style="position: relative;">
+                    <label  class="width-s" title="退税机关">退税机关</label>
+                    <input class="width-m" type="text" ms-duplex="searchData.swjgMc" ms-click="showTree">
+                    <ul id="yjxxzhcxTree" class='ztree treeDiv' style="left: 40%;top:100%;"></ul>
+                </div>
+                <div class="select-item" style="position: relative">
+                    <label class="width-s" title="企业标识">企业标识<i class="question" title="企业海关代码或社会信用代码"></i></label>
+                    <input class="width-m" type="text" ms-duplex="searchData.qybs">
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="处理标志">处理标志</label>
+                    <select class="width-m" ms-duplex="@searchData.clFlag">
+                        <option value="">　</option>
+                        <option value="1">已处理</option>
+                        <option value="0">未处理</option>
+                    </select>
+                </div>
+            </div>
+            <div class="select-sub">
+                <div class="select-item" style="position: relative">
+                    <label class="width-s" title="预警项">预警项</label>
+                    <select class="width-m" ms-duplex="searchData.yjcode" ms-on-change="setZbList($event)">
+                        <option value=""></option>
+                        <option ms-for="item in yjList" ms-attr="{'value':item.yjcode}">{{"("+item.yjcode+")"+item.yjname}}</option>
+                    </select>
+                </div>
+                <div class="select-item" style="position: relative">
+                    <label class="width-s" title="纳税人名称">纳税人名称</label>
+                    <input class="width-m" type="text" ms-duplex="searchData.qymc">
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="预警标志">预警标志</label>
+                    <select class="width-m" ms-duplex="@searchData.bmdflag">
+                        <option value="">　</option>
+                        <option value="0">正常预警</option>
+                        <option value="1">白名单</option>
+                        <option value="2">预警关闭</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="预警指标">预警指标</label>
+                    <!--<input class="width-m" type="text" ms-if="searchData.yjcode==''" ms-duplex="searchData.zbcode">-->
+                    <select class="width-m"  ms-duplex="searchData.zbcode">
+                        <option value=""></option>
+                        <option ms-for="item in zbList" ms-attr="{'value':item.zbcode}">{{"("+item.zbcode+")"+item.zbname}}</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="申报年月">申报年月</label>
+                    <input type="text" class="datepicker date-month width-m" ms-duplex="@searchData.sbym" ms-on-change="@filMon($event)">
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="预警对象">预警对象</label>
+                    <input class="width-m" type="text" ms-duplex="searchData.yjObject">
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="预警日期">预警日期</label>
+                    <div class="select-item-inner">
+                        <input class="datepicker date-day width-s" type="text" ms-duplex="searchData.clrqq" ms-on-change="@filDate($event)">
+                        <span>-</span>
+                        <input class="datepicker date-day width-s" type="text" ms-duplex="searchData.clrqz" ms-on-change="@filDate($event)">
+                    </div>
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="申报业务代码">申报业务代码</label>
+                    <input class="width-m" type="text" ms-duplex="searchData.sbywbDm">
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="金额">金额</label>
+                    <div class="select-item-inner">
+                        <input class="width-s" type="text" ms-duplex="searchData.yjAmtStart | change" ms-on-change="@filNum2($event)">
+                        <span>-</span>
+                        <input class="width-s" type="text" ms-duplex="searchData.yjAmtEnd | change" ms-on-change="@filNum2($event)">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 54px;">
+            <table id="yjxxzhcx-table"></table>
+            <div id="yjxxzhcx-tablePager"></div>
+        </div>
+    </div>
+</div>

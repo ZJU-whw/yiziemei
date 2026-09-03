@@ -1,0 +1,90 @@
+<div class="blqyxxcx" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            不良企业信息 / 不良企业信息查询
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="select-wrapper">
+            <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+            <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+            <div class="select-main">
+                <div class="select-item">
+                    <label  title="海关代码">海关代码</label>
+                    <input  type="text" ms-duplex="@searchData.qyhgdm">
+                </div>
+                <div class="select-item">
+                    <label title="纳税人识别号">纳税人识别号</label>
+                    <input type="text" ms-duplex="searchData.nsrsbh">
+                </div>
+                <div class="select-item">
+                    <label  title="纳税人税务机关">纳税人税务机关</label>
+                    <input readonly type="text" ms-duplex="swjgmc1" ms-click="showTree">
+                    <ul id="blqyxxZtree1" class='ztree treeDiv swjg1' style="left: 90px;top:100%;"></ul>
+                </div>
+            </div>
+            <div class="select-sub">
+                <div class="select-item">
+                    <label  title="录入人税务机关">录入人税务机关</label>
+                    <input readonly type="text" ms-duplex="swjgmc2" ms-click="showTree">
+                    <ul id="blqyxxZtree2" class='ztree treeDiv swjg2' style="left: 90px;top:100%;"></ul>
+                </div>
+                <div class="select-item">
+                    <label  title="事件类型">事件类型</label>
+                    <select  ms-duplex="@searchData.sjlx">
+                        <option value=""></option>
+                        <option value="1">函调</option>
+                        <option value="2">实地核查</option>
+                        <option value="3">稽查案件</option>
+                        <option value="4">评估核查</option>
+                        <option value="9">其他</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="风险级别">风险级别</label>
+                    <select  ms-duplex="@searchData.fxjb">
+                        <option value=""></option>
+                        <option value="1">一级风险-低</option>
+                        <option value="2">二级风险-中</option>
+                        <option value="3">三级风险-高</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="录入日期">录入日期起</label>
+                    <div class="select-item-inner">
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.lrrqq" :on-blur="@filDate" >
+                        <span>止</span>
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.lrrqz" :on-blur="@filDate">
+                    </div>
+                </div>
+                <div class="select-item">
+                    <label  title="风险日期">风险日期起</label>
+                    <div class="select-item-inner">
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.rqq" :on-blur="@filDate" >
+                        <span>止</span>
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.rqz" :on-blur="@filDate">
+                    </div>
+                </div>
+                <div class="select-item">
+                    <label  title="有效标志">有效标志</label>
+                    <select  ms-duplex="@searchData.yxbz">
+                        <option value=""></option>
+                        <option value="N">无效</option>
+                        <option value="Y">有效</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 54px">
+            <table id="blqyxxcx-table"></table>
+            <div id="blqyxxcx-tablePager"></div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==3&&'active']">
+        <div class="chartDiv"></div>
+    </div>
+</div>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.YjCsFxbghModelMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.YjCsFxbghModel" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" property="id" jdbcType="DECIMAL" />
+    <result column="BGHMC" property="bghmc" jdbcType="VARCHAR" />
+    <result column="BGHDQ" property="bghdq" jdbcType="VARCHAR" />
+    <result column="DRNY" property="drny" jdbcType="VARCHAR" />
+    <result column="YXBZ" property="yxbz" jdbcType="CHAR" />
+  </resultMap>
+
+  <select id="queryYjCsFxbghList" resultType="com.tl.bjts.sw.model.vo.YjCsFxbghVO"
+          parameterType="com.tl.bjts.sw.model.dto.YjCsFxbghDTO">
+    SELECT
+        t.ID        AS id,
+        t.BGHMC     AS bghmc,
+        t.BGHDQ     AS bghdq,
+        t.DRNY      AS drny,
+        t.YXBZ      AS yxbz
+    FROM TL_ADMIN.YJ_CS_FXBGH t
+    WHERE 1=1
+    <if test="bghmc != null and bghmc != ''">
+        AND t.BGHMC LIKE '%' || #{bghmc} || '%'
+    </if>
+    <if test="bghdq != null and bghdq != ''">
+        AND t.BGHDQ = #{bghdq}
+    </if>
+    <if test="drnyBegin != null and drnyBegin != ''">
+        AND t.DRNY &gt;= #{drnyBegin}
+    </if>
+    <if test="drnyEnd != null and drnyEnd != ''">
+        AND t.DRNY &lt;= #{drnyEnd}
+    </if>
+    ORDER BY t.DRNY DESC, t.BGHMC ASC
+  </select>
+</mapper>

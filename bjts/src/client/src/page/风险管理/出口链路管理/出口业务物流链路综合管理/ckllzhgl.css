@@ -1,0 +1,288 @@
+.ckllzhgl .frozen-bdiv .ui-jqgrid-btable {
+  width: auto !important;
+}
+
+.main .content .page-model.ckllzhgl-logistics-model {
+  width: 900px;
+  height: 520px;
+  margin-left: -450px;
+  margin-top: -260px;
+}
+
+.main .content .page-model.ckllzhgl-logistics-model .ckllzhgl-logistics-close {
+  float: right;
+  width: 34px;
+  height: 34px;
+  line-height: 34px;
+  text-align: center;
+  color: #909399;
+  font-size: 24px;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.main .content .page-model.ckllzhgl-logistics-model .ckllzhgl-logistics-close:hover {
+  color: #409eff;
+}
+
+.main .content .page-model.ckllzhgl-logistics-model .ckllzhgl-logistics-body {
+  display: flex;
+  height: 420px;
+  padding: 18px 24px 8px;
+  box-sizing: border-box;
+}
+
+.main .content .page-model.ckllzhgl-logistics-model .ckllzhgl-edit-panel {
+  flex: 0 0 420px;
+  border-right: 1px solid #e5e5e5;
+}
+
+.main .content .page-model.ckllzhgl-logistics-model .ckllzhgl-qr-panel {
+  flex: 1;
+  padding-left: 28px;
+  box-sizing: border-box;
+}
+
+.main .content .page-model.ckllzhgl-logistics-model .ckllzhgl-panel-title {
+  height: 32px;
+  line-height: 32px;
+  color: #333;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.main .content .page-model.ckllzhgl-logistics-model .model-content {
+  height: 340px;
+  padding: 20px 0 10px;
+  overflow: visible;
+}
+
+.main .content .page-model.ckllzhgl-logistics-model .model-content p {
+  display: flex;
+  align-items: center;
+  width: 390px;
+  min-height: 34px;
+  line-height: 34px;
+  margin: 20px 0;
+  overflow: visible;
+}
+
+.main .content .page-model.ckllzhgl-logistics-model .model-content p > label {
+  float: none;
+  flex: 0 0 110px;
+  width: 110px;
+  margin-right: 8px;
+  text-align: right;
+}
+
+.main .content .page-model.ckllzhgl-logistics-model .model-content p .width-l {
+  float: none;
+  flex: 0 0 260px;
+  width: 260px;
+  height: 30px;
+  line-height: 30px;
+  box-sizing: border-box;
+}
+
+.main .content .page-model.ckllzhgl-logistics-model .ckllzhgl-edit-tip {
+  width: 350px;
+  margin: 60px auto 0;
+  padding: 10px 12px;
+  border-left: 3px solid #409eff;
+  background-color: #ecf5ff;
+  color: #606266;
+  font-size: 13px;
+  line-height: 22px;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.main .content .page-model.ckllzhgl-logistics-model .model-btns {
+  height: 50px;
+  line-height: 50px;
+  clear: both;
+}
+
+.main .content .page-model.ckllzhgl-logistics-model .ckllzhgl-qr-content {
+  height: 350px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.main .content .page-model.ckllzhgl-logistics-model .ckllzhgl-qr-image {
+  display: block;
+  width: 300px;
+  height: 300px;
+  margin: 0 auto;
+}
+
+.main .content .page-model.ckllzhgl-logistics-model .ckllzhgl-qr-empty {
+  display: flex;
+  align-items: center;
+  width: 300px;
+  height: 300px;
+  margin: 0 auto;
+  padding: 0 24px;
+  border: 1px dashed #e6a23c;
+  background-color: #fdf6ec;
+  color: #e6a23c;
+  font-size: 14px;
+  line-height: 22px;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.main .content .page-model.ckllzhgl-logistics-model .ckllzhgl-qr-tip {
+  width: 330px;
+  margin: 10px auto 0;
+  color: #666;
+  font-size: 12px;
+  text-align: left;
+}
+
+.ckllzhgl .ckllzhgl-cph-select {
+  position: relative;
+  float: none;
+  flex: 0 0 260px;
+  display: block;
+  width: 260px;
+}
+
+.ckllzhgl .ckllzhgl-cph-select input {
+  padding-right: 26px;
+}
+
+.ckllzhgl .ckllzhgl-keyboard-icon {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}
+
+.ckllzhgl .ckllzhgl-keyboard-icon:before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 7px;
+  width: 15px;
+  height: 12px;
+  border: 1px solid #777;
+  border-radius: 2px;
+  box-sizing: border-box;
+}
+
+.ckllzhgl .ckllzhgl-keyboard-icon:after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 10px;
+  width: 11px;
+  height: 1px;
+  background: #777;
+  box-shadow: 0 3px 0 #777, 0 6px 0 #777;
+}
+
+.ckllzhgl .ckllzhgl-keyboard-icon:hover:before {
+  border-color: #409eff;
+}
+
+.ckllzhgl .ckllzhgl-keyboard-icon:hover:after {
+  background: #409eff;
+  box-shadow: 0 3px 0 #409eff, 0 6px 0 #409eff;
+}
+
+.ckllzhgl .ckllzhgl-plate-keyboard {
+  position: absolute;
+  left: 0;
+  top: 35px;
+  width: 300px;
+  padding: 8px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.12);
+  box-sizing: border-box;
+  z-index: 500;
+}
+
+.ckllzhgl .ckllzhgl-keyboard-section {
+  margin-bottom: 4px;
+}
+
+.ckllzhgl .ckllzhgl-keyboard-row {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  margin-bottom: 4px;
+}
+
+.ckllzhgl .ckllzhgl-keyboard-row:last-child {
+  margin-bottom: 0;
+}
+
+.ckllzhgl .ckllzhgl-keyboard-key {
+  display: table-cell;
+  height: 26px;
+  line-height: 26px;
+  text-align: center;
+  border: 1px solid #dcdfe6;
+  border-left: 0;
+  cursor: pointer;
+  user-select: none;
+  font-size: 12px;
+  background: #fff;
+}
+
+.ckllzhgl .ckllzhgl-keyboard-key:first-child {
+  border-left: 1px solid #dcdfe6;
+  border-radius: 3px 0 0 3px;
+}
+
+.ckllzhgl .ckllzhgl-keyboard-key:last-child {
+  border-radius: 0 3px 3px 0;
+}
+
+.ckllzhgl .ckllzhgl-keyboard-key:hover {
+  background-color: #ecf5ff;
+  border-color: #409eff;
+  color: #409eff;
+}
+
+.ckllzhgl .ckllzhgl-keyboard-actions .ckllzhgl-keyboard-key {
+  width: 33.33%;
+}
+
+.ckllzhgl .ckllzhgl-radio-group {
+  float: none;
+  flex: 0 0 260px;
+  display: flex;
+  align-items: center;
+  width: 260px;
+  height: 34px;
+  line-height: 34px;
+}
+
+.main .content .page-model.ckllzhgl-logistics-model .ckllzhgl-radio-item {
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  line-height: 34px;
+  margin: 0 22px 0 0;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.main .content .page-model.ckllzhgl-logistics-model .ckllzhgl-radio-item input {
+  float: none;
+  display: block;
+  width: auto;
+  height: auto;
+  margin: 0 6px 0 0;
+  cursor: pointer;
+}
+
+.main .content .page-model.ckllzhgl-logistics-model .ckllzhgl-radio-item em {
+  font-style: normal;
+}

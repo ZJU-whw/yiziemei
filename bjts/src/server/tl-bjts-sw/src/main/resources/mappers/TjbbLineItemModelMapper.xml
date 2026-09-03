@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.TjbbLineItemModelMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.TjbbLineItemModel" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="BBDM" property="bbdm" jdbcType="VARCHAR" />
+    <id column="BBLC" property="bblc" jdbcType="VARCHAR" />
+    <result column="LCMC" property="lcmc" jdbcType="VARCHAR" />
+    <result column="SHOWORDER" property="showorder" jdbcType="DECIMAL" />
+    <result column="XLSROW" property="xlsrow" jdbcType="VARCHAR" />
+    <result column="ALLOWUPDATE" property="allowupdate" jdbcType="CHAR" />
+    <result column="QYBJ" property="qybj" jdbcType="CHAR" />
+    <result column="HZTYPE" property="hztype" jdbcType="CHAR" />
+    <result column="HZOBJ" property="hzobj" jdbcType="VARCHAR" />
+    <result column="ALLOWFORMULA" property="allowformula" jdbcType="CHAR" />
+  </resultMap>
+</mapper>

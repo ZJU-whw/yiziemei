@@ -1,0 +1,69 @@
+<div class="dzzmrz">
+    <div class="pageTabs">
+        <div class="pageTitle">
+            统计任务查询
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <!-- <div class="btn" ms-click="@exform">导出</div> -->
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']">
+        <div class="select-wrapper">
+            <!-- <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+            <i class="icon" ms-click="showHyper" title="展开查询条件"></i> -->
+            <div class="select-main">
+                <!-- <div class="select-item">
+                    <label  title="海关代码">海关代码</label>
+                    <input  type="text" ms-duplex="@searchData.qyhgdm">
+                </div>
+                <div class="select-item">
+                    <label title="纳税人识别号">纳税人识别号</label>
+                    <input type="text" ms-duplex="searchData.nsrsbh">
+                </div> -->
+                <div class="select-item" style="width: 25%;">
+                    <label title="税务机关">税务机关</label>
+                    <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree">
+                    <ul id="dzzmrzZtree" class='ztree treeDiv' style="left: 90px;top:100%;"></ul>
+                </div>
+                <div class="select-item" style="width: 25%;">
+                    <label title="统计类型">统计类型</label>
+                    <select ms-duplex="@searchData.tjlx">
+                        <option value="">　</option>
+                        <option value="D01002">出口退税基本情况统计</option>
+                        <option value="D01003">分大类商品出口数据统计
+                        </option>
+                        <option value="D01004"> 出口贸易国家分布统计</option>
+                        <option value="D01005">出口企业排名情况统计</option>
+                        <option value="D01006">出口商品退税率分布情况统计</option>
+                        <option value="D01007">出口企业行业分布情况统计</option>
+                        <option value="D01008">出口海关分布情况统计</option>
+                        <option value="D01009"> 出口监管方式情况统计</option>
+                        <option value="D01010"> 外贸供货企业分析</option>
+                    </select>
+                </div>
+                <div class="select-item" style="width: 25%;">
+                    <label title="统计日期">统计日期</label>
+                    <div class="select-item-inner">
+                        <input style="width: 200px;" type="text" class="datepicker date-day" ms-duplex="@searchData.tjrq" :on-blur="@filDate">
+                        <!-- <span>止</span>
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.cjrqz"
+                            :on-blur="@filDate"> -->
+                    </div>
+                </div>
+                <div class="select-item" style="width: 25%;">
+                    <label title="统计人">统计人</label>
+                    <input type="text" ms-duplex="searchData.tjr">
+                </div>
+            </div>
+
+        </div>
+        <div class="form" style="padding-top: 50px">
+            <table id="jgcx-table"></table>
+            <div id="jgcx-tablePager"></div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==3&&'active']">
+        <div class="chartDiv"></div>
+    </div>
+</div>

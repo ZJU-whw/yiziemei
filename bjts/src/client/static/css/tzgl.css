@@ -1,0 +1,170 @@
+.tzgl .tzgl-devide {
+  float: left;
+  width: 50%;
+}
+.tzgl .file-list {
+  margin: 10px 0 0 0;
+}
+.tzgl .file-list-item {
+  position: relative;
+  line-height: 30px;
+  height: 30px;
+  padding-right: 80px;
+  box-sizing: border-box;
+}
+.tzgl .file-list-item .file-title {
+  text-decoration: underline;
+  cursor: pointer;
+}
+.tzgl .file-list-item .file-size {
+  float: right;
+}
+.tzgl .file-list-item .file-state {
+  position: absolute;
+  right: 0;
+  top: 0;
+  margin-top: 3px;
+  text-align: right;
+}
+.tzgl .file-list-item .file-state.success {
+  background: url("../image/upload-success.png") right center no-repeat;
+}
+.tzgl .file-list-item .file-state.error {
+  background: url("../image/upload-error.png") right center no-repeat;
+}
+.tzgl .form-item {
+  position: relative;
+  padding-left: 80px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+.tzgl .form-item .icon-close {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  background: url("../image/icon-close.png") center center no-repeat;
+  vertical-align: middle;
+  cursor: pointer;
+}
+.tzgl .form-item .btn-add {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-right: -80px;
+}
+.tzgl .form-title {
+  font-weight: bold;
+  float: left;
+  width: 80px;
+  margin-left: -80px;
+  text-align: right;
+}
+.tzgl .form-input {
+  width: 100%;
+  max-width: 100%;
+}
+.tzgl .fake-textarea {
+  width: 100%;
+  max-width: 100%;
+  height: 180px;
+  max-height: 180px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  font-family: "\5FAE\8F6F\96C5\9ED1", "sans-serif";
+  font-size: 13px;
+  -webkit-writing-mode: horizontal-tb !important;
+  text-rendering: auto;
+  color: initial;
+  letter-spacing: normal;
+  word-spacing: normal;
+  text-transform: none;
+  text-indent: 0px;
+  text-shadow: none;
+  display: inline-block;
+  text-align: start;
+  -webkit-appearance: textarea;
+  background-color: white;
+  -webkit-rtl-ordering: logical;
+  flex-direction: column;
+  resize: auto;
+  cursor: text;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  margin: 0em;
+  font: 400 13.3333px Arial;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #a9a9a9;
+  border-image: initial;
+  padding: 2px;
+}
+.tzgl .btn-container {
+  position: relative;
+}
+.tzgl .btn-wrapper {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: -10px;
+  width: 94px;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  background: #fff;
+}
+.tzgl .btn-wrapper .btn {
+  margin: 0 0 5px 0;
+}
+.tzgl .btn-container.active .btn-wrapper {
+  display: block;
+}
+.tzgl .page .modal1,
+.tzgl .page .modal2 {
+  width: 500px !important;
+  height: 300px !important;
+  margin-top: -150px !important;
+  margin-left: -250px !important;
+}
+.tzgl .page .modal1 .textarea,
+.tzgl .page .modal2 .textarea {
+  display: block;
+  width: 90%;
+  max-width: 90%;
+  margin: 0 auto;
+}
+.tznr .tznr-wrapper {
+  width: 800px;
+  margin: 20px auto 0;
+}
+.tznr .tznr-wrapper .tznr-title {
+  font-size: 18px;
+  text-align: center;
+}
+.tznr .tznr-wrapper .tznr-line {
+  height: 2px;
+  background: #9e9e9e;
+}
+.tznr .tznr-wrapper .tznr-info {
+  padding: 0 20px;
+  height: 30px;
+  line-height: 30px;
+}
+.tznr .tznr-wrapper .tznr-info-item {
+  float: left;
+  text-align: center;
+  height: 100%;
+  width: 33.33%;
+}
+.tznr .tznr-wrapper .tznr-extra {
+  margin-top: 10px;
+  padding-left: 40px;
+}
+.tznr .tznr-wrapper .tznr-extra-info {
+  float: left;
+  margin-left: -40px;
+}
+.tznr .tznr-wrapper .tznr-extra-item {
+  color: #003eff;
+  cursor: pointer;
+  text-decoration: underline;
+}

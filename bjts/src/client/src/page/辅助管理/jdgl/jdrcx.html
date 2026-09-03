@@ -1,0 +1,54 @@
+<div class="jdrcx" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            接单人查询
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="select-wrapper">
+            <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+            <div class="select-main">
+                <div class="select-item">
+                    <label  title="操作人员代码">操作人员代码</label>
+                    <input  type="text" ms-duplex="@searchData.czryDm">
+                </div>
+                <div class="select-item">
+                    <label title="管理分组">管理分组</label>
+                    <select ms-duplex="searchData.zsjgDm">
+                        <option value="">全部</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="分类管理等级">分类管理等级</label>
+                    <input readonly ms-duplex="searchData.flglMc" ms-click="showSelect" />
+                    <div class="select-container">
+                        <label class="select-label"><input class="select-option" value="A" type="checkbox"  ms-duplex="@searchData.flgl" ms-change="selectChange(1)"/>一类</label>
+                        <label class="select-label"><input class="select-option" value="B" type="checkbox" ms-duplex="@searchData.flgl" ms-change="selectChange(1)"/>二类</label>
+                        <label class="select-label"><input class="select-option" value="C" type="checkbox" ms-duplex="@searchData.flgl" ms-change="selectChange(1)"/>三类</label>
+                        <label class="select-label"><input class="select-option" value="D" type="checkbox" ms-duplex="@searchData.flgl" ms-change="selectChange(1)"/>四类</label>
+                    </div>
+                </div>
+            </div>
+            <div class="select-sub">
+                <div class="select-item">
+                    <label  title="退税计算方式">退税计算方式</label>
+                    <input readonly ms-duplex="searchData.jsModeMc" ms-click="showSelect" />
+                    <div class="select-container">
+                        <label class="select-label"><input class="select-option" value="1" type="checkbox"  ms-duplex="@searchData.jsMode" ms-change="selectChange(2)"/>生产</label>
+                        <label class="select-label"><input class="select-option" value="2" type="checkbox" ms-duplex="@searchData.jsMode" ms-change="selectChange(2)"/>外贸</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 54px">
+            <table id="jdrcx-table"></table>
+            <div id="jdrcx-tablePager"></div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==3&&'active']">
+        <div class="chartDiv"></div>
+    </div>
+</div>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.TjbbHeaderModelMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.TjbbHeaderModel" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="BBDM" property="bbdm" jdbcType="VARCHAR" />
+    <id column="BH" property="bh" jdbcType="VARCHAR" />
+    <id column="TYPE" property="type" jdbcType="CHAR" />
+    <result column="SHOWNAME" property="showname" jdbcType="VARCHAR" />
+    <result column="ISMERG" property="ismerg" jdbcType="CHAR" />
+    <result column="DISPWIDTH" property="dispwidth" jdbcType="VARCHAR" />
+    <result column="DISPHIGHT" property="disphight" jdbcType="VARCHAR" />
+    <result column="H" property="h" jdbcType="VARCHAR" />
+    <result column="W" property="w" jdbcType="VARCHAR" />
+    <result column="HORDER" property="horder" jdbcType="DECIMAL" />
+    <result column="VORDER" property="vorder" jdbcType="DECIMAL" />
+    <result column="QYBJ" property="qybj" jdbcType="CHAR" />
+  </resultMap>
+</mapper>

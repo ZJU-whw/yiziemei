@@ -1,0 +1,164 @@
+<div class="cklmxwh" style="padding-top: 48px;">
+    <div class="pageTabs">
+        <div class="pageTitle">出口链路模型维护</div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@searchInfo(1)">查询</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']">
+        <div class="select-wrapper">
+            <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+            <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+            <div class="select-main">
+                <div class="select-item">
+                    <label class="width-s" title="运输方式">运输方式</label>
+                    <select class="width-m" ms-duplex="@searchParams.ysfsDm">
+                        <option value="">　</option>
+                        <option value="0">非保税区</option>
+                        <option value="1">监管仓库</option>
+                        <option value="2">水路运输</option>
+                        <option value="3">铁路运输</option>
+                        <option value="4">公路运输</option>
+                        <option value="5">航空运输</option>
+                        <option value="6">邮件运输</option>
+                        <option value="7">保税区</option>
+                        <option value="8">保税仓库</option>
+                        <option value="9">其他方式运输</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="系统链路概率等级">系统链路概率等级</label>
+                    <select class="width-m" ms-duplex="@searchParams.fxdjDm">
+                        <option value="">　</option>
+                        <option ms-for="el in @fxdjList" ms-attr="{value: el.fxdjDm}">{{el.fxdjMc}}</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="调整链路概率等级">调整链路概率等级</label>
+                    <select class="width-m" ms-duplex="@searchParams.fxdjDz">
+                        <option value="">　</option>
+                        <option ms-for="el in @fxdjList" ms-attr="{value: el.fxdjDm}">{{el.fxdjMc}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="select-sub">
+                <div class="select-item">
+                    <label class="width-s" title="贸易区域">贸易区域</label>
+                    <select class="width-m" ms-duplex="@searchParams.qycodeMdg">
+                        <option value=""></option>
+                        <option ms-for="el in @gjQyOptions" ms-attr="{value: el.gjqycode}">{{el.gjqyname}}</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="供应商区域">供应商区域</label>
+                    <select class="width-m" ms-duplex="@searchParams.qycodeHyd">
+                        <option value=""></option>
+                        <option ms-for="el in @gnqyOptions" ms-attr="{value: el.qycode}">{{el.qyname}}</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="启运区域">启运区域</label>
+                    <select class="width-m" ms-duplex="@searchParams.qycodeHg">
+                        <option value=""></option>
+                        <option ms-for="el in @gnqyOptions" ms-attr="{value: el.qycode}">{{el.qyname}}</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="出口统计">出口额占比</label>
+                    <div class="select-item-inner">
+                        <select ms-duplex="@searchParams.mylajType">
+                            <option value="upper">上限</option>
+                            <option value="lower">下限</option>
+                        </select>
+                        <input type="number" ms-duplex="@searchParams.mylajVal" placeholder="值">
+                    </div>
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="企业占比">企业占比</label>
+                    <div class="select-item-inner">
+                        <select ms-duplex="@searchParams.qyzbType">
+                            <option value="upper">上限</option>
+                            <option value="lower">下限</option>
+                        </select>
+                        <input type="number" ms-duplex="@searchParams.qyzbVal" placeholder="值">
+                    </div>
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="关单统计">报关单占比</label>
+                    <div class="select-item-inner">
+                        <select ms-duplex="@searchParams.bgdfsType">
+                            <option value="upper">上限</option>
+                            <option value="lower">下限</option>
+                        </select>
+                        <input type="number" ms-duplex="@searchParams.bgdfsVal" placeholder="值">
+                    </div>
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="规模以上报关单企业占比">规模以上报关单企业占比</label>
+                    <div class="select-item-inner">
+                        <select ms-duplex="@searchParams.qyzbSxType">
+                            <option value="upper">上限</option>
+                            <option value="lower">下限</option>
+                        </select>
+                        <input type="number" ms-duplex="@searchParams.qyzbSxVal" placeholder="值">
+                    </div>
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="规模以上报关单占比">规模以上报关单占比</label>
+                    <div class="select-item-inner">
+                        <select ms-duplex="@searchParams.bgdzbSxType">
+                            <option value="upper">上限</option>
+                            <option value="lower">下限</option>
+                        </select>
+                        <input type="number" ms-duplex="@searchParams.bgdzbSxVal" placeholder="值">
+                    </div>
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="规模以上出口额占比">规模以上出口额占比</label>
+                    <div class="select-item-inner">
+                        <select ms-duplex="@searchParams.myzbSxType">
+                            <option value="upper">上限</option>
+                            <option value="lower">下限</option>
+                        </select>
+                        <input type="number" ms-duplex="@searchParams.myzbSxVal" placeholder="值">
+                    </div>
+                </div>
+                <div class="select-item" style="position: relative;">
+                    <label class="width-s" title="商品大类">商品大类</label>
+                    <div class="tree">
+                        <div class="item-content showSelect text-ellipsis"
+                             ms-click="@showSpdlTree"
+                             ms-attr="{title: @spdlMc}">{{@spdlMc&&(@spdlList.length>3 ? @spdlList.length+'项已选择' : @spdlMc) || '请选择'}}</div>
+                        <ul id="cklmxwhSpdlTree" class="treeSelect ztree treeDiv" style="height: 250px;"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 54px;">
+            <table id="cklmxwh-grid"></table>
+            <div id="cklmxwh-pager"></div>
+        </div>
+    </div>
+
+<!-- 调整链路概率等级弹窗 -->
+<div class="page-model cklmxwh-edit-model" style="display: none;">
+    <div class="model-title">调整链路概率等级</div>
+    <div class="model-content">
+        <p>
+            <label><span class="text-red">*</span>调整链路概率等级：</label>
+            <select class="width-l" ms-duplex="@editDialog.fxdjTz">
+                <option value="">请选择</option>
+                <option ms-for="el in @fxdjList" ms-attr="{value: el.fxdjDm}">{{el.fxdjMc}}</option>
+            </select>
+        </p>
+        <p>
+            <label>调整原因：</label>
+            <textarea rows="6" class="width-l" ms-duplex="@editDialog.fxdjTzYY" placeholder="请输入调整原因" maxlength="100"></textarea>
+        </p>
+    </div>
+    <div class="model-btns">
+        <div class="btn" ms-click="@saveFxdjTz">保存</div>
+        <div class="btn" ms-click="@closeEditDialog">取消</div>
+    </div>
+</div>
+</div>

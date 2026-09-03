@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.DqModelMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.DqModel" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="DQ_CODE" property="dqCode" jdbcType="VARCHAR" />
+    <result column="DQ_NAME" property="dqName" jdbcType="VARCHAR" />
+    <result column="DQ_ENAME" property="dqEname" jdbcType="VARCHAR" />
+    <result column="DQ_TYPE" property="dqType" jdbcType="VARCHAR" />
+  </resultMap>
+</mapper>

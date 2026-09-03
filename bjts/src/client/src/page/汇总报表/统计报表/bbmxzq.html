@@ -1,0 +1,30 @@
+<div class="bbmxzq">
+  <div class="pageTabs">
+    <div class="pageTitle" ms-for="(index,item) in @params.pageTitle">
+        <span>{{item}}</span>
+        <span ms-if="index!=(@params.pageTitle.length-1)">-</span>
+    </div>
+  </div>
+  <div class="pageTabs" style="top:33px;height: 80px;">
+    <div class="lf" style="width: calc(100% - 70px);">
+      <div class="tabItem text-ellipsis" ms-attr="{title: @params.bbxx.bblcName}">
+        <!-- <span style="margin: 0 5px">{{"【报表代码】"+@params.bbdm}}</span>
+        <span style="margin: 0 5px">{{"【报表名称】"+@params.bbmc}}</span> -->
+        {{"【行名】"+@params.bbxx.bblcName}}
+      </div>
+      <div class="tabItem text-ellipsis" ms-attr="{title: @params.bbxx.columnTitle}">
+        {{"【列名】"+@params.bbxx.columnTitle}}
+      </div>
+      <div class="tabItem text-ellipsis" ms-attr="{title: @params.bbxx.remark}">
+        {{"【描述信息】"+@params.bbxx.remark}}
+      </div>
+    </div>
+    <div class="btns" ms-if="@params.type == 1">
+      <div class="btn" ms-click="@exform">导出</div>
+    </div>
+  </div>
+  <div class="form" style="padding-top: 113px">
+    <table id="bbmxzq-table"></table>
+    <div id="bbmxzq-tablePager"></div>
+  </div>
+</div>

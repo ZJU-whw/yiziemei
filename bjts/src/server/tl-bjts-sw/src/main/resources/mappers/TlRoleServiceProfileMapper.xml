@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.TlRoleServiceProfileMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.TlRoleServiceProfile" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" property="id" jdbcType="DECIMAL" />
+    <result column="ROLE_DM" property="roleDm" jdbcType="VARCHAR" />
+    <result column="SERVICE_DM" property="serviceDm" jdbcType="VARCHAR" />
+    <result column="CRTIME" property="crtime" jdbcType="DATE" />
+    <result column="CRNAME" property="crname" jdbcType="VARCHAR" />
+    <result column="UPTIME" property="uptime" jdbcType="DATE" />
+    <result column="UPNAME" property="upname" jdbcType="VARCHAR" />
+  </resultMap>
+</mapper>

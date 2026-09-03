@@ -1,0 +1,55 @@
+<div class="tsrysz shfz">
+    <div class="tabs-wrapper">
+        <div class="tabs-list">
+            <div :class="['tabs-item',activeIndex == 0 && 'active']"  ms-click="@handleClick(0)">岗位和人员设置</div>
+            <div :class="['tabs-item',activeIndex == 1 && 'active']"   ms-click="@handleClick(1)">岗位和人员一览表</div>
+        </div>
+        <div class="tabs-underline"></div>
+    </div>
+    <div :class="['page',activeIndex == 0 && 'active']">
+        <div class="shfz-header">
+            <span>税务机关：</span>
+            <span>{{formData.swjgmc}}</span>
+            <span class="shfz-header-gwmc">岗位名称：</span>
+            <select ms-duplex="gwdm" ms-change="handleChange">
+                <option value="SH01">受理岗</option>
+                <option value="SH02">审核岗</option>
+                <option value="SH03">复核岗</option>
+                <option value="SH04">核准岗</option>
+                <option value="SH05">发放岗</option>
+            </select>
+        </div>
+        <div class="shfz-content">
+            <div class="shfz-left-panel">
+                <div class="shfz-panel-header">全部人员列表</div>
+                <div class="shfz-list-wrapper">
+                    <label class="shfz-list-item" ms-for="(index,item) in formData.optional"><input ms-attr="{value:item.user_id}" ms-duplex="@leftArr" type="checkbox"/>{{item.czry_mc}}</label>
+                </div>
+            </div>
+            <div class="shfz-center-btns">
+                <div class="shfz-center-btn-inner">
+                    <span class="shfz-center-btn__item toright" ms-click="addItem"></span>
+                    <span class="shfz-center-btn__item toleft" ms-click="delItem"></span>
+                </div>
+            </div>
+            <div class="shfz-right-panel">
+                <div class="shfz-panel-header">可推送人员列表</div>
+                <div class="shfz-list-wrapper">
+                    <label class="shfz-list-item" ms-for="(index,item) in formData.choose"><input ms-attr="{value:item.user_id}" ms-duplex="@rightArr" type="checkbox"/>{{item.czry_mc}}</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div :class="['page',activeIndex == 1 && 'active']">
+        <div class="form" style="padding-top: 0">
+            <table class="table" style="width: 600px">
+                <tr><td class="title">岗位名称</td><td class="title">人员代码</td><td class="title">人员名称</td></tr>
+                <tr ms-for="(index,item) in formData.all">
+                    <td>{{item.shgwmc}}</td>
+                    <td>{{item.user_id}}</td>
+                    <td>{{item.czry_mc}}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

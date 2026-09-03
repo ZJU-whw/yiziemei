@@ -1,0 +1,100 @@
+<div class="updateJkm page-model updateJkm-page-model">
+  <div class="model-title">健康码评定（核查）</div>
+  <div class="model-content g-form" style="height: 400px;padding: 10px 20px!important;">
+    <div class="g-form-item clear" ms-if="@isEdit">
+      <div class="btn rt" ms-click="@refreshJkm">刷新健康码</div>
+    </div>
+    <div class="clear">
+      <div class="g-form-item lf w-30per mt-10">
+        <div class="g-form-item_label">纳税人识别号：</div>
+        <div class="g-form-item__content nsrsbh-group">
+          <input disabled class="g-input" type="text" ms-duplex="@modelData.nsrsbh">
+        </div>
+      </div>
+      <div class="g-form-item lf w-30per">
+        <div class="g-form-item_label">企业名称：</div>
+        <div class="g-form-item__content nsrsbh-group">
+          <input disabled class="g-input" type="text" ms-duplex="@modelData.nsrmc">
+        </div>
+      </div>
+      <div class="g-form-item lf w-20per">
+        <div class="g-form-item_label">原健康码：</div>
+        <div class="g-form-item__content">
+          <select disabled class="g-select" ms-duplex="@modelData.jkmY">
+            <option value=""></option>
+            <option value="1">绿码</option>
+            <option value="2">黄码</option>
+            <option value="3">红码</option>
+          </select>
+        </div>
+      </div>
+      <div class="g-form-item lf w-20per">
+        <div class="g-form-item_label">新健康码：</div>
+        <div class="g-form-item__content">
+          <select disabled class="g-select" ms-duplex="@modelData.jkmN">
+            <option value=""></option>
+            <option value="1">绿码</option>
+            <option value="2">黄码</option>
+            <option value="3">红码</option>
+          </select>
+        </div>
+      </div>
+      <div class="g-form-item lf w-30per">
+        <div class="g-form-item_label">指标赋分：</div>
+        <div class="g-form-item__content">
+          <select class="g-select" ms-duplex="@searchData.zbFf">
+            <option value="">　</option>
+            <option value="1">有赋分</option>
+            <option value="0">无赋分</option>
+          </select>
+        </div>
+      </div>
+      <div class="g-form-item lf w-30per">
+        <div class="g-form-item_label">指标评定：</div>
+        <div class="g-form-item__content">
+          <select class="g-select" ms-duplex="@searchData.zbpd">
+            <option value="">　</option>
+            <option value="0">未评定</option>
+            <option value="9">已评定</option>
+            <option value="1">已评正常</option>
+            <option value="2">已评异常</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn" ms-click="@search(1)" style="margin-top: 14px;">查询</div>
+    </div>
+    <div class="table mt-10">
+      <table ms-attr="{id: @componentsName+'-updateJkm-table'}"></table>
+    </div>
+  </div>
+  <div class="model-btns">
+    <div class="btn" ms-click="@confirm">确定</div>
+    <div class="btn" ms-click="@hideModel">取消</div>
+  </div>
+  <!-- 核查 -->
+  <div class="page-model updateJkm-hc-page-model" style="height:270px;width: 500px;margin-left: -250px;box-shadow: 0 1px 3px rgb(0 0 0 / 30%);border: 1px solid #ccc" >
+    <div class="model-title">核查</div>
+    <div class="model-content g-form" style="height: 170px;">
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>评定结果：</div>
+        <div class="g-form-item__content">
+          <select class="g-select" ms-duplex="@hcData.hcjg">
+            <option value=""></option>
+            <option value="1">经核实正常</option>
+            <option value="2">经核实异常</option>
+          </select>
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">情况描述：</div>
+        <div class="g-form-item__content" style="height: 90px;">
+          <textarea class="g-textarea" ms-duplex="@hcData.hcyj" style="resize: none;height:100%;"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="model-btns">
+        <div ms-if="@isEdit" class="btn" ms-click="saveHc">确定</div>
+        <div class="btn" ms-click="hideModelHc">取消</div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,89 @@
+<div class="baml clear">
+  <div class="pageTabs">
+    <div class="pageTitle">
+      单证核查-出口业务
+    </div>
+    <div class="btns">
+      <div class="btn" ms-click="@exform">导出</div>
+    </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <form name="hcgl-form">
+          <div class="select-wrapper" style="padding-bottom: 10px;">
+            <div class="select-main">
+              <div class="select-item" style="width: 16%;">
+                  <label title="核查序号">核查序号</label>
+                  <input readonly type="text" ms-duplex="@info.inspectNo">
+              </div>
+              <div class="select-item" style="width: 20%;">
+                  <label title="纳税人识别号" style="width: 38%;">纳税人识别号</label>
+                  <input readonly type="text" ms-duplex="@info.nsrsbh">
+              </div>
+              <div class="select-item" style="width: 20%;">
+                  <label title="企业名称" style="width: 30%;">企业名称</label>
+                  <input readonly type="text" ms-duplex="@info.nsrsbh">
+              </div>
+              <div class="select-item" style="width: 10%;">
+                  <label title="联系人">联系人</label>
+                  <input readonly type="text" ms-duplex="@info.contacts">
+              </div>
+              <div class="select-item" style="width: 14%;">
+                  <label title="联系电话">联系电话</label>
+                  <input readonly type="text" ms-duplex="@info.tel">
+              </div>
+              <div class="select-item" style="width: 16%;">
+                  <label title="联系地址">联系地址</label>
+                  <input readonly type="text" ms-duplex="@info.address">
+              </div>
+              <div class="select-item" style="width: 66%;">
+                  <label title="核查单证类型" style="width: 10%;">核查单证类型</label>
+                  <input readonly type="text" ms-duplex="@info.inspectRange" style="width: 80%; max-width: 80%;">
+              </div>
+            </div>
+          </div>
+      </form>
+  </div>
+  <div class="form list" style="padding-top: 112px;">
+    <table id="baml-table"></table>
+    <div id="baml-tablePager"></div>
+  </div>
+  <div class="page-model page-model-check" style="height: 320px;width: 460px;">
+    <div class="model-title">单证审核意见</div>
+    <div class="model-content" style="height: 230px;">
+      <p>
+        <label>
+          <span class="text-red">*</span>审核结果:
+        </label>
+        <input type="radio" style="float: none" ms-on-change="changeRadio" value="1" name="inspectResult" ms-duplex="modelData.inspectResult">通过 
+        <input type="radio" style="float: none" ms-on-change="changeRadio" value="2" name="inspectResult" ms-duplex="modelData.inspectResult">不通过
+      </p>
+      <p>
+        <label>
+          <span class="text-red" ms-if="@modelData.inspectResult==2">*</span>
+          处理类型
+        </label>
+        <select class="width-l" ms-duplex="modelData.processType" ms-attr="{disabled:  @modelData.inspectResult=='1'? 'disabled': ''}" style="height: 28px;">
+          <option value=""></option>
+          <option value="01">企业自查</option>
+          <option value="02">转评估岗</option>
+          <option value="03">转稽查</option>
+        </select>
+      </p>
+      <p>
+        <label>
+          <span ms-if="modelData.inspectResult=='2'" class="text-red">*</span>审核意见
+        </label>
+        <textarea class="width-l" ms-duplex="modelData.resultState" style="height: 100px; resize: none"></textarea>
+      </p>
+    </div>
+    <div class="model-btns">
+      <div class="btn" ms-click="saveModel">保存</div>
+      <div class="btn" ms-click="hideModel">取消</div>
+    </div>
+  </div>
+  <div class="page-model page-model-pdf" >
+    <div id="baml-pdf"></div>
+    <div class="close" ms-on-click="hideModelPdf()">&times;</div>
+    <div id="results"></div>
+  </div>
+</div>

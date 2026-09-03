@@ -1,0 +1,53 @@
+<div class="ywyqr tableLine" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+          业务员确认
+      </div>
+      <div class="btns">
+          <div class="btn" ms-click="@search(1)">查询</div>
+          <div class="btn" ms-click="@plqr">批量确认</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <div class="select-wrapper">
+        <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+        <div class="select-main">
+            <div class="select-item">
+                <label  title="纳税人识别号">纳税人识别号</label>
+                <input  type="text" ms-duplex="@searchData.nsrsbh">
+            </div>
+            <div class="select-item">
+                <label title="纳税人名称">纳税人名称</label>
+                <input type="text" ms-duplex="searchData.nsrmc">
+            </div>
+            <div class="select-item">
+                <label title="海关代码">海关代码</label>
+                <input type="text" ms-duplex="searchData.qyhgdm">
+            </div>
+        </div>
+      </div>
+      <div class="form" style="padding-top: 54px">
+          <table id="ywyqr-table"></table>
+          <div id="ywyqr-tablePager"></div>
+      </div>
+  </div>
+  <div class="page-model" style="height: 250px;width: 500px;margin-left: -250px;">
+    <div class="model-title">确认</div>
+    <div class="model-content" style="height: 160px;">
+        <p>
+          <label><span class="text-red">*</span>审核结果:</label>
+          <input type="radio" style="float: none;margin-top: 0;vertical-align: middle;" value="1" name="ywyqr-result" ms-duplex="modelData.flag">确认
+          <input type="radio" style="float: none;margin-top: 0;vertical-align: middle;" value="0" name="ywyqr-result" ms-duplex="modelData.flag">退回
+        </p>
+        <p class="thyy">
+          <label><span ms-if="modelData.flag == '0'" class="text-red">*</span>退回原因:</label>
+          <textarea rows="3" ms-attr="{'disabled':modelData.flag=='1'?true:false}" class="width-l" ms-duplex="modelData.thyy"></textarea>
+          <p ms-if="isShowErrorMsg" class="text-red error-tips">退回原因不能为空</p>
+        </p>
+    </div>
+    <div class="model-btns">
+      <div class="btn" ms-click="confirmModel">确定</div>
+      <div class="btn" ms-click="hideModel">取消</div>
+    </div>
+  </div>
+</div>

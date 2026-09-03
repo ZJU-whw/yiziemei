@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.NsrSampleModelMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.NsrSampleModel" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ZID" property="zid" jdbcType="DECIMAL" />
+    <result column="SNAME" property="sname" jdbcType="VARCHAR" />
+    <result column="SWJGDM" property="swjgdm" jdbcType="VARCHAR" />
+    <result column="SYFW_SWJG" property="syfwSwjg" jdbcType="VARCHAR" />
+    <result column="QYBZ" property="qybz" jdbcType="VARCHAR" />
+    <result column="XGR" property="xgr" jdbcType="VARCHAR" />
+    <result column="XGSJ" property="xgsj" jdbcType="DATE" />
+  </resultMap>
+</mapper>

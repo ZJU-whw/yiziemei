@@ -1,0 +1,196 @@
+<div class="sdhcqkcx zbpzWarp tableLine">
+    <div class="pageTabs">
+      <div class="pageTitle">
+        审单核查情况查询
+      </div>
+      <div class="btns">
+        <div class="btn" ms-click="@search(1)">查询</div>
+        <div class="btn" ms-click="@exform">导出</div>
+      </div>
+    </div>
+    <div ms-class="['page','active']">
+      <div class="select-wrapper">
+        <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+        <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+        <div class="select-main">
+          <!-- <div class="select-item">
+            <label title="内控指标编号">内控指标编号</label>
+            <input type="text" ms-duplex="@searchData.nkzbbh">
+          </div> -->
+          <div class="select-item" style="width: 25%;">
+            <label title="税务机关">税务机关</label>
+            <input readonly type="text" ms-duplex="tsjgmc" ms-click="@showTree">
+            <ul id="sdhcqkcx" class='ztree treeDiv' style="left: 90px;"></ul>
+        </div>
+        <div class="select-item" style="width: 25%;">
+            <label title="核查日期">核查日期</label>
+            <div class="select-item-inner">
+              <input type="text" class="datepicker date-day" ms-duplex="@searchData.hcrqQ" ms-click="@showDatetimepicker($event)" readonly>
+              <span>至</span>
+              <input type="text" class="datepicker date-day" ms-duplex="@searchData.hcrqZ" ms-click="@showDatetimepicker($event)" readonly>
+            </div>
+          </div>
+          <div class="select-item" style="width: 25%;">
+            <label title="核查状态">核查状态</label>
+            <select class="g-select" ms-duplex="@searchData.hczt">
+              <option value=""></option>
+              <option value="0">未下达</option>
+              <option value="1">已下达</option>
+              <option value="2">已收讫</option>
+              <option value="3">已上报</option>
+              <option value="4">已审核</option>
+            </select>
+          </div>
+           <div class="select-item" style="width: 25%;">
+            <label title="下达日期">下达日期</label>
+            <div class="select-item-inner">
+              <input type="text" class="datepicker date-day-release" ms-duplex="@searchData.releaseStart" ms-click="@showDatetimepicker($event)" readonly>
+              <span>至</span>
+              <input type="text" class="datepicker date-day-release" ms-duplex="@searchData.releaseEnd" ms-click="@showDatetimepicker($event)" readonly>
+            </div>
+          </div>
+        </div>
+        <div class="select-sub">
+            <div class="select-item" style="width: 25%;">
+                <label title="核查结果">核查结果</label>
+                <select class="g-select" ms-duplex="@searchData.jcjg">
+                  <option value=""></option>
+                  <option value="0">暂未发现问题</option>
+                  <option value="1">核查有问题</option>
+                </select>
+              </div>
+              <div class="select-item releaser-group" style="width: 25%;">
+                <label title="下达人">下达人</label>
+                <input name="releaser" type="text" class="bt-form-control" ms-duplex="@searchData.xdr">
+              </div>
+              <div class="select-item nsrsbh-group" style="width: 25%;">
+                <label>
+                  <select class="bt-form-control select-nsrsbh" ms-duplex="qySearchType"
+                    data-duplex-changed="qySearchTypeChg">
+                    <option value="nsrsbh">纳税人识别号</option>
+                    <option value="qymc">企业名称</option>
+                    <option value="hgdm">海关代码</option>
+                  </select>
+                </label>
+                <input ms-if="qySearchType!='nsrsbh'" name="nsrsbh" type="text" class="bt-form-control"
+                  ms-duplex="@qySearchVal">
+                <input ms-if="qySearchType=='nsrsbh'" name="nsrsbh" type="text" ms-duplex="@qySearchVal"
+                  class="bt-form-control" data-duplex-changed="inpChangeNsrsbh('searchData')" ms-focus="@showNsrsbh"
+                  ms-keyup="@nsrsbhEnterSearch | enter" ms-keydown="@keydown($event, 'rwcxNrsbhList')"
+                  placeholder="请输入至少4位税号,支持模糊查询" autocomplete="off">
+                <div ms-visible="@showNsrsbhList" class="nrsbhList" id="rwcxNrsbhList" style="left: 40%;">
+                  <p ms-for="(index,item) in @nsrsbhList" ms-click="@setNsrsbh(item, 'searchData')" ms-attr="{index: index}"
+                    ms-mouseover="activeBgIndex = index" ms-class="{activeBg: activeBgIndex == index}"
+                    ms-css="{width: item.nsrmc.length * 12 + 150 +'px'}">
+                    {{item.nsrxx}}
+                  </p>
+                </div>
+              </div>
+          <div class="select-item" style="width: 25%;">
+            <label title="申报年月批次">申报年月批次</label>
+            <input type="text" class="bt-form-control" ms-duplex="@searchData.sbnypc">
+          </div>
+        </div>
+      </div>
+      <div class="form" style="padding-top: 54px;">
+        <table id="sdhcqkcx-table"></table>
+        <div id="sdhcqkcx-tablePager"></div>
+      </div>
+    </div>
+    <!-- 查看 -->
+    <div class="page-model add-page-model"
+      style="height:522px;width: 960px;margin-left: -480px;top: 50px; margin-top: 0;">
+      <div class="model-title">{{addTitle}}</div>
+      <div class="model-content g-form" style="height: 430px;padding: 10px 0;">
+        <div class="clear mt-10">
+          <div class="g-form-item lf">
+            <div class="g-form-item_label"><span class="text-red"></span>内控指标名称：</div>
+            <div class="g-form-item__content">
+              <input type="text" ms-duplex="modelData.nkzbmc" ms-attr="{disabled: true}">
+            </div>
+          </div>
+          <div class="g-form-item lf mt-0">
+            <div class="g-form-item_label"><span class="text-red"></span>内控风险等级：</div>
+            <div class="g-form-item__content">
+              <select class="g-select" ms-duplex="@modelData.nkfxdj" style="width: 100%;" ms-attr="{disabled: true}">
+                <option value=""></option>
+                <option value="高">高</option>
+                <option value="中">中</option>
+                <option value="低">低</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="clear mt-10">
+          <div class="g-form-item lf mt-0">
+            <div class="g-form-item_label"><span class="text-red"></span>内控指标类别：</div>
+            <div class="g-form-item__content">
+              <select class="g-select" ms-duplex="@modelData.nkzblb" ms-attr="{disabled: true}" style="width: 100%;">
+                <option value=""></option>
+                <option value="综合管理类">综合管理类</option>
+                <option value="申报管理类">申报管理类</option>
+                <option value="函调管理类">函调管理类</option>
+                <option value="风险管理类">风险管理类</option>
+              </select>
+            </div>
+          </div>
+          <div class="g-form-item lf mt-0">
+            <div class="g-form-item_label"><span class="text-red"></span>事前提醒类型：</div>
+            <div class="g-form-item__content">
+              <input type="text" ms-duplex="modelData.sqtxlx" ms-attr="{disabled: true}">
+            </div>
+          </div>
+        </div>
+        <div class="clear mt-10">
+          <div class="g-form-item lf">
+            <div class="g-form-item_label"><span class="text-red"></span>事中预警类型：</div>
+            <div class="g-form-item__content">
+              <input type="text" ms-duplex="modelData.szyjlx" ms-attr="{disabled: true}">
+            </div>
+          </div>
+          <div class="g-form-item lf mt-0">
+            <div class="g-form-item_label"><span class="text-red"></span>事后监督类型：</div>
+            <div class="g-form-item__content">
+              <input type="text" ms-duplex="modelData.shjdlx" ms-attr="{disabled: true}">
+            </div>
+          </div>
+        </div>
+        <div class="g-form-item mt-10">
+          <div class="g-form-item_label"><span class="text-red"></span>内控业务描述：</div>
+          <div class="g-form-item__content" style="width: 740px;height: 60px;">
+            <textarea class="g-textarea" ms-duplex="modelData.nkywms" ms-attr="{disabled: true}"></textarea>
+          </div>
+        </div>
+        <div class="g-form-item mt-10">
+          <div class="g-form-item_label"><span class="text-red"></span>内控数据来源：</div>
+          <div class="g-form-item__content" style="width: 740px;height: 60px;">
+            <textarea class="g-textarea" ms-duplex="modelData.nksjly" ms-attr="{disabled: true}"></textarea>
+          </div>
+        </div>
+        <div class="g-form-item mt-10">
+          <div class="g-form-item_label"><span class="text-red"></span>内控口径描述：</div>
+          <div class="g-form-item__content" style="width: 740px;height: 60px;">
+            <textarea class="g-textarea" ms-duplex="modelData.nkkjms" ms-attr="{disabled: true}"></textarea>
+          </div>
+        </div>
+        <div class="clear mt-10">
+          <div class="g-form-item lf">
+            <div class="g-form-item_label"><span class="text-red"></span>开始提醒工作日：</div>
+            <div class="g-form-item__content">
+              <input type="text" ms-duplex="modelData.kstxgzr" ms-attr="{disabled: true}">
+            </div>
+          </div>
+          <div class="g-form-item lf mt-0">
+            <div class="g-form-item_label"><span class="text-red"></span>开始监督工作日：</div>
+            <div class="g-form-item__content">
+              <input type="text" ms-duplex="modelData.ksjdgzr" ms-attr="{disabled: true}">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="model-btns">
+        <div class="btn" ms-click="hideModel">退出</div>
+        <!-- <div class="btn" ms-click="hideModel">取消</div> -->
+      </div>
+    </div>
+  </div>

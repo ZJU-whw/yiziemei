@@ -1,0 +1,60 @@
+<div class="dzhc-new wktDzbaQycx">
+  <div class="pageTabs">
+    <div class="pageTitle">
+      未开通数字化单证备案企业查询
+    </div>
+    <div class="btns">
+      <div class="btn" ms-click="@search(1)">查询</div>
+      <div class="btn" ms-click="@exform">导出</div>
+    </div>
+  </div>
+  <div ms-class="['page','active']">
+    <form name="wktDzbaQycx-form">
+      <div class="select-wrapper">
+        <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+        <div class="select-main">
+          <div class="select-item">
+            <label title="税务机关">税务机关</label>
+            <input readonly type="text" class="bt-form-control" ms-duplex="swjgmc" ms-click="@showTree">
+            <ul id="wktDzbaQycxTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+          </div>
+          <div class="select-item nsrsbh-group">
+            <label title="社会信用码、海关代码或企业名称">企业标识</label>
+            <input type="text" class="bt-form-control" ms-duplex="@searchData.qybs" placeholder="支持模糊查询">
+          </div>
+          <div class="select-item">
+            <label title="退税计算方式">退税计算方式</label>
+            <input type="text" class="bt-form-control" ms-duplex="@tsjsfsName" ms-click="showSelectTsjsfs" readonly>
+            <div class="select-container">
+                <label ms-for="el in @tsjsfsList" ms-change="@selectChangeTsjsfs()" class="select-label"><input class="select-option" type="checkbox" ms-duplex="@searchData.tsjsfs" ms-attr="{value: el.value}" >{{el.name}}</label>
+            </div>
+          </div>
+        </div>
+        <div class="select-main">
+          <div class="select-item">
+            <label title="管理类别">管理类别</label>
+            <input type="text" class="bt-form-control" ms-duplex="@gllbName" ms-click="showSelectTsjsfs" readonly>
+            <div class="select-container">
+                <label ms-for="el in @gllbList" ms-change="@selectChangeGllb()" class="select-label"><input class="select-option" type="checkbox" ms-duplex="@searchData.gllb" ms-attr="{value: el.value}" >{{el.name}}</label>
+            </div>
+            <!-- <select class="width-m bt-form-control" ms-duplex="searchData.gllb">
+              <option value=""></option>
+              <option ms-for="el in @gllbList" ms-attr="{value: el.value}">{{el.name}}</option>
+            </select> -->
+          </div>
+          <div class="select-item">
+            <label title="接单分组">接单分组</label>
+            <select class="width-m bt-form-control" ms-duplex="searchData.group">
+              <option value=""></option>
+              <option ms-for="el in @groupList" ms-attr="{value: el.groupCode}">{{el.groupName}}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="form" style="padding-top: 54px">
+      <table id="wktDzbaQycx-table"></table>
+      <div id="wktDzbaQycx-tablePager"></div>
+    </div>
+  </div>
+</div>

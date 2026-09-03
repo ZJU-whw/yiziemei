@@ -1,0 +1,231 @@
+<div class="dzhc-new dzhc-zbrw" ms-click="hideNsrsbh">
+  <div class="pageTabs">
+    <div class="pageTitle">
+      审单核查在办
+    </div>
+    <div class="btns">
+      <div class="btn" ms-click="@search(1)">查询</div>
+      <div class="btn" ms-click="@createTask">新增任务</div>
+    </div>
+  </div>
+
+  <div class="page active">
+    <form name="dzhc-zbrw-form">
+      <div class="select-wrapper">
+        <span class="reset" title="重置查询条件" ms-click="@resetSearchData">重置：</span>
+        <div class="select-main">
+          <div class="select-item">
+            <label title="税务机关">税务机关</label>
+            <input readonly type="text" class="bt-form-control" ms-duplex="swjgmc" ms-click="@showTree">
+            <ul id="zbrwTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+          </div>
+          <div class="select-item nsrsbh-group">
+            <label>
+              <select class="bt-form-control select-nsrsbh" ms-duplex="qySearchType"
+                data-duplex-changed="qySearchTypeChg">
+                <option value="nsrsbh">纳税人识别号</option>
+                <option value="qymc">企业名称</option>
+                <option value="hgdm">海关代码</option>
+              </select>
+            </label>
+            <input ms-if="qySearchType!='nsrsbh'" name="nsrsbh" type="text" class="bt-form-control"
+              ms-duplex="@qySearchVal">
+            <input ms-if="qySearchType=='nsrsbh'" name="nsrsbh" type="text" ms-duplex="@qySearchVal"
+              class="bt-form-control" data-duplex-changed="inpChangeNsrsbh('searchData')" ms-focus="@showNsrsbh"
+              ms-keyup="@nsrsbhEnterSearch | enter" ms-keydown="@keydown($event, 'zbrwNrsbhList')"
+              placeholder="请输入至少4位税号,支持模糊查询" autocomplete="off">
+            <div ms-visible="@showNsrsbhList" class="nrsbhList" id="zbrwNrsbhList" style="left: 40%;">
+              <p ms-for="(index,item) in @nsrsbhList" ms-click="@setNsrsbh(item, 'searchData')" ms-attr="{index: index}"
+                ms-mouseover="activeBgIndex = index" ms-class="{activeBg: activeBgIndex == index}"
+                ms-css="{width: item.nsrmc.length * 12 + 150 +'px'}">
+                {{item.nsrxx}}
+              </p>
+            </div>
+          </div>
+          <div class="select-item">
+            <label title="是否逾期">是否逾期</label>
+            <select class="bt-form-control width-m" ms-duplex="searchData.sfyq">
+              <option value=""></option>
+              <option value="Y">是</option>
+              <option value="N">否</option>
+            </select>
+          </div>
+          <div class="select-item">
+            <label title="下达人">下达人</label>
+            <input type="text" class="bt-form-control" disabled ms-duplex="searchData.releaser">
+          </div>
+        </div>
+        <div class="select-main">
+          <div class="select-item">
+            <label title="申报年月">申报年月</label>
+            <input type="text" readonly class="bt-form-control datepicker date-month" name="date_field" ms-click="@showDatetimepicker($event)" ms-duplex="@searchData.sssq">
+          </div>
+          <div class="select-item">
+            <label title="申报批次">申报批次</label>
+            <input type="text" name="sbpc" class="bt-form-control" ms-duplex="@searchData.sbpc" ms-on-keyup="sbpcChange"
+              ms-on-blur="sbpcFormat('searchData')">
+          </div>
+          <div class="select-item">
+            <label title="下达日期">下达日期</label>
+            <div class="select-item-inner">
+              <input type="text" readonly class="bt-form-control datepicker date-day" ms-click="@showDatetimepicker($event)" ms-duplex="@searchData.releaseStart">
+              <span>止</span>
+              <input type="text" readonly class="bt-form-control datepicker date-day" ms-click="@showDatetimepicker($event)" ms-duplex="@searchData.releaseEnd">
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="form" style="padding-top: 54px">
+      <table id="dzhc-zbrw-table"></table>
+      <div id="dzhc-zbrw-tablePager"></div>
+    </div>
+  </div>
+
+
+  <!-- 新增任务 -->
+  <div class="page-model page-model-add" ms-css="{
+    width: @modelAddStyle[@addIndex].width,
+    'margin-left': @modelAddStyle[@addIndex].marginLeft,
+    height: @modelAddStyle[@addIndex].height,
+    'margin-top': @modelAddStyle[@addIndex].marginTop,
+  }">
+    <div class="model-title">
+      <span>新增任务-{{@addIndex ==0 ? '选择出口业务': '选择核查单证类型'}}</span>
+      <span class="model-close" ms-mousedown="$event.preventDefault()" ms-click="hideModelTask">&times;</span>
+    </div>
+    <div class="model-content" ms-css="{height: @modelAddStyle[@addIndex].contentHeight}" style="padding: 20px 0 5px;">
+      <div ms-visible="addIndex == 0">
+        <div class="search-nsrsbh clear">
+          <input id="zbrwNrsbhCkywInp" type="text" ms-duplex="@nsrxxQybz" class="bt-form-control"
+            data-duplex-changed="inpChangeNsrsbh('nsrxx')" ms-focus="@showNsrsbhCkyw" placeholder="请输入至少4位社会信用码、海关代码或企业名称，支持模糊查询"
+            autocomplete="off" ms-keyup="@getNsrxx() | enter" ms-keydown="@keydown($event,'zbrwNrsbhCkywList')">
+          <div ms-visible="@showNsrsbhCkywList" class="nrsbhList" ms-mousedown="$event.preventDefault()"
+            id="zbrwNrsbhCkywList" style="left: 10px;min-width: 30%; margin-top: 33px;">
+            <p style="margin:0; width: 456px;" ms-for="(index,item) in @nsrsbhCkywList" ms-click="@setNsrsbh(item, 'nsrxx')"
+              ms-mousedown="$event.preventDefault()" ms-mouseover="@activeBgCkywIndex = index"
+              ms-class="{activeBg: @activeBgCkywIndex == index}" ms-attr="{index: index}"
+              >
+              {{item.nsrxx}}
+            </p>
+          </div>
+          <label >
+            <input type="checkbox" ms-duplex-checked=="tsjsfsChecked" class="tsjsfs-checkbox" data-duplex-changed="getSbpcs(true)">
+            退税计算方式变更前退税申报批次<i class='icon-question-th' title='如果企业发生过退税计算方式变更，并需要对发生变更前的退税申报批次下发核查任务时请勾选该按钮'>?</i></label>
+        </div>
+        <div>
+          <div class="select-wrapper">
+            <div class="select-main">
+              <div class="select-item nsrsbh-group" style="width: 24%;">
+                <label title="社会信用码">
+                  社会信用码
+                </label>
+                <input type="text" class="bt-form-control" style="padding: 1px 10px;" ms-duplex="@nsrxx.nsrsbh" disabled>
+              </div>
+              <div class="select-item w-27per">
+                <label title="纳税人名称">纳税人名称</label>
+                <input type="text" class="bt-form-control" ms-duplex="@nsrxx.nsrmc" disabled>
+              </div>
+              <div class="select-item w-20per">
+                <label title="海关代码">海关代码</label>
+                <input type="text" class="bt-form-control" ms-duplex="@nsrxx.qyhgdm" disabled>
+              </div>
+              <div class="select-item merge clear" style="width: 29%;">
+                <label title="退税方式" style="width: 80px;">退税方式</label>
+                <input type="text" class="bt-form-control" ms-duplex="@nsrxx.tsjsfsName" disabled>
+                <label title="管理类别" style="width: 68px;">管理等级</label>
+                <input type="text" class="bt-form-control" ms-duplex="@nsrxx.gllb" disabled style="width: 62px;">
+              </div>
+            </div>
+            <div>
+              <div class="select-item" style="width: 24%;">
+                <label title="联系人">联系人</label>
+                <input type="text" class="bt-form-control" ms-duplex="@nsrxx.lxr" disabled>
+              </div>
+              <div class="select-item w-27per">
+                <label title="联系电话">联系电话</label>
+                <input type="text" class="bt-form-control" ms-duplex="@nsrxx.lxrDh" disabled>
+              </div>
+              <div class="select-item" style="width:48.6%">
+                <label title="企业地址">企业地址</label>
+                <input type="text" class="bt-form-control" ms-duplex="@nsrxx.jydz" disabled
+                  style="max-width: calc(100% - 80px)">
+              </div>
+            </div>
+            <div style="overflow: hidden; padding: 5px 0;">
+              <div style="box-shadow: 0px 0px 5px #ccc;padding-top: 7px;">
+                <div class="select-item merge" style="width: 24%;">
+                  <label title="申报年月批次" style="width: 100px;">
+                    申报年月批次
+                  </label>
+                  <select ms-duplex="@searchAddCkywData.sbnypc" class="bt-form-control" style="width: 128px;">
+                    <option value=""></option>
+                    <option ms-for="item in @sbnypcList" ms-attr="{value: item.sbnypc}">{{item.sbnypc}}</option>
+                  </select>
+                </div>
+                <div class="select-item w-27per">
+                  <label title="出口日期">出口日期</label>
+                  <div class="select-item-inner" style="width: calc(100% - 80px);">
+                    <input type="text" class="bt-form-control datepicker date-day" readonly ms-click="@showDatetimepicker($event)" ms-duplex="@searchAddCkywData.ckrqq">
+                    <span style="margin:0;">止</span>
+                    <input type="text" class="bt-form-control datepicker date-day" readonly ms-click="@showDatetimepicker($event)" ms-duplex="@searchAddCkywData.ckrqz">
+                  </div>
+                </div>
+                <div class="select-item" style="width: 30%;">
+                  <label title="报关单号">报关单号</label>
+                  <input type="text" class="bt-form-control entryId" style="width: 200px;" ms-duplex="@searchAddCkywData.entryId"
+                    data-duplex-changed="inpChg('entryId')">
+                </div>
+                <br />
+                <div class="select-item" style="width: 24%;">
+                  <label title="出口商品代码" style="width: 100px;">出口商品代码</label>
+                  <input type="text" class="bt-form-control entryId" ms-duplex="@searchAddCkywData.spdm"
+                    data-duplex-changed="inpChg('spdm')" style="width: 128px;">
+                </div>
+                <div class="select-item w-27per" ms-if="@nsrxx.sbywzl!='A0305001'">
+                  <label title="关联号">关联号</label>
+                  <input type="text" class="bt-form-control entryId" ms-duplex="@searchAddCkywData.glh"
+                    data-duplex-changed="inpChg('glh')">
+                </div>
+                <div class="select-item w-27per" ms-if="@nsrxx.sbywzl=='A0305001'">
+                  <label title="申报序号">申报序号</label>
+                  <input type="text" class="bt-form-control entryId" ms-duplex="@searchAddCkywData.sbxh"
+                    data-duplex-changed="inpChg('sbxh')">
+                </div>
+                <div class="select-item" style="width: 30%;" ms-if="@nsrxx.sbywzl!='A0305001'">
+                  <label title="供货企业税号">供货企业税号</label>
+                  <input type="text" class="bt-form-control entryId" style="width: 200px;" ms-duplex="@searchAddCkywData.ghfnsrsbh"
+                    data-duplex-changed="inpChg('ghfnsrsbh')">
+                </div>
+                <div class="select-item btn" ms-click="searchCkyw(1)" title="查询结果将过滤已添加过的出口业务数据">查询</div>
+              </div>
+            </div>
+
+          </div>
+          <div class="form zbrw-ckyw-table" style="padding-top: 122px">
+            <table id="dzhc-zbrw-ckyw-table"></table>
+            <div id="dzhc-zbrw-ckyw-tablePager" style="height: 26px; line-height: 26px; text-align: right; padding-right: 20px; border-bottom: 1px solid #ddd;">共 {{ckywTotal}} 条</div>
+          </div>
+        </div>
+      </div>
+      <div ms-visible="addIndex == 1" class="dzlx" style="padding: 20px 10px 0;">
+        <div class="clear mb-5" ms-for="item in @typeTreeData" style="font-size: 14px;">
+          <div class="lf width-s text-right" style="padding-right: 10px;">{{item.name}}:</div>
+          <div style="overflow: hidden;">
+            <div class="lf mr-10" style="width: 147px;" ms-for="tmp in item.item">
+              <input class="vertical-middle" type="checkbox" ms-duplex="rangeList"
+                ms-attr="{value: tmp.value, disabled: tmp.chkDisabled, id: 'zbrw-type-'+tmp.value}" />
+              <label ms-attr="{for: 'zbrw-type-'+tmp.value}">{{tmp.name}}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="model-btns">
+      <div class="btn" ms-visible="addIndex==0" ms-click="nextStep">下一步</div>
+      <div class="btn" ms-visible="addIndex==1" ms-click="addIndex=0">上一步</div>
+      <div class="btn" ms-visible="addIndex==1" ms-click="createTaskConfirm">确定</div>
+    </div>
+  </div>
+
+</div>

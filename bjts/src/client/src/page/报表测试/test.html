@@ -1,0 +1,176 @@
+<div class="bbtest" id="bbtest">
+    <div class="pageTabs">
+        <div style="height:24px;line-height:24px;width:35%;float: left;margin: 5px;">
+            【报表名称】：<span>{{form.bbmc}}</span>
+        </div>
+        <div style="height:24px;line-height:24px;width:35%;float: left;margin: 5px;">
+            【报表代码】：<span>{{tcode}}</span>
+        </div>
+        <div class="btns" ms-if="@act==1">
+
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="form" style="padding-top: 0px">
+            <div class="table-wrapper bbtype1" ms-if="form.bbtype=='1'">
+
+                <div class="table-body-wrapper">
+                    <table class="table">
+                        <thead>
+                        <tr ms-for="row in tableOption.header">
+                            <th ms-for="cell in row" ms-attr="{colspan:cell.w,rowspan:cell.h}">
+                                <div ms-css="{'min-width':'100%',width:cell.dispwidth?cell.dispwidth+'px':'auto',height:cell.dispheight?cell.dispheight+'px':'auto',overflow:'hidden'}">
+                                    {{cell.showname}}
+                                </div>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr class="testTableRowtr" ms-for="(index,row) in tableOption.liner">
+                            <td ms-for="cell in row" ms-attr="{colspan:cell.w,rowspan:cell.h}" style="background:#eee;">
+                                <div ms-css="{width:cell.dispwidth?cell.dispwidth+'px':'auto',height:cell.dispheight?cell.dispheight+'px':'auto','text-align':'center',overflow:'hidden'}">
+                                    {{cell.showname}}
+                                </div>
+                            </td>
+                            <!-- <td 
+                                class="tableDataCellTd"
+                                ms-for="(i,col) in tableOption.column"
+                                ms-click="@setupInstruction(row)">
+                                <div class="tableDataCell" ms-if="tableData.rows[index]&&tableData.rows[index][col.fname]!=undefind">
+                                    <input ms-if="col.degree==''" ms-css="{'text-align':col.align=='0'?'left':col.align=='1'?'center':'right'}" ms-duplex="tableData.rows[index][col.fname]" ms-attr="{disabled:(col.allowupdate=='N'||tableData.rows[index].allowupdate=='N')?true:false}">
+                                    <input ms-if="col.degree!=''" ms-css="{'text-align':col.align=='0'?'left':col.align=='1'?'center':'right'}" ms-duplex="tableData.rows[index][col.fname] | number(col.degree)" ms-attr="{disabled:(col.allowupdate=='N'||tableData.rows[index].allowupdate=='N')?true:false}">
+                                </div>
+                            </td> -->
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="table-wrapper" ms-if="form.bbtype=='2'">
+                <div class="table-body-wrapper">
+                    <table class="table">
+                        <thead>
+                            <tr ms-for="row in tableOption.header">
+                                <th ms-for="cell in row" ms-attr="{colspan:cell.w,rowspan:cell.h}"
+                                    ms-css="{width:cell.dispwidth?cell.dispwidth+'px':'auto',height:cell.dispheight?cell.dispheight+'px':'auto'}">{{cell.showname}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="text-center" ms-for="(index, col) in tableOption.column" ms-click="getProfile(tcode, 0, index+1)">
+                                <span ms-if="location.indexOf('0-'+(index+1))>-1" ms-class="[isValid[location.indexOf('0-'+(index+1))]=='1'?'text-blue':'text-red']">钻取配置</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="table-wrapper table-t3" ms-if="form.bbtype=='3'">
+                <div class="table-body-wrapper" ms-on-scroll="scrollTHead($event)">
+                    <table class="table">
+                        <thead>
+                        <tr ms-for="row in tableOption.header">
+                            <th ms-for="cell in row" ms-attr="{colspan:cell.w,rowspan:cell.h}"
+                            ms-css="{width:cell.dispwidth?cell.dispwidth+'px':'auto',height:cell.dispheight?cell.dispheight+'px':'auto'}">
+                                <div >
+                                    {{cell.showname}}
+                                </div>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td ms-for="(index,col) in tableOption.column" ms-click="getProfile(tcode, 0, index+1)">
+                                <div ms-if="location.indexOf('0-'+(index+1))>-1" class="tableDataCell text-center" ms-class="[isValid[location.indexOf('0-'+(index+1))]=='1'?'text-blue':'text-red']">钻取配置</div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="table-page" ms-if="form.bbtype=='3'">
+                <p class="lf">
+                    共0条数据，该页显示0条数据
+                </p>
+                <div class="rt">
+                    <span class="pager-btn">上一页</span><input id="scan-tablePager" type="text"   style="width: 40px;text-align: center"/>/<span>0</span><span  class="pager-btn">下一页</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 钻取配置 -->
+    <div
+        class="page-model page-model-setzq"
+        style="width: 700px;margin-left: -350px;height:476px;margin-top:-238px">
+        <div class="model-title">
+            <span>钻取配置</span>
+            <span class="g-close" ms-click="hideModel">&times;</span>
+        </div>
+        <div class="model-content" style="height: 386px;padding: 20px 20px 0;">
+            <div class="g-form">
+                <div class="g-form-item">
+                    <label class="g-form-item_label">报表代码：</label>
+                    <div class="g-form-item__content" style="line-height: 30px;">{{@editData.bbdm}}</div>
+                </div>
+                <div class="g-form-item mt-0">
+                    <label class="g-form-item_label">报表名称：</label>
+                    <div class="g-form-item__content" style="line-height: 30px;">{{@form.bbmc}}</div>
+                </div>
+                <div class="g-form-item mt-0">
+                    <label class="g-form-item_label">行名：</label>
+                    <div class="g-form-item__content" style="line-height: 30px;">{{@editData.bblcName}}</div>
+                </div>
+                <div class="g-form-item mt-0">
+                    <label class="g-form-item_label">列名：</label>
+                    <div class="g-form-item__content" style="line-height: 30px;">{{@editData.columnTitle}}</div>
+                </div>
+                <div class="g-form-item mt-0">
+                    <label class="g-form-item_label">钻取标志：</label>
+                    <div class="g-form-item__content">
+                        <div class="g-radio">
+                            <input id="zqflagOpen" type="radio" value="1" name="isValid" ms-duplex="@editData.isValid">
+                            <label for="zqflagOpen">启用</label>
+                        </div>
+                        <div class="g-radio">
+                            <input id="zqflagClose" type="radio" value="0" name="isValid" ms-duplex="@editData.isValid">
+                            <label for="zqflagClose">关闭</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="g-form-item">
+                    <label class="g-form-item_label">
+                        <span class="text-red">*</span>SQL脚本：
+                    </label>
+                    <div class="g-form-item__content">
+                        <textarea style="width: 430px;" class="g-textarea" rows="3" ms-duplex="@editData.sqlScript"></textarea>
+                    </div>
+                </div>
+                <div class="g-form-item">
+                    <label class="g-form-item_label">描述：</label>
+                    <div class="g-form-item__content">
+                        <textarea style="width: 430px;" class="g-textarea" rows="2" ms-duplex="@editData.remark"></textarea>
+                    </div>
+                </div>
+                <div class="g-form-item">
+                    <label class="g-form-item_label">数据源选择：</label>
+                    <div class="g-form-item__content">
+                        <div class="g-radio">
+                            <input id="test-dbTarget1" type="radio" value="2" name="dbTarget" ms-duplex="editData.dbTarget">
+                            <label for="test-dbTarget1">金三系统</label>
+                        </div>
+                        <div class="g-radio">
+                            <input id="test-dbTarget2" type="radio" value="1" name="dbTarget" ms-duplex="editData.dbTarget">
+                            <label for="test-dbTarget2">便捷退税</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="model-btns">
+            <div style="width: 48px;" class="btn" ms-click="saveModel(false)">保存</div>
+            <div class="btn" ms-click="saveModel(true)">保存并钻取预览</div>
+            <div style="width: 48px;" class="btn" ms-click="hideModel">取消</div>
+        </div>
+    </div>
+
+</div>

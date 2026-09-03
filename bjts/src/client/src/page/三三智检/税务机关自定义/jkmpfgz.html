@@ -1,0 +1,69 @@
+<div class="jkmpfgz" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        健康码评分规则设置
+      </div>
+      <div class="swjg">
+        <label  title="税务机关">税务机关</label>
+        <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree">
+        <ul id="jkmpfgzSwjgTree" class='ztree treeDiv jkmpfgzSwjgTree' style="left: 60px;width: 200px;"></ul>
+      </div>
+      <div class="btns">
+        <div class="btn" ms-click="@save">保存</div>
+    </div>
+  </div>
+  <div ms-class="['page','active']" style="overflow-y: auto;padding: 34px 0 20px 20px;">
+    <p class="subtTitle">生产企业评分规则设置</p>
+    <table border cellspacing="0">
+      <tr>
+        <th width="90">分类维度</th>
+        <th width="90">指标总分</th>
+        <th width="90">折算总分</th>
+        <th width="90">红线分数</th>
+        <th width="90">黄线分数</th>
+      </tr>
+      <tr ms-for="(index,item) in @scList">
+        <td>{{item.ywflJc}}</td>
+        <td style="text-align: center;">{{item.zbTotal}}</td>
+        <td style="text-align: center;">
+          <div style="text-align: left;">
+            <input ms-if="index != 6" type="text" ms-duplex="@scList[index].jkmTotal">
+            <span ms-if="index == 6">{{item.jkmTotal}}</span>
+          </div>
+        </td>
+        <td style="text-align: center;">
+          <input type="text" ms-duplex="@scList[index].lineRed">
+        </td>
+        <td style="text-align: center;">
+          <input type="text" ms-duplex="@scList[index].lineYellow">
+        </td>
+      </tr>
+    </table>
+    <p class="subtTitle">外贸企业评分规则设置</p>
+    <table border cellspacing="0">
+      <tr>
+        <th width="90">分类维度</th>
+        <th width="90">指标总分</th>
+        <th width="90">折算总分</th>
+        <th width="90">红线分数</th>
+        <th width="90">黄线分数</th>
+      </tr>
+      <tr ms-for="(index,item) in @wmList">
+        <td>{{item.ywflJc}}</td>
+        <td style="text-align: center;">{{item.zbTotal}}</td>
+        <td style="text-align: center;">
+          <div style="text-align: left;">
+            <input ms-if="index != 6" type="text" ms-duplex="@wmList[index].jkmTotal">
+            <span ms-if="index == 6">{{item.jkmTotal}}</span>
+          </div>
+        </td>
+        <td style="text-align: center;">
+          <input type="text" ms-duplex="@wmList[index].lineRed">
+        </td>
+        <td style="text-align: center;">
+          <input type="text" ms-duplex="@wmList[index].lineYellow">
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>

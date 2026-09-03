@@ -1,0 +1,130 @@
+/* 整体撑满高度 */
+.bgdgzxxgl,
+.bgdgzxxgl > .page {
+  height: 100%;
+  box-sizing: border-box;
+}
+.bgdgzxxgl > .page {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0 !important;
+}
+.bgdgzxxgl .g-tabs {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.bgdgzxxgl .g-tabs > .tab-title {
+  flex: none;
+}
+/* 查询按钮放在标签行右侧（与 ckllzhgl 的 pageTabs .btns 一致，置于上方） */
+.bgdgzxxgl .tab-title .btns {
+  position: absolute;
+  right: 8px;
+  top: 4px;
+  height: 33px;
+  line-height: 33px;
+  z-index: 2;
+}
+.bgdgzxxgl .tab-content {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+/* 每个 TAB 内容铺满内容区，纵向排列：搜索条件 + 表格 */
+.bgdgzxxgl .tab-content-item {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+/* 搜索条件：文档流内，收起时无多余间隔 */
+.bgdgzxxgl .tab-content-item > .select-wrapper {
+  position: relative;
+  flex: none;
+  width: 100%;
+}
+/* 表格区撑满剩余空间，分页器正常显示（覆盖全局 .work .form 的 padding-top/height） */
+.bgdgzxxgl .g-tabs .tab-content .tab-content-item > .form {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
+  position: relative;
+  padding: 0 5px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+/* 操作列按钮（与“新增”按钮 .btn 样式一致） */
+.bgdgzxxgl .grid-op {
+  display: inline-block;
+  height: 22px;
+  line-height: 22px;
+  padding: 0 10px;
+  margin: 0 3px;
+  color: #fff;
+  background-color: #2c9ae8;
+  border-radius: 4px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+.bgdgzxxgl .grid-op:hover {
+  background-color: #2486cd;
+}
+/* 操作列悬浮固定在表格右侧 */
+#gview_bgdgzxxgl-gcb-table .ui-jqgrid-bdiv td[aria-describedby="bgdgzxxgl-gcb-table_cz"] {
+  position: -webkit-sticky;
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  background-color: inherit;
+  box-shadow: -3px 0 4px -2px rgba(0, 0, 0, 0.12);
+}
+#gview_bgdgzxxgl-gcb-table .ui-jqgrid-hdiv th#bgdgzxxgl-gcb-table_cz {
+  position: -webkit-sticky;
+  position: sticky;
+  right: 0;
+  z-index: 4;
+  background-color: #f7f7f7;
+  box-shadow: -3px 0 4px -2px rgba(0, 0, 0, 0.12);
+}
+/* 新增/编辑弹窗 */
+.main .content .bgdgzxx-model.page-model{
+  height: 485px;
+}
+.main .content .bgdgzxx-model.page-model .model-content {
+  height: auto;
+  max-height: 400px;
+  padding: 15px 0;
+}
+.main .content .bgdgzxx-model.page-model .model-content p {
+  width: 440px;
+}
+.main .content .bgdgzxx-model.page-model .model-content p label {
+  width: 130px;
+}
+.main .content .bgdgzxx-model.page-model .model-content p .width-l {
+  width: 260px;
+}
+.main .content .bgdgzxx-model.page-model .model-content p.model-textarea label {
+  vertical-align: top;
+}
+.main .content .bgdgzxx-model.page-model .model-content p.model-textarea textarea {
+  float: left;
+  width: 260px;
+  height: 60px;
+  box-sizing: border-box;
+  resize: vertical;
+}
+/* 带出的只读字段：浅灰背景 */
+.main .content .bgdgzxx-model.page-model .model-content input[readonly] {
+  background-color: #f2f2f2;
+  color: #666;
+  cursor: not-allowed;
+}

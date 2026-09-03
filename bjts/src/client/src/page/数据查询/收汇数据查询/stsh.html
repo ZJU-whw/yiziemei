@@ -1,0 +1,106 @@
+<div class="stsh" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            视同收汇情况查询
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+            <div class="btn dropdown" ms-on-click="showMenu">
+                配置表格▼
+                <ul class="dropdown-menu">
+                    <li ms-for="(index,item) in @tableOption"><label><input type="checkbox" ms-duplex-checked="item.show" ms-on-click="@setTableOption(item,$event)">{{item.label}}</label></li>
+                </ul>
+            </div>
+        </div>
+        <div class="btns" ms-if="@act==2">
+            <div class="btn rt" ms-click="@printForm($event)">打印</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <form name="stsh-form">
+            <div class="select-wrapper">
+                <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+                <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+                <div class="select-main">
+                    <div class="select-item">
+                        <label  title="纳税人名称">海关代码</label>
+                        <input name="hgdm"  type="text" ms-duplex="@searchData.hgdm">
+                    </div>
+                    <div class="select-item">
+                        <label  title="主管税务机关代码">主管税务机关代码</label>
+                        <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree">
+                        <ul id="stshZtree" class='ztree treeDiv' style="left: 90px;top:100%;"></ul>
+                    </div>
+                    <div class="select-item">
+                        <label title="社会信用代码">社会信用代码</label>
+                        <input name="shxydm" type="text" ms-duplex="searchData.shxydm">
+                    </div>
+                </div>
+                <div class="select-sub">
+                    <div class="select-item" style="position: relative">
+                        <label  title="纳税人名称">纳税人名称</label>
+                        <input name="nsrmc" type="text" ms-duplex="@searchData.nsrmc">
+                    </div>
+                    <div class="select-item" style="position: relative">
+                        <label   title="出口发票号码">出口发票号码</label>
+                        <input type="text" ms-duplex="@searchData.fphm">
+                    </div>
+                    <div class="select-item">
+                        <label title="出口报关单号码">出口报关单号码</label>
+                        <input type="text" ms-duplex="@searchData.bgdno">
+                    </div>
+                    <div class="select-item">
+                        <label  title="申报日期">申报日期起</label>
+                        <div class="select-item-inner">
+                            <input type="text" class="datepicker date-day" ms-duplex="@searchData.sbrqq | change" :on-blur="@filDate" >
+                            <span>止</span>
+                            <input type="text" class="datepicker date-day" ms-duplex="@searchData.sbrqz | change" :on-blur="@filDate">
+                        </div>
+                    </div>
+                    <div class="select-item">
+                        <label  title="管理类别">管理类别</label>
+                        <select  ms-duplex="@searchData.gllb">
+                            <option value="">　</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                    <div class="select-item">
+                        <label title="企业类型">企业类型</label>
+                        <select ms-duplex="@searchData.qylx">
+                            <option value="">　</option>
+                            <option value="11">内资生产企业</option>
+                            <option value="12">外商投资企业</option>
+                            <option value="21">外贸（工贸）企业</option>
+                            <option value="90">其他企业（特许退税企业）</option>
+                        </select>
+                    </div>
+                    <div class="select-item">
+                        <label  title="不能收汇原因">不能收汇原因</label>
+                        <select ms-duplex="@searchData.yqyy">
+                            <option value="">　</option>
+                            <option value="1" title="自然灾害、社会突发事件等不可抗力因素">自然灾害、社会突发事件等不可抗力因素</option>
+                            <option value="2" title="出口退（免）税申报凭证被盗、抢，或者因邮寄丢失、误递">出口退（免）税申报凭证被盗、抢，或者因邮寄丢失、误递</option>
+                            <option value="3" title="有关司法、行政机关在办理业务或者检查中，扣押出口退（免）税申报凭证">有关司法、行政机关在办理业务或者检查中，扣押出口退（免）税申报凭证</option>
+                            <option value="4" title="买卖双方因经济纠纷，未能按时取得出口退（免）税申报凭证">买卖双方因经济纠纷，未能按时取得出口退（免）税申报凭证</option>
+                            <option value="5" title="由于企业办税人员伤亡、突发危重疾病或者擅自离职，未能办理交接手续，导致不能按期提供出口退（免）税申报凭证">由于企业办税人员伤亡、突发危重疾病或者擅自离职，未能办理交接手续，导致不能按期提供出口退（免）税申报凭证</option>
+                            <option value="6" title="由于企业向海关提出修改出口货物报关单申请，在退（免）税期限截止之日海关未完成修改，导致不能按期提供出口货物报关单">由于企业向海关提出修改出口货物报关单申请，在退（免）税期限截止之日海关未完成修改，导致不能按期提供出口货物报关单</option>
+                            <option value="7" title="有关政府部门在出口退（免）税申报期限截止之日后才出具出口退（免）税申报所需凭证资料">有关政府部门在出口退（免）税申报期限截止之日后才出具出口退（免）税申报所需凭证资料</option>
+                            <option value="8" title="国家税务总局规定的其他情形">国家税务总局规定的其他情形</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="form" style="padding-top: 54px">
+            <table id="stsh-table"></table>
+            <div id="stsh-tablePager"></div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==3&&'active']">
+        <div class="chartDiv"></div>
+    </div>
+</div>

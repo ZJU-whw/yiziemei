@@ -1,0 +1,75 @@
+<div class="blqk" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            出口退税办理情况查询(退税计划情况)
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+            <!--<div class="btn" ms-click="@blqkSave">保存</div>-->
+        </div>
+        <div class="btns" ms-if="@act==2">
+            <div class="btn rt" ms-click="@printForm($event)">打印</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <form name="blqk-form">
+            <div class="select-wrapper">
+                <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+                <div class="select-main">
+                    <div class="select-item">
+                        <label title="税务局机关代码">税务局机关代码</label>
+                        <input readonly type="text" ms-duplex="swjgmc" ms-click="@showTree">
+                        <ul id="blqkTree" class='ztree treeDiv' style="left: 90px;"></ul>
+                    </div>
+                    <div class="select-item">
+                        <label  title="退税办理年月">退税办理年月</label>
+                        <input type="text" class="datepicker date-month" ms-duplex="@searchData.ny | change" :on-blur="@filMonth">
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="form" style="padding-top: 54px">
+            <table border="0" cellspacing="0" cellpadding="0">
+                <thead>
+                    <tr>
+                        <td class="table-til" style="width:35px;"></td>
+                        <td class="table-til" style="width:150px;">税务机关</td>
+                        <td class="table-til" style="width:110px;">本月下达计划</td>
+                        <td class="table-til" style="width:110px;">上月结转计划</td>
+                        <td class="table-til" style="width:110px;">本月追回出口退税款</td>
+                        <td class="table-til" style="width:110px;">本月计划总额</td>
+                        <td class="table-til" style="width:110px;">本月已办理退税额</td>
+                        <td class="table-til" style="width:110px;">退税计划余额</td>
+                        <td class="table-til" style="width:80px;">计划完成率</td>
+                        <td class="table-til" style="width:110px;">本年累计办理退税</td>
+                        <td class="table-til" style="width:110px;">本年累计追回退税款</td>
+                        <td class="table-til" style="width:110px;">本年累计下达计划</td>
+                        <td class="table-til" style="width:80px;">本年累计计划完成率</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ms-for="(index,item) in @blqkList">
+                        <td style="width:35px;">{{index+1}}</td>
+                        <td style="width:150px;">{{item.swjgmc}}</td>
+                        <!--<td style="width:100px;"><input type="text" ms-duplex="item.byxdjhe" data-duplex-changed="@byxdjheChanged($event,index)"></td>-->
+                        <td style="width:110px;" align="right" >{{item.byxdjhe}}</td>
+                        <td style="width:110px;" align="right">{{item.syjzjhe}}</td>
+                        <td style="width:110px;" align="right">{{item.byzhcktse}}</td>
+                        <td style="width:110px;" align="right">{{item.byjhze}}</td>
+                        <td style="width:110px;" align="right">{{item.byybltse}}</td>
+                        <td style="width:110px;" align="right">{{item.byjhye}}</td>
+                        <td style="width:80px;" align="right">{{item.byjhwcl}}%</td>
+                        <td style="width:110px;" align="right">{{item.bnljbltse}}</td>
+                        <td style="width:110px;" align="right">{{item.bnljyzhse}}</td>
+                        <td style="width:110px;" align="right">{{item.bnljxdjhe}}</td>
+                        <td style="width:80px;" align="right">{{item.bnljjhwcl}}%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div ms-class="['page',@act==3&&'active']">
+        <div class="chartDiv"></div>
+    </div>
+</div>

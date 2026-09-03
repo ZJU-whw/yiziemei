@@ -1,0 +1,143 @@
+<div class="zgsh" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        开通数字化单证备案企业查询
+      </div>
+      <div class="btns">
+          <div class="btn" ms-click="@search(1)">查询</div>
+          <div class="btn" ms-click="@exform">导出</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <form name="zgsh-form">
+          <div class="select-wrapper">
+              <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+              <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+              <div class="select-main">
+                <div class="select-item">
+                    <label title="税务机关">税务机关</label>
+                    <input readonly type="text" ms-duplex="swjgmc" ms-click="@showTree">
+                    <ul id="zgshTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+                </div>
+                <div class="select-item">
+                    <label title="纳税人识别号">纳税人识别号</label>
+                    <input name="nsrsbh" type="text" ms-duplex="searchData.nsrsbh">
+                </div>
+                <div class="select-item">
+                    <label  title="企业名称">企业名称</label>
+                    <input name="nsrmc"  type="text" ms-duplex="searchData.nsrmc">
+                </div>
+              </div>
+              <div class="select-sub">
+                <div class="select-item">
+                    <label title="企业海关代码">企业海关代码</label>
+                    <input name="qyhgdm" type="text" ms-duplex="searchData.qyhgdm">
+                </div>
+                <div class="select-item">
+                    <label  title="退税计算方式">退税计算方式</label>
+                    <select class="width-m" ms-duplex="searchData.tsjsfs">
+                        <option value=""></option>
+                        <option ms-for="el in @tsjsfsList" ms-attr="{value: el.value}">{{el.name}}</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="登记状态">登记状态</label>
+                    <select class="width-m" ms-duplex="searchData.result">
+                        <option value=""></option>
+                        <option ms-for="el in @applyResult" ms-attr="{value: el.value}">{{el.name}}</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="管理类别">管理类别</label>
+                    <select class="width-m" ms-duplex="searchData.gllb">
+                        <option value=""></option>
+                        <option ms-for="el in @gllbList" ms-attr="{value: el.value}">{{el.name}}</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="登记时间">登记时间</label>
+                    <div class="select-item-inner">
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.applyTimeStart" :on-blur="@filDate" >
+                        <span>止</span>
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.applyTimeEnd" :on-blur="@filDate">
+                    </div>
+                </div>
+              </div>
+          </div>
+      </form>
+      <div class="form" style="padding-top: 54px">
+          <table id="zgsh-table"></table>
+          <div id="zgsh-tablePager"></div>
+      </div>
+  </div>
+  <div class="init-dzba">
+    <div class="modal fade" id="dzdjb" tabindex="-1" role="dialog" data-backdrop="static">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" style="font-size: 14px">数字化单证备案登记</h4>
+          </div>
+          <div class="modal-body">
+            <div class="body-sqb">
+              <table border="1">
+                <tr align="center" class="sqb-til">
+                  <td colspan="4">数字化单证备案登记表</td>
+                </tr>
+                <tr>
+                  <td width="30%">公司名称</td>
+                  <td colspan="3">{{@applyUser.name}}</td>
+                </tr>
+                <tr>
+                  <td width="30%">统一社会信用代码</td>
+                  <td colspan="3">{{@applyUser.shxyno}}</td>
+                </tr>
+                <tr>
+                  <td width="30%">海关代码</td>
+                  <td colspan="3">{{@applyUser.qyhgdm}}</td>
+                </tr>
+                <tr>
+                  <td width="30%">分类管理类别</td>
+                  <td>{{@applyUser.gllbName}}</td>
+                  <td>退税计算方式</td>
+                  <td>{{@applyUser.tsjsfs}}</td>
+                </tr>
+                <tr>
+                  <td colspan="4">
+                    <p class="sqb-tsjg">{{@applyUser.swjgmc}}：</p>
+                    <p class="sqb-indent">我公司从即日起采用（请在选中的方式后打“√”）</p>
+                    <p class="sqb-indent">自行开发备案软件<input class="solf-chk" type="checkbox" disabled></p>
+                    <p class="sqb-indent">自行采购备案软件<input class="solf-chk" type="checkbox" disabled></p>
+                    <p class="sqb-indent">中天易税数字化单证备案软件<input disabled class="solf-chk" type="checkbox"  checked></p>
+                    <p class="sqb-indent">进行出口货物退（免）税单证备案数字化管理，同时做出以下承诺：</p>
+                    <p class="sqb-indent">1.保证备案单证的真实性；</p>
+                    <p class="sqb-indent">2.在申报出口退（免）税后15日内，按单证备案工作规范的要求，将所申报退（免）税货物的相关单证进行无纸化备案，保存期为10年；</p>
+                    <p class="sqb-indent">3.在税务机关按规定做备案单证核查时，我公司会积极配合，将需核查的无纸化单证备案资料上报给主管税务机关。</p>
+                    <p class="sqb-qz">公司：（电子签章）</p>
+                    <p class="sqb-qz sqb-date">日期：{{@applyUser.applyTime}}</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td width="20%"><span class="sql-icon">*</span>公司联系地址</td>
+                  <td colspan="3" ms-attr="{title: applyUser.address}" ><input readonly type="text" ms-duplex="@applyUser.address"></td>
+                </tr>
+                <tr>
+                  <td width="20%"><span class="sql-icon">*</span>联系人</td>
+                  <td><input readonly type="text" ms-duplex="@applyUser.contacts"></td>
+                  <td width="20%"><span class="sql-icon">*</span>联系电话</td>
+                  <td><input readonly type="text" ms-duplex="@applyUser.tel"></td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-model-pdf" >
+    <div id="zgsh-pdf"></div>
+    <div class="close" ms-on-click="hideModelPdf()">&times;</div>
+    <div id="results"></div>
+  </div>
+</div>

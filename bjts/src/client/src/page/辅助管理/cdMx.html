@@ -1,0 +1,109 @@
+<div class="cdMx">
+    <div class="tabs-wrapper">
+        <div class="tabs-list">
+            <div :class="['tabs-item',activeIndex == index && 'active']"  ms-for="(index,item) in tabs" ms-click="@handleClick(index)">{{item}}</div>
+        </div>
+        <div class="tabs-underline"></div>
+    </div>
+    <div :class="['page',activeIndex == 0 && 'active']">
+        <div class="form" style="padding-top: 0">
+            <table class="table">
+                <tr>
+                    <td class="title" style="width: 25%;">业务类型</td>
+                    <td style="width: 25%;">{{formData.sbxx.lc_id}}</td>
+                    <td class="title" style="width: 25%;">申报年月</td>
+                    <td style="width: 25%;">{{formData.sbxx.sbym}}</td>
+                </tr>
+                <tr>
+                    <td class="title">申报批次</td>
+                    <td >{{formData.sbxx.sbpc}}</td>
+                    <td class="title">申报出口额（美元）</td>
+                    <td class="text-right">{{formData.sbxx.ckamt_usd | number(2)}}</td>
+                </tr>
+                <tr>
+                    <td class="title">退税计税金额(人民币)</td>
+                    <td class="text-right">{{formData.sbxx.tsjsje | number(2)}}</td>
+                    <td class="title">进料加工抵减额</td>
+                    <td class="text-right">{{formData.sbxx.jljgdje | number(2)}}</td>
+                </tr>
+                <tr>
+                    <td class="title">退(免)税总额</td>
+                    <td class="text-right">{{formData.sbxx.tse_amt | number(2)}}</td>
+                    <td class="title">退增值税</td>
+                    <td class="text-right">{{formData.sbxx.tse_zzs | number(2)}}</td>
+                </tr>
+                <tr>
+                    <td class="title">退消费税</td>
+                    <td class="text-right">{{formData.sbxx.tse_xfs | number(2)}}</td>
+                    <td class="title">免抵税额</td>
+                    <td class="text-right">{{formData.sbxx.mdse | number(2)}}</td>
+                </tr>
+                <tr>
+                    <td class="title">审核人员</td>
+                    <td >{{formData.sbxx.sh_user}}</td>
+                    <td class="title">预警标志</td>
+                    <td class="text-right">{{formData.sbxx.yjbz}}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div :class="['page',activeIndex == 1 && 'active']">
+        <div class="form" style="padding-top: 2px;">
+            <div class="select-wrapper" style="padding-bottom: 10px;line-height: 1">
+                <div class="select-item">
+                    <label  title="凭证类型">凭证类型</label>
+                    <select class="width-l"  ms-duplex="@searchData.pzlx">
+                        <option value=""></option>
+                        <option value="1">报关单</option>
+                        <option value="2">进项发票</option>
+                        <option value="3">专用发票</option>
+                        <option value="4">代理证明</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="凭证号码">凭证号码</label>
+                    <input class="width-l" type="text" ms-duplex="searchData.pzhm">
+                </div>
+                <div style="font-size: 12px;" class="btn rt" ms-click="@showModal('2')">设置放行</div>
+                <div style="font-size: 12px;" class="btn rt" ms-click="@search(1)">查询</div>
+            </div>
+            <div class="table-warapper" style="margin-top: 44px;">
+                <table id="cdMx-table"></table>
+                <div id="cdMx-tablePager"></div>
+            </div>
+            <div class="page-model modal1">
+                <div class="model-title">凭证明细<span class="close" ms-click="closeModal('1')">✖</span></div>
+                <div class="model-content">
+                    <table class="table" style="margin-top: 0">
+                        <tr>
+                            <td style="width: 25%" class="title">凭证类型</td><td style="width: 25%">{{modalData1.pzlx}}</td><td style="width: 25%" class="title">凭证号码</td><td style="width: 25%">{{modalData1.pzhm}}</td>
+                        </tr>
+                        <tr><td  class="title">商品名称</td><td colspan="3">{{modalData1.spmc}}</td></tr>
+                        <tr><td  class="title">数量</td><td >{{modalData1.sl}}</td><td  class="title">计税金额</td><td class="text-right">{{modalData1.jsje |number(2)}}</td></tr>
+                        <tr><td  class="title">申报退税额</td><td class="text-right">{{modalData1.tse | number(2)}}</td><td  class="title">暂缓标志</td><td >{{modalData1.zh_flag}}</td></tr>
+                        <tr><td  class="title">不予标志</td><td colspan="3">{{modalData1.by_flag}}</td></tr>
+                    </table>
+                </div>
+            </div>
+            <div class="page-model modal2">
+                <div class="model-title">设置放行<span class="close" ms-click="closeModal('2')">✖</span></div>
+                <div class="model-content">
+                    <div style="margin-left: 20px;">
+                        <label>放行标志：</label>
+                        <label><input name="fxbz" type="radio" value="1" ms-duplex="fx_flag" />放行</label>
+                        <label><input name="fxbz" type="radio" value="2" ms-duplex="fx_flag"/>放行+提醒</label>
+                        <label><input name="fxbz" type="radio" value="3" ms-duplex="fx_flag"/>拒绝放行</label>
+                    </div>
+                    <div style="margin: 20px 0 0 20px">
+                        <label>注释说明：</label>
+                        <textarea ms-duplex="bz" rows="6" style="vertical-align: top;width: 400px;"></textarea>
+                    </div>
+                </div>
+                <div class="model-btns">
+                    <div class="btn" ms-click="allowPass">确定</div>
+                    <div class="btn" ms-click="closeModal('2')">取消</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

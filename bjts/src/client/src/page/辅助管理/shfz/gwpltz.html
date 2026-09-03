@@ -1,0 +1,48 @@
+<div class="gwpltz shfz">
+    <div class="pageTabs">
+        <div class="pageTitle">
+            审核分户分组 - 分组推送岗位批量调整
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@adjust()">批量调整</div>
+        </div>
+    </div>
+    <div class="page active" >
+        <div class="form" style="padding-top: 0">
+            <div style="padding-left: 2%;line-height: 30px"><span>税务机关</span><span>{{formData.swjgmc}}</span></div>
+            <table class="table" style="width:600px;margin-top: 10px;margin-bottom: 0;">
+                <tr>
+                    <td class="text-center">
+                        <select ms-duplex="gwdm" ms-change="handleChange">
+                            <option value="">需调整的岗位</option>
+                            <option value="SH01">受理岗</option>
+                            <option value="SH02">审核岗</option>
+                            <option value="SH03">复核岗</option>
+                            <option value="SH04">核准岗</option>
+                            <option value="SH05">发放岗</option>
+                        </select>
+                    </td>
+                    <td class="text-center">
+                        <select ms-duplex="user_before" ms-change="handleSelect">
+                            <option value="">调整前人员</option>
+                            <option ms-for="(index,item) in formData.before" ms-attr="{value: item.user_id}">{{item.czry_mc}}</option>
+                        </select>
+                    </td>
+                    <td class="text-center">
+                        <select ms-duplex="user_after">
+                            <option value="">调整后人员</option>
+                            <option ms-for="(index,item) in formData.after" ms-attr="{value: item.user_id}">{{item.czry_mc}}</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="text-center">以下为岗位人员所分管企业</td>
+                </tr>
+            </table>
+            <div style="width: 600px;margin: 0 2%">
+                <table id="gwpltz-table" ></table>
+                <div id="gwpltz-tablePager"></div>
+            </div>
+        </div>
+    </div>
+</div>

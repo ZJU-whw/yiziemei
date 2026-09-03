@@ -1,0 +1,45 @@
+<div class="groupEdit">
+    <div class="tabs-wrapper">
+        <div class="tabs-list">
+            <div :class="['tabs-item',activeIndex == index && 'active']"  ms-for="(index,item) in tabs" ms-click="@handleClick(index)">{{item}}</div>
+        </div>
+        <div class="tabs-underline"></div>
+    </div>
+    <div :class="['page',activeIndex == 0 && 'active']">
+        <div class="form-wrapper">
+            <div class="form-item"><label><span class="text-red">*</span>代码：</label><span>{{formData.code}}</span></div>
+            <div class="form-item"><label><span class="text-red">*</span>用户组名：</label><input type="text"  ms-duplex="formData.name"></div>
+            <div class="form-item"><label>是否启用：</label><input type="checkbox" style="width: 18px;height: 18px"  ms-duplex-checked="formData.isvalid"></div>
+            <div class="form-item"><label>备注：</label><textarea rows="3"  ms-duplex="formData.remark"></textarea></div>
+            <div class="btn" ms-click="saveInfo">保存</div>
+        </div>
+    </div>
+    <div :class="['page',activeIndex == 1 && 'active']">
+        <h3 class="title">用户组成员</h3>
+        <div class="table-wrapper" style="padding: 0 20px">
+            <table id="current-group-user"></table>
+            <div id="current-group-user-pager"></div>
+        </div>
+        <h3 class="title">
+            <span class="lf">用户列表</span>
+            <input type="text" placeholder="请输入用户名称" class="lf" ms-duplex="@name" />
+            <div class="btn" ms-click="@searchUserList(1,true)">查询</div>
+        </h3>
+        <div class="table-wrapper" style="padding: 0 20px">
+            <table id="group-user"></table>
+            <div id="group-user-pager"></div>
+        </div>
+    </div>
+    <div :class="['page',activeIndex == 2 && 'active']">
+        <h3 class="title">已拥有角色</h3>
+        <div class="table-wrapper" style="padding: 0 20px">
+            <table id="current-group-role"></table>
+            <div id="current-group-role-pager"></div>
+        </div>
+        <h3 class="title">角色列表</h3>
+        <div class="table-wrapper" style="padding: 0 20px">
+            <table id="group-role"></table>
+            <div id="group-role-pager"></div>
+        </div>
+    </div>
+</div>

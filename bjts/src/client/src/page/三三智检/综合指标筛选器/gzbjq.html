@@ -1,0 +1,76 @@
+<div class="page-model gzedit-page-model gzbjq" style="display: block;left:0;margin-left: 0;top:0;margin-top: 0;width: 100%;height: 100%;background-color: transparent;" ms-mousemove="@mousemove">
+  <div style="width: 1040px;height: 540px;background-color: #fff;margin: 50px auto 0;border-radius: 5px;">
+    <div class="model-title clear">
+      <span class="lf">规则编辑器</span>
+      <div class="rt btns">
+        <div class="btn" ms-click="@saveModel">确定</div>
+        <div class="btn" ms-click="@cancel">取消</div>
+      </div>
+    </div>
+    <div class="model-content g-form clear" style="height: 488px;padding: 10px 20px;">
+      <div class="bjq">
+        <div class="expression">
+          <div class="expression-title">表达式编辑</div>
+          <textarea
+            id="txt"
+            ms-keydown="@keydown"
+            ms-keyup="@keyup"
+            ms-mouseup="@mouseup"
+            ms-mousemove="@mousemove"
+            ms-mousedown="@enterTextHandle" 
+            ms-blur="@enterTextHandle"
+            ms-duplex="@expressionMc"
+            class="g-textarea"
+            onpaste="return false;"
+            style="resize: none;height: 138px;letter-spacing: 5px;"></textarea>
+        </div>
+        <div class="elSort clear">
+          <div class="lf elSort-title">元素分类</div>
+          <div class="lf">
+            <span
+              class="elSort-item"
+              ms-for="item in @elList"
+              ms-attr="{title: item.tips || ''}"
+              ms-click="@selectExpression(item)">{{item.label&&item.label.join('') || item.name.join('')}}
+            </span>
+          </div>
+          <div class="lf changeHsBtn" ms-click="@isShowZb=!@isShowZb">{函数}</div>
+        </div>
+        <div class="zbSort clear">
+          <div id="gzbjqTree" class='lf ztree zbSortTree' style="height: 273px;"></div>
+          <div class="lf clear" style="width: calc(100% - 201px);height: 100%;">
+            <div ms-visible="@isShowZb" class="lf zbmcList clear">
+              <div class="zbmcList-title clear">
+                <div class="lf w-50per">名称列表（请双击选择）</div>
+                <div class="lf w-50per">业务描述</div>
+              </div>
+              <div class="lf w-50per" style="height: calc(100% - 25px);overflow: auto;">
+                <div ms-for="(index,item) in @zbList" :class="[@activeZbRow == index+'' && 'zbActive']" class="zbList-item" ms-click="@getZbYwms(item.ywms, index)" ms-dblclick="selectZb(item)">{{item.zbMc}}</div>
+              </div>
+              <div class="rt ywms">
+                <div style="text-indent:2em;">{{@zbYwms}}</div>
+              </div>
+            </div>
+            <div ms-visible="!@isShowZb" class="lf hsList clear">
+              <div class="hsList-title">
+                <div class="lf w-50per">函数选择（请双击选择）</div>
+                <div class="lf w-50per">业务描述</div>
+              </div>
+              <div class="hsList-content lf w-50per">
+                <div class="clear" ms-for="(index,item) in @funcList">
+                  <div class="lf hsList-content-title">{{item.name}}</div>
+                  <div class="lf" style="width: calc(100% - 90px);">
+                    <div :class="[@activeFuncRow == index+''+i && 'hsActive']" class="hsList-item" ms-for="(i,tmp) in @item.item" ms-click="@getFuncYwms(tmp.ywms, index+''+i)" ms-dblclick="selectFunc(tmp)">{{tmp.name}}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="rt ywms">
+                <div ms-html="@funcYwms"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

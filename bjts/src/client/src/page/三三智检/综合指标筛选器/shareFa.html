@@ -1,0 +1,90 @@
+<div class="page-model add-page-model shareFa" style="height:480px;width: 960px;margin-left: -480px;display: block;" >
+  <div class="model-title">方案共享项目</div>
+  <div class="model-content g-form clear" style="height: 400px;padding: 10px 20px;">
+    <div>
+      <div class="g-form-item clear"><div class="g-form-item_label" style="font-weight: bold;">基础信息：</div></div>
+      <div class="clear">
+        <div class="g-form-item lf w-33per">
+          <div class="g-form-item">
+            <div class="g-form-item_label"><span class="text-red">*</span>方案名称：</div>
+            <div class="g-form-item__content">
+              <input type="text" ms-duplex="@modelData.xmmc">
+            </div>
+          </div>
+          <div class="g-form-item">
+            <div class="g-form-item_label"><span class="text-red">*</span>共享类型：</div>
+            <div class="g-form-item__content">
+              <select class="g-select" ms-duplex="@gxlx" style="width: 100%;height: 100%;">
+                <option value=""></option>
+                <option value="0">私有</option>
+                <option value="1">公有</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="g-form-item lf mt-0" style="width: 66.66%;">
+          <div class="g-form-item_label">说明：</div>
+          <div class="g-form-item__content" style="height: 70px;">
+            <textarea class="g-textarea" ms-duplex="modelData.note" style="resize: none;height:100%;"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="g-form-item clear"><div class="g-form-item_label" style="font-weight: bold;">企业范围设定：</div></div>
+      <div class="clear">
+        <div class="g-form-item lf w-33per mt-0">
+          <div class="g-form-item_label"><span class="text-red">*</span>企业类型：</div>
+          <div class="g-form-item__content">
+            <select class="g-select" ms-duplex="@modelData.tsjsfsDm" style="width: 100%;height: 100%;">
+              <option value=""></option>
+              <option value="2">外贸</option>
+              <option value="1">生产</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="g-form-item clear"><div class="g-form-item_label" style="font-weight: bold;">约束条件：</div></div>
+      <div class="clear">
+        <div class="g-form-item lf w-33per mt-0 ystj" ms-for="(index,item) in @dictList">
+          <div class="g-form-item_label">{{item.zbxmmc}}：</div>
+          <div class="g-form-item__content">
+            <div class="item-content fz clear lf" style="width: 100%; height: 28px;">
+              <div
+                class="custom-bootstrap-multiselect bootstrap-multiselect lf"
+                ms-if="item.isTree=='0'">
+                <select ms-attr="{id:'shareFa_select_'+item.zbxmbm.split('.')[0]+'_'+item.zbxmbm.split('.')[1]}" multiple="multiple"></select>
+              </div>
+              <div
+                style="width: 100%;"
+                class="tree clear lf"
+                ms-if="item.isTree=='1'">
+                <div
+                  ms-if="@selectMc[item.zbxmbm].value.length>3"
+                  class="item-content showSelect text-ellipsis"
+                  ms-click="@showTree"
+                  ms-attr="{title: @selectMc[item.zbxmbm]&&@selectMc[item.zbxmbm].name}">
+                  {{@selectMc[item.zbxmbm].value.length+ '项已选择'}}
+                </div>
+                <div
+                  ms-if="@selectMc[item.zbxmbm].value.length<=3"
+                  class="item-content showSelect text-ellipsis"
+                  ms-click="@showTree"
+                  ms-attr="{title: @selectMc[item.zbxmbm]&&@selectMc[item.zbxmbm].name}">
+                  {{@selectMc[item.zbxmbm].name}}
+                </div>
+                <ul
+                  style="left: 0;height: 140px;"
+                  ms-attr="{id:'shareFa_tree_'+item.zbxmbm.split('.')[0]+'_'+item.zbxmbm.split('.')[1]}"
+                  class='treeSelect ztree treeDiv'></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  <div class="model-btns">
+    <div class="btn" ms-click="@saveFa">确定</div>
+    <div class="btn" ms-click="@hideModel">取消</div>
+  </div>
+</div>

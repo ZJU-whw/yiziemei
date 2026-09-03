@@ -1,0 +1,94 @@
+<div class="zbtjjg zbpzWarp tableLine" ms-click="hideNsrsbh">
+  <div class="pageTabs">
+      <div class="pageTitle">
+        出口企业指标统计一户式查询
+      </div>
+      <div class="btns">
+        <div class="btn" ms-click="@search(1)">查询</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <div class="select-wrapper">
+        <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+        <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+        <div class="select-main">
+          <div class="select-item">
+            <label  title="税务机关">税务机关</label>
+            <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree">
+            <ul id="zbtjjgZtree" class='ztree treeDiv' style="left: 90px;top:100%;"></ul>
+          </div>
+          <div class="select-item nsrsbh-group">
+              <label title="纳税人标识">纳税人标识</label>
+              <input type="text" ms-duplex="searchData.nsrbs" placeholder="海关代码、税号、名称，支持模糊查询">
+          </div>
+          <div class="select-item">
+            <label title="退税计算方式">退税计算方式</label>
+            <select ms-duplex="@searchData.tsjsfs">
+                <option value="">　</option>
+                <option value="1">免抵退税</option>
+                <option value="2">免退税</option>
+                <option value="3">免税</option>
+                <option value="9">其他</option>
+            </select>
+          </div>
+        </div>
+        <div class="select-sub">
+          <div class="select-item">
+            <label title="报告期">报告期</label>
+            <div class="select-item-inner" style="max-width: 230px;">
+              <select class="w-25per" ms-duplex="@searchData.zqlx">
+                <option value="年">年</option>
+                <option value="季">季</option>
+              </select>
+              <select class="w-30per ml-5" ms-duplex="@bgqY">
+                <option value=""></option>
+                <option ms-for="item in @bgqList" ms-attr="{value: item}">{{item}}</option>
+              </select>
+              <select class="w-40per ml-5" ms-duplex="@bgqJd" ms-visible="searchData.zqlx == '季'" ms-attr="{disabled: bgqY == ''}">
+                <option value=""></option>
+                <option value="1">第一季度</option>
+                <option value="2">第二季度</option>
+                <option value="3">第三季度</option>
+                <option value="4">第四季度</option>
+              </select>
+            </div>
+          </div>
+          <div class="select-item">
+            <label title="纳税人状态">纳税人状态</label>
+            <div class="custom-bootstrap-multiselect bootstrap-multiselect lf w-60per" style="height: 22px;">
+              <select id="zbtjjg_select_nsrzt" multiple="multiple"></select>
+            </div>
+          </div>
+          <div class="select-item">
+            <label title="备案日期">备案日期</label>
+            <div class="select-item-inner">
+              <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate" ms-duplex="@searchData.
+              sqDateQ">
+              <span style="margin:0;">止</span>
+              <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate" ms-duplex="@searchData.sqDateZ">
+            </div>
+          </div>
+          <div class="select-item">
+            <label title="备案撤回标志">备案撤回标志</label>
+            <select ms-duplex="@searchData.zxFlag">
+              <option value=""></option>
+              <option value="Y">是</option>
+              <option value="N">否</option>
+            </select>
+          </div>
+          <div class="select-item">
+            <label title="企业类型">企业类型</label>
+            <select ms-duplex="@searchData.qylx">
+              <option value="">全部</option>
+              <option value="1">生产</option>
+              <option value="2">外贸</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="form" style="padding-top: 54px">
+        <table id="zbtjjg-table"></table>
+        <div id="zbtjjg-tablePager"></div>
+      </div>
+  </div>
+</div>

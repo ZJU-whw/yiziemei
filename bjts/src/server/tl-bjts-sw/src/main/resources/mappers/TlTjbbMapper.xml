@@ -1,0 +1,624 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.TlTjbbMapper">
+
+
+
+    <select id="loaddata" resultType="com.tl.bjts.sw.model.DateHashMap">
+          select a.*,t.allowupdate,t.allowformula,
+           row_number() over (order by t.showorder,a.bblc) rn
+           from
+          (SELECT * FROM  tjbb_line_item t WHERE t.qybj='Y' and bbdm=#{bbdm}) t ,
+          ${fname} a
+          where  t.bblc(+)=a.bblc
+            and a.swjgdm=#{swjgdm} and a.ssny=#{ssny}
+    </select>
+
+
+    <select id="loaddataMxAll" resultType="com.tl.bjts.sw.model.DateHashMap">
+        select a.*,t.allowupdate,t.allowformula,
+        row_number() over (order by a.swjgdm,a.bblc) rn
+        from
+        (SELECT * FROM  tjbb_line_item t WHERE t.qybj='Y' and bbdm=#{bbdm}) t ,
+        ${fname} a
+        where  t.bblc(+)=a.bblc
+        and a.ssny=#{ssny}
+        and exists
+        (select 1 from tjbb_task where bbdldm=#{bbdldm} and ny=#{ssny}
+                and (
+                    ( sjswjg=#{swjgdm} and substr(swjgdm,1,5)=substr(a.swjgdm,1,5))
+                     or
+                    (swjgdm=#{swjgdm} and swjgdm=a.swjgdm)
+                   )
+                )
+
+
+    </select>
+
+
+    <select id="loaddataMx" resultType="com.tl.bjts.sw.model.DateHashMap">
+        select a.*,t.allowupdate,t.allowformula,
+         row_number() over (order by a.swjgdm) rn
+         from
+        (SELECT * FROM  tjbb_line_item t WHERE t.qybj='Y' and bbdm=#{bbdm}) t ,tjbb_task k,
+        ${fname} a
+        where  t.bblc(+)=a.bblc
+        and k.sjswjg=#{swjgdm}  and k.bbdldm=#{bbdldm} and a.swjgdm=k.swjgdm and k.ny=a.ssny
+        and a.swjgdm like #{preSwjgdm}||'%' and a.ssny=#{ssny}
+
+    </select>
+
+
+    <select id="loaddataBySwjgdm" resultType="com.tl.bjts.sw.model.DateHashMap">
+        select a.*,t.allowupdate,t.allowformula,
+         row_number() over (order by t.showorder,a.bblc) rn
+         from
+          (SELECT * FROM  tjbb_line_item t WHERE t.qybj='Y' and bbdm=#{bbdm}) t ,
+          ${fname} a
+          where  t.bblc(+)=a.bblc
+            and a.swjgdm = #{swjgdm} and a.ssny=#{ssny}
+        and exists (
+                select 1 from tjbb_line_item k ,tjbb_report_list r, tjbb_task f
+                where k.bbdm=r.bbdm and r.bbdldm=f.bbdldm and a.swjgdm=f.swjgdm
+                <choose>
+                    <when test='swjgdm.startsWith("2")'>
+                        and  f.swjgdm=#{swjgdm}
+                    </when >
+                    <when test="swjgdm==curSwjgdm">
+                        and  f.swjgdm=#{curSwjgdm}
+                    </when >
+                    <otherwise>
+                        and  f.sjswjg=#{curSwjgdm}
+                    </otherwise>
+                </choose>
+                and f.ny=a.ssny
+            )
+    </select>
+
+    <select id="loaddataBySwjgdmMx" resultType="com.tl.bjts.sw.model.DateHashMap">
+        select a.*,t.allowupdate,t.allowformula,
+         row_number() over (order by t.showorder,a.bblc) rn
+         from
+        (SELECT * FROM  tjbb_line_item t WHERE t.qybj='Y' and bbdm=#{bbdm}) t ,
+        ${fname} a
+        where  t.bblc(+)=a.bblc
+        and (a.swjgdm = #{swjgdm} or (
+          a.swjgdm in (select swjg_dm from table(Func_Get_Xj_swjg(#{swjgdm})))
+        ))
+        and a.ssny=#{ssny} order by a.swjgdm,a.bblc
+    </select>
+
+    <select id="initLineItem" resultType="com.tl.bjts.sw.model.domain.TjbbHeaderModel">
+        select * from tjbb_report_header where bbdm=#{bbdm} and type=2 and bh in
+        (select max(bh)  from tjbb_report_header t
+        where bbdm=#{bbdm} and type=2 group by  horder ) order by horder
+    </select>
+
+    <select id="getHeadLineFormula" resultType="com.tl.bjts.sw.model.domain.TjbbHeaderModel">
+        select * from tjbb_report_header where bbdm=#{bbdm} and type=1 and horder in
+        (select max(horder)  from tjbb_report_header t where bbdm=#{bbdm} and type=1 )
+    </select>
+
+    <select id="getColByXlscol" resultType="string">
+          select fname from tjbb_header_cols t where bbdm=#{bbdm} and xlscol=#{colsNum}
+    </select>
+
+
+    <select id="getTaskList" resultType="com.tl.bjts.sw.model.vo.TjbbTaskVo">
+          select t.bbdlmc,a.*,a.status as statusDm from tjbb_report_item t,tjbb_task a where a.bbdldm=t.bbdldm
+              and a.swjgdm=#{swjgDm}   and a.ny= #{ssny}  order by t.bbdldm
+    </select>
+
+    <select id="getTaskSubList" resultType="com.tl.bjts.sw.model.vo.TjbbTaskSubVo">
+            select a.bbmc,
+            decode(hztime, null, 0, 1) ishz,
+            decode(xgtime, null, 0, 1) isxg,
+            t.*
+            from tjbb_task_sub t, tjbb_report_list a
+            where t.bbdm = a.bbdm
+            and swjgdm = #{swjgdm}
+            and ny = #{ssny}
+            and t.bbdldm = #{bbdldm} order by a.showorder
+    </select>
+
+    <select id="getTjbbItemList" resultType="com.tl.bjts.sw.model.vo.TjbbItemVo">
+        select t.bbdldm, c.bbdm, c.bbmc,t.bbdlmc
+          from tjbb_report_item t, tjbb_report_list c
+              where t.bbdldm = c.bbdldm  and t.type='1'
+        order by bbdldm, bbdm
+    </select>
+
+    <select id="getTjbbRecvMain" resultType="com.tl.bjts.sw.model.vo.TjbbRecvMainVo">
+        select t.*,m.ny as ssny,m.swjgmc,m.sbr,m.sbtime from tjbb_task_sub t,tjbb_task m where
+        m.bbdldm=t.bbdldm and m.swjgdm=t.swjgdm and t.ny=m.ny and
+        t.bbdm=#{bbdm}
+        <if test="isJc">
+            and m.swjgdm=#{swjgdm}
+        </if>
+        <if test="isJc==false">
+            and (m.sjswjg=#{swjgdm} or m.swjgdm=#{swjgdm})
+        </if>
+         and m.status='20' and exists
+          (select 1 from tjbb_task k where k.swjgdm=#{swjgdm}
+              /**and k.status='20'**/
+              and k.bbdldm=t.bbdldm
+              and k.ny=t.ny and exists
+             (select 1 from tjbb_task where status='20' group by bbdldm having max(ny)=k.ny)
+          )
+        order by t.swjgdm
+    </select>
+
+    <select id="getTjbbRecvMainByNy" resultType="com.tl.bjts.sw.model.vo.TjbbRecvMainVo">
+        select t.*,m.ny as ssny,m.swjgmc,m.sbr,m.sbtime from tjbb_task_sub t,tjbb_task m where
+        m.bbdldm=t.bbdldm and m.swjgdm=t.swjgdm and t.ny=m.ny and
+        t.bbdm=#{bbdm}
+        <if test="isJc">
+            and m.swjgdm=#{swjgdm}
+        </if>
+        <if test="isJc==false">
+            and (m.sjswjg=#{swjgdm} or m.swjgdm=#{swjgdm})
+        </if>
+        and m.status='20' and exists
+        (select 1 from tjbb_task k where k.swjgdm=#{swjgdm}
+        /**and k.status='20'**/
+        and k.bbdldm=t.bbdldm
+        and k.ny=t.ny ) and t.ny=#{ssny}
+        order by t.swjgdm
+    </select>
+
+    <insert id="insertSaveTjbb" parameterType="map">
+        insert into ${fname}(${cols}) VALUES (${datas})
+    </insert>
+
+    <update id="updateSaveTjbb" parameterType="map">
+        update ${fname}
+            set
+        <foreach collection="datalist" item="item" index="index" separator="," >
+              ${item.col}=#{item.coldata}
+        </foreach>
+        where ssny=#{ssny} and swjgdm=#{swjgdm} and bblc=#{bblc}
+    </update>
+
+    <update id="dyncCreateTable" >
+        create table ${tablename}
+        (
+        SSNY        VARCHAR2(6) not null,
+        BBLC        VARCHAR2(10) not null,
+        SWJGDM      VARCHAR2(32) not null
+        )
+    </update>
+
+    <update id="dyncCreateTable4Tjfx" >
+        create table ${tablename}
+        (
+        PARAMHASH        VARCHAR2(64) not null,
+        BBLC        VARCHAR2(10) not null,
+        SWJGDM      VARCHAR2(32) not null,
+        CRTIME DATE default sysdate
+        )
+    </update>
+
+    <update id="dyncCreateTablePk" >
+        alter table ${tablename}
+          add constraint ${pkname} primary key (SSNY, BBLC, SWJGDM)
+    </update>
+
+    <update id="dyncCreateTablePk4Tjfx" >
+        alter table ${tablename}
+        add constraint ${pkname} primary key (PARAMHASH, BBLC, SWJGDM)
+    </update>
+
+    <insert id="insertDyncTableColumn" parameterType="java.util.List">
+        begin
+        <foreach collection="list" item="item" index="index" separator=";" >
+            insert into tjbb_header_cols(id,bbdm,fname,cname,ftype,maxlen,degree,
+                                          allowupdate,allowformula,note,qybj,align,hztype)
+            values   (
+                        #{item.id},#{item.bbdm},
+                        #{item.fname},
+                        #{item.cname},
+                        #{item.ftype},
+                        #{item.maxlen},
+                        #{item.degree},
+                        #{item.allowupdate},
+                        #{item.allowformula},
+                        #{item.note},
+                        #{item.qybj},
+                        #{item.align},#{item.hztype} )
+        </foreach>
+        ;end;
+    </insert>
+
+    <insert id="insertInitTjbbLine" parameterType="map">
+        begin
+        <foreach collection="baseColumnVos" item="item" index="index" separator="" >
+            insert into ${fname}(ssny,bblc,swjgdm)
+            values   (
+            #{item.ssny},#{item.bblc},
+            #{item.swjgdm});
+        </foreach>
+        COMMIT;
+        end;
+    </insert>
+
+    <insert id="insertSubTaskList" parameterType="map">
+        begin
+        <foreach collection="retList" item="item" index="index" separator="" >
+            insert into tjbb_task_sub (bbid,bbdm,swjgdm,ny,hztime,hzr,bbdldm)
+            values (
+            #{item.bbid},
+            #{item.bbdm},
+            #{item.swjgdm},
+            #{item.ny},
+            #{item.hztime},
+            #{item.hzr},
+            #{item.bbdldm});
+        </foreach>
+        COMMIT;
+        end;
+    </insert>
+
+    <insert id="insertTbDataList4Lines" parameterType="map">
+        begin
+        <foreach collection="zbdms" item="item" index="index" separator="" >
+            insert into ${tablename}(swjgdm,bblc,ssny,
+            <if test=" fname!=null and fname !=''">
+                ${fname},
+            </if>
+            <foreach collection="cols" item="item" index="index" separator="," >
+                ${item},${item}_HZ
+            </foreach>
+            )
+            select #{swjgdm},#{item.tblc},#{ssny},
+            <if test=" fvalue!=null and fvalue !=''">
+                #{fvalue},
+            </if>
+            <foreach collection="cols" item="item" index="index" separator="," >
+                decode(nvl(b.${item},0),0,0.99,ROUND((a.${item}-b.${item})/b.${item},4)),
+                decode(nvl(b.${item}_HZ,0),0,0.99,ROUND((a.${item}_HZ-b.${item}_HZ)/b.${item}_HZ,4))
+            </foreach>
+            from ${tablename} a
+            left join  ${tablename} b on  a.swjgdm=b.swjgdm and a.bblc=b.bblc
+            and b.ssny=to_char(ADD_MONTHS(to_date(#{ssny},'YYYYMM'),-12),'YYYYMM')
+            where
+            a.swjgdm=#{swjgdm} and a.bblc=#{item.bblc} and a.ssny=#{ssny};
+        </foreach>
+        COMMIT;
+        end;
+    </insert>
+
+
+    <insert id="updateTbDataList4Cols" parameterType="map">
+        begin
+        <foreach collection="zbdms" item="item" index="index" separator="" >
+            update ${tablename} t
+            set
+            ${item.tblc} =
+            (select
+            decode(b.${item.bblc},0,99.99,null,b.${item.bblc},
+            round((a.${item.bblc} - b.${item.bblc})*100 / b.${item.bblc}, 2))
+            from ${tablename} a
+            left join ${tablename} b on (a.swjgdm = b.swjgdm and a.bblc = b.bblc
+            and b.ssny =to_char(ADD_MONTHS(to_date(#{ssny},'YYYYMM'),-12),'YYYYMM'))
+            where
+            a.ssny = #{ssny} and a.swjgdm = #{swjgdm} and t.bblc=a.bblc)
+            where t.ssny = #{ssny}
+            and t.swjgdm = #{swjgdm};
+
+            update ${tablename} t
+            set
+            ${item.tblc}_HZ =
+            (select
+            decode(b.${item.bblc}_HZ,0,99.99,null,b.${item.bblc}_HZ,
+            round((a.${item.bblc}_HZ - b.${item.bblc}_HZ)*100 / b.${item.bblc}_HZ, 2))
+            from ${tablename} a
+            left join ${tablename} b on (a.swjgdm = b.swjgdm and a.bblc = b.bblc
+            and b.ssny =to_char(ADD_MONTHS(to_date(#{ssny},'YYYYMM'),-12),'YYYYMM'))
+            where
+            a.ssny = #{ssny} and a.swjgdm = #{swjgdm} and t.bblc=a.bblc)
+            where t.ssny = #{ssny}
+            and t.swjgdm = #{swjgdm};
+        </foreach>
+        COMMIT;
+        end;
+    </insert>
+
+    <insert id="updateZbDataList4Cols" parameterType="map">
+        begin
+        <foreach collection="zbdms" item="item" index="index" separator="" >
+            update ${tablename} a
+            set
+            ${item.zbcol} =
+            decode(
+            (select ${item.bblc} from  ${tablename} where ssny = #{ssny} and swjgdm = #{swjgdm} and bblc = '01')
+            ,0,99.99,
+            round(a.${item.bblc}*100/(select ${item.bblc} from  ${tablename} where ssny = #{ssny} and swjgdm = #{swjgdm} and bblc = '01'),2)
+            )
+            where a.ssny = #{ssny}
+            and a.swjgdm = #{swjgdm};
+
+            update ${tablename} a
+            set
+            ${item.zbcol}_HZ =
+            decode(
+            (select ${item.bblc}_HZ from  ${tablename} where ssny = #{ssny} and swjgdm = #{swjgdm} and bblc = '01')
+            ,0,99.99,
+            round(a.${item.bblc}_HZ*100/(select ${item.bblc}_HZ from  ${tablename} where ssny = #{ssny} and swjgdm = #{swjgdm} and bblc = '01'),2)
+            )
+            where a.ssny = #{ssny}
+            and a.swjgdm = #{swjgdm};
+        </foreach>
+        COMMIT;
+        end;
+    </insert>
+
+    <insert id="updateZbFormulaDataList4Cols" parameterType="map">
+        begin
+        <foreach collection="zbcols" item="item" index="index" separator="" >
+            update ${tablename} a
+            set
+            ${item.zbcol} =decode(${item.fmCol},0,'99.99',${item.formula})
+            where a.ssny = #{ssny}
+            and a.swjgdm = #{swjgdm}
+            and not exists
+            (select 1 from tjbb_line_item e where e.bbdm=#{bbdm} and e.bblc=a.bblc
+                 and e.allowformula='N' and qybj='Y')
+            ;
+            update ${tablename} a
+            set
+            ${item.zbcol}_HZ =decode(${item.fmCol}_HZ,0,'99.99',${item.formulaHz})
+            where a.ssny = #{ssny}
+            and a.swjgdm = #{swjgdm}
+            and not exists
+            (select 1 from tjbb_line_item e where e.bbdm=#{bbdm} and e.bblc=a.bblc
+            and e.allowformula='N' and qybj='Y')
+            ;
+        </foreach>
+        COMMIT;
+        end;
+    </insert>
+
+    <insert id="insertHzTjbb4Sum" parameterType="map">
+        insert into ${tablename}(swjgdm,bblc,ssny,
+            <if test=" fname!=null and fname !=''">
+                ${fname},
+            </if>
+            <foreach collection="cols" item="item" index="index" separator="," >
+                ${item},${item}_HZ
+            </foreach>
+        )
+        select #{swjgdm},d.bblc,#{ssny},
+            <if test=" fvalue!=null and fvalue !=''">
+                #{fvalue},
+            </if>
+            <foreach collection="cols" item="item" index="index" separator="," >
+                sum(${item}),sum(${item}_HZ)
+            </foreach>
+        from tjbb_task t,${tablename} d,tjbb_line_item e
+            where
+            t.swjgdm in (select swjg_dm from table(Func_Get_Xj_swjg(#{swjgdm})))
+            and t.bbdldm=#{bbdldm}
+            and d.swjgdm=t.swjgdm and t.ny=d.ssny  and d.ssny=#{ssny}
+            and e.bblc=d.bblc and e.hztype='1' and e.bbdm=#{bbdm}
+            group by d.bblc
+    </insert>
+
+    <insert id="insertHzTjbb4Type5" parameterType="map">
+        insert into ${tablename}(swjgdm,bblc,ssny,
+        <if test=" fname!=null and fname !=''">
+            ${fname},
+        </if>
+        <foreach collection="cols" item="item" index="index" separator="," >
+            ${item},${item}_HZ
+        </foreach>
+        )
+        select #{swjgdm},bblc,#{ssny},
+        <if test=" fvalue!=null and fvalue !=''">
+            #{fvalue},
+        </if>
+        <foreach collection="cols" item="item" index="index" separator="," >
+            sum(${item}),sum(${item}_HZ)
+        </foreach>
+        from tjbb_task t,${tablename} d
+        where
+        t.swjgdm in (select swjg_dm from table(Func_Get_Xj_swjg(#{swjgdm})))
+        and t.bbdldm=#{bbdldm}
+        and d.swjgdm=t.swjgdm and t.ny=d.ssny  and ssny=#{ssny}
+        group by bblc
+    </insert>
+
+    <delete id="deleteHzTjbbData" parameterType="map">
+          delete from ${tablename} where swjgdm=#{swjgdm} and ssny=#{ssny}
+            <if test=" bblc!=null and bblc !=''">
+                and bblc=#{bblc}
+            </if>
+    </delete>
+
+    <delete id="deleteTjfxData" parameterType="map">
+        delete from ${tablename}
+    </delete>
+
+    <delete id="deleteTaskSub" parameterType="map">
+       delete from tjbb_task_sub
+        where swjgdm=#{swjgdm} and ny=#{ssny} and bbdldm=#{bbdldm}
+    </delete>
+
+
+    <update id="dyncAddTableColumn" >
+        alter table ${tablename}
+        add ${fname}  ${ftype}
+    </update>
+
+    <update id="dyncAddTableColumnComment">
+        comment on column ${tablename}.${fname} is '${comment}'
+    </update>
+
+
+    <select id="loadFormulaCols" parameterType="string" resultType="com.tl.bjts.sw.model.vo.FormulaColumnVo$FormulaColumn">
+        <![CDATA[
+        select fname,cname,xlscol as bh from tjbb_header_cols t
+          where bbdm=#{bbdm} and showorder is not null
+              and t.note <> 'OWN' order by showorder
+              ]]>
+    </select>
+
+
+    <select id="loadFormulaRows" parameterType="string" resultType="com.tl.bjts.sw.model.vo.FormulaColumnVo$FormulaColumn">
+        select t.bblc as fname,t.lcmc as cname,xlsrow as bh from tjbb_line_item t
+            where t.bbdm =#{bbdm}
+    </select>
+
+    <select id="countDataTables" parameterType="string" resultType="integer">
+        select count(*) from ${tablename}
+    </select>
+
+    <select id="countColumnByBbdm" parameterType="string" resultType="integer">
+        select count(*) from tjbb_header_cols t where bbdm=#{bbdm}
+    </select>
+
+    <select id="selectColumnType" resultType="com.tl.bjts.sw.model.vo.ColumnTypeVo">
+        select t1.column_name as fname, t1.data_type as ftype,
+         nvl(t1.data_precision,t1.data_length) as maxlen,t1.data_scale as degree, t2.comments
+        from user_tab_columns t1
+        inner join user_col_comments t2 on t1.table_name||t1.column_name=t2.table_name||t2.column_name
+        where t1.table_name = upper(#{tablename})
+        order by column_id
+    </select>
+
+
+    <select id="excuteProcedure" parameterType="com.tl.bjts.sw.model.ProcParam" statementType="CALLABLE">
+        { call ${procname}(
+        #{V_SWCODE,mode=IN,jdbcType=VARCHAR},
+        #{V_SSNY,mode=IN,jdbcType=VARCHAR},
+        #{V_ERROR,mode=OUT,jdbcType=INTEGER},
+        #{V_MSG,mode=OUT,jdbcType=VARCHAR}
+        )}
+    </select>
+
+    <select id="getTbHzItems" resultType="com.tl.bjts.sw.model.vo.HzTypeVo">
+        select bblc as tblc, hzobj as bblc from tjbb_line_item t where
+          hztype='2' and hzobj is not null and qybj='Y'  and bbdm=#{bbdm}
+    </select>
+    <select id="getTbHzCols" resultType="com.tl.bjts.sw.model.vo.HzTypeVo">
+            select fname as tblc, hzobj as bblc from tjbb_header_cols t where
+              hztype='2' and hzobj is not null and qybj='Y'  and bbdm=#{bbdm}
+    </select>
+
+    <select id="getZbHzCols" resultType="com.tl.bjts.sw.model.vo.HzTypeVo">
+        select fname as zbcol, hzobj as bblc from tjbb_header_cols t where
+        hztype='3' and hzobj is not null and qybj='Y'  and bbdm=#{bbdm}
+    </select>
+
+    <select id="getZbFormulaHzCols" resultType="com.tl.bjts.sw.model.vo.HzTypeVo">
+        select trim(replace(replace(substr(t.formula,1,instr(t.formula,'=')-1),'(',''),')','')) as zbcol,
+            replace(
+             replace(
+               replace(
+               replace(replace(
+               replace(substr(t.formula,instr(t.formula,'=')+1,length(t.formula)),'*100',''),'(',''),')+',','),')/',',')
+            ,')-',',')
+            ,')','') as bblc,
+        substr(t.formula,instr(t.formula,'=')+1,length(t.formula)) as formula
+        from tjbb_report_formula t where type=1 and t.bbdm=#{bbdm} and ishzjs='1' order by yxj
+    </select>
+
+    <select id="selectLineProfileFormula" resultType="com.tl.bjts.sw.model.vo.ProfileFormulaVo">
+        select trim(to_char(replace(replace(substr(t.formula,1,instr(t.formula,'=')-1),'(',''),')',''),'00')) as bblc,
+          replace(
+             replace(
+               replace(
+               replace(replace(
+               replace(substr(t.formula,instr(t.formula,'=')+1,length(t.formula)),'*100',''),'(',''),')+',','),')/',',')
+            ,')-',',')
+            ,')','') as bblcstr,
+            substr(t.formula,instr(t.formula,'=')+1,length(t.formula)) as formula
+        from tjbb_report_formula t where type=2 and t.bbdm=#{bbdm}
+        and t.ishzjs='1'
+        order by yxj
+
+    </select>
+
+    <select id="selectColumnValue" resultType="java.lang.String">
+        select ${col} from ${tablename}
+          where ssny=#{ssny} and swjgdm=#{swjgdm} and bblc=#{bblc}
+    </select>
+
+    <select id="selectColumnValueHz" resultType="java.lang.String">
+        select ${col}_HZ from ${tablename}
+        where ssny=#{ssny} and swjgdm=#{swjgdm} and bblc=#{bblc}
+    </select>
+
+    <select id="getBbdmBYdl" resultType="com.tl.bjts.sw.model.dto.SuitExcelDTO">
+        select bbdm,t.excelcol as startCol,t.excelrow as startRow,
+              t.headcol as headCol,t.headrow as headRow,t.endrow as endRow
+        from tjbb_report_list t where bbdldm=#{bbdldm} and qybj='Y' order by t.showorder
+    </select>
+
+    <insert id="jsProfileLineFormula" parameterType="map">
+        insert into ${tablename}(swjgdm,bblc,ssny,
+            <foreach collection="colVaules" item="item" index="index" separator="," >
+                ${item.colName},${item.colName}_HZ
+            </foreach>
+            ) values(#{swjgdm},#{bblc},#{ssny},
+            <foreach collection="colVaules" item="item" index="index" separator="," >
+                #{item.colValue},#{item.colValueHz}
+            </foreach>
+            )
+    </insert>
+
+
+    <select id="selectJyxxList" resultType="com.tl.bjts.sw.model.domain.TjbbSbJyxxModel">
+        select bbdm,msg,msg_type as msgType,msg_level as msgLevel from tjbb_sb_jyxx t
+        where bbdldm= #{bbdldm}  and swjgdm= #{swjgDm}  and msg_level=#{msgLevel}
+        order by bbdm
+    </select>
+
+    <!--  查询统计任务列表 -->
+    <select id="selectTjrwList" resultType="com.tl.bjts.sw.model.vo.TjrwListVO" parameterType="com.tl.bjts.sw.model.dto.TjrwDTO">
+        select rwlx,rwhash,rwbw as tjtj,swjg.swjg_jc as swjg,czrymc as tjr,frtime as tjrq,bz
+        from tl_admin.rwgl_ybcl_xxzb xxzb left outer join  tl_admin.dm_swjg swjg on (xxzb.swjgdm = swjg.swjg_dm)
+        where swjgdm like #{swjg} ||'%'
+        <if test="tjlx != null and tjlx!='' ">
+            and rwbw like '%' || #{tjlx} || '%'
+        </if>
+        <if test="tjr != null and tjr!='' ">
+            and ((czrymc like '%' || #{tjr} || '%') or (czrydm like '%' || #{tjr} || '%'))
+        </if>
+        <if test="tjrq != null and tjrq!='' ">
+            and to_char(frtime,'yyyy-MM-dd') = #{tjrq}
+        </if>
+        order by frtime desc
+    </select>
+
+    <select id="excuteProcedureCheck" parameterType="com.tl.bjts.sw.model.ProcParam" statementType="CALLABLE">
+        { call ${procname}(
+        #{V_SWCODE,mode=IN,jdbcType=VARCHAR},
+        #{V_SSNY,mode=IN,jdbcType=VARCHAR},
+        #{V_BBDLDM,mode=IN,jdbcType=VARCHAR},
+        #{V_ERROR,mode=OUT,jdbcType=INTEGER},
+        #{V_MSG,mode=OUT,jdbcType=VARCHAR}
+        )}
+    </select>
+
+
+    <select id="selectAllSubArea" resultType="com.tl.bjts.sw.model.vo.SwjgDispVo">
+            select a.swjg_dm as swjgdm,b.dispsx,b.swjg_jc as swjgjc from table(func_get_xj_swjg(#{swjgDm})) a ,dm_swjg b
+            where a.swjg_dm=b.swjg_dm
+            order by a.swjg_dm
+    </select>
+
+    <select id="excuteJkglProcedure" parameterType="com.tl.bjts.sw.model.ProcParam" statementType="CALLABLE">
+        { call ${procname}(
+        #{P_DJXH,mode=IN,jdbcType=DECIMAL},
+        #{P_SSSQ,mode=IN,jdbcType=VARCHAR},
+        #{P_ZBDM,mode=IN,jdbcType=VARCHAR}
+        )}
+    </select>
+
+    <!--  删除统计任务 -->
+    <delete id="deleteTjrw">
+        delete from rwgl_ybcl_xxzb
+        where rwlx = #{rwlx} and rwhash = #{rwhash}
+    </delete>
+
+</mapper>

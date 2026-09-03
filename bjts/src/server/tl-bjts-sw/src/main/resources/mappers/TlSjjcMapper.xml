@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.TlSjjcMapper">
+
+    <select id="selectNsrSampleSubList" resultType="com.tl.bjts.sw.model.domain.NsrSampleSubModel">
+
+        select id,a.zid,nsrsbh,nsrmc,b.sname from jcfx_nsr_sample_sub  a ,jcfx_nsr_sample  b
+        where a.zid = b.zid and b.zid  = #{pkid} and b.swjgDm=#{swjgDm}
+
+    </select>
+
+    <select id="getNsrdjxxList" resultType="com.tl.bjts.sw.model.vo.jcfx.NsrdjxxVo">
+        select t.djxh,t.nsrsbh,t.shxydm,t.nsrmc,t.qyhgdm
+          from jcfx_nsr_badj t
+          where t.swjgdm  like  #{swjgDm}||'%'
+        <if test="param.nsrsbh != null and param.nsrsbh!=''">
+            and t.nsrsbh like  '%'||#{param.nsrsbh}||'%'
+        </if>
+        <if test="param.qyhgdm != null and param.qyhgdm!=''">
+            and t.qyhgdm  like  '%'||#{param.qyhgdm}||'%'
+        </if>
+        <if test="param.nsrmc != null and param.nsrmc!=''">
+            and t.nsrmc like '%'||#{param.nsrmc}||'%'
+        </if>
+        and not exists (select 1 from  jcfx_nsr_sample_sub s where s.djxh=t.djxh and s.zid=#{param.zid})
+    </select>
+
+    <select id="selectMdtsTjDataList" resultType="com.tl.bjts.sw.model.vo.SjjcTmsqkVo">
+        <![CDATA[
+          SELECT A.SWJGDM,
+          BA_HS as baHs,
+          SB_HS as sbHs, SB_TSE as sbTse, SB_MDE as sbMde,
+          HZ_HS as hzHs, HZ_TSE as hzTse, HZ_MDE as hzMde,
+          BL_HS as blHs, BL_TSE as blTse, BL_MDE as blMde,
+          BA_HS_L as baHsL,
+          SB_HS_L as sbHsL, SB_TSE_L as sbTseL, SB_MDE_L as sbMdeL,
+          HZ_HS_L as hzHsL, HZ_TSE_L as hzTseL, HZ_MDE_L as hzMdeL,
+          BL_HS_L as blHsL, BL_TSE_L as blTseL, BL_MDE_L as blMdeL
+          FROM (SELECT T.SWJGDM,COUNT(1) AS BA_HS
+                  FROM JCFX_NSR_BADJ T
+                 WHERE
+                 T.SWJGDM LIKE #{preSwjgdm}||'%' and T.SWJGDM LIKE #{swjgdm}||'%'
+                 AND TO_CHAR(NVL(T.BACHSJ,SYSDATE),'YYYYMM')>=#{ssnyStart} AND TO_CHAR(T.SQ_DATE,'YYYYMM')<=#{ssnyEnd}
+                 GROUP BY T.SWJGDM) A
+         INNER JOIN (SELECT T.SWJGDM,
+                            COUNT(DISTINCT CASE WHEN S.CK_SB_TSE+S.CK_SB_MDE<>0 THEN S.DJXH ELSE NULL END) AS SB_HS, SUM(S.CK_SB_TSE) AS SB_TSE, SUM(S.CK_SB_MDE) AS SB_MDE,
+                            COUNT(DISTINCT CASE WHEN S.CK_HZ_TSE+S.CK_HZ_MDE<>0 THEN S.DJXH ELSE NULL END) AS HZ_HS, SUM(S.CK_HZ_TSE) AS HZ_TSE, SUM(S.CK_HZ_MDE) AS HZ_MDE,
+                            COUNT(DISTINCT CASE WHEN S.CK_BL_TSE+S.CK_BL_MDE<>0 THEN S.DJXH ELSE NULL END) AS BL_HS, SUM(S.CK_BL_TSE) AS BL_TSE, SUM(S.CK_BL_MDE) AS BL_MDE
+                       FROM JCFX_NSR_BADJ T
+                      INNER JOIN JCFX_DATA_QYYHZ S ON S.DJXH=T.DJXH
+                      WHERE
+                      T.SWJGDM LIKE #{preSwjgdm}||'%' and T.SWJGDM LIKE #{swjgdm}||'%'
+                      AND S.NY>=#{ssnyStart} AND S.NY<=#{ssnyEnd}
+                      GROUP BY T.SWJGDM) B ON B.SWJGDM=A.SWJGDM
+          LEFT JOIN (SELECT T.SWJGDM,COUNT(1) AS BA_HS_L
+                       FROM JCFX_NSR_BADJ T
+                      WHERE
+                      T.SWJGDM LIKE #{preSwjgdm}||'%' and T.SWJGDM LIKE #{swjgdm}||'%'
+                      AND TO_CHAR(NVL(T.BACHSJ,SYSDATE),'YYYYMM')>=#{lastYearSsnyStart} AND TO_CHAR(T.SQ_DATE,'YYYYMM')<=#{lastYearSsnyEnd}
+                      GROUP BY T.SWJGDM) C ON C.SWJGDM=A.SWJGDM
+          LEFT JOIN (SELECT T.SWJGDM,
+                            COUNT(DISTINCT CASE WHEN S.CK_SB_TSE+S.CK_SB_MDE<>0 THEN S.DJXH ELSE NULL END) AS SB_HS_L, SUM(S.CK_SB_TSE) AS SB_TSE_L, SUM(S.CK_SB_MDE) AS SB_MDE_L,
+                            COUNT(DISTINCT CASE WHEN S.CK_HZ_TSE+S.CK_HZ_MDE<>0 THEN S.DJXH ELSE NULL END) AS HZ_HS_L, SUM(S.CK_HZ_TSE) AS HZ_TSE_L, SUM(S.CK_HZ_MDE) AS HZ_MDE_L,
+                            COUNT(DISTINCT CASE WHEN S.CK_BL_TSE+S.CK_BL_MDE<>0 THEN S.DJXH ELSE NULL END) AS BL_HS_L, SUM(S.CK_BL_TSE) AS BL_TSE_L, SUM(S.CK_BL_MDE) AS BL_MDE_L
+                       FROM JCFX_NSR_BADJ T
+                      INNER JOIN JCFX_DATA_QYYHZ S ON S.DJXH=T.DJXH
+                      WHERE
+                      T.SWJGDM LIKE #{preSwjgdm}||'%' and T.SWJGDM LIKE #{swjgdm}||'%'
+                      AND S.NY>=#{lastYearSsnyStart} AND S.NY<=#{lastYearSsnyEnd}
+                      GROUP BY T.SWJGDM) D ON D.SWJGDM=A.SWJGDM
+        ]]>
+    </select>
+    <select id="selectTsywTjDataList" resultType="com.tl.bjts.sw.model.vo.SjjcTswyQkVo">
+        select
+        tsswjg_dm as swjg ,tsywlx,sum(mylaj) as mylaj ,sum(rmblaj) as rmblaj,sum(sb_tmse) as sbTmse,sum(hz_tmse) as Hztmse
+        from (
+            select tsswjg_dm,tsywlx,mylaj,rmblaj,tmse as sb_tmse,0 as hz_tmse
+            from  JCFX_DATA_TSSBMX_TSYW t
+            where  t.tsswjg_dm like #{preSwjgdm}||'%'
+            <if test="tsywlxSql != null and tsywlxSql!=''">
+                and tsywlx in (${tsywlxSql})
+            </if>
+            and (sbny  between #{ssnyStart} and #{ssnyEnd})
+            union all
+            select tsswjg_dm,tsywlx,0 as mylaj, 0 as rmblaj,0 as sb_tmse,tmse as hz_tmse
+            from  JCFX_DATA_TSSBMX_TSYW t
+            where  t.tsswjg_dm like #{preSwjgdm}||'%'
+            <if test="tsywlxSql != null and tsywlxSql!=''">
+                and tsywlx in (${tsywlxSql})
+            </if>
+            and (hzny  between #{ssnyStart} and #{ssnyEnd})
+        ) group by tsswjg_dm,tsywlx
+
+    </select>
+
+    <select id="selectDictInfoAll" resultType="com.tl.bjts.sw.model.DictInfoModel">
+        select a.field ,b.TABLE_NAME as tableName,b.COLUMN_NAME as columnName
+          from jcfx_cs_zbxm  a, user_tab_columns b
+        where b.Table_Name=UPPER(a.dicttable) and (b.COLUMN_NAME like '%_DM' or b.COLUMN_NAME like '%_MC')
+        group by  b.TABLE_NAME,b.COLUMN_NAME,a.field
+    </select>
+</mapper>

@@ -1,0 +1,95 @@
+<div class="fjlb">
+    <div class="pageTabs">
+        <div class="pageTitle">
+            附件管理
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@normalSearch()">查询</div>
+            <!-- <div class="btn" ms-click="@multiHandle()" ms-visible="@hasHsPermission">批量处理</div> -->
+            <!-- <div class="btn" ms-click="@exform">导出</div> -->
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']">
+        <form name="fjlb-form">
+            <div class="select-wrapper">
+                <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+                <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+                <div class="select-main">
+                    <!-- <div class="select-item">
+                        <label title="税务机关">税务机关</label>
+                        <input readonly type="text" ms-duplex="tsjgmc" ms-click="@showTree">
+                        <ul id="fjlbtree" class='ztree treeDiv' style="left: 90px;"></ul>
+                    </div> -->
+                    <div class="select-item">
+                        <label title="企业标识">企业标识：</label>
+                        <div>
+                            <input class="width-l" placeholder="请输入完整的企业税号或名称" type="text" ms-duplex="searchData.qybs"
+                                ms-on-focus="@selectFocus" ms-on-blur="@selectBlur"
+                                ms-on-keydown="@changeOption($event)" ms-on-keyup="@getQymc($event)">
+                            <div class="g-autoselect" ms-if="@isFocus">
+                                <div ms-for="(k,item) in @qymcList" class="select-list" ms-click="chooseOption(k)"
+                                    ms-mouseenter="setActiveOption(k)" :class="k === activeOption?'active':''">
+                                    {{item.nsrmc+'---'+item.shxyno}}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="select-item">
+                        <label title="单证类型">单证类型:</label>
+                        <div class="custom-bootstrap-multiselect bootstrap-multiselect lf" style="height: 22px;">
+                            <select id="cqwsb_select_dzlx" multiple="multiple"></select>
+                        </div>
+                    </div>
+                    <div class="select-item">
+                        <label title="阅读状态">阅读状态：</label>
+                        <select ms-duplex="@searchData.czflag">
+                            <option value=""></option>
+                            <option value="0">未阅读</option>
+                            <option value="1">已阅读</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="select-sub">
+                    <div class="select-item">
+                        <label title="文件标题">文件标题：</label>
+                        <input type="text" ms-duplex="@searchData.title">
+                    </div>
+                    <div class="select-item">
+                        <label title="备注">备注：</label>
+                        <input type="text" ms-duplex="@searchData.note">
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="form" style="padding-top: 54px">
+            <table id="fjlb-table"></table>
+            <div id="fjlb-tablePager"></div>
+        </div>
+    </div>
+    <!-- 查看 -->
+    <div class="page-model add-page-model g-model"
+        style="height:260px;width: 500px;margin-top: -140px;">
+        <div class="model-title">
+            <span>{{@addTitle}}</span>
+            <span class="model-close" ms-mousedown="$event.preventDefault()" ms-click="hideModel">&times;</span>
+          </div>
+        <div class="model-content g-form" style="height: 170px;padding: 10px 0;">
+            <div class="g-form-item">
+                <div class="g-form-item_label" style="width: 100px;">税务备注：</div>
+                <div class="g-form-item__content" style="margin-left: 100px;">
+                    <textarea class="g-textarea" ms-duplex="modelData.note2" style="height: 120px;"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="model-btns">
+            <div class="btn" ms-click="@saveModel" ms-visible="@addTitle!=='查看'">保存</div>
+            <!-- <div class="btn" ms-click="@hideModel">退出</div> -->
+        </div>
+    </div>
+    <!-- pdf预览 -->
+    <div class="page-model page-model-pdf">
+        <div id="sb-fjlb-pdf"></div>
+        <!-- <img ms-attr="{src:@imgSrc}" alt="11"> -->
+        <div class="close" title="关闭" ms-on-click="hideModelPdf()">&times;</div>
+        <div id="sb-fjlb-results"></div>
+    </div>
+</div>

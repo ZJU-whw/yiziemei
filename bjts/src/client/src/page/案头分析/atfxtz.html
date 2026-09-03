@@ -1,0 +1,181 @@
+<div class="atfxtz jcfx">
+  <div class="mask bg">
+    <img src="../../../static/image/loading2.gif" width="64" height="64" />
+  </div>
+  <div class="pageTabs">
+    <div class="pageTitle">
+      案头分析台账
+    </div>
+    <div class="btns">
+      <div class="btn" ms-click="@search(1)">查询</div>
+      <div class="btn" ms-click="@showModel(1)">新建</div>
+    </div>
+  </div>
+
+  <div ms-class="['page','active']">
+    <div class="select-wrapper" style="padding-bottom: 10px;border-bottom: 0;">
+   
+      <div class="select-main">
+        <div class="select-item" style="position: relative">
+          <label class="width-s" title="纳税人名称">纳税人名称</label>
+          <input class="width-m" type="text" ms-duplex="searchData.nsrmc">
+        </div>
+        <div class="select-item" style="position: relative">
+          <label class="width-s" title="纳税人识别号">纳税人识别号</label>
+          <input class="width-m" type="text" ms-duplex="searchData.nsrsbh">
+        </div>
+
+      </div>
+    </div>
+    <div class="form" style="padding-top: 48px;">
+      <table id="atfxtz-table"></table>
+      <div id="atfxtz-tablePager"></div>
+    </div>
+  </div>
+  <!-- 新增/编辑 -->
+  <div class="page-model atfxtz-xz-model g-model"
+    style="height:522px;width: 700px;margin-left: -350px;top: 50px; margin-top: 0;">
+    <div class="model-title">新建案头分析</div>
+    <div class="model-content g-form" style="height: 430px;padding: 10px 0;">
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span style="color: red;">*</span> 纳税人识别号：</div>
+        <div class="g-form-item__content">
+          <input class="g-input" type="text" ms-duplex="@editData.nsrsbh" ms-blur="nsrsbhChange">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">纳税人名称：</div>
+        <div class="g-form-item__content">
+          <input class="g-input" disabled placeholder="根据纳税人识别号自动带出" type="text" ms-duplex="@editData.nsrmc">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">退(免)税计算方法：</div>
+        <div class="g-form-item__content">
+          <input disabled placeholder="根据纳税人识别号自动带出" class="g-input" type="text" ms-duplex="@editData.jsmode">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span style="color: red;">*</span> 案头分析期起：</div>
+        <div class="g-form-item__content">
+          <input readonly class="datepicker date-atfxxqq" type="text" ms-duplex="@editData.fxqq"
+            ms-click="@showDatetimepicker($event)">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span style="color: red;">*</span> 案头分析期止：</div>
+        <div class="g-form-item__content">
+          <input ms-click="@showDatetimepicker($event)" class="g-input datepicker date-atfxxqz" type="text"
+            ms-duplex="@editData.fxqz">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">共同分析人员名称：</div>
+        <div class="g-form-item__content">
+          <select style="height: 30px;width: 100%;" class="g-select" ms-duplex="@editData.fxr2Dm">
+            <option value=""></option>
+            <option ms-for="item in @gtfxrymcList" ms-attr="{value: item.czryDm}">{{item.czryMc}}</option>
+          </select>
+        </div>
+        <!-- <div class="g-form-item__content nsrsbh-group dropdownWrap-group" style="margin-left: 0;">
+          <input style="border: 1px solid #409EFF;" name="nsrsbh" type="text" ms-duplex="@editData.fxr2Dm"
+            data-duplex-changed="inpChangeFxr2Dm" ms-focus="@showFxr2Dm" ms-blur="@blur"
+            ms-keyup="@fxr2DmEnterSearch | enter" ms-keydown="@keydown($event, 'fxr2DmList')"
+            placeholder="请输入至少4位纳税人识别号、海关代码或企业名称，支持模糊查询" autocomplete="off">
+          <div ms-visible="@showNsrsbhList" class="dropdownWrap" id="jkmPdNrsbhList">
+            <p ms-for="(index,item) in @nsrsbhList" ms-click="@setNsrsbh(item)" ms-attr="{index: index}"
+              ms-mouseover="@activeBgIndex = index" ms-class="{activeBg: @activeBgIndex == index}"
+              ms-css="{width: item.nsrmc.length * 12 + 150 +'px', 'min-width': '100%'}">
+              {{item.nsrxx}}
+            </p>
+          </div>
+        </div> -->
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">申请人名称：</div>
+        <div class="g-form-item__content">
+          <input disabled class="g-input" type="text" ms-duplex="@editData.sqrmc">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">申请日期：</div>
+        <div class="g-form-item__content">
+          <input disabled class="g-input" type="text" ms-duplex="@editData.sqrq">
+        </div>
+      </div>
+    </div>
+    <div class="model-btns">
+      <div class="btn" ms-click="@addAtfx">确定</div>
+      <div class="btn" ms-click="@hideModel">取消</div>
+    </div>
+  </div>
+  <div class="page-model atfxtz-sp-model g-model"
+    style="height:522px;width: 700px;margin-left: -350px;top: 50px; margin-top: 0;">
+    <div class="model-title">审批</div>
+    <div class="model-content g-form" style="height: 430px;padding: 10px 0;">
+      <div class="g-form-item">
+        <div class="g-form-item_label">纳税人识别号：</div>
+        <div class="g-form-item__content">
+          <input disabled class="g-input" type="text" ms-duplex="@spData.nsrsbh">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">纳税人名称：</div>
+        <div class="g-form-item__content">
+          <input class="g-input" disabled type="text" ms-duplex="@spData.nsrmc">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">退(免)税计算方法：</div>
+        <div class="g-form-item__content">
+          <input disabled class="g-input" type="text" ms-duplex="@spData.ckhwtmsjsffMc">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">案头分析期起：</div>
+        <div class="g-form-item__content">
+          <input disabled class="g-input" type="text" ms-duplex="@spData.fxqq">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">案头分析期止：</div>
+        <div class="g-form-item__content">
+          <input disabled class="g-input" type="text" ms-duplex="@spData.fxqz">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">共同分析人员名称：</div>
+        <div class="g-form-item__content">
+          <input disabled class="g-input" type="text" ms-duplex="@spData.fxr2Mc">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">申请人名称：</div>
+        <div class="g-form-item__content">
+          <input disabled class="g-input" type="text" ms-duplex="@spData.sqrMc">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">申请日期：</div>
+        <div class="g-form-item__content">
+          <input disabled class="g-input" type="text" ms-duplex="@spData.sqrq">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">审批意见：</div>
+        <div class="g-form-item__content flex-center" style="height: 30px;">
+          <label class="flex-center yj-label">
+            <input type="radio" name="spyj" ms-duplex="@spData.spjg" value="1"> 同意
+          </label>
+          <label class="flex-center yj-label" style="margin-left: 20px;">
+            <input type="radio" name="spyj" ms-duplex="@spData.spjg" value="0"> 拒绝
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="model-btns">
+      <div class="btn" ms-click="@linkSp">确定</div>
+      <div class="btn" ms-click="@hidespModel">取消</div>
+    </div>
+  </div>
+</div>

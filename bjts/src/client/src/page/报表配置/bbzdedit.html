@@ -1,0 +1,79 @@
+<div class="bbzdedit" >
+    <div class="pageTabs">
+        <div style="height:24px;line-height:24px;width:35%;float: left;margin: 5px;">
+            【报表字段维护】
+        </div>
+        <div style="height:24px;line-height:24px;width:35%;float: left;margin: 5px;">
+            【报表代码】：<span>{{searchData.bbdm}}</span>
+        </div>
+        <div class="btns">
+            <div class="btn" ms-click="@search(1)">刷新</div>
+            <div class="btn" ms-click="@saveTable">保存</div>
+            <div class="btn" ms-click="@addRow">新增字段</div>
+        </div>
+    </div>
+    <div class="page active">
+        <div class="form" style="padding-top: 0">
+            <table class="table">
+                <thead>
+                <tr>
+                    <td class="text-center" style="background: #eee;">字段名称</td>
+                    <td class="text-center" style="background: #eee;">数据字段</td>
+                    <td class="text-center" style="background: #eee;">绑定列序</td>
+                    <td class="text-center" style="background: #eee;">公式下标</td>
+                    <!--<td class="text-center" style="background: #eee;">是否参与汇总</td>-->
+                    <td class="text-center" style="background: #eee;">汇总方式</td>
+                    <td class="text-center" style="background: #eee;">对象列</td>
+                    <td class="text-center" style="background: #eee;">允许列编辑</td>
+                    <td class="text-center" style="background: #eee;">允许公式计算</td>
+                    <td class="text-center" style="background: #eee;">对齐方式</td>
+                    <td class="text-center" style="background: #eee;">操作</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ms-for="(index,item) in tableData">
+                    <td><input type="text" ms-duplex="item.cname"></td>
+                    <td><select ms-on-change="@chgOption($event,index)" ms-duplex="item.fname">
+                        <option value="">请选择</option>
+                        <option ms-for="(i,ii) in options" ms-attr="{value:ii.fname,title:ii.comments,'data-index':i}">{{ii.fname}}</option>
+                    </select></td>
+                    <td><input type="text" ms-duplex="item.showorder"></td>
+                    <td><input type="text" ms-duplex="item.xlscol"></td>
+                    <!--<td><select ms-duplex="item.allowsum">-->
+                        <!--<option value=""></option>-->
+                        <!--<option value="Y">是</option>-->
+                        <!--<option value="N">否</option>-->
+                    <!--</select></td>-->
+                    <td><select ms-duplex="item.hztype">
+                        <option value=""></option>
+                        <option value="1">求和汇总</option>
+                        <option value="2">同比汇总</option>
+                        <option value="3">占比汇总</option>
+                    </select></td>
+                    <td><select ms-duplex="item.hzobj">
+                        <option value=""></option>
+                        <option ms-for="opt in tableData" ms-attr="{value:opt.fname}">{{opt.cname}}</option>
+                    </select></td>
+                    <td><select ms-duplex="item.allowupdate">
+                        <option value=""></option>
+                        <option value="Y">是</option>
+                        <option value="N">否</option>
+                    </select></td>
+                    <td><select ms-duplex="item.allowformula">
+                        <option value=""></option>
+                        <option value="Y">是</option>
+                        <option value="N">否</option>
+                    </select></td>
+                    <td><select ms-duplex="item.align">
+                        <option value="">请选择</option>
+                        <option value="0">左对齐</option>
+                        <option value="1">居中</option>
+                        <option value="2">右对齐</option>
+                    </select></td>
+                    <td><div ms-click="delZd(item.id)" style="cursor:pointer;float: none;text-align: center; text-decoration: underline;color: #fe7481;">删除</div></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

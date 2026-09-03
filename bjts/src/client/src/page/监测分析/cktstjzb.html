@@ -1,0 +1,37 @@
+<div class="cktstjzb" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        出口退（免）税统计总表
+      </div>
+      <div class="btns">
+        <div class="btn" ms-click="@search(1)">查询</div>
+        <div class="btn" ms-click="@exform">导出</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <form name="cktstjzb-form">
+          <div class="select-wrapper">
+            <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+            <div class="select-main">
+              <div class="select-item">
+                  <label class="item-label" title="税务机关">税务机关</label>
+                  <input class="item-content" readonly type="text" ms-duplex="swjgmc" ms-click="@showTree">
+                  <ul id="cktstjzbTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+              </div>
+              <div class="select-item">
+                <label class="item-label" title="统计区间">统计区间</label>
+                <div class="select-item-inner item-content">
+                  <input type="text" class="datepicker date-month" ms-duplex="@searchData.ssnyStart" :on-blur="@filDate($event, 'ssnyStart')" ms-click="@showDatetimepicker">
+                  <span>至</span>
+                  <input type="text" class="datepicker date-month" ms-duplex="@searchData.ssnyEnd" :on-blur="@filDate($event, 'ssnyEnd')" ms-click="@showDatetimepicker">
+                </div>
+              </div>
+            </div>
+          </div>
+      </form>
+      <div class="form" style="padding-top: 54px">
+        <table id="cktstjzb-table"></table>
+        <div id="cktstjzb-tablePager"></div>
+      </div>
+  </div>
+</div>

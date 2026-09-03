@@ -1,0 +1,96 @@
+<div class="sjbpz zbpzWarp tableLine" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        数据表配置
+      </div>
+      <div class="btns">
+          <div class="btn" ms-click="@search(1)">查询</div>
+          <div class="btn" ms-click="@showModel('新增')">新增</div>
+          <div class="btn" ms-click="@exform">导出</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+    <div class="select-wrapper">
+      <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+      <div class="select-main">
+          <div class="select-item">
+            <label  title="数据源标识">数据源标识</label>
+            <input  type="text" ms-duplex="@searchData.dsId">
+          </div>
+          <div class="select-item">
+            <label title="数据表名">数据表名</label>
+            <input type="text" ms-duplex="searchData.tablename">
+          </div>
+          <div class="select-item">
+            <label title="数据表中文名">数据表中文名</label>
+            <input type="text" ms-duplex="searchData.tablecname">
+          </div>
+      </div>
+    </div>
+    <div class="form" style="padding-top: 54px;">
+        <table id="sjbpz-table"></table>
+        <div id="sjbpz-tablePager"></div>
+    </div>
+  </div>
+  <!-- 新增/编辑 -->
+  <div class="page-model add-page-model" style="height:420px;width: 500px;margin-left: -250px;" >
+    <div class="model-title">{{addTitle}}</div>
+    <div class="model-content g-form" style="height: 320px;">
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>数据源标识：</div>
+        <div class="g-form-item__content">
+          <select style="width: 100%;" class="g-select" ms-duplex="@modelData.dsId" ms-attr="{disabled: @addTitle == '编辑'}">
+            <option value=""></option>
+            <option ms-for="item in @dsNameList" ms-attr="{value: item.dsId}">{{item.dsName}}</option>
+          </select>
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>数据源用户：</div>
+        <div class="g-form-item__content">
+          <input type="text" ms-duplex="modelData.dsSchema">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>数据表名：</div>
+        <div class="g-form-item__content">
+          <input type="text" ms-duplex="modelData.tablename" ms-attr="{disabled: @addTitle == '编辑'}">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>数据表中文名：</div>
+        <div class="g-form-item__content">
+          <input type="text" ms-duplex="modelData.tablecname">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>是否为代码表：</div>
+        <div class="g-form-item__content">
+          <select class="g-select" ms-duplex="@modelData.isDict">
+            <option value="Y">是</option>
+            <option value="N">否</option>
+          </select>
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>显示顺序：</div>
+        <div class="g-form-item__content">
+          <input type="text" ms-duplex="modelData.showorder" data-duplex-changed="numberLimit">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>启用标志：</div>
+        <div class="g-form-item__content">
+          <select class="g-select" ms-duplex="@modelData.yxbz">
+            <option value="Y">有效</option>
+            <option value="N">无效</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="model-btns">
+        <div class="btn" ms-click="saveModel">保存</div>
+        <div class="btn" ms-click="hideModel">取消</div>
+    </div>
+  </div>
+</div>

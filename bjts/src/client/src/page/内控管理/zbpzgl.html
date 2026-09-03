@@ -1,0 +1,231 @@
+<div class="zbpzgl zbpzWarp tableLine">
+  <div class="pageTabs">
+    <div class="pageTitle">
+      指标配置管理
+    </div>
+    <div class="btns">
+      <div class="btn" ms-click="@search(1)">查询</div>
+      <div class="btn" ms-click="@exform">导出</div>
+    </div>
+  </div>
+  <div ms-class="['page','active']">
+    <div class="select-wrapper">
+      <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+      <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+      <div class="select-main">
+        <!-- <div class="select-item">
+          <label title="内控指标编号">内控指标编号</label>
+          <input type="text" ms-duplex="@searchData.nkzbbh">
+        </div> -->
+        <div class="select-item">
+          <label title="内控风险等级">内控风险等级</label>
+          <select class="g-select" ms-duplex="@searchData.nkfxdj">
+            <option value=""></option>
+            <option value="高">高</option>
+            <option value="中">中</option>
+            <option value="低">低</option>
+          </select>
+        </div>
+        <div class="select-item">
+          <label title="内控指标类别">内控指标类别</label>
+          <select class="g-select" ms-duplex="@searchData.nkzblb">
+            <option value=""></option>
+            <option value="综合管理类">综合管理类</option>
+            <option value="申报管理类">申报管理类</option>
+            <option value="函调管理类">函调管理类</option>
+            <option value="风险管理类">风险管理类</option>
+          </select>
+        </div>
+        <div class="select-item">
+          <label title="内控指标名称">内控指标名称</label>
+          <input type="text" ms-duplex="@searchData.nkzbmc">
+        </div>
+      </div>
+      <div class="select-sub">
+        <!-- <div class="select-item">
+          <label title="内控风险等级">内控风险等级</label>
+          <select class="g-select" ms-duplex="@searchData.nkfxdj">
+            <option value=""></option>
+            <option value="高">高</option>
+            <option value="中">中</option>
+            <option value="低">低</option>
+          </select>
+        </div> -->
+        <!-- <div class="select-item">
+          <label title="内控业务领域">内控业务领域</label>
+          <select class="g-select" ms-duplex="@searchData.nkywly">
+            <option value=""></option>
+            <option value="出口税收函调管理">出口税收函调管理</option>
+            <option value="出口退（免）税备案事项">出口退（免）税备案事项</option>
+            <option value="出口退（免）税调查评估">出口退（免）税调查评估</option>
+            <option value="出口退（免）税分类管理">出口退（免）税分类管理</option>
+            <option value="出口退（免）税风险管理">出口退（免）税风险管理</option>
+            <option value="出口退（免）税岗位设置">出口退（免）税岗位设置</option>
+            <option value="出口退（免）税审核">出口退（免）税审核</option>
+            <option value="出口退（免）税实地核查">出口退（免）税实地核查</option>
+          </select>
+        </div> -->
+        <div class="select-item">
+          <label title="事前提醒类型">事前提醒类型</label>
+          <select class="g-select" ms-duplex="@searchData.sqtxlx">
+            <option value=""></option>
+            <option value="0">否</option>
+            <option value="1">是</option>
+          </select>
+        </div>
+        <div class="select-item">
+          <label title="事中预警类型">事中预警类型</label>
+          <select class="g-select" ms-duplex="@searchData.szyjlx">
+            <option value=""></option>
+            <option value="0">否</option>
+            <option value="1">是</option>
+          </select>
+        </div>
+        <div class="select-item">
+          <label title="事后监督类型">事后监督类型</label>
+          <select class="g-select" ms-duplex="@searchData.shjdlx">
+            <option value=""></option>
+            <option value="0">否</option>
+            <option value="1">是</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="form" style="padding-top: 54px;">
+      <table id="zbpz-table"></table>
+      <div id="zbpz-tablePager"></div>
+    </div>
+  </div>
+  <!-- 查看 -->
+  <div class="page-model add-page-model"
+    style="height:522px;width: 960px;margin-left: -480px;top: 50px; margin-top: 0;">
+    <div class="model-title">{{addTitle}}</div>
+    <div class="model-content g-form" style="height: 430px;padding: 10px 0;">
+      <!-- <div class="clear">
+        <div class="g-form-item lf">
+          <div class="g-form-item_label"><span class="text-red"></span>内控指标编号：</div>
+          <div class="g-form-item__content">
+            <input type="text" ms-duplex="modelData.nkzbbh" ms-attr="{disabled: true}">
+          </div>
+        </div>
+        <div class="g-form-item lf mt-0">
+          <div class="g-form-item_label"><span class="text-red"></span>内控指标类别：</div>
+          <div class="g-form-item__content">
+            <select class="g-select" ms-duplex="@modelData.nkzblb" ms-attr="{disabled: true}" style="width: 100%;">
+              <option value=""></option>
+              <option value="综合管理类">综合管理类</option>
+              <option value="申报管理类">申报管理类</option>
+              <option value="函调管理类">函调管理类</option>
+              <option value="风险管理类">风险管理类</option>
+            </select>
+          </div>
+        </div>
+      </div> -->
+      <div class="clear mt-10">
+        <div class="g-form-item lf">
+          <div class="g-form-item_label"><span class="text-red"></span>内控指标名称：</div>
+          <div class="g-form-item__content">
+            <input type="text" ms-duplex="modelData.nkzbmc" ms-attr="{disabled: true}">
+          </div>
+        </div>
+        <div class="g-form-item lf mt-0">
+          <div class="g-form-item_label"><span class="text-red"></span>内控风险等级：</div>
+          <div class="g-form-item__content">
+            <select class="g-select" ms-duplex="@modelData.nkfxdj" style="width: 100%;" ms-attr="{disabled: true}">
+              <option value=""></option>
+              <option value="高">高</option>
+              <option value="中">中</option>
+              <option value="低">低</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="clear mt-10">
+        <!-- <div class="g-form-item lf">
+          <div class="g-form-item_label"><span class="text-red"></span>内控业务领域：</div>
+          <div class="g-form-item__content">
+            <select class="g-select" ms-duplex="@modelData.nkywly" style="width: 100%;" ms-attr="{disabled: true}">
+              <option value=""></option>
+              <option value="出口税收函调管理">出口税收函调管理</option>
+              <option value="出口退（免）税备案事项">出口退（免）税备案事项</option>
+              <option value="出口退（免）税调查评估">出口退（免）税调查评估</option>
+              <option value="出口退（免）税分类管理">出口退（免）税分类管理</option>
+              <option value="出口退（免）税风险管理">出口退（免）税风险管理</option>
+              <option value="出口退（免）税岗位设置">出口退（免）税岗位设置</option>
+              <option value="出口退（免）税审核">出口退（免）税审核</option>
+              <option value="出口退（免）税实地核查">出口退（免）税实地核查</option>
+            </select>
+          </div>
+        </div> -->
+        <div class="g-form-item lf mt-0">
+          <div class="g-form-item_label"><span class="text-red"></span>内控指标类别：</div>
+          <div class="g-form-item__content">
+            <select class="g-select" ms-duplex="@modelData.nkzblb" ms-attr="{disabled: true}" style="width: 100%;">
+              <option value=""></option>
+              <option value="综合管理类">综合管理类</option>
+              <option value="申报管理类">申报管理类</option>
+              <option value="函调管理类">函调管理类</option>
+              <option value="风险管理类">风险管理类</option>
+            </select>
+          </div>
+        </div>
+        <div class="g-form-item lf mt-0">
+          <div class="g-form-item_label"><span class="text-red"></span>事前提醒类型：</div>
+          <div class="g-form-item__content">
+            <input type="text" ms-duplex="modelData.sqtxlx" ms-attr="{disabled: true}">
+          </div>
+        </div>
+      </div>
+      <div class="clear mt-10">
+        <div class="g-form-item lf">
+          <div class="g-form-item_label"><span class="text-red"></span>事中预警类型：</div>
+          <div class="g-form-item__content">
+            <input type="text" ms-duplex="modelData.szyjlx" ms-attr="{disabled: true}">
+          </div>
+        </div>
+        <div class="g-form-item lf mt-0">
+          <div class="g-form-item_label"><span class="text-red"></span>事后监督类型：</div>
+          <div class="g-form-item__content">
+            <input type="text" ms-duplex="modelData.shjdlx" ms-attr="{disabled: true}">
+          </div>
+        </div>
+      </div>
+      <div class="g-form-item mt-10">
+        <div class="g-form-item_label"><span class="text-red"></span>内控业务描述：</div>
+        <div class="g-form-item__content" style="width: 740px;height: 60px;">
+          <textarea class="g-textarea" ms-duplex="modelData.nkywms" ms-attr="{disabled: true}"></textarea>
+        </div>
+      </div>
+      <div class="g-form-item mt-10">
+        <div class="g-form-item_label"><span class="text-red"></span>内控数据来源：</div>
+        <div class="g-form-item__content" style="width: 740px;height: 60px;">
+          <textarea class="g-textarea" ms-duplex="modelData.nksjly" ms-attr="{disabled: true}"></textarea>
+        </div>
+      </div>
+      <div class="g-form-item mt-10">
+        <div class="g-form-item_label"><span class="text-red"></span>内控口径描述：</div>
+        <div class="g-form-item__content" style="width: 740px;height: 60px;">
+          <textarea class="g-textarea" ms-duplex="modelData.nkkjms" ms-attr="{disabled: true}"></textarea>
+        </div>
+      </div>
+      <div class="clear mt-10">
+        <div class="g-form-item lf">
+          <div class="g-form-item_label"><span class="text-red"></span>开始提醒工作日：</div>
+          <div class="g-form-item__content">
+            <input type="text" ms-duplex="modelData.kstxgzr" ms-attr="{disabled: true}">
+          </div>
+        </div>
+        <div class="g-form-item lf mt-0">
+          <div class="g-form-item_label"><span class="text-red"></span>开始监督工作日：</div>
+          <div class="g-form-item__content">
+            <input type="text" ms-duplex="modelData.ksjdgzr" ms-attr="{disabled: true}">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="model-btns">
+      <div class="btn" ms-click="hideModel">退出</div>
+      <!-- <div class="btn" ms-click="hideModel">取消</div> -->
+    </div>
+  </div>
+</div>

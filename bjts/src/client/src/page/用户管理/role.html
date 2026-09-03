@@ -1,0 +1,28 @@
+<div class="role">
+    <div class="pageTabs">
+        <div class="pageTitle">系统设置 / 角色管理</div>
+        <div class="btns">
+            <input type="text" placeholder="请输入角色名称" class="lf" ms-duplex="@searchData.name"/>
+            <div class="btn" ms-click="search(1,true)">查询</div>
+            <div class="btn" ms-click="showModal">新增</div>
+        </div>
+    </div>
+    <div class="page active">
+        <div class="form" style="padding-top: 0">
+            <table id="role-table"></table>
+            <div id="role-table-pager"></div>
+        </div>
+        <div class="page-model">
+            <div class="model-title">新增角色</div>
+            <div class="model-content">
+                <p><label><span class="text-red">*</span>角色名称：</label><input type="text" class="width-l" ms-duplex="modalData.rolename"></p>
+                <p><label><span class="text-red">*</span>角色code：</label><input type="text" class="width-l" ms-duplex="modalData.rolecode"></p>
+                <p><label>角色说明：</label><input type="text" class="width-l" ms-duplex="modalData.remark"></p>
+            </div>
+            <div class="model-btns">
+                <div class="btn" ms-click="submit">确定</div>
+                <div class="btn" ms-click="closeModal">取消</div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,80 @@
+<div class="bsyckmts zbpzWarp tableLine" ms-click="hideNsrsbh">
+    <div class="pageTabs">
+      <div class="pageTitle">
+        不适用退免税政策出口明细查询
+      </div>
+      <div class="btns">
+        <div class="btn" ms-click="@search(1)">查询</div>
+        <div class="btn" ms-click="@exform" ms-if="@hasHsPermission">导出</div>
+      </div>
+    </div>
+    <div ms-class="['page','active']">
+      <div class="select-wrapper">
+        <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+        <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+        <div class="select-main">
+          <div class="select-item" style="width: 25%;">
+            <label title="税务机关">税务机关</label>
+            <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree">
+            <ul id="bsyckmtsSwjgTree" class='ztree treeDiv bsyckmtsSwjgTree' style="left: 40%;width: 200px;"></ul>
+          </div>
+          <div class="select-item nsrsbh-group" style="width: 25%;">
+            <label title="录入日期">录入日期</label>
+            <div class="select-item-inner">
+              <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate"
+                ms-duplex="@searchData.fqsjQ">
+              <span style="margin:0;">止</span>
+              <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate"
+                ms-duplex="@searchData.fqsjZ">
+            </div>
+          </div>
+          <div class="select-item" style="width: 25%;">
+            <label title="数据来源">数据来源</label>
+            <select ms-duplex="@searchData.sjly">
+              <option value="">全部</option>
+              <option value="1">系统</option>
+              <option value="2">人工</option>
+            </select>
+          </div>
+        </div>
+        <div class="select-sub">
+          
+          <div class="select-item">
+            <label title="报关单号/代理证明号">报关单号/代理证明号</label>
+            <input type="text" ms-duplex="searchData.ckpzhm" maxlength="21">
+          </div>
+          <div class="select-item">
+            <label title="企业税号">企业税号</label>
+            <input type="text" ms-duplex="searchData.nsrsbh" maxlength="21">
+          </div>
+          <div class="select-item">
+            <label title="企业名称">企业名称</label>
+            <input type="text" ms-duplex="searchData.nsrmc" maxlength="30">
+          </div>
+          <div class="select-item">
+            <label title="企业海关代码">企业海关代码</label>
+            <input type="text" ms-duplex="searchData.qyhgdm" maxlength="50">
+          </div>
+        </div>
+      </div>
+      <div class="form" style="padding-top: 54px">
+        <div class="tab clear" style="margin: 10px;">
+          <div class="tab-item" :class="activeIndex == '0' && 'active'" ms-click="changeTab('0')">按税务机关分组统计</div>
+          <div class="tab-item" :class="activeIndex == '1' && 'active'" ms-click="changeTab('1')">按企业分组统计</div> 
+          <div class="tab-item" :class="activeIndex == '2' && 'active'" ms-click="changeTab('2')">明细查询</div> 
+        </div>
+        <div style="padding-top: 5px;" ms-visible="activeIndex == '0'">
+          <table id="bsyckmts-swjg-table"></table>
+          <div id="bsyckmts-swjg-tablePager"></div>
+        </div>
+        <div style="padding-top: 5px;" ms-visible="activeIndex == '1'">
+          <table id="bsyckmts-qyfz-table"></table>
+          <div id="bsyckmts-qyfz-tablePager"></div>
+        </div>
+        <div style="padding-top: 5px;" ms-visible="activeIndex == '2'">
+          <table id="bsyckmts-mxcx-table"></table>
+          <div id="bsyckmts-mxcx-tablePager"></div>
+        </div>
+      </div>
+    </div>
+  </div>

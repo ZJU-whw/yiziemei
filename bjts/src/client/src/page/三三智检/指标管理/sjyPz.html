@@ -1,0 +1,61 @@
+<div class="sjypz zbpzWarp tableLine" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        数据源配置
+      </div>
+      <div class="btns">
+          <div class="btn" ms-click="@search(1)">查询</div>
+          <div class="btn" ms-click="@showModel('新增')">新增</div>
+          <div class="btn" ms-click="@exform">导出</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <div class="form" style="padding-top: 0;">
+          <table id="sjypz-table"></table>
+          <div id="sjypz-tablePager"></div>
+      </div>
+  </div>
+  <!-- 新增/编辑 -->
+  <div class="page-model add-page-model" style="height:340px;width: 500px;margin-left: -250px;" >
+    <div class="model-title">{{addTitle}}</div>
+    <div class="model-content g-form" style="height: 240px;">
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>数据源标识：</div>
+        <div class="g-form-item__content">
+          <input type="text" ms-duplex="modelData.dsId">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>数据源名称：</div>
+        <div class="g-form-item__content">
+          <input type="text" ms-duplex="modelData.dsName">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>数据源类型：</div>
+        <div class="g-form-item__content">
+          <input type="text" ms-duplex="modelData.dsType">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>显示顺序：</div>
+        <div class="g-form-item__content">
+          <input type="text" ms-duplex="modelData.showorder" data-duplex-changed="numberLimit">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>有效标志：</div>
+        <div class="g-form-item__content">
+          <select class="g-select" ms-duplex="@modelData.yxbz">
+            <option value="Y">有效</option>
+            <option value="N">无效</option>
+        </select>
+        </div>
+      </div>
+    </div>
+    <div class="model-btns">
+        <div class="btn" ms-click="saveModel">保存</div>
+        <div class="btn" ms-click="hideModel">取消</div>
+    </div>
+  </div>
+</div>

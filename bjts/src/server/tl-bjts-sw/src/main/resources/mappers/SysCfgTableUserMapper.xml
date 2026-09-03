@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.SysCfgTableUserMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.SysCfgTableUser" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="USER_ID" property="USER_ID" jdbcType="VARCHAR" />
+    <id column="T_CODE" property="t_CODE" jdbcType="VARCHAR" />
+    <result column="CS" property="CS" jdbcType="VARCHAR" />
+    <result column="ISVAILD" property="ISVAILD" jdbcType="CHAR" />
+    <result column="UPDATE_TIME" property="UPDATE_TIME" jdbcType="DATE" />
+    <result column="CREATE_TIME" property="CREATE_TIME" jdbcType="DATE" />
+    <result column="F1" property="f1" jdbcType="VARCHAR" />
+    <result column="F2" property="f2" jdbcType="VARCHAR" />
+    <result column="F3" property="f3" jdbcType="VARCHAR" />
+    <result column="F4" property="f4" jdbcType="VARCHAR" />
+    <result column="F5" property="f5" jdbcType="VARCHAR" />
+  </resultMap>
+</mapper>

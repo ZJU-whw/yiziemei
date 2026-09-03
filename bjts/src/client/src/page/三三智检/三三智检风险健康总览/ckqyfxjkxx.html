@@ -1,0 +1,165 @@
+<div class="ckqyfxjkxx">
+  <div class="pageTabs">
+    <div class="pageTitle">
+      全省企业风险健康总览
+    </div>
+    <div class="subtitle rt clear">
+      <div class="lf" style="position: relative;">
+        <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree" style="width: 230px;">
+        <ul id="ckqyfxjkxxZtree" class='ztree treeDiv ckqyfxjkxxtree' style="left: 0;top:100%;"></ul>
+      </div>
+      <span class="lf">当前日期：{{@today}}</span>
+    </div>
+  </div>
+  <div ms-class="['page','active']" style="overflow: auto;">
+    <div class="clear row">
+      <div class="lf part-pie">
+        <div class="chart mb-10" id="ckqyfxjkxx-chart1" style="height:218px;"></div>
+        <div class="chart" id="ckqyfxjkxx-chart2" style="height:218px;"></div>
+      </div>
+      <div class="lf part ml-10 mr-10">
+        <div class="chart mb-10" id="ckqyfxjkxx-chart3" style="height:316px;"></div>
+      </div>
+      <div class="lf part-table">
+        <div class="table" style="height: 143px;">
+          <div class="table-title">出口企业健康码户数情况统计</div>
+          <div class="table-content">
+            <table>
+              <tr>
+                <td rowspan="2">企业类型</td>
+                <td rowspan="2">退(免)税备案企业</td>
+                <td rowspan="2">活跃企业</td>
+                <td colspan="3">红码企业</td>
+                <td colspan="3">黄码企业</td>
+              </tr>
+              <tr>
+                <td>当前户数</td>
+                <td>占比(%)</td>
+                <td>累计户数</td>
+                <td>当前户数</td>
+                <td>占比(%)</td>
+                <td>累计户数</td>
+              </tr>
+              <tr ms-for="item in @jkmHsTjList">
+                <td>{{item.tsjsfs=='1' ? '生产': (item.tsjsfs=='2' ? '外贸': '合计')}}</td>
+                <td>{{item.baQyHs}}</td>
+                <td>{{item.hyQyHs}}</td>
+                <td>{{item.redDqHs}}</td>
+                <td>{{item.redZb}}</td>
+                <td>{{item.redLjHs}}</td>
+                <td>{{item.yelDqHs}}</td>
+                <td>{{item.yelZb}}</td>
+                <td>{{item.yelLjHs}}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div class="table mt-10 mb-10" style="height: 123px;">
+          <div class="table-title">红黄码应对（评定）情况</div>
+          <div class="table-content">
+            <table>
+              <tr>
+                <td rowspan="2">企业类型</td>
+                <td colspan="4">红码应对情况</td>
+                <td colspan="4">黄码应对情况</td>
+              </tr>
+              <tr>
+                <td>评定中</td>
+                <td>累计评定</td>
+                <td>评定异常</td>
+                <td>待评定</td>
+                <td>评定中</td>
+                <td>累计评定</td>
+                <td>评定异常</td>
+                <td>待评定</td>
+              </tr>
+              <tr ms-for="item in @redYelPd">
+                <td>{{item.tsjsfs=='1' ? '生产': (item.tsjsfs=='2' ? '外贸': '合计')}}</td>
+                <td>{{item.redPdzNum}}</td>
+                <td>{{item.redLjpd}}</td>
+                <td>{{item.redPdyc}}</td>
+                <td>{{item.redDpdNum}}</td>
+                <td>{{item.yelPdzNum}}</td>
+                <td>{{item.yelLjpd}}</td>
+                <td>{{item.yelPdyc}}</td>
+                <td>{{item.yelDpdNum}}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="table lf ml-10" style="height: 100px; width: calc(75% - 70px/3)">
+        <div class="table-title">企业指标风险异常统计</div>
+        <table>
+          <tr>
+            <td rowspan="2">项目</td>
+            <td rowspan="2">指标数量</td>
+            <td colspan="5">异常指标</td>
+          </tr>
+          <tr>
+            <td>总占比</td>
+            <td>企业占比&lt;5%</td>
+            <td>企业占比5%~10%</td>
+            <td>企业占比10%~30%</td>
+            <td>企业占比&gt;30%</td>
+          </tr>
+          <tr ms-for="item in @zbFxYcTj">
+            <td>{{item.tsjsfs=='1' ? '生产': '外贸'}}</td>
+            <td>{{item.zbZs}}</td>
+            <td>{{item.zbZzb}}</td>
+            <td>{{item.lessFiveNum}}</td>
+            <td>{{item.lessTenNum}}</td>
+            <!-- <20% + <30%  用于显示当前值 -->
+            <td>{{(item.lessThirtyNum || 0) + (item.lessTwentyNum || 0)}}</td>
+            <td>{{item.moreThirtyNum}}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="clear row">
+      <div class="lf line-chart">
+        <div class="chart-title">
+          <span>风险出口</span>
+          <span>{{@fxLwYy.fxCkYjNum}}笔</span>
+        </div>
+        <div class="chart" id="ckqyfxjkxx-chart4" style="height:260px;"></div>
+      </div>
+      <div class="lf line-chart ml-10 mr-10">
+        <div class="chart-title">
+          <span>风险供货</span>
+          <span>{{@fxLwYy.fxGhYjNum}}笔</span>
+        </div>
+        <div class="chart" id="ckqyfxjkxx-chart5" style="height:260px;"></div>
+      </div>
+      <div class="lf list">
+        <div class="list-title">风险滤网应用</div>
+        <div style="height: 260px;">
+          <div class="list-item">
+            <span>风险出口预警</span>
+            <span class="link-num" ms-click="jumpToTysjcxq('VFXSMHGCK')">{{@fxLwYy.fxCkYjNum}}笔</span>
+          </div>
+          <div class="list-item">
+            <span>风险供货预警</span>
+            <span class="link-num" ms-click="jumpToTysjcxq('VFXSMTSGH')">{{@fxLwYy.fxGhYjNum}}笔</span>
+          </div>
+          <div class="list-item">
+            <span>风险业务员预警</span>
+            <span>{{@fxLwYy.fxYwyYjNum}}笔</span>
+          </div>
+          <div class="list-item">
+            <span>综合筛选项目</span>
+            <span class="link-num" ms-click="jumpToSxxmgl">{{@fxLwYy.zhSxXmNum}}个</span>
+          </div>
+          <div class="list-item">
+            <span>共享筛选方案</span>
+            <span class="link-num" ms-click="jumpToShareFa">{{@fxLwYy.gxSxFaNum}}个</span>
+          </div>
+          <div class="list-item">
+            <span>企业画像报告</span>
+            <span class="link-num" ms-click="jumpToQyhxbg">{{@fxLwYy.qyHxBgNum}}份</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

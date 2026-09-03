@@ -1,0 +1,96 @@
+<div class="jkmZbffMx tableLine" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        健康码指标赋分明细（{{@params.nsrsbh}}-{{@params.nsrmc}}）
+      </div>
+      <div class="btns">
+          <div class="btn" ms-click="@search(1)">查询</div>
+          <div class="btn" ms-click="@add('健康码评定（新增）')">应对评定</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+    <div class="select-wrapper">
+      <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+      <div class="select-main">
+        <div class="select-item">
+          <label title="税务机关名称">税务机关名称：</label>
+          <div style="line-height: 22px;">{{@params.swjgMc}}</div>
+        </div>
+        <div class="select-item clear">
+          <label title="指标赋分">指标赋分</label>
+          <select ms-duplex="@searchData.zbFf">
+            <option value="">　</option>
+            <option value="1">有赋分</option>
+            <option value="0">无赋分</option>
+          </select>
+        </div>
+        <div class="select-item">
+          <label title="指标评定">指标评定</label>
+          <select ms-duplex="@searchData.zbpd">
+            <option value="">　</option>
+            <option value="0">未评定</option>
+            <option value="9">已评定</option>
+            <option value="1">已评正常</option>
+            <option value="2">已评异常</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="form"  style="padding-top: 54px">
+        <table id="jkmZbffMx-table"></table>
+    </div>
+  </div>
+  <!-- 指标结果下钻 -->
+  <div class="page-model result-page-model" style="height:392px;width: 500px;margin-left: -250px;" >
+    <div class="model-title">
+      <span>指标结果值详情</span>
+      <span class="close" ms-click="hideModelResult">&times;</span>
+      </div>
+    <div class="model-content" style="height: 340px;">
+      <div class="table">
+        <div class="table-item">指标 {{@dataForm.zbId}}（{{@dataForm.zbSname}}）</div>
+        <div class="table-item" ms-for="item in @xzDataList">{{item}}</div>
+      </div>
+    </div>
+  </div>
+  
+   <!-- 健康码评定新增 -->
+   <div class="page-model add-page-model" style="height:310px;width: 500px;margin-left: -250px;" >
+    <div class="model-title">健康码评定（新增）</div>
+    <div class="model-content g-form" style="height: 210px;">
+      <div class="g-form-item">
+        <div class="g-form-item_label">纳税人识别号：</div>
+        <div class="g-form-item__content">
+          <input disabled class="g-input" type="text" ms-duplex="@modelData.nsrsbh">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">企业名称：</div>
+        <div class="g-form-item__content">
+          <input disabled class="g-input" type="text" ms-duplex="@modelData.nsrmc">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">原健康码：</div>
+        <div class="g-form-item__content">
+          <select disabled class="g-select" ms-duplex="@modelData.jkmY">
+            <option value=""></option>
+            <option value="1">绿码</option>
+            <option value="2">黄码</option>
+            <option value="3">红码</option>
+          </select>
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">评定有效期：</div>
+        <div class="g-form-item__content">
+          <input type="text" class="datepicker date-day" :on-blur="@filDate" ms-duplex="@modelData.yxq">
+        </div>
+      </div>
+    </div>
+    <div class="model-btns">
+      <div class="btn" ms-click="saveAdd">保存</div>
+      <div class="btn" ms-click="hideModelAdd">取消</div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,63 @@
+<div class="virtual">
+    <div class="pageTabs">
+        <div class="pageTitle">
+            虚拟单位配置
+        </div>
+        <!--<div class="btns" ms-if="@act==1">-->
+        <!--<div class="btn" ms-click="@search(1)">查询</div>-->
+        <!--</div>-->
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div id="virtual" style="width: 100%;height:100%;overflow: auto">
+            <div class="leftPanel" style="width: 50%;">
+                <div class="btn-group clear">
+                    <div class="btn rt" style="margin-top: 5px;" ms-click="initForm()">新增</div>
+                    <div class="btn rt danger" style="margin-top: 5px;" ms-click="@delForm">删除</div>
+                </div>
+                <ul>
+                    <li>
+                        <div class="lf text-center" style="width: 33.33%">虚拟税务机关代码</div>
+                        <div class="lf text-center" style="width: 33.33%">虚拟税务机关名称</div>
+                        <div class="lf text-center" style="width: 33.33%">启用标志</div>
+                    </li>
+                </ul>
+                <ul>
+                    <li ms-for="(index,item) in tableData" ms-class="[actIndex===index&&'active']" ms-click="setForm(index)">
+                        <div class="lf text-center" style="width: 33.33%">{{item.virSwjgdm}}</div>
+                        <div class="lf text-center" style="width: 33.33%">{{item.virName}}</div>
+                        <div class="lf text-center" style="width: 33.33%">{{item.yxbz}}</div>
+                    </li>
+                </ul>
+            </div>
+            <div class="rightPanel" style="width: 50%;">
+                <div class="topPanel">
+                    <div class="btn-group clear">
+                        <div class="qy-group" ms-visible="formData.virSwjgdm">
+                            <span class="qy-title">启用:</span>
+                            <button id="virtual-QY-btn" ms-visible="formData.yxbz=='N'" ms-click="setQybz('Y')"></button>
+                            <button id="virtual-JY-btn" ms-visible="formData.yxbz=='Y'" ms-click="setQybz('N')"></button>
+                        </div>
+                    </div>
+                    <div class="toggle-content" ms-visible="showFlag">
+                        <div class="form-item">
+                            <p>虚拟税务机关代码:</p>
+                            <input type="text" ms-duplex="formData.virSwjgdm" disabled>
+                        </div>
+                        <div class="form-item">
+                            <p>虚拟税务机关名称:</p>
+                            <input type="text" ms-duplex="formData.virName">
+                        </div>
+                        <div style="box-sizing: border-box;">
+                            <p>下辖退税机关范围:</p>
+                            <div class="box-ar ztree" id='virtualTree'>
+                            </div>
+                        </div>
+                        <div style="text-align: center;margin-top: 20px;"><button id="virtual-save-btn" ms-click="saveForm">保存</button></div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>

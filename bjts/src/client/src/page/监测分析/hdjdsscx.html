@@ -1,0 +1,58 @@
+<div class="hdjdsscx" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        函调进度实时查询表
+      </div>
+      <div class="btns">
+          <div class="btn" ms-click="@search(1)">查询</div>
+          <div class="btn" ms-click="@exform">导出</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <form name="hdjdsscx-form">
+          <div class="select-wrapper">
+              <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+              <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+              <div class="select-main">
+                <div class="select-item">
+                  <label  title="统计日期">统计日期</label>
+                  <div class="select-item-inner">
+                      <input type="text" class="datepicker date-month" ms-duplex="@searchData.ssnyStart" readonly>
+                      <span>止</span>
+                      <input type="text" class="datepicker date-month" ms-duplex="@searchData.ssnyEnd" readonly>
+                  </div>
+                </div>
+                <div class="select-item">
+                  <label  title="接收日期">接收日期</label>
+                  <div class="select-item-inner">
+                      <input type="text" class="datepicker date-day" ms-duplex="@searchData.applyTimeStart" :on-blur="@filDate" >
+                      <span>止</span>
+                      <input type="text" class="datepicker date-day" ms-duplex="@searchData.applyTimeEnd" :on-blur="@filDate">
+                  </div>
+                </div>
+                <div class="select-item">
+                  <label  title="复函截至日期">复函截至日期</label>
+                  <div class="select-item-inner">
+                      <input type="text" class="datepicker date-day" ms-duplex="@searchData.applyTimeStart" :on-blur="@filDate" >
+                      <span>止</span>
+                      <input type="text" class="datepicker date-day" ms-duplex="@searchData.applyTimeEnd" :on-blur="@filDate">
+                  </div>
+                </div>
+              </div>
+              <div class="select-sub">
+                <div class="select-item">
+                    <label  title="复函状态">复函状态</label>
+                    <select class="width-m" ms-duplex="searchData.tsjsfs">
+                        <option value=""></option>
+                        <option ms-for="el in @fhStatusOptions" ms-attr="{value: el.value}">{{el.name}}</option>
+                    </select>
+                </div>
+              </div>
+          </div>
+      </form>
+      <div class="form" style="padding-top: 54px">
+          <table id="hdjdsscx-table"></table>
+          <div id="hdjdsscx-tablePager"></div>
+      </div>
+  </div>
+</div>

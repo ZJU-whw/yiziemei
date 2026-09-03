@@ -1,0 +1,154 @@
+<div class="zbpzmx zbpzWarp tableLine" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        <span>指标配置详情</span>
+        <span style="font-size: 13px;">（指标标识：{{@params.zbId}}</span>
+        <span style="font-size: 13px;margin: 0 20px;">指标全称：{{@params.zbCname}}</span>
+        <span style="font-size: 13px;">数据类型：{{@dataTypeMap[@params.datatype]}}）</span>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+    <div class="form" style="padding-top: 0;">
+      <div class="clear ml-10 msg">
+        <div class="clear lf w-50per">
+          <div class="lf" style="width: 30px;">指标描述</div>
+          <div class="lf more1" style="width: calc(100% - 38px);max-height:72px;min-height:50px;border: 1px solid #ccc;padding: 0 3px;" ms-attr="{title:@params.ywms}">{{@params.ywms}}</div>
+        </div>
+        <div class="clear lf ml-20" style="width: calc(50% - 20px);">
+          <div class="lf" style="width: 30px;">指标公式</div>
+          <div class="lf more2" style="width: calc(100% - 40px);max-height:72px;min-height:50px;border: 1px solid #ccc;padding: 0 3px;" ms-attr="{title:@params.zbFomula}">{{@params.zbFomula}}</div>
+        </div>
+      </div>
+      <div class="subTitle clear">
+        <span class="lf">异常赋分规则配置</span>
+        <div ms-if="@isAdmin" class="btn" ms-click="@showModelYcff('1')">新增</div>
+      </div>
+      <div class="ycff">
+        <table id="zbpzmx-ycff-table"></table>
+        <div id="zbpzmx-ycff-tablePager"></div>
+      </div>
+      <div class="subTitle clear">
+        <span class="lf">指标参数配置</span>
+        <div ms-if="@isAdmin" class="btn" ms-click="@showModelCs('1')">新增</div>
+      </div>
+      <div class="cs">
+        <table id="zbpzmx-cs-table"></table>
+        <div id="zbpzmx-cs-tablePager"></div>
+      </div>
+    </div>
+  </div>
+  <!-- 新增/编辑 异常赋分 -->
+  <div class="page-model add-page-model ycff-page-model" style="width: 500px;margin-left: -250px;height: 444px;">
+    <div class="model-title">{{addTitle}}异常赋分规则配置</div>
+    <div class="model-content g-form" style="height: 344px">
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>异常判定条件：</div>
+        <div class="g-form-item__content" style="height: 60px;">
+          <textarea class="g-textarea" ms-duplex="modelYcffData.ycpdtj"></textarea>
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>例外规则：</div>
+        <div class="g-form-item__content">
+          <input type="text" ms-duplex="modelYcffData.lwgz">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>坏点标志：</div>
+        <div class="g-form-item__content">
+          <select class="g-select" ms-duplex="@modelYcffData.badpoint">
+            <option value=""></option>
+            <option value="Y">是</option>
+            <option value="N">否</option>
+          </select>
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>健康码赋分：</div>
+        <div class="g-form-item__content">
+          <input type="text" ms-duplex="modelYcffData.score" data-duplex-changed="numberLimit">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>异常描述：</div>
+        <div class="g-form-item__content" style="height: 60px;">
+          <textarea class="g-textarea" ms-duplex="modelYcffData.note"></textarea>
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>有效标志：</div>
+        <div class="g-form-item__content">
+          <select class="g-select" ms-duplex="@modelYcffData.yxbz">
+            <option value="Y">是</option>
+            <option value="N">否</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="model-btns">
+        <div class="btn" ms-click="saveModelYcff">保存</div>
+        <div class="btn" ms-click="hideModelYcff">取消</div>
+    </div>
+  </div>
+  <!-- 新增/编辑 参数 -->
+  <div class="page-model add-page-model cs-page-model" style="width: 500px;margin-left: -250px;height:440px">
+    <div class="model-title">{{addTitle}}指标参数配置</div>
+    <div class="model-content g-form" style="height: 340px;">
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>参数编码：</div>
+        <div class="g-form-item__content">
+          <input type="text" ms-duplex="modelCsData.csbm" ms-attr="{disabled: @addTitle=='编辑'}">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>参数名称：</div>
+        <div class="g-form-item__content">
+          <input type="text" ms-duplex="modelCsData.csmc">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>数据类型：</div>
+        <div class="g-form-item__content">
+          <select class="g-select" ms-duplex="@modelCsData.datatype">
+            <option value=""></option>
+            <option value="1">字符型</option>
+            <option value="2">数值型</option>
+            <option value="3">日期型</option>
+            <option value="4">逻辑性</option>
+          </select>
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>参数值：</div>
+        <div class="g-form-item__content">
+          <input type="text" ms-duplex="modelCsData.valDef">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>说明：</div>
+        <div class="g-form-item__content" style="height: 60px;">
+          <textarea class="g-textarea" ms-duplex="modelCsData.note"></textarea>
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>有效标志：</div>
+        <div class="g-form-item__content">
+          <select class="g-select" ms-duplex="@modelCsData.yxbz">
+            <option value="Y">有效</option>
+            <option value="N">无效</option>
+          </select>
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">参数类型：</div>
+        <div class="g-form-item__content">
+          <input type="text" ms-duplex="modelCsData.cstype">
+        </div>
+      </div>
+    </div>
+    <div class="model-btns">
+        <div class="btn" ms-click="saveModelCs">保存</div>
+        <div class="btn" ms-click="hideModelCs">取消</div>
+    </div>
+  </div>
+</div>

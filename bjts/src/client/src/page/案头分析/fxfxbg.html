@@ -1,0 +1,92 @@
+<div class="fxfxbg">
+  <div class="form" style="padding-top: 0;background: #fff;">
+    <!-- 顶部信息栏 -->
+    <div class="fxfxbg-header" style="padding: 5px 20px; background: #fff; border-bottom: 1px solid #e4e7ed;">
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="flex: 1;">
+          <span style="font-size: 14px; font-weight: bold;">
+            <span style="color: #e04957;">{{@nsrmc}}（{{@nsrsbh}}）{{@atfxrqqz}}</span>
+            <span ms-if="@reportData.ztbz == '' || @reportData.ztbz == '10'" style="color: #e04957; margin-left: 5px;">（未生成）</span>
+            <span ms-if="@reportData.ztbz == '2'" style="color: #e04957; margin-left: 5px;">
+              （已生成）
+              <span ms-if="@reportData.clkssj" style="color: #909399;">处理时间：{{@reportData.clkssj}}</span>
+              <span ms-if="@reportData.clwcsj" style="color: #909399; margin-left: 10px;">完成时间：{{@reportData.clwcsj}}</span>
+            </span>
+            <span ms-if="@reportData.ztbz != '' && @reportData.ztbz != '10' && @reportData.ztbz != '2' && @reportData.ztbz != '9'" style="color: #e04957; margin-left: 5px;">
+              （处理中）
+              <span ms-if="@reportData.clkssj" style="color: #909399;">处理时间：{{@reportData.clkssj}}</span>
+              <span ms-if="@reportData.clwcsj" style="color: #909399; margin-left: 10px;">完成时间：{{@reportData.clwcsj}}</span>
+            </span>
+            <span ms-if="@reportData.ztbz == '9'" style="color: #e04957; margin-left: 5px;">
+              （处理异常）
+              <span ms-if="@reportData.clkssj" style="color: #909399;">处理时间：{{@reportData.clkssj}}</span>
+              <span ms-if="@reportData.clwcsj" style="color: #909399; margin-left: 10px;">完成时间：{{@reportData.clwcsj}}</span>
+            </span>
+          </span>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <!-- 未生成或处理异常状态：显示生成报告按钮 -->
+          <div ms-if="@reportData.ztbz == '' || @reportData.ztbz == '10' || @reportData.ztbz == '9'" 
+               class="btn" 
+               ms-click="@generateReport"
+               style="float: none; display: inline-block; cursor: pointer;" 
+               title="生成报告">
+            生成报告
+          </div>
+          <!-- 已生成状态：显示下载word报告按钮 -->
+          <div ms-if="@reportData.ztbz == '2'" 
+               class="btn" 
+               ms-click="@downloadReport"
+               style="float: none; display: inline-block; cursor: pointer;" 
+               title="下载word报告">
+            下载word报告
+          </div>
+          <!-- 处理中状态：显示下载word报告按钮（灰色不可点击）+ 刷新按钮 -->
+          <div ms-if="@reportData.ztbz != '' && @reportData.ztbz != '10' && @reportData.ztbz != '2' && @reportData.ztbz != '9'" style="display: flex; gap: 10px; align-items: center;">
+            <div class="btn disabled" 
+                 style="float: none; display: inline-block;" 
+                 title="下载word报告">
+              下载word报告
+            </div>
+            <div class="btn" 
+                 ms-click="@refreshStatus"
+                 style="float: none; display: inline-block; cursor: pointer; padding: 2px 8px;" 
+                 title="刷新状态">
+              <i class="fa fa-refresh" style="margin-right: 4px;"></i>刷新
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- PDF预览区域 -->
+    <div class="fxfxbg-content" style="height: calc(100vh - 190px); overflow-y: auto;padding: 0 5px;">
+      <div style="box-sizing: border-box;background: #fff;  height: 99%;">
+        <div id="pdfViewer" style="width: 100%; height: 100%;">
+          <!-- 未生成状态：显示空占位 -->
+          <div ms-if="@reportData.ztbz == '' || @reportData.ztbz == '10'" style="text-align: center; padding: 150px 0; color: #909399;">
+            <i class="fa fa-file-pdf-o" style="font-size: 80px; margin-bottom: 20px; color: #c0c4cc;"></i>
+            <p style="font-size: 16px; margin: 10px 0;">报告尚未生成</p>
+            <p style="font-size: 14px; margin: 10px 0;">请点击右上角"生成报告"按钮生成风险分析报告</p>
+          </div>
+          <!-- 处理中状态：显示处理中占位 -->
+          <div ms-if="@reportData.ztbz != '' && @reportData.ztbz != '10' && @reportData.ztbz != '2' && @reportData.ztbz != '9'" style="text-align: center; padding: 150px 0; color: #909399;">
+            <i class="fa fa-spinner fa-spin" style="font-size: 80px; margin-bottom: 20px; color: #E6A23C;"></i>
+            <p style="font-size: 16px; margin: 10px 0;">报告生成中</p>
+            <p style="font-size: 14px; margin: 10px 0;">报告正在生成中，请稍后查看...</p>
+          </div>
+          <!-- 处理异常状态：显示异常占位 -->
+          <div ms-if="@reportData.ztbz == '9'" style="text-align: center; padding: 150px 0; color: #909399;">
+            <i class="fa fa-exclamation-triangle" style="font-size: 80px; margin-bottom: 20px; color: #F56C6C;"></i>
+            <p style="font-size: 16px; margin: 10px 0;">报告生成异常</p>
+            <p style="font-size: 14px; margin: 10px 0;">报告生成失败，请重新尝试生成</p>
+          </div>
+          <!-- 已生成状态：显示PDF预览 -->
+          <div ms-if="@reportData.ztbz == '2'" style="width: 100%; height: 100%;">
+            <div id="pdfReportContainer" style="width: 100%; height: 100%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

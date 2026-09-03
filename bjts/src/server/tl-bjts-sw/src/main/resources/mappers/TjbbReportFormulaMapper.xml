@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.TjbbReportFormulaMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.TjbbReportFormula" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" property="id" jdbcType="DECIMAL" />
+    <result column="BBDM" property="bbdm" jdbcType="VARCHAR" />
+    <result column="TYPE" property="type" jdbcType="CHAR" />
+    <result column="FORMULA" property="formula" jdbcType="VARCHAR" />
+    <result column="YXJ" property="yxj" jdbcType="DECIMAL" />
+    <result column="QYBZ" property="qybz" jdbcType="CHAR" />
+    <result column="ISHZJS" property="ishzjs" jdbcType="CHAR" />
+  </resultMap>
+</mapper>

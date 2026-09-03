@@ -1,0 +1,190 @@
+<div class="shareFaEdit" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        共享方案编辑
+      </div>
+      <div class="btns">
+        <div ms-if="@formData.isEdit == '1'" class="btn" ms-click="@showModel('编辑')">编辑</div>
+        <div ms-if="@formData.isEdit == '0'" class="btn" ms-click="@showModel('查看')">查看</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+    <div class="select-wrapper g-form xmxx">
+      <i class="icon" ms-click="showHyper" title="展开"></i>
+      <div class="select-main clear" style="height: 30px;">
+        <div class="g-form-item w-25per lf clear">
+          <div class="g-form-item_label">项目名称：</div>
+          <div class="g-form-item__content">
+            <input type="text" ms-duplex="@formData.famc" readonly>
+          </div>
+        </div>
+        <div class="g-form-item w-25per lf mt-0">
+          <div class="g-form-item_label">创建人：</div>
+          <div class="g-form-item__content">
+            <input type="text" ms-duplex="@formData.crUser" readonly>
+          </div>
+        </div>
+        <div class="g-form-item w-25per lf mt-0">
+          <div class="g-form-item_label">创建时间：</div>
+          <div class="g-form-item__content">
+            <input type="text" ms-duplex="@formData.crTime" readonly>
+          </div>
+        </div>
+        <div class="g-form-item w-25per lf mt-0">
+          <div class="g-form-item_label">企业类型：</div>
+          <div class="g-form-item__content">
+            <input type="text" ms-duplex="@formData.tsjsfsMc" readonly>
+          </div>
+        </div>
+      </div>
+      <div class="select-sub clear">
+        <div class="g-form-item w-50per lf">
+          <div class="g-form-item_label">备注说明：</div>
+          <div class="g-form-item__content" style="height:50px;">
+            <textarea class="g-textarea" ms-duplex="formData.note" style="resize: none;height:100%;border-color: #dcdfe6;" readonly></textarea>
+          </div>
+        </div>
+        <div class="g-form-item lf w-100per">
+          <div class="g-form-item_label">企业约束：</div>
+          <div class="g-form-item__content" style="height:auto;">
+            <div class="clear lf ystj" style="width: calc(50% - 60px);" ms-for="item in @ystjMap" ms-if="@formData[item.key] !=''">
+              <label class="lf ystj-label">{{item.name}}：</label>
+              <div
+                class="item-content clear lf text-ellipsis"
+                style="width:calc(100% - 90px);line-height: 20px;"
+                ms-attr="{title:@formData[item.key]}">{{@formData[item.key]}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="g-tabs" style="padding-top: 56px;">
+      <div class="tab-title mb-5">
+        <div class="tab-title-wrap">
+          <div class="tab-title-item active">指标维护</div>
+        </div>
+      </div>
+      <div class="tab-content">
+        <div class="tab-content-item clear gzwh">
+          <div class="g-form clear">
+            <div class="g-form-item lf">
+              <div class="g-form-item_label">规则名称：</div>
+              <div class="g-form-item__content" style="width: 270px;">
+                <input type="text" ms-duplex="@gzwhData.rulename">
+              </div>
+            </div>
+            <div class="g-form-item lf mt-0">
+              <div class="g-form-item_label">业务描述：</div>
+              <div class="g-form-item__content" style="width: 270px;">
+                <input type="text" ms-duplex="@gzwhData.note">
+              </div>
+            </div>
+            <div class="btn" style="margin-top: 3px;" ms-click="@getXmRules(1)">查询</div>
+          </div>
+          <div class="mt-10">
+            <table id="shareFaEdit-gzwh-table"></table>
+            <div id="shareFaEdit-gzwh-tablePager"></div>
+          </div>
+          <div class="clear previewExpression">
+            <div class="lf previewExpression-title">预览所选规则的表达式</div>
+            <div class="lf g-textarea previewExpression-content">{{previewGzExpression}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 编辑/查看 -->
+  <div class="page-model add-page-model" style="height:480px;width: 960px;margin-left: -480px;" >
+    <div class="model-title">
+      <span>{{@addTitle}}</span>
+      <span class="close" ms-click="@hideModel">&times;</span>
+    </div>
+    <div class="model-content g-form clear" style="height: 400px;padding: 10px 20px;">
+      <div>
+        <div class="g-form-item clear"><div class="g-form-item_label" style="font-weight: bold;">基础信息：</div></div>
+        <div class="clear">
+          <div class="g-form-item lf w-33per">
+            <div class="g-form-item">
+              <div class="g-form-item_label"><span class="text-red">*</span>方案名称：</div>
+              <div class="g-form-item__content">
+                <input type="text" ms-duplex="@modelData.famc" ms-attr="{disabled: @addTitle=='查看'}">
+              </div>
+            </div>
+            <div class="g-form-item">
+              <div class="g-form-item_label"><span class="text-red">*</span>共享类型：</div>
+              <div class="g-form-item__content">
+                <select class="g-select" ms-duplex="@modelData.gxlx" style="width: 100%;height: 100%;" ms-attr="{disabled: @addTitle=='查看'}">
+                  <option value=""></option>
+                  <option value="0">私有</option>
+                  <option value="1">公有</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="g-form-item lf mt-0" style="width: 66.66%;">
+            <div class="g-form-item_label">说明：</div>
+            <div class="g-form-item__content" style="height: 70px;">
+              <textarea ms-attr="{disabled: @addTitle=='查看'}" class="g-textarea" ms-duplex="modelData.note" style="resize: none;height:100%;"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="g-form-item clear"><div class="g-form-item_label" style="font-weight: bold;">企业范围设定：</div></div>
+        <div class="clear">
+          <div class="g-form-item lf w-33per mt-0">
+            <div class="g-form-item_label"><span class="text-red">*</span>企业类型：</div>
+            <div class="g-form-item__content">
+              <select ms-attr="{disabled: @addTitle=='查看'}" class="g-select" ms-duplex="@modelData.tsjsfsDm" style="width: 100%;height: 100%;">
+                <option value=""></option>
+                <option value="2">外贸</option>
+                <option value="1">生产</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="g-form-item clear"><div class="g-form-item_label" style="font-weight: bold;">约束条件：</div></div>
+        <div class="clear">
+          <div class="g-form-item lf w-33per mt-0 ystj" ms-for="(index,item) in @dictList">
+            <div class="g-form-item_label">{{item.zbxmmc}}：</div>
+            <div class="g-form-item__content">
+              <div class="item-content fz clear lf" style="width: 100%; height: 28px;">
+                <div
+                  class="custom-bootstrap-multiselect bootstrap-multiselect lf"
+                  ms-if="item.isTree=='0'">
+                  <select ms-attr="{id:'shareFaEdit_select_'+item.zbxmbm.split('.')[0]+'_'+item.zbxmbm.split('.')[1]}" multiple="multiple"></select>
+                </div>
+                <div
+                  style="width: 100%;"
+                  class="tree clear lf"
+                  ms-if="item.isTree=='1'">
+                  <div
+                    ms-if="@selectMc[item.zbxmbm].value.length>3"
+                    class="item-content showSelect text-ellipsis"
+                    ms-click="@showTree"
+                    ms-attr="{title: @selectMc[item.zbxmbm]&&@selectMc[item.zbxmbm].name}">
+                    {{@selectMc[item.zbxmbm].value.length+ '项已选择'}}
+                  </div>
+                  <div
+                    ms-if="@selectMc[item.zbxmbm].value.length<=3"
+                    class="item-content showSelect text-ellipsis"
+                    ms-click="@showTree"
+                    ms-attr="{title: @selectMc[item.zbxmbm]&&@selectMc[item.zbxmbm].name}">
+                    {{@selectMc[item.zbxmbm].name}}
+                  </div>
+                  <ul
+                    style="left: 0;height: 140px;"
+                    ms-attr="{id:'shareFaEdit_tree_'+item.zbxmbm.split('.')[0]+'_'+item.zbxmbm.split('.')[1]}"
+                    class='treeSelect ztree treeDiv'></ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    <div class="model-btns">
+      <div ms-if="@addTitle=='编辑'" class="btn" ms-click="@saveFa">确定</div>
+      <div class="btn" ms-click="@hideModel">取消</div>
+    </div>
+  </div>
+</div>

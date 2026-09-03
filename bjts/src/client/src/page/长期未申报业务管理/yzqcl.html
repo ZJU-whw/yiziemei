@@ -1,0 +1,204 @@
+<div class="yzqcl zbpzWarp tableLine" ms-click="hideNsrsbh">
+    <div class="pageTabs">
+      <div class="pageTitle">
+        长期未申报业务依职权处理
+      </div>
+      <div class="btns">
+        <div class="btn" ms-click="@search(1)">查询</div>
+        <div class="btn" ms-if="@hasHsPermission" ms-click="@delHandler()">处理</div>
+      </div>
+    </div>
+    <div ms-class="['page','active']">
+      <div class="select-wrapper">
+        <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+        <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+        <div class="select-main">
+          <div class="select-item">
+            <label title="税务机关">税务机关</label>
+            <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree">
+            <ul id="yzqclSwjgTree" class='ztree treeDiv yzqclSwjgTree' style="left: 40%;width: 200px;"></ul>
+          </div>
+          <div class="select-item">
+            <label title="企业税号">企业税号</label>
+            <input type="text" ms-duplex="searchData.nsrsbh">
+          </div>
+          <div class="select-item">
+            <label title="企业名称">企业名称</label>
+            <input type="text" ms-duplex="searchData.nsrmc">
+          </div>
+        </div>
+        <div class="select-sub">
+          <div class="select-item">
+            <label title="企业海关代码">企业海关代码</label>
+            <input type="text" ms-duplex="searchData.qyhgdm">
+          </div>
+          <div class="select-item">
+            <label title="出口凭证号">出口凭证号</label>
+            <input type="text" ms-duplex="searchData.ckpzhm">
+          </div>
+          <div class="select-item">
+            <label title="出口日期起">出口日期起</label>
+            <div class="select-item-inner">
+                <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate"
+                    ms-duplex="@searchData.ckrqQ">
+                <span style="margin:0;">止</span>
+                <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate"
+                    ms-duplex="@searchData.ckrqZ">
+            </div>
+        </div>
+        </div>
+      </div>
+      <div class="form" style="padding-top: 54px">
+        <div class="tab clear" style="margin: 10px;">
+          <div class="tab-item" :class="activeIndex == '0' && 'active'" ms-click="changeTab('0')">金三外部数据</div>
+          <div class="tab-item" :class="activeIndex == '1' && 'active'" ms-click="changeTab('1')">依职权处理结果</div> 
+        </div>
+        <!-- <table id="yzqcl-table"></table>
+        <div id="yzqcl-tablePager"></div> -->
+        <div ms-visible="activeIndex == '0'">
+          <table id="yzqcl-wbsj-table"></table>
+          <div id="yzqcl-wbsj-tablePager"></div>
+        </div>
+        <div ms-visible="activeIndex == '1'">
+          <table id="yzqcl-yqz-table"></table>
+          <div id="yzqcl-yqz-tablePager"></div>
+        </div>
+      </div>
+    </div>
+    <!-- 新增/编辑 -->
+    <div class="page-model add-page-model" style="height:522px;width: 500px;margin-left: -250px;">
+      <div class="model-title">{{@addTitle}}</div>
+      <div class="model-content g-form" style="height: 430px;">
+        <div class="g-form-item">
+          <div class="g-form-item_label">登记序号：</div>
+          <div class="g-form-item__content">
+            <input ms-attr="{disabled: @addTitle != '新增'}" type="text" ms-duplex="@modelData.djxh">
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">企业识别号：</div>
+          <div class="g-form-item__content">
+            <input ms-attr="{disabled: @addTitle != '新增'}" type="text" ms-duplex="@modelData.nsrsbh">
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">企业名称：</div>
+          <div class="g-form-item__content">
+            <input ms-attr="{disabled: @addTitle != '新增'}" type="text" ms-duplex="@modelData.nsrmc">
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">退税计算方式：</div>
+          <div class="g-form-item__content">
+            <input ms-attr="{disabled: @addTitle != '新增'}" type="text" ms-duplex="@modelData.tsjsffdm">
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">报关单号/代理证明号：</div>
+          <div class="g-form-item__content">
+            <input ms-attr="{disabled: @addTitle != '新增'}" type="text" ms-duplex="@modelData.ckbgdh">
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">出口日期：</div>
+          <div class="g-form-item__content">
+            <input ms-attr="{disabled: @addTitle != '新增'}" type="text" ms-duplex="@modelData.ckrq1">
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">商品代码：</div>
+          <div class="g-form-item__content">
+            <input ms-attr="{disabled: @addTitle != '新增'}" type="text" ms-duplex="@modelData.ckspDm">
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">商品名称：</div>
+          <div class="g-form-item__content">
+            <input ms-attr="{disabled: @addTitle != '新增'}" type="text" ms-duplex="@modelData.gfhhgspmc">
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">监管方式：</div>
+          <div class="g-form-item__content">
+            <input ms-attr="{disabled: @addTitle != '新增'}" type="text" ms-duplex="@modelData.jgfsDm">
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">美元离岸价：</div>
+          <div class="g-form-item__content">
+            <input ms-attr="{disabled: @addTitle != '新增'}" type="text" ms-duplex="@modelData.mylaj">
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">人民币离岸价：</div>
+          <div class="g-form-item__content">
+            <input ms-attr="{disabled: @addTitle != '新增'}" type="text" ms-duplex="@modelData.rmblaj">
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">法定单位：</div>
+          <div class="g-form-item__content">
+            <input ms-attr="{disabled: @addTitle != '新增'}" type="text" ms-duplex="@modelData.dyjldwDm">
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">出口数量：</div>
+          <div class="g-form-item__content">
+            <input ms-attr="{disabled: @addTitle != '新增'}" type="text" ms-duplex="@modelData.cksl">
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">剩余未申报数量：</div>
+          <div class="g-form-item__content">
+            <input ms-attr="{disabled: @addTitle != '新增'}" type="text" ms-duplex="@modelData.wsbsl">
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">征税率：</div>
+          <div class="g-form-item__content">
+            <input ms-attr="{disabled: @addTitle != '新增'}" type="text" ms-duplex="@modelData.zsl">
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">退税率：</div>
+          <div class="g-form-item__content">
+            <input ms-attr="{disabled: @addTitle != '新增'}" type="text" ms-duplex="@modelData.tsl">
+          </div>
+        </div>
+        <!-- <div class="g-form-item">
+          <div class="g-form-item_label"><span class="text-red">*</span>启用标志：</div>
+          <div class="g-form-item__content">
+            <select class="g-select" ms-duplex="@modelData.qybj" style="width: 100%;"
+              ms-attr="{disabled: @addTitle == '查看'}">
+              <option value="Y">启用</option>
+              <option value="N">注销</option>
+            </select>
+          </div>
+        </div> -->
+      </div>
+      <div class="model-btns">
+        <!-- <div ms-if="@addTitle != '查看'" class="btn" ms-click="saveModel">保存</div> -->
+        <div class="btn" ms-click="hideModel">取消</div>
+      </div>
+    </div>
+    <!-- 批量操作 -->
+    <div class="page-model page-model-end" style="height:200px;width: 500px;margin-left: -250px;">
+      <div class="model-title">{{@addTitle}}</div>
+      <div class="model-content g-form" style="height: 100px;">
+        <div class="g-form-item">
+          <div class="g-form-item_label"><span class="text-red">*</span>征免税处理标志：</div>
+          <div class="g-form-item__content">
+            <select class="g-select" ms-duplex="@plData.zmtbz" style="width: 100%;"
+              ms-attr="{disabled: @addTitle == '查看'}">
+              <option value="1">征税</option>
+              <option value="2">免税</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="model-btns">
+        <div ms-if="@addTitle != '查看'" class="btn" ms-click="savePl">确定</div>
+        <div class="btn" ms-click="hidePlModel">取消</div>
+      </div>
+    </div>
+  </div>

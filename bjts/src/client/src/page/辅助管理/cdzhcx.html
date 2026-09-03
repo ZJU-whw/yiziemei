@@ -1,0 +1,94 @@
+<div class="cdzhcx" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            撤单管理 / 撤单综合查询
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="select-wrapper">
+            <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+            <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+            <div class="select-main">
+                <div class="select-item">
+                    <label  title="海关代码">海关代码</label>
+                    <input  type="text" ms-duplex="@searchData.qyhgdm">
+                </div>
+                <div class="select-item">
+                    <label title="纳税人识别号">纳税人识别号</label>
+                    <input type="text" ms-duplex="searchData.nsrsbh">
+                </div>
+                <div class="select-item">
+                    <label  title="税务机关">税务机关</label>
+                    <input readonly type="text" ms-duplex="swjgmc1" ms-click="showTree">
+                    <ul id="cdzhcxZtree" class='ztree treeDiv swjg1' style="left: 90px;top:100%;"></ul>
+                </div>
+            </div>
+            <div class="select-sub">
+                <div class="select-item" style="position: relative">
+                    <label  title="企业类型">企业类型</label>
+                    <select  ms-duplex="@searchData.qylx">
+                        <option value="">　</option>
+                        <option value="11">内资生产企业</option>
+                        <option value="12">外商投资企业</option>
+                        <option value="21">外贸（工贸）企业</option>
+                        <option value="90">其他企业（特许退税企业）</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="管理类别">管理类别</label>
+                    <select  ms-duplex="@searchData.gllb">
+                        <option value="">　</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="业务类型">业务类型</label>
+                    <select  ms-duplex="@searchData.lc_id">
+                        <option value=""></option>
+                        <option value="A0301001">外贸企业免退税申报</option>
+                        <option value="A0305001">生产企业免抵退申报</option>
+                        <option value="A0302001">出口非自产货物退消费税申报</option>
+                        <option value="A0303001">出口已使用旧设备免退税申报</option>
+                        <option value="A0304001">购进自用货物免退税申报</option>
+                        <option value="A0309001">航天发射免退税申报</option>
+                        <option value="A0310001">综服企业代办退税申报</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="申报时间">申报时间起</label>
+                    <div class="select-item-inner">
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.sbrqq" :on-blur="@filDate" >
+                        <span>止</span>
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.sbrqz" :on-blur="@filDate">
+                    </div>
+                </div>
+                <div class="select-item">
+                    <label  title="撤单时间">撤单时间起</label>
+                    <div class="select-item-inner">
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.cdrqq" :on-blur="@filDate" >
+                        <span>止</span>
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.cdrqz" :on-blur="@filDate">
+                    </div>
+                </div>
+                <div class="select-item">
+                    <label  title="撤单人员">撤单人员</label>
+                    <input  type="text" ms-duplex="@searchData.sc_user">
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 54px">
+            <table id="cdzhcx-table"></table>
+            <div id="cdzhcx-tablePager"></div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==3&&'active']">
+        <div class="chartDiv"></div>
+    </div>
+</div>

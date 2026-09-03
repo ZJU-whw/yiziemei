@@ -1,0 +1,33 @@
+<div class="roleEdit">
+    <div class="tabs-wrapper">
+        <div class="tabs-list">
+            <div :class="['tabs-item',activeIndex == index && 'active']"  ms-for="(index,item) in tabs" ms-click="@handleClick(index)">{{item}}</div>
+        </div>
+        <div class="tabs-underline"></div>
+    </div>
+    <div :class="['page',activeIndex == 0 && 'active']">
+        <div class="form-wrapper">
+            <div class="form-item"><label>代码：</label><span>{{formData.rolecode}}</span></div>
+            <div class="form-item"><label><span class="text-red">*</span>名称：</label><input type="text" class="width-l" ms-duplex="formData.rolename"></div>
+            <div class="form-item"><label>是否启用：</label><input type="checkbox" style="width: 18px;height:18px" ms-duplex-checked="formData.isvalid"></div>
+            <div class="form-item"><label>备注：</label><input type="text" class="width-l" ms-duplex="formData.remark"></div>
+            <div class="btn" ms-click="saveInfo">保存</div>
+        </div>
+    </div>
+    <div :class="['page',activeIndex == 1 && 'active']">
+        <div class="func-menu-wrapper">
+            <h3 class="menu-title">配置角色拥有的菜单</h3>
+            <ul id="funcTree" class="ztree func-menu"></ul>
+        </div>
+        <div class="perm-menu-wrapper">
+            <h3 class="menu-title">配置菜单下的功能</h3>
+            <ul class="perm-menu">
+                <li ms-for="(index,item) in @menuData">
+                    <label>
+                        <input type="checkbox" ms-duplex-checked="item.sfyy" data-duplex-changed="@onChange(item)"><span ms-class="[item.sfyy && 'checked','checkBox']"></span><span>{{item.pername}}</span>
+                    </label>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

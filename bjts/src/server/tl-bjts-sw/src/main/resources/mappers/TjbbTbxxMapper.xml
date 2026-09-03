@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.TjbbTbxxMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.TjbbTbxx" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" property="id" jdbcType="DECIMAL" />
+    <result column="BBDM" property="bbdm" jdbcType="VARCHAR" />
+    <result column="SWJGDM" property="swjgdm" jdbcType="VARCHAR" />
+    <result column="SWJGMC" property="swjgmc" jdbcType="VARCHAR" />
+    <result column="SSNY" property="ssny" jdbcType="VARCHAR" />
+    <result column="UNIT" property="unit" jdbcType="VARCHAR" />
+    <result column="ZBR" property="zbr" jdbcType="VARCHAR" />
+    <result column="ZBDATE" property="zbdate" jdbcType="DATE" />
+    <result column="QT" property="qt" jdbcType="VARCHAR" />
+  </resultMap>
+</mapper>

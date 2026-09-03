@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tl.bjts.sw.dao.sbxx.SbxxMapper">
+
+    <!--    查询申报信息列表过滤条件      -->
+    <sql id="listSbxxWhere" >
+        <where>
+            T.swjgdm like  #{swjgdm,jdbcType=VARCHAR}||'%'
+            <!-- 企业标识 -->
+            <if test="qybs != null and qybs!=''  ">
+                and (T.nsrsbh = #{qybs,jdbcType=VARCHAR}
+                     or T.qyhgdm = #{qybs,jdbcType=VARCHAR}
+                     or T.nsrmc like '%' || #{qybs,jdbcType=VARCHAR} || '%')
+            </if>
+            <!-- 申报业务种类 -->
+            <if test="sbywb != null and sbywb!=''  ">
+                and T.sbywb = #{sbywb,jdbcType=VARCHAR}
+            </if>
+            <!-- 所属期起 -->
+            <if test="sssqStart != null and sssqStart!=''  ">
+                and T.sssq >= #{sssqStart,jdbcType=VARCHAR}
+            </if>
+            <!-- 所属期止 -->
+            <if test="sssqEnd != null and sssqEnd!=''  ">
+                and #{sssqEnd,jdbcType=VARCHAR} >= T.sssq
+            </if>
+            <!-- 上传日期起 -->
+            <if test="yxscrqq != null ">
+                and exists (select 1 from ${dbUserBjts}doc_fileinfo df
+                where ((df.nsrdzdah = T.nsrdzdah
+                and df.busitype = 'sbxx'
+                and df.busikey = T.sbid) or (df.nsrsbh = T.nsrsbh and df.busitype = 'qyscba'))
+                    and df.filetype = '1'
+                    and df.crtime >= #{yxscrqq})
+            </if>
+            <!-- 上传日期止 -->
+            <if test="yxscrqz != null  ">
+                and exists (select 1 from ${dbUserBjts}doc_fileinfo df
+                    where ((df.nsrdzdah = T.nsrdzdah
+                    and df.busitype = 'sbxx'
+                    and df.busikey = T.sbid) or (df.nsrsbh = T.nsrsbh and df.busitype = 'qyscba'))
+                    and df.filetype = '1'
+                    and  #{yxscrqz} + numtodsinterval(1,'day') > df.crtime)
+            </if>
+
+            <!-- 附件状态 -->
+            <if test="fjzt != null and fjzt!=''  ">
+                <!-- 有附件 -->
+                <if test='fjzt == "1"  '>
+                    and exists (select 1 from ${dbUserBjts}doc_fileinfo df
+                    where ((df.nsrdzdah = T.nsrdzdah
+                    and df.busitype = 'sbxx'
+                    and df.busikey = T.sbid) or (df.nsrsbh = T.nsrsbh and df.busitype = 'qyscba'))
+                    and df.filetype = '1')
+                </if>
+                <!-- 无附件 -->
+                <if test='fjzt == "0"  '>
+                    and not exists (select 1 from ${dbUserBjts}doc_fileinfo df
+                    where ((df.nsrdzdah = T.nsrdzdah
+                    and df.busitype = 'sbxx'
+                    and df.busikey = T.sbid) or (df.nsrsbh = T.nsrsbh and df.busitype = 'qyscba'))
+                    and df.filetype = '1')
+                </if>
+            </if>
+        </where>
+    </sql>
+
+    <!--  查询申报信息列表  -->
+    <select id="listSbxx" parameterType="com.tl.bjts.sw.model.dto.sbxx.SbxxQueryDTO"
+            resultType="com.tl.bjts.sw.model.vo.sbxx.SbxxQueryVO">
+        select main.* from (
+          select T.*,
+               (select count(1)
+                  from ${dbUserBjts}doc_fileinfo f
+                 where ((f.nsrdzdah = T.nsrdzdah
+                   and f.busitype = 'sbxx'
+                   and f.busikey = T.sbid) or (f.nsrsbh = T.nsrsbh and f.busitype = 'qyscba'))
+                   and f.filetype = '1') as fjsl
+          from (select hz.id as sbid,
+                       hz.nsrdzdah,
+                       dab.swjg_dm as swjgdm,
+                       swjg.swjg_jc as swjgmc,
+                       nvl(dab.shxyno, dab.nsrsbh) as nsrsbh,
+                       dab.qyhgdm,
+                       dab.nsrmc,
+                       dab.qylx_dm as qylx,
+                       dab.qylx_dm as qylxZh,
+                       hz.sbywb_dm as sbywb,
+                       hz.sbywb_dm as sbywbZh,
+                       hz.sssq,
+                       hz.sbpc,
+                       hz.sbrq,
+                       hz.sbzt_dm as sbzt,
+                       hz.sbzt_dm as sbztZh,
+                       hz.fkxx,
+                       (case when uuid like 'DYCK%' then '单一窗口' else '出口退税' end) as lyZh,
+                       dab.cpcode
+                  from ${dbUserBjts}sb_sbxx_hz     hz,
+                        ${dbUserBjts}gs_dj_cktmsdab dab,
+                        ${dbUserBjts}dm_swjg        swjg
+                 where hz.nsrdzdah = dab.nsrdzdah and dab.swjg_dm = swjg.swjg_dm) T
+           <include refid="listSbxxWhere" />
+        ) main
+        <if test="orderSql != null and orderSql!=''  ">
+            order by main.${orderSql}
+        </if>
+        <if test="orderSql == null or orderSql ==''  ">
+            order by main.sbid desc
+        </if>
+    </select>
+
+    <!--  查询附件列表  -->
+    <select id="listSbxxDoc" parameterType="com.tl.bjts.sw.model.dto.sbxx.DocQueryDTO"
+            resultType="com.tl.bjts.sw.model.vo.sbxx.DocQueryVO">
+        select id,nsrdzdah, title,filesize,fmcode,note,crtime as yxscrq,nsrsbh
+        from ${dbUserBjts}doc_fileinfo
+        where ((nsrdzdah = #{nsrdzdah,jdbcType=BIGINT}
+            and busitype = 'sbxx'
+            and busikey = #{sbid,jdbcType=BIGINT}) or (nsrsbh = #{nsrsbh} and busitype = 'qyscba'))
+           and filetype = '1'
+    </select>
+
+    <!--  获取附件信息 -->
+    <select id="getDocFileinfo" resultType="com.tl.bjts.sw.model.domain.doc.DocFileinfo">
+        select id,nsrdzdah,filename,fmcode,title,filesize,rootpath, filepath,note
+        from ${dbUserBjts}doc_fileinfo
+        where id = #{fileId,jdbcType=BIGINT}
+            <choose>
+                <when test="nsrdzdah != null">
+                    and nsrdzdah = #{nsrdzdah,jdbcType=BIGINT}
+                </when>
+                <otherwise>
+                    and nsrsbh = #{nsrsbh}
+                </otherwise>
+            </choose>
+    </select>
+
+    <resultMap id="fpxxResultMap" type="com.tl.bjts.sw.model.vo.sbxx.FpxxVo">
+        <result column="fpdm" property="fpdm" jdbcType="VARCHAR"></result>
+        <result column="fphm" property="fphm" jdbcType="VARCHAR"></result>
+        <result column="kprq" property="kprq" jdbcType="DATE"></result>
+        <result column="fpzt_dm" property="fpzt" jdbcType="VARCHAR"></result>
+        <result column="gfsbh" property="gfsbh" jdbcType="VARCHAR"></result>
+        <result column="xfsbh" property="xfsbh" jdbcType="VARCHAR"></result>
+        <result column="gfmc" property="gfmc" jdbcType="VARCHAR"></result>
+        <result column="xfmc" property="xfmc" jdbcType="VARCHAR"></result>
+        <result column="gfdzdh" property="gfdzdh" jdbcType="VARCHAR"></result>
+        <result column="xfdzdh" property="xfdzdh" jdbcType="VARCHAR"></result>
+        <result column="gfyhzh" property="gfyhzh" jdbcType="VARCHAR"></result>
+        <result column="xfyhzh" property="xfyhzh" jdbcType="VARCHAR"></result>
+        <result column="je" property="je" jdbcType="DECIMAL"></result>
+        <result column="se" property="se" jdbcType="DECIMAL"></result>
+        <result column="jshj" property="jshj" jdbcType="DECIMAL"></result>
+        <result column="bz" property="bz" jdbcType="VARCHAR"></result>
+        <result column="kpr" property="kpr" jdbcType="VARCHAR"></result>
+        <result column="skr" property="skr" jdbcType="VARCHAR"></result>
+        <result column="fhr" property="fhr" jdbcType="VARCHAR"></result>
+        <result column="zfbz" property="zfbz" jdbcType="VARCHAR"></result>
+        <collection property="hwxxs" ofType="com.tl.bjts.sw.model.vo.sbxx.FpHwxxVo">
+            <result column="mxxh" property="mxxh" jdbcType="VARCHAR"></result>
+            <result column="hwmc" property="hwmc" jdbcType="VARCHAR"></result>
+            <result column="ggxh" property="ggxh" jdbcType="VARCHAR"></result>
+            <result column="dw" property="dw" jdbcType="VARCHAR"></result>
+            <result column="sl" property="sl" jdbcType="DECIMAL"></result>
+            <result column="dj" property="dj" jdbcType="DECIMAL"></result>
+            <result column="slv" property="slv" jdbcType="DECIMAL"></result>
+            <result column="hw_je" property="je" jdbcType="DECIMAL"></result>
+            <result column="hw_se" property="se" jdbcType="DECIMAL"></result>
+        </collection>
+
+    </resultMap>
+
+    <select id="getFpxx4Sdfp" resultMap="fpxxResultMap">
+        select hw.xh as mxxh,fp.fphm,fp.kprq,
+               fp.xsfnsrsbh as xfsbh,fp.xsfmc as xfmc,fp.xhfdz||' '||fp.xhflxdh as xfdzdh,fp.xf_nsryh||' '||fp.xf_nsryhzh as xfyhzh,
+               fp.gmfnsrsbh as gfsbh,fp.gmfmc as gfmc,fp.gmfdz||' '||fp.gmflxdh as gfdzdh,fp.gf_nsryh||' '||fp.gf_nsryhzh as gfyhzh,
+               fp.hjje as je,fp.hjse as se,fp.jshj,fp.bz,fp.kpr,fp.skrxm as skr,fp.fhrxm as fhr,fp.fppz_dm,fp.sflzfp,
+               hw.sphfwssflhbbm,hw.hwhyslwfwmc as hwmc,hw.ggxh,hw.dw,
+               hw.fpspsl as sl,hw.fpspdj as dj,hw.je as hw_je,hw.sl_1 as slv,hw.se as hw_se,
+               null as fpzt_dm,'数电发票' as fplx
+        from gt4_yyzc_zr_sjtb.dzfp_kpyw_fpjcxxb fp
+                 inner join gt4_yyzc_zr_sjtb.dzfp_kpyw_fpmxxxb hw
+                            on hw.fphm=fp.fphm
+        where fp.fphm=#{zyfpNo} order by hw.xh
+    </select>
+    <select id="getBgdMain" resultType="com.tl.bjts.sw.model.vo.sbxx.BgdMainVO">
+        select substr(ckbgdh, 1, 18) as entryId,
+               hgqy_dm as cnsnTradeScc,
+               jydwmc as consignorCname,
+               HGGQKA_DM as iEPort,
+               HGGQKA_DM as iEPortName,
+               CKRQ_1 as iEDate,
+               HGCKHWBGDSBRQ as dDate,
+               BAH as manualNo,
+               '' as consigneeEname,
+               YSFS_DM as cusTrafMode,
+               YSFS_DM as cusTrafModeName,
+               (YSGJMC || ' ' ||  HCH) as trafName,
+               TYDH as billNo,
+               HZDWDM as ownerScc,
+               HZDWMC as ownerName,
+               JGFS_DM as supvModeCdde,
+               JGFS_DM as supvModeCddeName,
+               ZMXZ_DM as cutMode,
+               ZMXZ_DM as cutModeName,
+               XKZH as licenseNo,
+               CKHTH as contrNo,
+               MYGDQSZ_DM as cusTradeNationCode,
+               MYGDQSZ_DM as cusTradeNationCodeName,
+               ZZMDGDQSZ_DM as cusTradeCountry,
+               ZZMDGDQSZ_DM as cusTradeCountryName,
+               ZYG_DM as distinatePort,
+               ZYG_DM as distinatePortName,
+               HGGQKA_DM as despPortCode,
+               HGGQKA_DM as despPortCodeName,
+               HGBZZL_DM as wrapType,
+               HGBZZL_DM as wrapTypeName,
+               JS_1 as packNo,
+               MZ_2 as grossWt,
+               JZ as netWt,
+               HGCJFS_DM as transMode,
+               HGCJFS_DM as transModeName,
+               (YFHGHBSZ_DM || ' '  || YFHL) as yfZh,
+               (BFHGHBSZ_DM || ' '  || BFHL) as bfZh,
+               (ZFHGHBSZ_DM || ' '  || ZFHL) as zfZh,
+               '' as attaDocuCdstr,
+               BSM as markNo,
+               LXBZ as noteS
+        from hx_ckts.ckts_wbsj_hg_bgd201 t
+        where djxh = #{djxh} and  ckbgdh like #{ckbgdh} || '%' and rownum = 1
+    </select>
+
+    <select id="listBgdMx" resultType="com.tl.bjts.sw.model.vo.sbxx.BgdMxVO">
+        select substr(ckbgdh, 19, 21) as gNo,
+               CKSP_DM as codeTs,
+               nvl(HGSPMC,CKSPMC)  as gName,
+               GGXH as gModel,
+               CKSL as qty1,
+               DYJLDW_DM as unit1Name,
+               DECKSL as qty2,
+               DEJLDW_DM as unit2Name,
+               SBSL_1 as gQty,
+               SBJLDW_DM as gUnitName,
+               SBDJ as declPrice,
+               CJZJ as declTotal,
+               CJHGHBSZ_DM as tradeCurrName,
+               MYGDQSZ_DM as cusOriginCountryName,
+               ZZMDGDQSZ_DM as destinationCountryName,
+               HZDWDQ_DM as districtCodeName,
+               ZMXZ_DM as dutyModeName
+        from hx_ckts.ckts_wbsj_hg_bgd201 t
+        where djxh = #{djxh} and  ckbgdh like #{ckbgdh} || '%'
+    </select>
+
+</mapper>

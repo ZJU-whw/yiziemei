@@ -1,0 +1,57 @@
+<div class="wmghqyMx" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            {{'外贸供货企业明细-'+dqmc}}
+        </div>
+        <div class="btns">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+        </div>
+    </div>
+    <div class="page active" >
+        <div class="select-wrapper" style="padding-bottom: 10px;line-height: 1">
+            <div class="select-main">
+                <div class="select-item">
+                    <label  title="退税机关">退税机关</label>
+                    <input readonly type="text" ms-duplex="@searchData.swjgMc" ms-click="@showTree">
+                    <ul id="wmghqyMxTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+                </div>
+                <div class="select-item">
+                    <label  title="出口时间">出口时间起</label>
+                    <div class="select-item-inner">
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.cksjStart"  :on-blur="@filDate">
+                        <span>止</span>
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.cksjEnd"  :on-blur="@filDate">
+                    </div>
+                </div>
+                <div class="select-item">
+                    <label title="限定条件类型">限定条件类型</label>
+                    <select ms-duplex="searchData.tjlx" ms-change="handleChange($event)">
+                        <option value=""></option>
+                        <option value="1">出口贸易国</option>
+                        <option value="2">出口商品大类</option>
+                        <option value="3">退税率</option>
+                    </select>
+                </div>
+            </div>
+            <div class="select-sub" style="display: block">
+
+                <div class="select-item">
+                    <label>限定条件对应值</label>
+                    <input readonly ms-duplex="xdtjMc" ms-click="showSelect2"/>
+                    <ul id="wmghqyMxTree2" class='ztree treeDiv select1' style="left: 40%;width:200px"></ul>
+                    <div class="select-container select2">
+                        <label class="select-label" ms-for="(index,item) in @spdl"><input class="select-option" ms-attr="{value:item.spml}" type="checkbox"  ms-duplex="@searchData.spmlcode" ms-change="selectChange2(2)"/>{{item.mldm}}</label>
+                    </div>
+                    <div class="select-container select3">
+                        <label class="select-label" ms-for="(index,item) in @slArray"><input class="select-option" ms-attr="{value:item}" type="checkbox"  ms-duplex="@searchData.tslcode" ms-change="selectChange2(3)"/>{{item+"%"}}</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 64px" ms-visible="@act==1">
+            <table id="wmghqyMx-table"></table>
+            <div id="wmghqyMx-tablePager"></div>
+        </div>
+    </div>
+</div>

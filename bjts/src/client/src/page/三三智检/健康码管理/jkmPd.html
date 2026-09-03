@@ -1,0 +1,157 @@
+<div class="jkmPd tableLine" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        健康码评定
+      </div>
+      <div class="btns">
+          <div class="btn" ms-click="@search(1)">查询</div>
+          <div class="btn" ms-click="@add">新增</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <div class="select-wrapper">
+          <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+          <div class="select-main">
+              <div class="select-item">
+                  <label  title="税务机关">税务机关</label>
+                  <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree">
+                  <ul id="jkmPdswjgtree" class='ztree treeDiv jkmPdswjgtree' style="left: 90px;top:100%;"></ul>
+              </div>
+              <div class="select-item">
+                  <label  title="企业标识">企业标识</label>
+                  <input  type="text" ms-duplex="@searchData.qybs" placeholder="海关代码/税号/名称，支持模糊匹配">
+              </div>
+          </div>
+      </div>
+      <div class="form" style="padding-top: 54px">
+          <table id="jkmPd-table"></table>
+          <div id="jkmPd-tablePager"></div>
+      </div>
+  </div>
+   <!-- 健康码评定新增 -->
+   <div class="page-model add-page-model" style="height:340px;width: 500px;margin-left: -250px;" >
+    <div class="model-title">健康码评定（新增）</div>
+    <div class="model-content g-form" style="height: 240px;">
+      <div class="g-form-item">
+        <div class="g-form-item__content nsrsbh-group dropdownWrap-group" style="margin-left: 0;">
+          <input
+            style="border: 1px solid #409EFF;"
+            name="nsrsbh"
+            type="text"
+            ms-duplex="@qybz"
+            data-duplex-changed="inpChangeNsrsbh"
+            ms-focus="@showNsrsbh"
+            ms-blur="@blur"
+            ms-keyup="@nsrsbhEnterSearch | enter"
+            ms-keydown="@keydown($event, 'jkmPdNrsbhList')"
+            placeholder="请输入至少4位纳税人识别号、海关代码或企业名称，支持模糊查询"
+            autocomplete="off">
+          <div ms-visible="@showNsrsbhList" class="dropdownWrap" id="jkmPdNrsbhList">
+            <p
+              ms-for="(index,item) in @nsrsbhList"
+              ms-click="@setNsrsbh(item)"
+              ms-attr="{index: index}"
+              ms-mouseover="@activeBgIndex = index"
+              ms-class="{activeBg: @activeBgIndex == index}"
+              ms-css="{width: item.nsrmc.length * 12 + 150 +'px', 'min-width': '100%'}">
+              {{item.nsrxx}}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>纳税人识别号：</div>
+        <div class="g-form-item__content">
+          <input disabled class="g-input" type="text" ms-duplex="@modelData.nsrsbh">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>企业名称：</div>
+        <div class="g-form-item__content">
+          <input disabled class="g-input" type="text" ms-duplex="@modelData.nsrmc">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>原健康码：</div>
+        <div class="g-form-item__content">
+          <select disabled class="g-select" ms-duplex="@modelData.jkmY">
+            <option value=""></option>
+            <option value="1">绿码</option>
+            <option value="2">黄码</option>
+            <option value="3">红码</option>
+          </select>
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">评定有效期：</div>
+        <div class="g-form-item__content">
+          <input type="text" class="datepicker date-day" :on-blur="@filDate" ms-duplex="@modelData.yxq">
+        </div>
+      </div>
+    </div>
+    <div class="model-btns">
+      <div class="btn" ms-click="saveAdd">保存</div>
+      <div class="btn" ms-click="hideModelAdd">取消</div>
+    </div>
+  </div>
+   <!-- 健康码评定 -->
+   <div class="page-model pd-page-model" style="height:440px;width: 500px;margin-left: -250px;" >
+    <div class="model-title">健康码评定</div>
+    <div class="model-content g-form" style="height: 340px;">
+      <div class="g-form-item">
+        <div class="g-form-item_label">纳税人识别号：</div>
+        <div class="g-form-item__content">
+          <input disabled class="g-input" type="text" ms-duplex="@pdData.nsrsbh">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">企业名称：</div>
+        <div class="g-form-item__content">
+          <input disabled class="g-input" type="text" ms-duplex="@pdData.nsrMc">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">原健康码：</div>
+        <div class="g-form-item__content">
+          <select disabled class="g-select" ms-duplex="@pdData.jkmY">
+            <option value=""></option>
+            <option value="1">绿码</option>
+            <option value="2">黄码</option>
+            <option value="3">红码</option>
+          </select>
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">新健康码：</div>
+        <div class="g-form-item__content">
+          <select disabled style="width: calc(100% - 54px);" class="g-select" ms-duplex="@pdData.jkmN">
+            <option value=""></option>
+            <option value="1">绿码</option>
+            <option value="2">黄码</option>
+            <option value="3">红码</option>
+          </select>
+          <div style="margin-top: 2px;" class="btn rt" ms-click="@updateJkm()">更新</div>
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">评定有效期：</div>
+        <div class="g-form-item__content">
+          <input type="text" class="datepicker date-day" :on-blur="@filDate" ms-duplex="@pdData.yxq">
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label">评定意见：</div>
+        <div class="g-form-item__content" style="height: 90px;">
+          <textarea class="g-textarea" ms-duplex="pdData.pdyj" style="resize: none;height:100%;"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="model-btns">
+        <div class="btn" ms-click="savePd">保存</div>
+        <div class="btn" ms-click="submit">提交</div>
+        <div ms-if="@pdzt != '0'" class="btn" ms-click="back">退回</div>
+        <div class="btn" ms-click="hideModelPd">取消</div>
+    </div>
+  </div>
+  <wbr  ms-widget="[{is: 'updateJkm'},@propsToPager]"/>
+</div>

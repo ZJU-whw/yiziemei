@@ -1,0 +1,58 @@
+<div class="cqblyw" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        超期即将超期办理业务查询
+      </div>
+      <div class="btns">
+          <div class="btn" ms-click="@search(1)">查询</div>
+          <div class="btn" ms-click="@exform">导出</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <form name="cqblyw-form">
+          <div class="select-wrapper">
+              <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+              <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+              <div class="select-main">
+                <div class="select-item">
+                    <label title="税务机关">税务机关</label>
+                    <input readonly type="text" ms-duplex="swjgmc" ms-click="@showTree">
+                    <ul id="cqblywTree2" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+                </div>
+                <div class="select-item">
+                    <label title="企业标识">企业标识<i class="question" title="企业海关代码或社会信用代码"></i></label>
+                    <input name="nsrsbh" type="text" ms-duplex="searchData.qybs" placeholder="支持税号、社会信用代码、纳税人名称、海关代码查询" title="支持税号、社会信用代码、纳税人名称、海关代码查询">
+                </div>
+                <div class="select-item">
+                  <label  title="管理类别">管理类别</label>
+                  <select class="width-m" ms-duplex="searchData.gllb">
+                      <option value=""></option>
+                      <option ms-for="el in @gllbList" ms-attr="{value: el.value}">{{el.name}}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="select-sub">
+                <div class="select-item clear">
+                    <label title="超期类型">超期类型</label>
+                    <input id="cqblyw-jjcq" type="radio" value="1" name="exceedType" ms-duplex="searchData.exceedType">
+                    <label class="radioLabel" for="cqblyw-jjcq">即将超期</label>
+                    <input id="cqblyw-yjcq" type="radio" value="2" name="exceedType" ms-duplex="searchData.exceedType">
+                    <label class="radioLabel" for="cqblyw-yjcq">已经超期</label>
+                </div>
+                <div class="select-item">
+                    <label ms-attr="{title: @searchData.exceedType==1?'即将超期天数':'已经超期天数'}">{{@searchData.exceedType==1?'即将':'已经'}}超期天数</label>
+                    <input
+                      name="exceedDays"
+                      type="text"
+                      ms-duplex="searchData.exceedDays"
+                      ms-keyup="regExceedDays">
+                </div>
+              </div>
+          </div>
+      </form>
+      <div class="form" style="padding-top: 54px">
+          <table id="cqblyw-table"></table>
+          <div id="cqblyw-tablePager"></div>
+      </div>
+  </div>
+</div>

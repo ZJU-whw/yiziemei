@@ -1,0 +1,78 @@
+.tsrysz .page {
+  padding: 20px;
+}
+.tsrysz .shfz-header {
+  line-height: 30px;
+  height: 30px;
+  margin-top: 10px;
+}
+.tsrysz .shfz-header-gwmc {
+  margin-left: 20px;
+}
+.tsrysz .shfz-center-btns {
+  display: inline-table;
+  width: 60px;
+  height: 450px;
+}
+.tsrysz .shfz-center-btn-inner {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+}
+.tsrysz .shfz-center-btn__item {
+  display: block;
+  width: 40px;
+  height: 30px;
+  margin: 0 auto;
+  line-height: 30px;
+  text-align: center;
+  border: 1px solid #eee;
+  cursor: pointer;
+}
+.tsrysz .shfz-center-btn__item.toright {
+  background: url("../image/move-right.png") center center no-repeat;
+  margin-bottom: 10px;
+}
+.tsrysz .shfz-center-btn__item.toleft {
+  background: url("../image/move-left.png") center center no-repeat;
+}
+.tsrysz .shfz-left-panel,
+.tsrysz .shfz-right-panel {
+  display: inline-block;
+  width: 300px;
+  height: 450px;
+  border: 1px solid #eee;
+  vertical-align: top;
+  overflow: auto;
+}
+.tsrysz .shfz-panel-header {
+  height: 30px;
+  line-height: 30px;
+  padding: 0 20px;
+  background: #e5e5e5;
+}
+.tsrysz .shfz-list-wrapper {
+  padding: 10px 20px;
+}
+.tsrysz .shfz-list-item {
+  display: block;
+  height: 26px;
+  line-height: 26px;
+  cursor: pointer;
+}
+.tsrysz .shfz-list-item input[type="checkbox"] {
+  vertical-align: middle;
+  margin: 0 4px 0 0 ;
+}
+.fztswh .table select {
+  width: 90px;
+}
+.fztscxxg .table input {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  outline: none;
+}
+.fztscxxg .table select {
+  width: 90px;
+}

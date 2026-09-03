@@ -1,0 +1,257 @@
+<div class="dzhc-new dzhc-rwcx" ms-click="hideNsrsbh">
+  <div class="pageTabs">
+    <div class="pageTitle">
+      审单核查查询
+    </div>
+    <div class="btns">
+      <div class="btn" ms-click="@search(1)">查询</div>
+      <div class="btn" ms-click="@plReleaseBatch">批量下达</div>
+      <div class="btn" ms-click="@plWithdrawBatch">批量作废</div>
+      <div class="btn" ms-click="@plBackBatchPre">批量退回</div>
+      <div class="btn" ms-click="@showModelSd(1)">批量审核</div>
+      <div class="btn" ms-click="@exform">导出</div>
+    </div>
+  </div>
+  <div class="page active">
+    <form name="dzhc-rwcx-form">
+      <div class="select-wrapper">
+        <span class="reset" title="重置查询条件" ms-click="@resetSearchData">重置：</span>
+        <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+        <div class="select-main">
+          <div class="select-item">
+            <label title="税务机关">税务机关</label>
+            <input readonly type="text" class="bt-form-control" ms-duplex="swjgmc" ms-click="@showTree">
+            <ul id="rwcxTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+          </div>
+          <div class="select-item nsrsbh-group">
+            <label>
+              <select class="bt-form-control select-nsrsbh" ms-duplex="qySearchType"
+                data-duplex-changed="qySearchTypeChg">
+                <option value="nsrsbh">纳税人识别号</option>
+                <option value="qymc">企业名称</option>
+                <option value="hgdm">海关代码</option>
+              </select>
+            </label>
+            <input ms-if="qySearchType!='nsrsbh'" name="nsrsbh" type="text" class="bt-form-control"
+              ms-duplex="@qySearchVal">
+            <input ms-if="qySearchType=='nsrsbh'" name="nsrsbh" type="text" ms-duplex="@qySearchVal"
+              class="bt-form-control" data-duplex-changed="inpChangeNsrsbh('searchData')" ms-focus="@showNsrsbh"
+              ms-keyup="@nsrsbhEnterSearch | enter" ms-keydown="@keydown($event, 'rwcxNrsbhList')"
+              placeholder="请输入至少4位税号,支持模糊查询" autocomplete="off">
+            <div ms-visible="@showNsrsbhList" class="nrsbhList" id="rwcxNrsbhList" style="left: 40%;">
+              <p ms-for="(index,item) in @nsrsbhList" ms-click="@setNsrsbh(item, 'searchData')" ms-attr="{index: index}"
+                ms-mouseover="activeBgIndex = index" ms-class="{activeBg: activeBgIndex == index}"
+                ms-css="{width: item.nsrmc.length * 12 + 150 +'px'}">
+                {{item.nsrxx}}
+              </p>
+            </div>
+          </div>
+          <div class="select-item releaser-group">
+            <label title="下达人">下达人</label>
+            <input ms-if="!@isManager" name="releaser" type="text" class="bt-form-control" disabled ms-duplex="searchData.releaser">
+            <input ms-if="@isManager" name="releaser" type="text" class="bt-form-control" ms-duplex="@searchData.releaser" data-duplex-changed="@inpChangeReleaser"
+            ms-focus="@showReleaser"
+            ms-keyup="@releaserEnterSearch | enter" ms-keydown="@keydown($event, 'rwcxReleaserList')"
+            placeholder="请输入下达人名称,支持模糊查询" autocomplete="off">
+            <div ms-if="@isManager" ms-visible="@showReleaserList" class="releaserList" id="rwcxReleaserList" style="left: 40%;">
+              <p ms-for="(index,item) in @releaserList" ms-click="@setReleaser(item)" ms-attr="{index: index}"
+                ms-mouseover="activeBgReleaserIndex = index" ms-class="{activeBg: activeBgReleaserIndex == index}"
+                ms-css="{width: (item.czryMc.length + item.swjgJc.length) * 12 + 12 +'px','min-width':'100%'}">
+                {{item.czryMc+' '+ (item.swjgJc || '')}}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="select-sub">
+          <div class="select-item">
+            <label title="申报年月">申报年月</label>
+            <input type="text" readonly class="bt-form-control datepicker date-month" name="date_field" ms-click="@showDatetimepicker($event)" ms-duplex="@searchData.sssq">
+          </div>
+          <div class="select-item">
+            <label title="申报批次">申报批次</label>
+            <input type="text" name="sbpc" class="bt-form-control" ms-duplex="@searchData.sbpc" ms-on-keyup="sbpcChange"
+              ms-on-blur="sbpcFormat('searchData')">
+          </div>
+          <div class="select-item">
+            <label title="审核日期">审核日期</label>
+            <div class="select-item-inner">
+              <input type="text" class="bt-form-control datepicker date-day" ms-duplex="@searchData.examineStart" ms-click="@showDatetimepicker($event)" readonly>
+              <span>止</span>
+              <input type="text" class="bt-form-control datepicker date-day" ms-duplex="@searchData.examineEnd" ms-click="@showDatetimepicker($event)" readonly>
+            </div>
+          </div>
+        </div>
+        <div class="select-sub">
+          <div class="select-item">
+            <label title="申报批次">报关单号</label>
+            <input type="text" name="sbpc" class="bt-form-control" data-duplex-changed="@dataEntryidChg"
+              ms-duplex="@searchData.entryId" placeholder="请至少输入4位单号，支持模糊查询">
+          </div>
+          <div class="select-item">
+            <label title="上报日期">上报日期</label>
+            <div class="select-item-inner">
+              <input type="text" class="bt-form-control datepicker date-day" ms-duplex="@searchData.reportStart" ms-click="@showDatetimepicker($event)" readonly>
+              <span>止</span>
+              <input type="text" class="bt-form-control datepicker date-day" ms-duplex="@searchData.reportEnd" ms-click="@showDatetimepicker($event)" readonly>
+            </div>
+          </div>
+          <div class="select-item qhms">
+            <label title="状态"
+              ms-click="@searchData.statusMode=='1'? @searchData.statusMode='2': @searchData.statusMode='1'">状态({{@searchData.statusMode=='1'?
+              '任务模式':'核查模式'}})</label>
+            <span class="icon-qhms"
+              ms-click="@searchData.statusMode=='1'? @searchData.statusMode='2': @searchData.statusMode='1'">
+              <span class="arrow up" title="切换至任务模式" ms-class="[@searchData.statusMode=='1'? 'active':'']"></span>
+              <span class="arrow down" title="切换至核查模式" ms-class="[@searchData.statusMode=='2'? 'active':'']"></span>
+            </span>
+            <select ms-if="@searchData.statusMode=='1'" class="bt-form-control width-m" ms-duplex="searchData.status">
+              <option value=""></option>
+              <option value="10">在办</option>
+              <option value="20">办结</option>
+            </select>
+            <select ms-if="@searchData.statusMode=='2'" class="bt-form-control width-m" ms-duplex="searchData.status">
+              <option value=""></option>
+              <option value="0">未下达</option>
+              <option value="1">已下达</option>
+              <option value="2">已收讫</option>
+              <option value="3">已上报</option>
+              <option value="1A">已退回</option>
+              <option value="4">已审核</option>
+            </select>
+          </div>
+        </div>
+        <div class="select-sub">
+          <div class="select-item">
+            <label title="是否逾期">是否逾期</label>
+            <select class="bt-form-control width-m" ms-duplex="searchData.sfyq">
+              <option value=""></option>
+              <option value="Y">是</option>
+              <option value="N">否</option>
+            </select>
+          </div>
+          <div class="select-item">
+            <label title="下达日期">下达日期</label>
+            <div class="select-item-inner">
+              <input type="text" class="bt-form-control datepicker date-day" ms-duplex="@searchData.releaseStart" ms-click="@showDatetimepicker($event)" readonly>
+              <span>止</span>
+              <input type="text" class="bt-form-control datepicker date-day" ms-duplex="@searchData.releaseEnd" ms-click="@showDatetimepicker($event)" readonly>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="form" style="padding-top: 53px">
+      <table id="dzhc-rwcx-table"></table>
+      <div id="dzhc-rwcx-tablePager"></div>
+    </div>
+  </div>
+
+  <!-- 审核 -->
+  <div class="page-model page-model-end"
+    ms-css="{width: @isPlsd==0?'900px': '520px', 'margin-left': @isPlsd==0? '-450px': '-260px', 'height': @isPlsd==0? '540px': '300px', 'margin-top': @isPlsd==0? '-270px': '-150px'}">
+    <div class="model-title">
+      <span>{{@isPlsd==0? '': '批量'}}审核结束</span>
+      <span class="model-close" ms-click="hideModelSd">&times;</span>
+    </div>
+    <div class="model-content" ms-css="{'height': @isPlsd==0? '432px': '214px'}">
+      <div class="btns clear" ms-if="@isPlsd==0" style="float: right; height: 20px; margin-right: 28px; margin-top: -5px; margin-bottom: 10px;">
+        <div ms-if="isWindows" class="btn rt" ms-class="[curRow.status >=3?'': 'disabled']" ms-click="searchDz">查看单证</div>
+        <div ms-if="!isWindows" class="btn rt" ms-class="[curRow.status >=3 && hasTypeTreeFiles()? '': 'disabled']" ms-click="showMultiPdf">查看单证</div>
+      </div>
+      <div class="model-item clear" ms-if="@isPlsd==0">
+        <div class="lf width-s text-right" style="padding-right: 10px;">核查内容：</div>
+        <div style="overflow: hidden;">
+          <div class="hcEnd clear">
+            <div class="end-item clear w-33per" ms-for="item in @finisnList">
+              <div class="label">{{item.label}}：</div>
+              <input ms-if="item.type!='number'" type="text"
+                ms-attr="{value: @finisnData[item.key]?@finisnData[item.key]:'', title: @finisnData[item.key]?@finisnData[item.key]:''}"
+                disabled>
+              <input ms-if="item.type=='number'" type="text" ms-duplex="@finisnData[item.key] | number(2)"
+                ms-attr="{title: @finisnData[item.key]?@finisnData[item.key]:''}" disabled>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="dzlx model-item clear" ms-if="@isPlsd==0">
+        <div ms-if="isWindows || !(curRow.status >=3)" class="clear" ms-for="item in @typeTreeData">
+          <div class="lf width-s text-right" style="padding-right: 10px;">{{item.name}}：</div>
+          <div style="overflow: hidden;">
+            <div class="end-item lf w-33per" ms-for="tmp in item.item">
+              <label>
+              <input class="vertical-middle label" type="checkbox" disabled ms-duplex="editRangeList"
+                ms-attr="{value: tmp.value, id: 'rwcx-type-'+tmp.value}">
+              </label>
+              <span ms-attr="{for: 'rwcx-type-'+tmp.value}">{{tmp.name}}</span>
+            </div>
+          </div>
+        </div>
+        <div ms-if="!isWindows && curRow.status >=3" style="padding:0 10px;">
+          <wbr ms-widget="[{is:'dzhcTypeTree'}, {typeTreeData: @typeTreeData, detailInfo: @pdfDetailInfo, configContainerId: 'rwcx', onRemarkSave: @refreshAfterRemarkSave}]" />
+        </div>
+      </div>
+      <div class="model-item clear">
+        <div class="lf width-s text-right" style="padding-right: 10px;">审核结果：</div>
+        <input type="radio" class="radio" value="0" name="examineResult" id="rwcx-examineResult-inp-0"
+          ms-duplex="modelData.examineResult">
+        <label for="rwcx-examineResult-inp-0" style="float: none;">暂未发现问题</label>
+        <input type="radio" class="radio" value="1" name="examineResult" id="rwcx-examineResult-inp-1"
+          ms-duplex="modelData.examineResult">
+        <label for="rwcx-examineResult-inp-1" style="float: none;">核查有问题</label>
+      </div>
+      <div class="model-item clear" style="margin-top: 10px;">
+        <div class="lf width-s text-right" style="padding-right: 10px;">
+          <span ms-if="modelData.examineResult=='1'" class="text-red">*</span>审核意见：</div>
+        <textarea class="g-textarea" rows="4" ms-css="{width: @isPlsd==0? '777px': '400px'}"
+          ms-duplex="modelData.examineNote"></textarea>
+        <div style="position: absolute; left: 100px;" ms-visible="!@modelData.examineNote && modelData.examineResult=='1'"
+          class="text-red">请输入审核意见</div>
+      </div>
+    </div>
+    <div class="model-btns">
+      <div class="btn" ms-click="saveModelSd">确定</div>
+      <div class="btn" ms-click="hideModelSd">取消</div>
+    </div>
+  </div>
+
+  <!-- 退回 -->
+  <div class="page-model page-model-back" style="height: 360px; margin-top: -180px; width: 700px; margin-left: -350px;">
+    <div class="model-title">
+      <span>退回（可增加需要审核的单证类型）</span>
+      <span class="model-close" ms-click="hideBackSingle">&times;</span>
+    </div>
+    <div class="model-content" style="height: 260px; padding: 20px;">
+
+      <div class="dzlx">
+        <div class="clear mb-5" ms-for="item in @typeTreeData" style="font-size: 14px;">
+          <div class="lf width-s text-right" style="padding-right: 10px;">{{item.name}}:</div>
+          <div style="overflow: hidden;">
+            <div class="lf mr-10" style="width: 147px;" ms-for="tmp in item.item">
+              <input class="vertical-middle" type="checkbox" ms-duplex="editRangeList"
+                ms-attr="{value: tmp.value, disabled: tmp.chkDisabled, id: 'rwcx-type-back-'+tmp.value}" />
+              <label ms-attr="{for: 'rwcx-type-back-'+tmp.value}">{{tmp.name}}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="model-item clear" style="margin-top: 10px; margin-left: 20px; font-size: 14px;">
+        <label>
+          <span class="text-red">*</span>退回原因：
+        </label>
+        <textarea class="g-textarea" rows="4" style="width: 521px;" ms-duplex="@backData.backReason"></textarea>
+        <div style="position: absolute; left: 120px;" ms-visible="@isErrorBack && !@backData.backReason" class="text-red">请输入退回原因</div>
+      </div>
+    </div>
+    <div class="model-btns">
+      <div class="btn" ms-click="saveBackSingle">确定</div>
+      <div class="btn" ms-click="hideBackSingle">取消</div>
+    </div>
+  </div>
+
+  <!-- 出口业务详情 -->
+  <wbr ms-widget="[{is:'dzhcCkywDetail'}, @propsToPager]" />
+
+  <!-- 预警信息 -->
+  <wbr ms-widget="[{is:'dzhcYjxx'}, @propsToPager]" />
+
+</div>

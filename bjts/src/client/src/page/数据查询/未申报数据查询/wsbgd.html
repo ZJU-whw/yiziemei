@@ -1,0 +1,54 @@
+<div class="wsbgd" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+          未申报报关单查询
+        </div>
+        <div class="btns">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+            <div class="btn dropdown" ms-on-click="showMenu">
+                配置表格▼
+                <ul class="dropdown-menu">
+                    <li ms-for="(index,item) in @tableOption"><label><input type="checkbox" ms-duplex-checked="item.show" ms-on-click="@setTableOption(item,$event)">{{item.label}}</label></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="select-wrapper">
+            <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+            <div class="select-main">
+                <div class="select-item">
+                    <label  title="报关单号码">报关单号码</label>
+                    <input type="text" ms-duplex="searchData.bgd_no">
+                </div>
+                <div class="select-item">
+                    <label title="企业代码">企业代码</label>
+                    <input type="text" ms-duplex="searchData.qydm">
+                </div>
+                <div class="select-item">
+                    <label title="商品代码">商品代码</label>
+                    <input type="text" ms-duplex="searchData.cmcode">
+                </div>
+            </div>
+            <div class="select-sub">
+                <div class="select-item">
+                    <label title="出口年月">出口年月</label>
+                    <input type="text" ms-duplex="@searchData.ym">
+                </div>
+                <div class="select-item">
+                    <label title="出口日期"><span class="text-red">*</span>出口日期起</label>
+                    <div class="select-item-inner">
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.ckrqq | change" :on-blur="@filDate">
+                        <span>止</span>
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.ckrqz | change" :on-blur="@filDate">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 54px">
+            <table id="wsbgd-table"></table>
+            <div id="wsbgd-tablePager"></div>
+        </div>
+    </div>
+</div>

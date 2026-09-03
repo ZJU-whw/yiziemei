@@ -1,0 +1,960 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.TlYjMapper">
+
+    <!--    预警综合查询过滤条件    -->
+    <sql id="YjZhcxFilterPart" >
+        <if test="qybs != null and qybs!=''  ">
+            and (c.qyhgdm like '%'||#{qybs}||'%' or c.shxyno like '%'||#{qybs}||'%')
+        </if>
+        <if test="qymc != null and qymc!=''  ">
+            and c.nsrmc like '%'||#{qymc}||'%'
+        </if>
+        <if test="yjcode != null and yjcode!=''  ">
+            and t.yjcode=#{yjcode}
+        </if>
+        <if test="zbcode != null and zbcode!=''  ">
+            and t.zbcode=#{zbcode}
+        </if>
+        <if test="bmdflag != null and bmdflag!=''  ">
+            and t.bmdflag=#{bmdflag}
+        </if>
+        <if test="clFlag != null and clFlag!=''  ">
+            and t.cl_flag=#{clFlag}
+        </if>
+        <if test="preSwjgdm != null and preSwjgdm!=''  ">
+            and s.swjg_dm like #{preSwjgdm}||'%'
+        </if>
+        <if test="swjgDm != null and swjgDm!=''  ">
+            and s.swjg_dm like #{swjgDm}||'%'
+        </if>
+
+        <if test="yjObject != null and yjObject!=''  ">
+            and t.yj_object like '%'||#{yjObject}||'%'
+        </if>
+        <if test="yjAmtEnd != null">
+            and t.yj_amt &lt;=#{yjAmtEnd}
+        </if>
+        <if test="yjAmtStart != null">
+            and t.yj_amt &gt;=#{yjAmtStart}
+        </if>
+        <if test="sbym != null and sbym!=''">
+            and t.sbym =#{sbym}
+        </if>
+        <if test="sbywbDm != null and sbywbDm!=''">
+            and h.sbywb_dm =#{sbywbDm}
+        </if>
+        <if test="clrqq != null and clrqq!=''  ">
+            and t.cj_date &gt;=to_date(#{clrqq},'yyyy-MM-dd')
+        </if>
+        <if test="clrqz != null and clrqz!=''  ">
+            and #{clrqz} &gt;= to_char(t.cj_date,'YYYY-MM-dd')
+        </if>
+    </sql>
+
+    <insert id="updateResetSocre">
+        begin
+        update tl_admin.yj_data_score t set t.score=0 where t.nsrdzdah=#{nsrdzdah};
+        update tl_admin.yj_data_yjxx y  set y.cl_flag='1' , y.cl_date=sysdate ,y.cl_user=#{clr}
+        where y.nsrdzdah=#{nsrdzdah}
+            and y.swflag='1' and y.cl_flag='0';
+        COMMIT;
+        end;
+    </insert>
+
+
+    <!--获取企业基础信息和评分信息-->
+    <select id="getYjPfxx" parameterType="string" resultType="com.tl.bjts.sw.model.vo.YjPfxxVO">
+          select dc.nsrdzdah,
+               dc.qyhgdm,
+               dc.nsrmc,
+               dc.nsrsbh,
+               ds.swjg_mc as swjgDm,
+               dc.tsjsfs_dm as tsjsfsDm,
+               ck.kzxx as flgldj,
+               dc.bsy1_mc as bsyMc,
+               dc.bsy1_dh as bsyDh,
+               dc.fddbrmc,
+               dc.frdhhm,
+               decode(ds.score, null, 0, ds.score) as scoreTotal
+          from tl_bjts.gs_dj_cktmsdab dc inner join tl_bjts.gs_dj_cktmsdab_kz ck
+          on dc.nsrdzdah=ck.nsrdzdah and ck.kzlx='FLGLCD' and ck.flag='1'
+          left join tl_admin.yj_data_score ds on dc.nsrdzdah = ds.nsrdzdah
+          inner join dm_swjg ds on  dc.swjg_dm =ds.swjg_dm
+          where  dc.nsrsbh=#{nsrsbh}
+          and rownum=1
+    </select>
+
+    <!--获取企业评分列表-->
+    <select id="getYjPfxxList" parameterType="com.tl.bjts.sw.model.dto.YjPfxxListDTO"
+            resultType="com.tl.bjts.sw.model.vo.YjPfxxListVO">
+          select t.sbym,
+           h.sbywb_dm as sbywbDm,
+            h.sssq,
+           h.sbpc,
+           t.yjcode,
+           y.yjname as yjcodeZh,
+           t.zbcode,
+           y.zbname as zbcodeZh,
+           t.yj_msg as yjMsg,
+           t.yj_object as yjObject,
+           t.yj_count as yjCount,
+           t.yj_amt as yjAmt,
+           t.yj_tax as yjTax,
+           t.yj_record as yjRecord,
+           t.score,
+           t.cl_flag as clFlag,
+           t.cl_date as clDate,
+           t.cl_user as clUser,
+           t.cl_msg as clMsg,
+           t.bmdflag,
+           t.bz
+      from tl_admin.yj_data_yjxx t, tl_bjts.sb_sbxx_hz h, tl_bjts.gs_dj_cktmsdab c, tl_admin.yj_dic_yjzb y
+       where t.sbid = h.id(+)
+       and t.nsrdzdah = h.nsrdzdah(+)
+       and t.nsrdzdah = c.nsrdzdah
+       and c.nsrsbh = #{nsrsbh}
+       and t.yjcode = y.yjcode
+       and t.zbcode = y.zbcode  and t.swflag='1'
+        <if test="yjcode != null and yjcode!=''  ">
+            and t.yjcode=#{yjcode}
+        </if>
+        <if test="zbcode != null and zbcode!=''  ">
+            and t.zbcode=#{zbcode}
+        </if>
+        <if test="clFlag != null and clFlag!=''  ">
+            and t.cl_flag=#{clFlag}
+        </if>
+        <if test="yjObject != null and yjObject!=''  ">
+            and t.yj_object like '%'||#{yjObject}||'%'
+        </if>
+        <if test="bz != null and bz!=''  ">
+            and t.bz like '%'||#{bz}||'%'
+        </if>
+        <if test="yjAmtEnd != null">
+            and t.yj_amt &lt;=#{yjAmtEnd}
+        </if>
+        <if test="yjAmtStart != null">
+            and t.yj_amt &gt;=#{yjAmtStart}
+        </if>
+    </select>
+
+    <!--获取企业综合查询列表-->
+    <select id="getYjZhcxList" parameterType="com.tl.bjts.sw.model.dto.YjZhcxListDTO"
+            resultType="com.tl.bjts.sw.model.vo.YjZhcxListVO">
+            select c.qyhgdm,
+                   c.nsrsbh,
+                   c.nsrmc,
+                   t.yjcode,
+                   y.yjname as yjcodeZh,
+                   t.zbcode,
+                   y.zbname as zbcodeZh,
+                   t.yj_msg as yjMsg,
+                   t.yj_object as yjObject,
+                   t.yj_count as yjCount,
+                   t.yj_amt as yjAmt,
+                   t.yj_tax as yjTax,
+                   t.yj_record as yjRecord,
+                   t.score,
+                   t.sbym,
+                    t.bmdflag,
+                   h.sbywb_dm as sbywbDm,
+                   h.sssq,
+                   h.sbpc,
+                   s.swjg_jc as swjgJc,
+                   t.cl_flag as clFlag,
+                   t.cl_date as clDate,
+                   t.cl_user as clUser,
+                   t.cl_msg as clMsg,
+                   t.bz,
+                   c.bsy1_mc as bsy1Mc,
+                   c.bsy2_mc as bsy2Mc,
+                   c.fddbrmc as fddbrmc
+              from tl_admin.yj_data_yjxx t, tl_admin.yj_sbxx_hz h, tl_bjts.gs_dj_cktmsdab c, tl_admin.yj_dic_yjzb y,
+                    tl_bjts.dm_swjg s
+              where t.sbid = h.id(+)
+                       and t.nsrdzdah = h.nsrdzdah(+)
+                       and t.nsrdzdah = c.nsrdzdah
+                       and c.swjg_dm = s.swjg_dm
+                       and t.yjcode = y.yjcode
+                       and t.zbcode = y.zbcode and t.swflag='1'
+             <include refid="YjZhcxFilterPart"/>
+    </select>
+
+    <!-- 获取企业综合查询（合计） -->
+    <select id="getYjZhcxSum" parameterType="com.tl.bjts.sw.model.dto.YjZhcxListDTO" resultType="hashmap">
+          select
+               nvl(sum(t.yj_amt),0) as "yjAmt",
+               nvl(sum(t.yj_tax),0) as "yjTax"
+          from tl_admin.yj_data_yjxx t, tl_bjts.sb_sbxx_hz h, tl_bjts.gs_dj_cktmsdab c, tl_admin.yj_dic_yjzb y,
+                tl_bjts.dm_swjg s
+          where t.sbid = h.id(+)
+               and t.nsrdzdah = h.nsrdzdah(+)
+               and t.nsrdzdah = c.nsrdzdah
+               and c.swjg_dm = s.swjg_dm
+               and t.yjcode = y.yjcode
+               and t.zbcode = y.zbcode and t.swflag='1'
+        <include refid="YjZhcxFilterPart"/>
+    </select>
+
+    <select id="queryYjcodes" resultType="com.tl.bjts.sw.model.domain.YjDicModel">
+        select s.yjcode,s.yjname,s.yjinfo,s.zxflag,s.yjobject,s.yjlx,s.tsywlx,
+        decode(t.qyflag,null,1,t.qyflag) as yxbz,s.swjg_fw as swjgFw
+        from tl_admin.yj_DIC_CODE s left join tl_admin.yj_DIC_SWJG t on s.yjcode=t.yjcode
+        <choose>
+            <when test="qxdm != null and qxdm.length() == 3">
+                 and t.swjgdm =#{swjgdm}
+            </when>
+            <otherwise>
+                and substr(t.swjgdm,1,5)=substr(#{swjgdm},1,5)
+            </otherwise>
+        </choose>
+        where  s.yxbz='Y' and
+        <choose>
+            <when test="qxdm != null and qxdm.length() == 5">
+                REGEXP_LIKE(s.swjg_fw,
+                '(^|\|)(' ||
+                #{qxdm} ||
+                '|' || SUBSTR(#{qxdm},1,3) ||
+                '|' || #{qxdm} || '[0-9]{2}' ||
+                ')($|\|)'
+                )
+            </when>
+            <when test="qxdm != null and qxdm.length() == 7">
+                (REGEXP_LIKE(s.swjg_fw, '(^|\|)' || #{qxdm} || '($|\|)')
+                OR REGEXP_LIKE(s.swjg_fw, '(^|\|)' || SUBSTR(#{qxdm}, 1, 5) || '($|\|)')
+                OR REGEXP_LIKE(s.swjg_fw, '(^|\|)' || SUBSTR(#{qxdm}, 1, 3) || '($|\|)'))
+            </when>
+            <otherwise>
+                s.swjg_fw like #{qxdm}||'%'
+            </otherwise>
+        </choose>
+        order by s.yjcode
+
+    </select>
+
+    <select id="cksppjj4Wm" resultType="com.tl.bjts.sw.model.vo.PjdjVo"
+            parameterType="com.tl.bjts.sw.model.dto.QspjdjDTO">
+        select s.spdm,s.spmc,s.qnt,s.amt,s.dj,s.qyhs from tl_admin.yj_CS_QSPJDJ_WM s
+        where 1=1
+        <if test="spdm != null and spdm!=''">
+            and  s.SPDM like '%'||#{spdm}||'%'
+        </if>
+        <if test="spmc != null and spmc!=''">
+            and  s.SPMC like '%'||#{spmc}||'%'
+        </if>
+        <if test="djq != null and djq!=''">
+            and s.DJ >= #{djq}
+        </if>
+        <if test="djz != null and djz!=''">
+            and #{djz} >=s.DJ
+        </if>
+    </select>
+
+
+    <select id="cksppjj4Sc" resultType="com.tl.bjts.sw.model.vo.PjdjVo"
+            parameterType="com.tl.bjts.sw.model.dto.QspjdjDTO">
+        select sc.spdm,sc.spmc,sc.qnt,sc.amt,sc.dj,sc.qyhs from tl_admin.yj_CS_QSPJDJ_SC sc
+        where 1=1
+        <if test="spdm != null and spdm!=''">
+            and  sc.SPDM like '%'||#{spdm}||'%'
+        </if>
+        <if test="spmc != null and spmc!=''">
+            and  sc.SPMC like '%'||#{spmc}||'%'
+        </if>
+        <if test="djq != null and djq!=''">
+            and sc.DJ >= #{djq}
+        </if>
+        <if test="djz != null and djz!=''">
+            and #{djz} >=sc.DJ
+        </if>
+    </select>
+
+
+
+    <select id="queryYjzbs" resultType="com.tl.bjts.sw.model.vo.YjDicYjzbModelVo">
+
+            select t.syqy,t.zbcode,t.zbname,decode(t.jslx ,1 , '按报关单',
+                                                  2, '按批次汇总',
+                                                  3, '六个月汇总', t.jslx) as jslx,
+               t.p1name,
+               nvl(s.p1val,t.p1val) as p1valchange,
+               t.p2name,
+               nvl(s.p2val,t.p2val) as p2valchange,
+               t.p3name,
+               nvl(s.p3val,t.p3val) as p3valchange,
+               t.p4name,
+               nvl(s.p4val,t.p4val) as p4valchange,
+               nvl(s.score,t.score) as score,
+               decode(s.yxbz, null, 'Y', s.yxbz) as yxbz,
+               s.swjgdm,
+               swjg.swjg_jc as swjgmc
+          from tl_admin.yj_dic_yjzbswjg s
+           left join tl_admin.yj_dic_yjzb t on (t.zbcode = s.zbcode
+            <choose>
+                <when test="qxdm != null and qxdm.length() == 5">
+                    and  s.swjgdm like substr(#{swjgdm},1,5)||'%'
+                </when>
+                <when test="qxdm != null and qxdm.length() == 7">
+                    and (s.swjgdm = substr(#{swjgdm},1,5)||'000000' or  s.swjgdm = #{swjgdm})
+                </when><otherwise></otherwise>
+            </choose>
+            )
+           left join tl_admin.dm_swjg swjg on (s.swjgdm = swjg.swjg_dm)
+                where t.yjcode = #{yjcode} and t.sysw='1'
+            <if test="zbcode != null and zbcode!=''">
+                and  s.zbcode = #{zbcode}
+            </if>
+            order by s.zbcode
+    </select>
+
+    <select id="queryYjzbsQsmr" resultType="com.tl.bjts.sw.model.vo.YjDicYjzbModelVo">
+        select t.syqy,t.zbcode,t.zbname,decode(t.jslx ,1 , '按报关单',
+                                                  2, '按批次汇总',
+                                                  3, '六个月汇总', t.jslx) as jslx,
+               t.p1name,
+               t.p1val as p1valchange,
+               t.p2name,
+               t.p2val as p2valchange,
+               t.score as score,
+               t.p3name,
+               t.p3val as p3valchange,
+               t.p4name,
+               t.p4val as p4valchange,
+               'Y' as yxbz,
+               '浙江省税务局' as swjgmc,
+               '1' as showtype
+        from tl_admin.yj_dic_yjzb t
+        where t.yjcode = #{yjcode} and t.sysw='1' order by t.zbcode
+    </select>
+
+    <!--  根据税务机关代码和指标代码删除预警参数指标的相关信息 -->
+    <delete id="deleteYjzbSwjg">
+        delete from tl_admin.yj_dic_yjzbswjg
+        where swjgdm = #{swjgdm} and zbcode = #{zbcode}
+    </delete>
+
+
+    <select id="queryYjBmds" resultType="com.tl.bjts.sw.model.vo.YjCsBmdModelVo"
+                    parameterType="com.tl.bjts.sw.model.dto.YjBmdDTO">
+        select s.qyhgdm,s.shxyno,s.nsrmc,t.yjcode,c.yjname,t.id ,t.id as bmdid,c.yjobject,
+        decode(t.objflag,0 , '整体放行',
+                      1, '按预警对象放行',
+                       t.objflag) as objflag,
+                       t.objflag as objflagBz,
+        t.yxbz,t.swjgdm,t.yyms,d.swjg_jc as swjgmc
+        from tl_admin.yj_cs_bmd t,tl_bjts.gs_dj_cktmsdab s ,tl_admin.yj_dic_code c,tl_bjts.dm_swjg d
+         where t.nsrdzdah=s.nsrdzdah and c.yjcode=t.yjcode and d.swjg_dm=t.swjgdm
+         and t.swjgdm like #{qxdm}||'%' and c.yxbz='Y'
+        <if test="tsjg != null and tsjg!=''">
+            and t.swjgdm like #{tsjg}||'%'
+        </if>
+        <if test="qybs != null and qybs!=''">
+            and (s.qyhgdm like '%'||#{qybs}||'%' or s.shxyno like '%'||#{qybs}||'%')
+        </if>
+        <if test="qymc != null and qymc!=''">
+            and s.nsrmc like '%'||#{qymc}||'%'
+        </if>
+        <if test="objflag != null and objflag!=''">
+            and t.objflag =#{objflag}
+        </if>
+        <if test="yjcode != null and yjcode!=''">
+            and t.yjcode =#{yjcode}
+        </if>
+    </select>
+
+
+    <select id="queryQyxx" resultType="java.math.BigDecimal">
+        select t.nsrdzdah from tl_bjts.gs_dj_cktmsdab t
+        where t.qyhgdm=#{qybs} or t.shxyno=#{qybs} or t.nsrsbh=#{qybs}
+    </select>
+    <select id="selectYjcodeAll" resultType="com.tl.bjts.sw.model.vo.YjzbcxVo">
+        select YJCODE,YJNAME,s.yjobject,s.yjlx from tl_admin.yj_DIC_CODE s where yxbz='Y'
+        and sysw='1' and
+        <choose>
+            <when test="qxdm != null and qxdm.length() == 5">
+                REGEXP_LIKE(s.swjg_fw,
+                '(^|\|)(' ||
+                #{qxdm} ||
+                '|' || SUBSTR(#{qxdm},1,3) ||
+                '|' || #{qxdm} || '[0-9]{2}' ||
+                ')($|\|)'
+                )
+            </when>
+            <when test="qxdm != null and qxdm.length() == 7">
+                (REGEXP_LIKE(s.swjg_fw, '(^|\|)' || #{qxdm} || '($|\|)')
+                OR REGEXP_LIKE(s.swjg_fw, '(^|\|)' || SUBSTR(#{qxdm}, 1, 5) || '($|\|)')
+                OR REGEXP_LIKE(s.swjg_fw, '(^|\|)' || SUBSTR(#{qxdm}, 1, 3) || '($|\|)'))
+            </when>
+            <otherwise>
+                s.swjg_fw like #{qxdm}||'%'
+            </otherwise>
+        </choose>
+        order by yjcode
+    </select>
+    <select id="getYjzb" resultType="com.tl.bjts.sw.model.vo.ZbnameVo" parameterType="String">
+         select zbname, zbcode  from tl_admin.yj_DIC_YJZB
+        where yjcode=#{yjcode} and sysw='1' order by zbcode
+    </select>
+
+    <select id="queryQymc" resultType="java.lang.String">
+       select t.nsrmc from tl_bjts.gs_dj_cktmsdab t
+         where t.qyhgdm=#{qybs} or t.shxyno=#{qybs} or t.nsrsbh=#{qybs}
+    </select>
+
+    <select id="getZbSelect" resultType="com.tl.bjts.sw.model.vo.yjzb.ZbSelectVO">
+        select zbcode,zbname
+        from tl_admin.yj_dic_yjzb
+        where yjcode = #{yjcode}
+    </select>
+    <select id="queryYjzbsQsmr4Sjxj" resultType="com.tl.bjts.sw.model.vo.YjDicYjzbModelVo">
+        select t.syqy,t.zbcode,t.zbname,decode(t.jslx ,1 , '按报关单',
+                                               2, '按批次汇总',
+                                               3, '六个月汇总', t.jslx) as jslx,
+               t.p1name,
+               nvl(s.p1val,t.p1val) as p1valchange,
+               t.p2name,
+               nvl(s.p2val,t.p2val) as p2valchange,
+               t.p3name,
+               nvl(s.p3val,t.p3val) as p3valchange,
+               t.p4name,
+               nvl(s.p4val,t.p4val) as p4valchange,
+               nvl(s.score,t.score) as score,
+               decode(s.yxbz, null, 'Y', s.yxbz) as yxbz,
+               swjg.swjg_jc as swjgmc
+        from tl_admin.yj_dic_yjzb t
+                 left join tl_admin.dm_swjg swjg on (swjg.swjg_dm= #{swjgDm})
+                 left join tl_admin.yj_dic_yjzbswjg s on (t.zbcode = s.zbcode and s.swjgdm = swjg.swjg_dm_sj  )
+        where t.yjcode = #{yjcode} and t.sysw='1'
+    </select>
+
+    <!-- 海关货源地区域对照表查询 -->
+    <select id="queryYjHghydList" resultType="com.tl.bjts.sw.model.vo.YjHghydVO"
+            parameterType="com.tl.bjts.sw.model.dto.YjHghydDTO">
+        SELECT
+            hg.id,
+            hg.hghyd_dm as hghydDm,
+            hg.hghyd_mc as hghydMc,
+            hg.xzqh_dm as xzqhDm,
+            hg.xzqh_mc as xzqhMc,
+            dm.qycode,
+            dm.qyname
+        FROM DM_HGHYD hg
+        LEFT JOIN dm_xzqh dm ON dm.dm = hg.xzqh_dm
+        WHERE 1=1
+        <if test="hghydDm != null and hghydDm != ''">
+            AND hg.hghyd_dm LIKE  #{hghydDm} || '%'
+        </if>
+        <if test="hghydMc != null and hghydMc != ''">
+            AND hg.hghyd_mc LIKE '%' || #{hghydMc} || '%'
+        </if>
+        <if test="xzqhDm != null and xzqhDm != ''">
+            AND hg.xzqh_dm LIKE  #{xzqhDm} || '%'
+        </if>
+        <if test="xzqhMc != null and xzqhMc != ''">
+            AND hg.xzqh_mc LIKE '%' || #{xzqhMc} || '%'
+        </if>
+        <if test="qycode != null and qycode != ''">
+            AND dm.qycode = #{qycode}
+        </if>
+        <if test="qyname != null and qyname != ''">
+            AND dm.qyname LIKE '%' || #{qyname} || '%'
+        </if>
+        ORDER BY hg.hghyd_dm
+    </select>
+
+    <!-- 海关口岸区域对照表查询 -->
+    <select id="queryYjHgcodeList" resultType="com.tl.bjts.sw.model.vo.YjHgcodeVO"
+            parameterType="com.tl.bjts.sw.model.dto.YjHgcodeDTO">
+        SELECT
+            hg.HGCODE as hgcode,
+            hg.HGMC as hgmc,
+            hg.xzqh_dm as xzqhDm,
+            hg.xzqh_mc as xzqhMc,
+            dm.qycode,
+            dm.qyname
+        FROM DM_HGCODE hg
+        LEFT JOIN dm_xzqh dm ON dm.dm = hg.xzqh_dm
+        WHERE NVL(hg.qybz, 'Y') = 'Y'
+        <if test="hgcode != null and hgcode != ''">
+            AND hg.HGCODE LIKE  #{hgcode} || '%'
+        </if>
+        <if test="hgmc != null and hgmc != ''">
+            AND hg.HGMC LIKE '%' || #{hgmc} || '%'
+        </if>
+        <if test="xzqhDm != null and xzqhDm != ''">
+            AND hg.xzqh_dm LIKE  #{xzqhDm} || '%'
+        </if>
+        <if test="xzqhMc != null and xzqhMc != ''">
+            AND hg.xzqh_mc LIKE '%' || #{xzqhMc} || '%'
+        </if>
+        <if test="qycode != null and qycode != ''">
+            AND dm.qycode = #{qycode}
+        </if>
+        <if test="qyname != null and qyname != ''">
+            AND dm.qyname LIKE '%' || #{qyname} || '%'
+        </if>
+        ORDER BY hg.HGCODE
+    </select>
+
+    <!-- 最终目的国区域对照表查询 -->
+    <select id="queryYjGbcodeList" resultType="com.tl.bjts.sw.model.vo.YjGbcodeVO"
+            parameterType="com.tl.bjts.sw.model.dto.YjGbcodeDTO">
+        SELECT
+            gb.gb_code as gbCode,
+            gb.gb_name as gbName,
+            gb.gb_ename as gbEname,qycode as gjqycode,qyname as gjqyname
+        FROM DM_GBCODE gb
+        WHERE NVL(gb.qybz, 'Y') = 'Y'
+        <![CDATA[
+          and gb_code<>qycode
+         ]]>
+        <if test="gbCode != null and gbCode != ''">
+            AND gb.gb_code LIKE  #{gbCode} || '%'
+        </if>
+        <if test="gbName != null and gbName != ''">
+            AND gb.gb_name LIKE '%' || #{gbName} || '%'
+        </if>
+        <if test="gjqycode != null and gjqycode != ''">
+            AND gb.qycode = #{gjqycode}
+        </if>
+        <if test="gjqyname != null and gjqyname != ''">
+            AND gb.qyname LIKE '%' || #{gjqyname} || '%'
+        </if>
+        <if test="gbEname != null and gbEname != ''">
+            AND gb.gb_ename LIKE '%' || #{gbEname} || '%'
+        </if>
+        ORDER BY gb.gb_code
+    </select>
+
+    <!-- 查询目的国区域字典列表（下拉用） -->
+    <select id="queryYjGbcodeDicList" resultType="com.tl.bjts.sw.model.vo.YjGbcodeVO">
+        <![CDATA[
+        select qycode as gjqycode, qyname as gjqyname from tl_admin.dm_gbcode where gb_code = qycode and qybz='Y' order by gb_code
+        ]]>
+    </select>
+
+    <!-- 出口链路风险等级参数表查询 -->
+    <select id="queryYjFxdjszList" resultType="com.tl.bjts.sw.model.vo.YjFxdjszVO"
+            parameterType="com.tl.bjts.sw.model.dto.YjFxdjszDTO">
+        SELECT
+            t.FXDJ_DM as fxdjDm,
+            t.FXDJ_MC as fxdjMc,
+            t.FXDJ_PDBJ as fxdjPdbj,
+            t.FXDJ_CZFS as fxdjCzfs,
+            t.FXDJ_YZ as fxdjYz
+        FROM CKLLFX_CS_FXDJSZ t
+        WHERE 1=1
+        <if test="fxdjDm != null and fxdjDm != ''">
+            AND t.FXDJ_DM LIKE '%' || #{fxdjDm} || '%'
+        </if>
+        <if test="fxdjMc != null and fxdjMc != ''">
+            AND t.FXDJ_MC LIKE '%' || #{fxdjMc} || '%'
+        </if>
+        ORDER BY t.FXDJ_DM
+    </select>
+
+    <!-- 出口链路异常分析模型（外贸）查询 -->
+    <select id="queryYjWmllList" resultType="com.tl.bjts.sw.model.vo.YjWmllVO"
+            parameterType="com.tl.bjts.sw.model.dto.YjWmllDTO">
+        SELECT tmp.*, s.FXDJ_MC as fxdjMc,f.FXDJ_MC as fxdjDz
+        FROM (
+        SELECT m.YSFS_DM as ysfsDm,ysfs.dname as ysfsMc,
+        m.SPDL_DM as spdlDm,
+        sp.cksp_mc as spdlMc,
+        m.QYCODE_HYD as qycodeHyd,
+        m.QYCODE_HG as qycodeHg,
+        m.QYCODE_MDG as qycodeMdg,
+        dmhyd.qyname as qynameHyd,
+        dmhg.qyname as qynameHg,
+        dmmdg.gb_name as qynameMdg,
+        m.QYHS_ALL as qyhsAll,
+        m.QYZB_ALL as qyzbAll,
+        m.BGDFS_ALL as bgdfsAll,
+        m.BGDZB_ALL as bgdzbAll,
+        m.MYLAJ_ALL as mylajAll,
+        m.MYZB_ALL as myzbAll,
+        m.QYHS_SX as qyhsSx,
+        m.QYZB_SX as qyzbSx,
+        m.BGDFS_SX as bgdfsSx,
+        m.BGDZB_SX as bgdzbSx,
+        m.MYLAJ_SX as mylajSx,
+        m.MYZB_SX as myzbSx,
+        m.FXDJ_ZHFXZS as fxdjZhfxzs,
+        m.FXDJ_DM as fxdjDm,
+        t.FXDJ_TZ as fxdjDzDm,
+        t.FXDJ_TZYY as fxdjDzYy
+        FROM TL_TSSH.CKLLFX_CS_WMQYLSLL m
+        LEFT JOIN tl_admin.sys_dict ysfs ON ysfs.dcode = m.YSFS_DM AND ysfs.dtype = 'ysfs'
+        LEFT JOIN tl_tssh.jcfx_dm_cksptree sp ON sp.cksp_dm = m.SPDL_DM
+        left join tl_admin.dm_xzqh dmhyd on dmhyd.dm = m.QYCODE_HYD
+        left join tl_admin.dm_xzqh dmhg on dmhg.dm = m.QYCODE_HG
+        left join tl_admin.dm_gbcode dmmdg on dmmdg.gb_code =  m.QYCODE_MDG
+        LEFT JOIN TL_TSSH.CKLLFX_CS_SWJGYJTZ t ON t.YSFS_DM = m.YSFS_DM
+        AND t.SPDL_DM = m.SPDL_DM
+        AND t.QYCODE_HYD = m.QYCODE_HYD
+        AND t.QYCODE_HG = m.QYCODE_HG
+        AND t.QYCODE_MDG = m.QYCODE_MDG
+        AND t.SWJG_DM = #{swjgdm}
+        AND t.TSJSFF_DM = '2'
+        <where>
+            <if test="ysfsDm != null and ysfsDm != ''">
+                AND m.YSFS_DM LIKE '%' || #{ysfsDm} || '%'
+            </if>
+            <if test="spdlDm != null and spdlDm != ''">
+                AND REGEXP_LIKE(m.SPDL_DM, '^(' || REPLACE(#{spdlDm}, ',', '|') || ')$')
+            </if>
+            <if test="qycodeHyd != null and qycodeHyd != ''">
+                AND m.QYCODE_HYD = #{qycodeHyd}
+            </if>
+            <if test="qycodeHg != null and qycodeHg != ''">
+                AND m.QYCODE_HG = #{qycodeHg}
+            </if>
+            <if test="qycodeMdg != null and qycodeMdg != ''">
+                AND m.QYCODE_MDG = #{qycodeMdg}
+            </if>
+            <if test="qyzbUpper != null">
+                AND m.QYZB_ALL &lt;= #{qyzbUpper}
+            </if>
+            <if test="qyzbLower != null">
+                AND m.QYZB_ALL &gt;= #{qyzbLower}
+            </if>
+            <if test="bgdfsUpper != null">
+                AND m.BGDZB_ALL &lt;= #{bgdfsUpper}
+            </if>
+            <if test="bgdfsLower != null">
+                AND m.BGDZB_ALL &gt;= #{bgdfsLower}
+            </if>
+            <if test="mylajUpper != null">
+                AND m.MYZB_ALL &lt;= #{mylajUpper}
+            </if>
+            <if test="mylajLower != null">
+                AND m.MYZB_ALL &gt;= #{mylajLower}
+            </if>
+            <if test="qyzbSxUpper != null">
+                AND m.QYZB_SX &lt;= #{qyzbSxUpper}
+            </if>
+            <if test="qyzbSxLower != null">
+                AND m.QYZB_SX &gt;= #{qyzbSxLower}
+            </if>
+            <if test="bgdzbSxUpper != null">
+                AND m.BGDZB_SX &lt;= #{bgdzbSxUpper}
+            </if>
+            <if test="bgdzbSxLower != null">
+                AND m.BGDZB_SX &gt;= #{bgdzbSxLower}
+            </if>
+            <if test="myzbSxUpper != null">
+                AND m.MYZB_SX &lt;= #{myzbSxUpper}
+            </if>
+            <if test="myzbSxLower != null">
+                AND m.MYZB_SX &gt;= #{myzbSxLower}
+            </if>
+
+        </where>
+        ) tmp
+        LEFT JOIN TL_TSSH.CKLLFX_CS_FXDJSZ f ON f.FXDJ_DM = tmp.fxdjDzDm
+        LEFT JOIN TL_TSSH.CKLLFX_CS_FXDJSZ s ON s.FXDJ_DM = tmp.fxdjDm
+        <where>
+            <if test="fxdjDm != null and fxdjDm != ''">
+                AND s.FXDJ_DM = #{fxdjDm} or s.FXDJ_MC=#{fxdjDm}
+            </if>
+            <if test="fxdjDz != null and fxdjDz != ''">
+                AND f.FXDJ_DM = #{fxdjDz}  or f.FXDJ_MC=#{fxdjDz}
+            </if>
+        </where>
+    </select>
+        <!-- 每美元利润率分析结果查询 -->
+    <select id="queryYjMmyllList" resultType="com.tl.bjts.sw.model.vo.YjMmyllVO"
+            parameterType="com.tl.bjts.sw.model.dto.YjMmyllDTO">
+        SELECT
+            t.SWJG_DM as swjgDm,
+            s.swjg_mc as swjgMc,
+            t.SBQYHS as sbqyhs,
+            t.SBYWBS as sbywbs,
+            t.MMYLRL_MIN as mmylllMin,
+            t.MMYLRL_MAX as mmylllMax,
+            t.MMYLRL_MID as mmylllMid,
+            t.MMYLRL_AVG as mmylllAvg,
+            t.MMYLRL_STD as mmylllStd,
+            t.MMYLRL_YJX as mmylllYjx
+        FROM TL_ADMIN.YJ_CS_WMQYMMYLRL t
+        LEFT JOIN dm_swjg s ON s.swjg_dm = t.SWJG_DM
+        WHERE 1=1
+        <if test="qxdm != null and qxdm.length() == 3">
+            AND  t.SWJG_DM LIKE #{qxdm} || '%'
+        </if>
+        <if test="qxdm != null and qxdm.length() == 5">
+            AND (t.SWJG_DM = SUBSTR(#{qxdm}, 1, 3)||'00000000' OR t.SWJG_DM LIKE SUBSTR(#{qxdm}, 1, 5) || '%')
+        </if>
+        <if test="qxdm != null and qxdm.length() == 7">
+            AND (t.SWJG_DM = SUBSTR(#{qxdm}, 1, 3)||'00000000'
+                OR t.SWJG_DM = SUBSTR(#{qxdm}, 1, 5)||'000000'
+                OR t.SWJG_DM LIKE #{qxdm} || '%')
+        </if>
+        ORDER BY t.SWJG_DM
+    </select>
+
+    <!-- 出口业务物流链路综合管理查询 -->
+    <select id="queryCkllfxList" resultType="com.tl.bjts.sw.model.vo.CkllfxListVO"
+            parameterType="com.tl.bjts.sw.model.dto.CkllfxListDTO">
+        SELECT
+        dj.swjgdm,bg.djxh,
+        dj.nsrmc AS nsrmc,
+        NVL(dj.shxyno, dj.nsrdjno) AS nsrsbh,
+        bg.BGDHGBH AS bgdhgbh,
+        bg.DLZMH AS dlzmh,
+        bg.TMSJSFF_DM AS tmsjsffDm,
+        bg.CKRQ_1 AS ckrq,
+        bg.MYLAJ AS mylaj,
+        bg.YSFS_DM AS ysfsDm,
+        bg.YSFS_DM||'-'||ysfs.dname AS ysfsMc,
+        bg.HZDWDQ_DM AS hzdwdqDm,
+        bg.HZDWDQ_DM||'-'||hyd.hghyd_mc AS hzdwdqMc,
+        bg.HGGQKA_DM AS hggqkaDm,
+        bg.HGGQKA_DM||'-'||hg.hgmc AS hggqkaMc,
+        bg.ZZMDGDQSZ_DM AS zzmdgdqszDm,
+        bg.ZZMDGDQSZ_DM||'-'||gb.gb_name AS zzmdgdqszMc,
+        bg.SPDL_DM||'-'||sp.cksp_mc AS spdlDm,
+        bg.FHMS_DM AS fhmsDm,
+        decode(bg.FHMS_DM, '1', '整柜', '2', '散货(拼箱)','0', '散货(拼箱)', bg.FHMS_DM) AS fhmsMc,
+        bg.JZXH AS jzxh,
+        bg.JHPZH AS jhpzh,
+        bg.GHFNSRSBH_1 AS ghfnsrsbh,
+        bg.GHFNSRMC AS ghfnsrmc,
+        bg.GHFNSRSwjg AS ghfnsrswjg,
+        hyd.qyname AS qycodeHyd,
+        hg.qyname AS qycodeHg,
+        gb.QYNAME AS qycodeMdg,
+        bg.FXDJ_ZHFXZS AS fxdjZhfxzs,
+        bg.FXDJ_DM AS fxdjDm,
+        fx.fxdj_mc AS fxdjMc,
+        bg.FXDJ_GXRQ AS fxdjGxrq,
+        fxtz.fxdj_mc AS fxdjTz,
+        bg.FZDJ_TZYY AS fzdjTzYY,
+        bg.WLXXLY_DM AS wlxxlyDm,
+        decode(bg.WLXXLY_DM, '1', '出口发票', '2', '申报表', '3', '核查报送', bg.WLXXLY_DM) AS wlxxlyMc,
+        bg.CKFPH AS ckfph,
+        bg.CPH AS cph,
+        bg.CPYS_CODE  AS cpysCode,
+        bg.CPYS_NAME AS cpysName,
+        bg.QYRQ AS qyrq,
+        bg.QYD AS qyd,
+        bg.TYDH AS tydh,
+        bg.QYD_XZQH AS qydXzqh,
+        bg.TDLX_DM AS tdlxDm,
+        decode(NVL(bg.GJEWMZT_DM,0), '0', '未生成', '1', '已生成', bg.GJEWMZT_DM) AS gjemwztdm,
+        bg.BZ AS bz,
+        bg.SJGXSJ AS sjgxsj
+        FROM tl_tssh.glxt_bb_shxt_djxx dj
+        INNER JOIN TL_TSSH.CKLLFX_DATA_BGDWL bg ON dj.djxh_js = bg.djxh
+        LEFT JOIN tl_admin.sys_dict ysfs ON ysfs.dcode = bg.YSFS_DM AND ysfs.dtype = 'ysfs'
+        LEFT JOIN (
+            SELECT hy.hghyd_dm, hy.hghyd_mc, xzqh.qyname
+            FROM tl_admin.DM_HGHYD hy
+            LEFT JOIN tl_admin.DM_XZQH xzqh ON hy.xzqh_dm = xzqh.dm
+        ) hyd ON hyd.hghyd_dm = bg.HZDWDQ_DM
+        LEFT JOIN (
+            SELECT h.hgcode, h.hgmc, xzqh.qyname
+            FROM tl_admin.DM_HGCODE h
+            LEFT JOIN tl_admin.DM_XZQH xzqh ON h.xzqh_dm = xzqh.dm
+        ) hg ON hg.hgcode = bg.hggqka_dm
+        LEFT JOIN tl_admin.DM_GBCODE gb ON gb.gb_code = bg.ZZMDGDQSZ_DM
+        LEFT JOIN TL_TSSH.CKLLFX_CS_FXDJSZ fx ON fx.fxdj_dm = bg.FXDJ_DM
+        LEFT JOIN TL_TSSH.CKLLFX_CS_FXDJSZ fxtz ON fxtz.fxdj_dm = bg.FXDJ_TZ
+        LEFT JOIN TL_TSSH.jcfx_dm_cksptree sp ON sp.cksp_dm = bg.SPDL_DM
+        WHERE 1=1
+        <!-- 税务机关权限 -->
+        <if test="swjgDm != null and swjgDm != ''">
+            AND dj.swjgdm LIKE #{swjgDm} || '%'
+        </if>
+        <!-- 风险刷新日期范围 -->
+        <if test="fxdjGxrqQ != null">
+            AND bg.FXDJ_GXRQ &gt;= #{fxdjGxrqQ}
+        </if>
+        <if test="fxdjGxrqZ != null">
+            AND bg.FXDJ_GXRQ &lt; #{fxdjGxrqZ}+1
+        </if>
+        <!-- 风险等级 -->
+        <if test="fxdjDm != null and fxdjDm != ''">
+            AND (bg.FXDJ_DM = #{fxdjDm} or fx.fxdj_mc=#{fxdjDm})
+        </if>
+        <!-- 发货模式 -->
+        <if test="fhmsDm != null and fhmsDm != ''">
+            <choose>
+                <when test='fhmsDm == "1"'>
+                    AND bg.FHMS_DM = '1'
+                </when>
+                <otherwise>
+                    AND bg.FHMS_DM IN ('0', '2')
+                </otherwise>
+            </choose>
+        </if>
+        <!-- 运输方式 -->
+        <if test="ysfsDm != null and ysfsDm != ''">
+            AND bg.YSFS_DM = #{ysfsDm}
+        </if>
+        <!-- 退税计算方式 -->
+        <if test="tmsjsffDm != null and tmsjsffDm != ''">
+            AND bg.TMSJSFF_DM = #{tmsjsffDm}
+        </if>
+        <!-- 企业标识（税号/名称模糊查询） -->
+        <if test="qybs != null and qybs != ''">
+            AND (dj.nsrmc LIKE '%' || #{qybs} || '%' OR NVL(dj.shxyno, dj.nsrdjno) LIKE '%' || #{qybs} || '%')
+        </if>
+        <!-- 供应商标识（税号/名称模糊查询） -->
+        <if test="gybs != null and gybs != ''">
+            AND (bg.GHFNSRMC LIKE '%' || #{gybs} || '%' OR bg.GHFNSRSBH_1 LIKE '%' || #{gybs} || '%')
+        </if>
+        <!-- 报关单号，少于18位时按尾号模糊检索 -->
+        <if test="bgdhgbh != null and bgdhgbh != ''">
+            <choose>
+                <when test="bgdhgbh.length() &lt; 18">
+                    AND bg.BGDHGBH LIKE '%' || #{bgdhgbh}
+                </when>
+                <otherwise>
+                    AND bg.BGDHGBH = #{bgdhgbh}
+                </otherwise>
+            </choose>
+        </if>
+        <!-- 出口日期范围 -->
+        <if test="ckrqQ != null">
+            AND bg.CKRQ_1 &gt;= #{ckrqQ}
+        </if>
+        <if test="ckrqZ != null">
+            AND bg.CKRQ_1 &lt;= #{ckrqZ}
+        </if>
+        <!-- 集装箱号模糊检索 -->
+        <if test="jzxh != null and jzxh != ''">
+            AND bg.JZXH LIKE '%' || #{jzxh} || '%'
+        </if>
+        <!-- 车牌号模糊检索 -->
+        <if test="cph != null and cph != ''">
+            AND bg.CPH LIKE '%' || #{cph} || '%'
+        </if>
+        <!-- 出口发票号模糊检索 -->
+        <if test="ckfph != null and ckfph != ''">
+            AND bg.CKFPH LIKE '%' || #{ckfph}
+        </if>
+        <!-- 排序 -->
+        <choose>
+            <when test="orderSql != null and orderSql != ''"></when>
+            <otherwise>
+                ORDER BY bg.CKRQ_1 DESC
+            </otherwise>
+        </choose>
+    </select>
+    <select id="selectYjXzqhList" resultType="com.tl.bjts.sw.model.vo.YjHghydVO">
+        <![CDATA[
+        select dm as xzqhDm,mc as xzqhMc,qycode,qyname  from dm_xzqh t
+        where dm<>qycode and  qycode is not null and qybz = 'Y'
+        ]]>
+        <if test="xzqhDm != null and xzqhDm != ''">
+            AND dm LIKE  #{xzqhDm} || '%'
+        </if>
+        <if test="xzqhMc != null and xzqhMc != ''">
+            AND mc LIKE '%' || #{xzqhMc} || '%'
+        </if>
+        <if test="qycode != null and qycode != ''">
+            AND qycode = #{qycode}
+        </if>
+        <if test="qyname != null and qyname != ''">
+            AND qyname LIKE '%' || #{qyname} || '%'
+        </if>
+        order by dm
+    </select>
+
+    <!-- 查询行政区划字典列表（下拉用） -->
+    <select id="queryYjXzqhDicList" resultType="com.tl.bjts.sw.model.vo.YjHghydVO">
+        <![CDATA[
+        select qycode, qyname from tl_admin.dm_xzqh where dm = qycode and  qybz = 'Y' order by dm
+        ]]>
+    </select>
+
+    <!-- 保存出口链路风险等级调整（外贸） -->
+    <insert id="saveYjWmllFxdjtz" parameterType="com.tl.bjts.sw.model.dto.YjWmllFxdjtzDTO">
+        MERGE INTO TL_TSSH.CKLLFX_CS_SWJGYJTZ t
+        USING (SELECT #{ysfsDm} AS ysfsDm,
+                      #{spdlDm} AS spdlDm,
+                      #{qycodeHyd} AS qycodeHyd,
+                      #{qycodeHg} AS qycodeHg,
+                      #{qycodeMdg} AS qycodeMdg,
+                      '2' AS tsjsffDm
+               FROM dual) s
+        ON (t.YSFS_DM = s.ysfsDm
+            AND t.SPDL_DM = s.spdlDm
+            AND t.QYCODE_HYD = s.qycodeHyd
+            AND t.QYCODE_HG = s.qycodeHg
+            AND t.QYCODE_MDG = s.qycodeMdg
+            AND t.TSJSFF_DM = s.tsjsffDm
+            AND t.SWJG_DM = #{swjgDm})
+        WHEN MATCHED THEN
+            UPDATE SET t.FXDJ_TZ = #{fxdjTz},
+                       t.FXDJ_TZRQ = SYSDATE,
+                       t.FXDJ_TZRY = #{fxdjTzry},
+                       t.FXDJ_TZYY = #{fxdjTzYY}
+        WHEN NOT MATCHED THEN
+            INSERT (SWJG_DM, TSJSFF_DM, YSFS_DM, SPDL_DM, QYCODE_HYD, QYCODE_HG, QYCODE_MDG,
+                    FXDJ_TZ, FXDJ_TZRQ, FXDJ_TZRY, FXDJ_TZYY)
+            VALUES (#{swjgDm}, '2', #{ysfsDm}, #{spdlDm}, #{qycodeHyd}, #{qycodeHg}, #{qycodeMdg},
+                    #{fxdjTz}, SYSDATE, #{fxdjTzry}, #{fxdjTzYY})
+    </insert>
+
+    <!-- 出口业务物流链路数据修改 -->
+    <update id="updateCkllfxData" parameterType="com.tl.bjts.sw.model.dto.CkllfxEditDTO">
+        UPDATE TL_TSSH.CKLLFX_DATA_BGDWL
+        SET CPH     = #{cph, jdbcType=VARCHAR},
+            CPYS_CODE = #{cpysCode, jdbcType=VARCHAR},
+            CPYS_NAME = #{cpysName, jdbcType=VARCHAR},
+            QYRQ      = #{qyrq, jdbcType=DATE},
+            QYD       = #{qyd, jdbcType=VARCHAR},
+            SJGXSJ    = SYSDATE
+        WHERE DJXH = #{djxh}
+          AND BGDHGBH = #{bgdhgbh}
+    </update>
+
+    <!-- 统计物流链路记录数量 -->
+    <select id="countCkllfxRecord" resultType="int">
+        SELECT COUNT(1)
+        FROM tl_tssh.glxt_bb_shxt_djxx dj
+        INNER JOIN TL_TSSH.CKLLFX_DATA_BGDWL bg ON dj.djxh_js = bg.djxh
+        WHERE bg.DJXH = #{djxh}
+          AND bg.BGDHGBH = #{bgdhgbh}
+            <!-- 税务机关权限 -->
+            <if test="qxSwjgDm != null and qxSwjgDm != ''">
+                AND dj.swjgdm LIKE #{qxSwjgDm} || '%'
+            </if>
+    </select>
+
+    <!-- 查询物流链路二维码参数数据 -->
+    <select id="queryCkllfxQrData" resultType="com.tl.bjts.sw.model.bo.CkllfxQrDataBO">
+        SELECT
+            bg.BGDHGBH AS bgdhgbh,
+            bg.CPH AS cph,
+            bg.QYRQ AS qyrq,
+            bg.QYD AS qydAddr,
+            bg.CPYS_CODE AS cpysCode,
+            NVL(dj.shxyno, dj.nsrdjno) AS nsrsbh,
+            dj.nsrmc AS nsrmc,
+            dj.swjgdm AS swjgdm,
+            bg.CKRQ_1 AS ckrq,
+            bg.MYLAJ AS mylaj,
+            bg.SPDL_DM AS spDm,
+            sp.cksp_mc AS spMc,
+            bg.YSFS_DM AS ysfsDm,
+            bg.HZDWDQ_DM AS hzdwdqDm,
+            bg.HGGQKA_DM AS hggqkaDm,
+            bg.JZXH AS jzxh,
+            bg.ZZMDGDQSZ_DM AS zzmdgdqszDm,
+            bg.TYDH AS tydh,
+            bg.GHFNSRSBH_1 AS ghfnsrsbh,
+            bg.GHFNSRMC AS ghfnsrmc,
+            bg.GHFNSRSwjg AS ghfnsrswjg,
+            bg.FHMS_DM AS fhmsDm
+        FROM tl_tssh.glxt_bb_shxt_djxx dj
+        INNER JOIN TL_TSSH.CKLLFX_DATA_BGDWL bg ON dj.djxh_js = bg.djxh
+        LEFT JOIN TL_TSSH.jcfx_dm_cksptree sp ON sp.cksp_dm = bg.SPDL_DM
+        WHERE bg.DJXH = #{djxh}
+          AND bg.BGDHGBH = #{bgdhgbh}
+          AND dj.swjgdm LIKE #{qxSwjgDm} || '%'
+    </select>
+</mapper>

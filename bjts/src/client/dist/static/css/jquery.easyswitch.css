@@ -1,0 +1,13 @@
+.easyswitch{width:45px; height:22px; font-size:12px; display:inline-block; position:relative; cursor:pointer; border:1px solid #dcdfe6; border-radius:3px; -moz-border-radius:3px; -webkit-border-radius:11px;}
+.easyswitch .easyswitch-label{width:20px; height:22px; line-height:24px; float:left; margin:0; font-family:Arial, 宋体; text-align:center;}
+.easyswitch .easyswitch-slider{width:20px; height:18px; position:absolute; top:1px; border:1px solid #fff; border-radius:11px; background:#fff;
+background:-moz-linear-gradient(top,  #ececec 0%, #ffffff 100%);
+background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#ececec), color-stop(100%,#ffffff));
+background:-webkit-linear-gradient(top,  #ececec 0%,#ffffff 100%);
+background:-o-linear-gradient(top,  #ececec 0%,#ffffff 100%);
+background:-ms-linear-gradient(top,  #ececec 0%,#ffffff 100%);
+background:linear-gradient(top,  #ececec 0%,#ffffff 100%);
+box-shadow:inset 0px 1px 0px 0px rgba(255,255,255,0.5);
+}
+.easyswitch.on{background-color:#4383fc; color:#fff;}
+.easyswitch.off{background-color:#dcdfe6; color:#aaa;}

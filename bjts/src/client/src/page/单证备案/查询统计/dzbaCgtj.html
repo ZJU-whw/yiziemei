@@ -1,0 +1,36 @@
+<div class="hctj-new dzbacg-tj">
+  <div class="pageTabs">
+    <div class="pageTitle">
+      备案单证数字化管理成果统计
+    </div>
+    <div class="btns">
+      <div class="btn" ms-click="@search()">查询</div>
+      <div class="btn" ms-click="@exform">导出</div>
+    </div>
+  </div>
+  <div class="page active">
+    <form name="dzbacg-tj-form">
+      <div class="select-wrapper">
+        <div class="select-main">
+          <div class="select-item">
+            <label title="税务机关">税务机关</label>
+            <input readonly type="text" class="bt-form-control" ms-duplex="swjgmc" ms-click="@showTree">
+            <ul id="dzbacg-tjTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+          </div>
+          <!-- <div class="select-item">
+            <label title="统计年月">统计年月</label>
+            <div class="select-item-inner">
+              <input type="text" class="bt-form-control datepicker date-month" ms-click="@showDatetimepicker($event)" ms-duplex="@searchData.tjnyStart" readonly>
+              止
+              <input type="text" class="bt-form-control datepicker date-month" ms-click="@showDatetimepicker($event)" ms-duplex="@searchData.tjnyEnd" readonly>
+            </div>
+          </div> -->
+        </div>
+      </div>
+    </form>
+    <div class="form" style="padding-top: 33px">
+      <table id="dzbacg-tj-table"></table>
+      <div class="total-num">共 {{totalNum}} 条</div>
+    </div>
+  </div>
+</div>

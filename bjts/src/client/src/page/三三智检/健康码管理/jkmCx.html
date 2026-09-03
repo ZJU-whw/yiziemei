@@ -1,0 +1,127 @@
+<div class="jkmcx tableLine" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        健康码查询
+      </div>
+      <div class="btns">
+          <div class="btn" ms-click="@search(1)">查询</div>
+          <div class="btn" ms-click="@exform">导出</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <div class="select-wrapper">
+          <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+          <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+          <div class="select-main">
+              <div class="select-item">
+                  <label  title="税务机关">税务机关</label>
+                  <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree">
+                  <ul id="jkmcxswjgtree" class='ztree treeDiv jkmcxswjgtree' style="left: 90px;top:100%;"></ul>
+              </div>
+              <div class="select-item">
+                  <label  title="企业标识">企业标识</label>
+                  <input  type="text" ms-duplex="@searchData.qybs" placeholder="海关代码/税号/名称，支持模糊匹配">
+              </div>
+              <div class="select-item">
+                <label title="健康码">健康码</label>
+                <select ms-duplex="@searchData.jkmLevel" data-duplex-changed="jkmChange">
+                  <option value="">　</option>
+                  <option value="1">绿码</option>
+                  <option value="2">黄码</option>
+                  <option value="3">红码</option>
+                </select>
+              </div>
+              <div class="select-item" style="vertical-align: top;">
+                <label title="预警科目">预警科目</label>
+                <div ms-visible="@searchData.jkmLevel == '2' || @searchData.jkmLevel == '3'" class="bootstrap-multiselect lf custom-bootstrap-multiselect" style="width: 60%;height: 20px;">
+                  <select id="jkmcx-yjkm" style="width: 100%;" multiple="multiple"></select>
+                </div>
+                <select ms-visible="!(@searchData.jkmLevel == '2' || @searchData.jkmLevel == '3')"  disabled></select>
+              </div>
+          </div>
+          <div class="select-sub">
+              <div class="select-item">
+                  <label title="企业类型">企业类型</label>
+                  <select ms-duplex="@searchData.qylx">
+                    <option value="">　</option>
+                    <option value="1">生产</option>
+                    <option value="2">外贸</option>
+                </select>
+              </div>
+              <div class="select-item" ms-for="(index,item) in @dictList">
+                <label ms-attr="{title:item.zbxmmc}">{{item.zbxmmc}}</label>
+                <div class="item-content fz clear lf" style="width: 60%; height: 20px;">
+                  <div
+                    class="custom-bootstrap-multiselect bootstrap-multiselect lf"
+                    ms-if="item.isTree=='0'">
+                    <select ms-attr="{id:'jkmCx_select_'+item.zbxmbm.split('.')[0]+'_'+item.zbxmbm.split('.')[1]}" multiple="multiple"></select>
+                  </div>
+                  <div
+                    style="width: 100%;"
+                    class="tree clear lf"
+                    ms-if="item.isTree=='1'">
+                    <div
+                      ms-if="@selectMc[item.zbxmbm].value.length>3"
+                      class="item-content showSelect text-ellipsis"
+                      ms-click="@showTree"
+                      ms-attr="{title: @selectMc[item.zbxmbm]&&@selectMc[item.zbxmbm].name}">
+                      {{@selectMc[item.zbxmbm].value.length+ '项已选择'}}
+                    </div>
+                    <div
+                      ms-if="@selectMc[item.zbxmbm].value.length<=3"
+                      class="item-content showSelect text-ellipsis"
+                      ms-click="@showTree"
+                      ms-attr="{title: @selectMc[item.zbxmbm]&&@selectMc[item.zbxmbm].name}">
+                      {{@selectMc[item.zbxmbm].name}}
+                    </div>
+                    <ul
+                      style="left: 40%;height: 140px;"
+                      ms-attr="{id:'jkmCx_tree_'+item.zbxmbm.split('.')[0]+'_'+item.zbxmbm.split('.')[1]}"
+                      class='treeSelect ztree treeDiv'></ul>
+                  </div>
+                </div>
+              </div>
+              <div class="select-item">
+                  <label title="备案状态">备案状态</label>
+                  <select ms-duplex="@searchData.bazt">
+                    <option value="">　</option>
+                    <option value="N">备案有效</option>
+                    <option value="Y">备案注销</option>
+                </select>
+              </div>
+              <div class="select-item">
+                <label title="评定状态">评定状态</label>
+                <select ms-duplex="@searchData.pdzt">
+                  <option value="">　</option>
+                  <option value="0">未评定</option>
+                  <option value="9">已评定</option>
+                  <option value="1">已评原绿码</option>
+                  <option value="2">已评原黄码</option>
+                  <option value="3">已评原红码</option>
+                </select>
+              </div>
+            <div class="select-item">
+                <label title="退税计算方式">退税计算方式</label>
+                <select ms-duplex="@searchData.tsjsfs">
+                  <option value="">　</option>
+                  <option value="1">免抵退税</option>
+                  <option value="2">免退税</option>
+                  <option value="3">免税</option>
+                  <option value="9">其他</option>
+              </select>
+            </div>
+            <div class="select-item">
+              <label title="企业分组">企业分组</label>
+              <select ms-duplex="@searchData.qyfz">
+                <option value="">　</option>
+                <option ms-for="item in @qyfzList" ms-attr="{value:item.qyfzDm}">{{item.qyfzMc}}</option>
+              </select>
+            </div>
+        </div>
+      </div>
+      <div class="form" style="padding-top: 54px">
+          <table id="jkmcx-table"></table>
+          <div id="jkmcx-tablePager"></div>
+      </div>
+  </div>
+</div>

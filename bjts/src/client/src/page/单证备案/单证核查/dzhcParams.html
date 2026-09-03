@@ -1,0 +1,127 @@
+<div class="dzhc-params">
+  <div class="pageTabs">
+    <div class="pageTitle">
+      核查规则设置
+    </div>
+    <div class="btns">
+      <div class="btn" ms-click="@save">保存</div>
+    </div>
+  </div>
+  <div class="page active">
+    <div class="ct-p">
+      <span class="ct-til">{{nameYwccbl}}：</span>
+      <div class="ct-box">
+          <p class="ct-box-p" ms-for="ywItem in ywccblList">
+            <span class="ct-box-til">{{ywItem.range.indexOf('以上')==-1? ywItem.range+'笔': (ywItem.range.split('-').length>1? ywItem.range.split('-')[0]+'笔以上': ywItem.range)}}</span>
+            <input class="ct-inp bt-form-control num rate" ms-duplex="@ywItem.ywccbl" ms-on-blur="inpChgYwccbl($event, ywItem)">
+            <span class="dw">%</span>
+          </p>
+      </div>
+    </div>
+    <div class="ct-p">
+      <span class="ct-til">{{nameYwccNum}}：</span>
+      <input class="ct-inp bt-form-control num" ms-duplex="@ywccNum" data-duplex-changed="@inpChgYwccnum($event)">
+    </div>
+    <div class="ct-p ct-p-res">
+      <span class="ct-til">{{nameSpdm}}：</span>
+      <div class="ct-box dropdown">
+        <div class="drop-box">
+          <p ms-for="(indexCheck, spCheck) in spdmCheckedList" ms-attr="{title: spCheck.spmc}">
+            <span class="drop-box-i">
+              {{spCheck.spmc}}
+              <span class="close" title="删除" ms-click="@spCheckDel(indexCheck, 'spdm')">X</span>
+            </span>
+          </p>
+        </div>
+      </div>
+      <span class="icon-add" ms-click="@showModelSearch('spdm')" title="点击添加意向商品代码">+</span>
+    </div>
+    <div class="ct-p ct-p-res">
+      <span class="ct-til">{{nameMyg}}：</span>
+      <div class="ct-box dropdown">
+        <div class="drop-box">
+          <p ms-for="(indexCheck, mygCheck) in mygCheckedList" ms-attr="{title: mygCheck.gbName}">
+            <span class="drop-box-i">
+              {{mygCheck.gbName}}
+              <span class="close" title="删除" ms-click="@spCheckDel(indexCheck, 'myg')">X</span>
+            </span>
+          </p>
+        </div>
+      </div>
+      <span class="icon-add" ms-click="@showModelSearch('myg')" title="点击添加敏感贸易国">+</span>
+    </div>
+    <div class="ct-p">
+      <span class="ct-til">{{nameFobstart}}：</span>
+      <input class="ct-inp bt-form-control num" ms-duplex="@fobStart" data-duplex-changed="@inpChgFob($event)">
+    </div>
+  </div>
+
+  <!--弹框搜索 -->
+  <div class="page-model page-model-search"
+    style="height: 350px; margin-top: -175px; width: 600px; margin-left: -300px;">
+    <div class="model-title">
+      <span>添加{{@searchType=='spdm'? '意向商品代码': '敏感贸易国'}}</span>
+      <span class="model-close" ms-mousedown="$event.preventDefault()" ms-click="hideModelSearch">&times;</span>
+    </div>
+    <div class="model-content">
+      <div class="md-ct" ms-if="@searchType=='spdm'">
+        <div class="ct-p ct-res">
+          <span class="ct-til">{{nameSpdm}}：</span>
+          <div class="ct-box dropdown">
+            <div class="drop-box">
+              <p ms-for="(indexCheck, spCheck) in spdmCheckedList" ms-attr="{title: spCheck.spmc}">
+              <span class="drop-box-i">
+                {{spCheck.spmc}}
+                <span class="close" title="删除" ms-click="@spCheckDel(indexCheck, 'spdm')">X</span>
+              </span>
+            </p>
+            </div>
+          </div>
+        </div>
+        <div class="ct-p">
+          <span class="ct-til">添加{{nameSpdm}}：</span>
+          <div class="ct-box dropdown search" ms-on-click="showDropdown($event, 'spdm')">
+            <input type="text" class="ct-inp" id="dzhcParamsspdm" ms-keyup="@spdmSearchChg($event, 'chg')" placeholder="请至少输入4位，支持模糊查询" autocomplete="off" >
+            <ul class="dropdown-menu spdm" ms-if="@spdmSearchList.length > 0">
+              <li ms-for="(indexSearch, spSearch) in spdmSearchList">
+                <input type="checkbox" ms-attr="{id: 'drop_s_'+indexSearch}" ms-duplex-checked="@spSearch.checked" data-duplex-changed="@spSearchChg(indexSearch, 'spdm')">
+                <label ms-attr="{for: 'drop_s_'+indexSearch}">{{spSearch.spmc}}</label>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="md-ct" ms-if="@searchType=='myg'">
+        <div class="ct-p ct-res">
+          <span class="ct-til">{{nameMyg}}：</span>
+          <div class="ct-box dropdown">
+            <div class="drop-box">
+              <p ms-for="(indexCheck, mygCheck) in mygCheckedList" ms-attr="{title: mygCheck.gbName}">
+                <span class="drop-box-i">
+                  {{mygCheck.gbName}}
+                  <span class="close" title="删除" ms-click="@spCheckDel(indexCheck, 'myg')">X</span>
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="ct-p">
+          <span class="ct-til">添加{{nameMyg}}：</span>
+          <div class="ct-box dropdown search" ms-on-click="showDropdown($event, 'spdm')">
+            <input type="text" class="ct-inp" id="dzhcParamsmyg" ms-keyup="@mygSearchChg($event)" placeholder="请输入国别代码或者国别名称" autocomplete="off" >
+            <ul class="dropdown-menu myg" ms-if="@mygSearchList.length > 0">
+              <li ms-for="(indexSearch, mygSearch) in mygSearchList">
+                <input type="checkbox" ms-attr="{id: 'drop_g_'+indexSearch}" ms-duplex-checked="@mygSearch.checked" data-duplex-changed="@spSearchChg(indexSearch, 'myg')">
+                <label ms-attr="{for: 'drop_g_'+indexSearch}">{{mygSearch.gbName}}</label>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="model-btns">
+        <div class="btn" ms-click="hideModelSearch">
+          完成
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.TjbbReportModelMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.TjbbReportModel" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="BBDM" property="bbdm" jdbcType="VARCHAR" />
+    <result column="BBDLDM" property="bbdldm" jdbcType="VARCHAR" />
+    <result column="BBMC" property="bbmc" jdbcType="VARCHAR" />
+    <result column="BBJC" property="bbjc" jdbcType="VARCHAR" />
+    <result column="FNAME" property="fname" jdbcType="VARCHAR" />
+    <result column="SPPY" property="sppy" jdbcType="DECIMAL" />
+    <result column="CZPY" property="czpy" jdbcType="DECIMAL" />
+    <result column="SFBL" property="sfbl" jdbcType="DECIMAL" />
+    <result column="CLASSHZ" property="classhz" jdbcType="VARCHAR" />
+    <result column="CLASSCX" property="classcx" jdbcType="VARCHAR" />
+    <result column="CLASSSB" property="classsb" jdbcType="VARCHAR" />
+    <result column="CLASSZF" property="classzf" jdbcType="VARCHAR" />
+    <result column="SHOWORDER" property="showorder" jdbcType="DECIMAL" />
+    <result column="BBTYPE" property="bbtype" jdbcType="CHAR" />
+    <result column="QYBJ" property="qybj" jdbcType="CHAR" />
+    <result column="NOTE" property="note" jdbcType="VARCHAR" />
+    <result column="EXCELCOL" property="excelcol" jdbcType="DECIMAL" />
+    <result column="EXCELROW" property="excelrow" jdbcType="DECIMAL" />
+    <result column="HEADCOL" property="headcol" jdbcType="DECIMAL" />
+    <result column="HEADROW" property="headrow" jdbcType="DECIMAL" />
+    <result column="HZTYPE" property="hztype" jdbcType="CHAR" />
+    <result column="SWJGMCTYPE" property="swjgmctype" jdbcType="CHAR" />
+    <result column="ENDCOL" property="endcol" jdbcType="DECIMAL" />
+    <result column="ENDROW" property="endrow" jdbcType="DECIMAL" />
+    <result column="PROC" property="proc" jdbcType="VARCHAR" />
+    <result column="PROCHZ" property="prochz" jdbcType="VARCHAR" />
+  </resultMap>
+</mapper>

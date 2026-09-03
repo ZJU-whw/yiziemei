@@ -1,0 +1,13 @@
+<div class="dzhc-type-tree">
+  <table class="type-tree-table">
+    <tbody>
+      <tr ms-for="row in @treeData">
+        <td class="type-tree-label" ms-if="row.showLabel" ms-attr="{rowspan: row.rowspan}">{{row.name}}</td>
+        <td class="type-tree-name">{{row.tmpName}}</td>
+        <td class="type-tree-tags">
+          <span class="tag-item" ms-for="file in row.fileInfos" ms-if="row.fileInfos" ms-click="showPdf(file)">{{file.title}}</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

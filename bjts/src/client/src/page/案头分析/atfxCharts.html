@@ -1,0 +1,154 @@
+<div class="atfx-chart">
+  <div class="form qyjyqk-form" style="padding-top: 0;margin-top: -5px;">
+    <div class="select-wrapper select-top" style="position: relative;">
+      <div class="select-item" style="position: relative">
+        <label title="分析日期">分析日期起</label>
+        <div class="select-item-inner">
+          <input type="text" class="datepicker date-day" ms-duplex="@searchData.fxqq | change" :on-blur="@filDate">
+          <span>止</span>
+          <input type="text" class="datepicker date-day" ms-duplex="@searchData.fxqz | change" :on-blur="@filDate">
+        </div>
+      </div>
+      <div class="select-item" style="position: relative">
+        <label title="统计跨度">统计跨度</label>
+        <select ms-duplex="@searchData.hzwd">
+          <option value="n">年</option>
+          <option value="j">季</option>
+          <option value="y">月</option>
+        </select>
+      </div>
+      <div class="select-item" style="position: relative">
+        <label title="图像选择">图像选择</label>
+        <select ms-duplex="@searchData.chartType">
+          <option value="line">折线图</option>
+          <option value="bar">柱状图</option>
+        </select>
+      </div>
+      <div class="select-item btn-part" style="position: relative">
+        <div class="btn" ms-click="@search">刷新</div>
+      </div>
+    </div>
+
+
+
+    <div class="chart-container" >
+      <!-- 折线图区域 -->
+      <div class="chart-area" style="flex: 1;">
+        <div id="businessChart" style="width: 100%; height: 400px;"></div>
+      </div>
+
+      <!-- 控制面板区域 -->
+      <div class="control-panel" style="width: 365px; padding: 10px;flex-shrink: 0;">
+        <!-- <div class="control-header">
+                    <div class="month-navigation">
+                      <button class="btn btn-sm" ms-click="prevMonth">← 上一月</button>
+                      <span class="current-period">{{chartPeriod}}</span>
+                      <button class="btn btn-sm" ms-click="nextMonth">下一月 →</button>
+                    </div>
+                  </div> -->
+
+        <!-- 控制面板中的复选框绑定 -->
+        <div class="data-controls">
+          <div class="control-item" ms-for="(index, item) in @chartDataControls" style="display: flex;">
+            <label class="chart-label">
+              <input type="checkbox" ms-attr="{checked: item.visible, id: 'chart-control-' + index}"
+                ms-click="toggleChartData(index, item.key, $event)">
+              {{item.label}}
+            </label>
+            <div style="width: 40px;margin-left: 10px;">
+              <div ms-if="item.key === 'jh'">
+                <div class="flex-center">
+                  <div ms-attr="{style:'margin-right:3px;width:10px;height:10px;background:'+chartColors.jhHw}"></div>
+                  <div>货物</div>
+                </div>
+                <div class="flex-center">
+
+                  <div ms-attr="{style:'margin-right:3px;width:10px;height:10px;background:'+chartColors.jhFw}"></div>
+                  <div>服务</div>
+                </div>
+              </div>
+              <div ms-if="item.key === 'xs'">
+                <div class="flex-center">
+
+                  <div ms-attr="{style:'margin-right:3px;width:10px;height:10px;background:'+chartColors.xsNx}"></div>
+                  <div>内销</div>
+                </div>
+                <div class="flex-center">
+                  <div ms-attr="{style:'margin-right:3px;width:10px;height:10px;background:'+chartColors.xsWx}"></div>
+                  <div>外销</div>
+                </div>
+              </div>
+              <div ms-if="item.key !== 'jh'&&item.key !== 'xs'">
+                <div ms-attr="{style:'width:10px;height:10px;background:'+chartColors[item.key]}"></div>
+              </div>
+            </div>
+            <div class="offset-controls flex-center">
+              <button class="btn btn-xs" style="border: 0;" ms-click="prevMonth(index)">向左偏移</button>
+              <span class="offset-value">{{item.offset}}</span>
+              <button style="border: 0;" class="btn btn-xs" ms-click="nextMonth(index)">向右偏移</button>
+            </div>
+            <div class="linktext" ms-click="goDetail(item)">
+              查看更多
+            </div>
+          </div>
+        </div>
+
+        <div style="clear: both;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="page-model atfx-jh-model g-model"
+    style="height:96vh;width: 98vw;margin-left: -49vw;top: 2vh; margin-top: 0;">
+    <div class="model-title">{{curDialogTitle}}<div class="close" ms-click="hideModel()">&times;</div></div>
+    <div class="model-content g-form" style="height: calc(96vh - 80px);padding: 10px 0;">
+      <div ms-if="showChart">
+        <div>
+          <wbr ms-widget="[{is: 'lineChart'}, {componentName: curClickType+'LineChart', startDate: @startDate, uuid: @uuid, endDate: @endDate,ctype:@curClickType, fxqq: @historyData.fxqq, fxqz: @historyData.fxqz,hw:1,hzwd: @historyData.hzwd,curClickType: @historyData.curClickType}]"/>
+        </div>
+        <div>
+          <wbr ms-widget="[{is: 'pieChart'}, {componentName: curClickType+'PieChart', startDate: @startDate, uuid: @uuid, endDate: @endDate, fxqq: @historyData.fxqq, fxqz: @historyData.fxqz,hzwd: @historyData.hzwd,curClickType: @historyData.curClickType,url:@listInfo[curClickType].pieChart.url}]"/>
+        </div>
+        <div ms-if="curClickType=='jh'">
+          <wbr ms-widget="[{is: 'lineChart'}, {componentName: curClickType+'LineChartFw', startDate: @startDate, uuid: @uuid, endDate: @endDate, fxqq: @historyData.fxqq, fxqz: @historyData.fxqz,hw:0,ctype:@curClickType,hzwd: @historyData.hzwd,curClickType: @historyData.curClickType}]"/>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="model-btns" style="position: absolute;left: 0;bottom: 0;right: 0;">
+      <div class="btn" ms-click="@hideModel">关闭</div>
+    </div> -->
+  </div>
+  <div class="page-model atfx-xq-list g-model"
+    style="height:96vh;width: 98vw;margin-left: -49vw;top: 2vh; margin-top: 0;">
+    <div class="model-title">{{listInfo[curClickType][curType].label}}<div class="close" ms-click="hideModelFirst()">&times;</div></div>
+    
+    <div class="model-content" style="height: calc(96vh - 80px);padding: 10px 0;position: relative;">
+      <div ms-class="['page','active']" style="padding:5px 15px;">
+        <div class="form" style="padding-top: 0;margin-top: -2px;height: 100%;">
+          <!-- 为表格容器添加固定宽度和滚动条 -->
+          <table id="atfxtz-chart-first-table"></table>
+          <div id="atfxtz-chart-first-tablePager"></div>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="model-btns" style="position: absolute;left: 0;bottom: 0;right: 0;">
+      <div class="btn" ms-click="@hideModelFirst">关闭</div>
+    </div> -->
+  </div>
+  <div class="page-model atfx-xq-list-inner g-model"
+    style="height:96vh;width: 98vw;margin-left: -49vw;top: 2vh; margin-top: 0;">
+    <div class="model-title">{{listInfoSecond[curClickType][curType].label}} <div class="close" ms-click="hideModelSecond()">&times;</div></div>
+   
+    <div class="model-content" style="height: calc(96vh - 80px);padding: 10px 0;position: relative;">
+      <div ms-class="['page','active']" style="padding:5px 15px;">
+        <div class="form" style="padding-top: 0;margin-top: -2px;height: 100%;">
+          <!-- 为表格容器添加固定宽度和滚动条 -->
+          <table id="atfxtz-chart-second-table"></table>
+          <div id="atfxtz-chart-second-tablePager"></div>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="model-btns" style="position: absolute;left: 0;bottom: 0;right: 0;">
+      <div class="btn" ms-click="@hideModelSecond">关闭</div>
+    </div> -->
+  </div>
+</div>

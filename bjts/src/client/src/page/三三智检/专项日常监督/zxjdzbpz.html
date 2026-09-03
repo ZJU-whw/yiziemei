@@ -1,0 +1,216 @@
+<div class="zxjdzbpz zbpzWarp tableLine" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+          专项监管指标配置
+        </div>
+        <div class="btns">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@showModel('1')">新增</div>
+            <div class="btn" ms-click="@exform">导出</div>
+        </div>
+    </div>
+    <div ms-class="['page','active']" >
+      <div class="select-wrapper">
+        <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+        <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+        <div class="select-main">
+            <div class="select-item">
+              <label  title="指标名称">指标名称</label>
+              <input  type="text" ms-duplex="@searchData.zbCname" placeholder="支持输入指标名称或指标标识">
+            </div>
+            <div class="select-item">
+              <label title="业务分类">业务分类</label>
+              <select class="g-select" ms-duplex="@searchData.ywflDm">
+                <option value=""></option>
+                <option ms-for="item in @ywflList" ms-attr="{value: item.ywflDm}">{{item.ywflJc}}</option>
+              </select>
+            </div>
+            <div class="select-item">
+              <label title="适用企业">适用企业</label>
+              <select class="g-select" ms-duplex="@searchData.applyQy">
+                <option value=""></option>
+                <option value="0">通用</option>
+                <option value="1">生产</option>
+                <option value="2">外贸</option>
+              </select>
+            </div>
+        </div>
+        <div class="select-sub">
+          <div class="select-item">
+            <label title="刷新周期">刷新周期</label>
+            <select class="g-select" ms-duplex="@searchData.refreshCycle">
+              <option value=""></option>
+              <option value="日">日</option>
+              <option value="周">周</option>
+              <option value="月">月</option>
+              <option value="季">季</option>
+              <option value="半年">半年</option>
+              <option value="年">年</option>
+            </select>
+          </div>
+          <div class="select-item">
+            <label title="有效标志">有效标志</label>
+            <select class="g-select" ms-duplex="@searchData.yxbz">
+              <option value=""></option>
+              <option value="Y">有效</option>
+              <option value="N">无效</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="form" style="padding-top: 54px;">
+          <table id="zxjdzbpz-table"></table>
+          <div id="zxjdzbpz-tablePager"></div>
+      </div>
+    </div>
+    <!-- 新增/编辑 -->
+    <div class="page-model add-page-model" style="height:522px;width: 960px;margin-left: -480px;top: 50px; margin-top: 0;" >
+      <div class="model-title">{{addTitle}}</div>
+      <div class="model-content g-form" style="height: 430px;padding: 10px 0;">
+        <div class="clear">
+          <div class="g-form-item lf">
+            <div class="g-form-item_label"><span class="text-red">*</span>指标标识：</div>
+            <div class="g-form-item__content">
+              <input type="text" ms-duplex="modelData.zbId" ms-attr="{disabled: @addTitle == '编辑'}">
+            </div>
+          </div>
+          <div class="g-form-item lf mt-0">
+            <div class="g-form-item_label"><span class="text-red">*</span>指标简称：</div>
+            <div class="g-form-item__content">
+              <input type="text" ms-duplex="modelData.zbSname">
+            </div>
+          </div>
+        </div>
+        <div class="g-form-item mt-10">
+          <div class="g-form-item_label"><span class="text-red">*</span>指标名称：</div>
+          <div class="g-form-item__content" style="width: 740px;">
+            <input type="text" ms-duplex="modelData.zbCname">
+          </div>
+        </div>
+        <div class="clear mt-10">
+          <div class="g-form-item lf">
+            <div class="g-form-item_label"><span class="text-red">*</span>指标类型：</div>
+            <div class="g-form-item__content">
+              <select class="g-select" ms-duplex="@modelData.zbType" style="width: 100%;">
+                <option value=""></option>
+                <option value="公式型">公式型</option>
+                <option value="SQL型">SQL型</option>
+              </select>
+            </div>
+          </div>
+          <div class="g-form-item lf mt-0">
+            <div class="g-form-item_label"><span class="text-red">*</span>数据类型：</div>
+            <div class="g-form-item__content">
+              <select class="g-select" ms-duplex="@modelData.datatype" style="width: 100%;">
+                <option value=""></option>
+                <option value="1">字符型</option>
+                <option value="2">数值型</option>
+                <option value="3">日期型</option>
+                <option value="4">逻辑性</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="clear mt-10">
+          <div class="g-form-item lf">
+            <div class="g-form-item_label"><span class="text-red">*</span>业务分类：</div>
+            <div class="g-form-item__content">
+              <select class="g-select" ms-duplex="@modelData.ywflDm" style="width: 100%;">
+                <option value=""></option>
+                <option ms-for="item in @ywflList" ms-attr="{value: item.ywflDm}">{{item.ywflJc}}</option>
+              </select>
+            </div>
+          </div>
+          <div class="g-form-item lf mt-0">
+            <div class="g-form-item_label"><span class="text-red">*</span>刷新周期：</div>
+            <div class="g-form-item__content">
+              <select class="g-select" ms-duplex="@modelData.refreshCycle" style="width: 100%;">
+                <option value=""></option>
+                <option value="日">日</option>
+                <option value="周">周</option>
+                <option value="月">月</option>
+                <option value="季">季</option>
+                <option value="半年">半年</option>
+                <option value="年">年</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="clear mt-10">
+          <div class="g-form-item lf">
+            <div class="g-form-item_label"><span class="text-red">*</span>显示格式：</div>
+            <div class="g-form-item__content">
+              <select class="g-select" ms-duplex="@modelData.showformat" style="width: 100%;">
+                <option value="0">默认</option>
+                <option value="1">百分比</option>
+                <option value="2">金额</option>
+                <option value="3">整数</option>
+              </select>
+            </div>
+          </div>
+          <div class="g-form-item lf mt-0">
+            <div class="g-form-item_label"><span class="text-red">*</span>适用企业：</div>
+            <div class="g-form-item__content">
+              <select class="g-select" ms-duplex="@modelData.applyQy" style="width: 100%;">
+                <option value=""></option>
+                <option value="0">通用</option>
+                <option value="1">生产</option>
+                <option value="2">外贸</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="clear mt-10">
+          <div class="g-form-item lf">
+            <div class="g-form-item_label"><span class="text-red"></span>指标公式：</div>
+            <div class="g-form-item__content" style="width: 740px;height: 60px;">
+              <textarea class="g-textarea" ms-duplex="modelData.zbFomula"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="clear mt-10">
+          <div class="g-form-item lf">
+            <div class="g-form-item_label"><span class="text-red">*</span>业务描述：</div>
+            <div class="g-form-item__content" style="width: 740px;height: 60px;">
+              <textarea class="g-textarea" ms-duplex="modelData.ywms"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="clear mt-10">
+          <div class="g-form-item lf">
+            <div class="g-form-item_label"><span class="text-red">*</span>版本号：</div>
+            <div class="g-form-item__content">
+              <input type="text" ms-duplex="modelData.bbh">
+            </div>
+          </div>
+          <div class="g-form-item lf mt-0">
+            <div class="g-form-item_label"><span class="text-red">*</span>计算优先级：</div>
+            <div class="g-form-item__content">
+              <input type="text" ms-duplex="modelData.jsYxj" data-duplex-changed="numberLimit">
+            </div>
+          </div>
+        </div>
+        <div class="clear mt-10">
+          <div class="g-form-item lf">
+            <div class="g-form-item_label"><span class="text-red">*</span>有效标志：</div>
+            <div class="g-form-item__content">
+              <select class="g-select" ms-duplex="@modelData.yxbz" style="width: 100%;">
+                <option value="Y">有效</option>
+                <option value="N">无效</option>
+              </select>
+            </div>
+          </div>
+          <div class="g-form-item lf mt-0">
+            <div class="g-form-item_label">结果类型：</div>
+            <div class="g-form-item__content">
+              <input type="text" ms-duplex="modelData.rsType">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="model-btns">
+          <div class="btn" ms-click="saveModel">保存</div>
+          <div class="btn" ms-click="hideModel">取消</div>
+      </div>
+    </div>
+  </div>

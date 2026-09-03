@@ -1,0 +1,150 @@
+.main .content .work .bbtest .form,
+.main .content .work .bbmx .form {
+  padding-right: 17px;
+}
+.main .content .work .bbtest .form .table,
+.main .content .work .bbmx .form .table {
+  margin: 0;
+}
+.main .content .work .bbtest .table-wrapper,
+.main .content .work .bbmx .table-wrapper {
+  position: relative;
+  height: 100%;
+  border-bottom: 1px solid #666666;
+  box-sizing: border-box;
+}
+.main .content .work .bbtest .table-t3,
+.main .content .work .bbmx .table-t3 {
+  height: 90%;
+}
+.main .content .work .bbtest .table-t3 .table-body-wrapper,
+.main .content .work .bbmx .table-t3 .table-body-wrapper {
+  margin-right: -16.5px;
+}
+.main .content .work .bbtest .table-page,
+.main .content .work .bbmx .table-page {
+  padding-top: 5px;
+  height: 10%;
+  clear: both;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.main .content .work .bbtest .table-head-wrapper,
+.main .content .work .bbmx .table-head-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  width: 100%;
+  overflow: hidden;
+}
+.main .content .work .bbtest .table-body-wrapper,
+.main .content .work .bbmx .table-body-wrapper {
+  overflow-x: auto;
+  overflow-y: scroll;
+  height: 100%;
+  margin-right: -16.5px;
+}
+.main .content .work .bbtest .table,
+.main .content .work .bbmx .table {
+  width: auto;
+  min-width: 100%;
+  margin-bottom: 0;
+}
+.main .content .work .bbtest .table thead,
+.main .content .work .bbmx .table thead {
+  background: #eee;
+}
+.main .content .work .bbtest .table th,
+.main .content .work .bbmx .table th {
+  padding: 4px;
+  height: 34px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.main .content .work .bbtest .table th,
+.main .content .work .bbmx .table th,
+.main .content .work .bbtest .table td,
+.main .content .work .bbmx .table td {
+  box-sizing: border-box;
+  border: 1px solid #666666;
+}
+.main .content .work .bbtest .table th .header-cell,
+.main .content .work .bbmx .table th .header-cell,
+.main .content .work .bbtest .table td .header-cell,
+.main .content .work .bbmx .table td .header-cell {
+  min-width: 100% !important;
+  overflow: hidden;
+  text-align: center;
+  margin: 0 auto;
+}
+.main .content .work .bbtest .table th .liner-cell,
+.main .content .work .bbmx .table th .liner-cell,
+.main .content .work .bbtest .table td .liner-cell,
+.main .content .work .bbmx .table td .liner-cell {
+  min-width: 100%;
+  overflow: hidden;
+  text-align: center;
+}
+.main .content .work .bbtest .table th div,
+.main .content .work .bbmx .table th div,
+.main .content .work .bbtest .table td div,
+.main .content .work .bbmx .table td div {
+  word-break: break-all;
+  white-space: normal;
+}
+.main .content .work .bbtest .table th .tableDataCell,
+.main .content .work .bbmx .table th .tableDataCell,
+.main .content .work .bbtest .table td .tableDataCell,
+.main .content .work .bbmx .table td .tableDataCell {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+.main .content .work .bbtest .table th .tableDataCell .redDelta,
+.main .content .work .bbmx .table th .tableDataCell .redDelta,
+.main .content .work .bbtest .table td .tableDataCell .redDelta,
+.main .content .work .bbmx .table td .tableDataCell .redDelta {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  background: url("../image/redDelta.png") no-repeat right top;
+  width: 6px;
+  height: 6px;
+}
+.main .content .work .bbtest .table th .tableDataCell input,
+.main .content .work .bbmx .table th .tableDataCell input,
+.main .content .work .bbtest .table td .tableDataCell input,
+.main .content .work .bbmx .table td .tableDataCell input {
+  display: block;
+  height: 100%;
+  width: 100%;
+  border: none;
+  box-sizing: border-box;
+  padding: 0 5px;
+}
+.main .content .work .bbtest .table > tbody > tr > td,
+.main .content .work .bbmx .table > tbody > tr > td {
+  vertical-align: middle;
+  padding: 0px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  height: 34px;
+}
+.main .content .work .bbtest .table > tbody > tr.active > .tablecell,
+.main .content .work .bbmx .table > tbody > tr.active > .tablecell,
+.main .content .work .bbtest .table > tbody > tr.active > .tablecell input,
+.main .content .work .bbmx .table > tbody > tr.active > .tablecell input,
+.main .content .work .bbtest .tableDataCell.active input,
+.main .content .work .bbmx .tableDataCell.active input {
+  background: #e3f2fd;
+}
+.main .content .work .bbtest .pager-btn,
+.main .content .work .bbmx .pager-btn {
+  cursor: pointer;
+  color: #0079c8;
+}
+.main .content .work .bbtest .pager-btn.disabled,
+.main .content .work .bbmx .pager-btn.disabled {
+  color: #dddddd;
+}

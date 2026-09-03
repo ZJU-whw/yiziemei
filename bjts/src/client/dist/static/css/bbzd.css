@@ -1,0 +1,30 @@
+.main .content .work .bbzd .form .table,
+.main .content .work .bbzdedit .form .table,
+.main .content .work .bbzb .form .table,
+.main .content .work .bbgs .form .table {
+  width: 100%;
+  margin: 0;
+}
+.main .content .work .bbzd .form .table td,
+.main .content .work .bbzdedit .form .table td,
+.main .content .work .bbzb .form .table td,
+.main .content .work .bbgs .form .table td {
+  line-height: 24px;
+  height: 24px;
+  padding: 0;
+}
+.main .content .work .bbzd .form .table input,
+.main .content .work .bbzdedit .form .table input,
+.main .content .work .bbzb .form .table input,
+.main .content .work .bbgs .form .table input,
+.main .content .work .bbzd .form .table select,
+.main .content .work .bbzdedit .form .table select,
+.main .content .work .bbzb .form .table select,
+.main .content .work .bbgs .form .table select {
+  display: block;
+  height: 100%;
+  width: 100%;
+  border: none;
+  box-sizing: border-box;
+  padding: 0 5px;
+}

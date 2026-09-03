@@ -1,0 +1,217 @@
+<div class="nkgltj">
+  <div class="pageTabs">
+    <div class="pageTitle">
+      内控成果管理统计
+    </div>
+    <div class="btns">
+      <div class="btn" ms-click="@search(1)">查询</div>
+      <div class="btn dropdown" ms-on-click="showMenu">
+        切换图表▼
+        <ul class="dropdown-menu">
+          <li><label class="label"><input name="dropdown" type="radio" value="1" checked="@chartIndex==1"
+                ms-on-click="@setTableOption(item,$event)"><span>时间趋势柱状图</span></label></li>
+          <li><label class="label"><input name="dropdown" type="radio" value="2"
+                ms-on-click="@setTableOption(item,$event)"><span>按税务机关占比饼状图</span></label></li>
+          <li><label class="label"><input name="dropdown" type="radio" value="3"
+                ms-on-click="@setTableOption(item,$event)"><span>按环节占比饼状图</span></label></li>
+          <li><label class="label"><input name="dropdown" type="radio" value="4"
+                ms-on-click="@setTableOption(item,$event)"><span>按指标占比饼状图</span></label></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div ms-class="['page','active']">
+    <div class="select-wrapper">
+      <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+      <!-- <i class="icon" ms-click="showHyper" title="展开查询条件"></i> -->
+      <div class="select-main">
+        <div class="select-item">
+          <label title="税务机关">税务机关</label>
+          <input readonly type="text" ms-duplex="showSwjg" ms-click="@showTree">
+          <ul id="nkgltjSearchSwjg" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+        </div>
+        <div class="select-item">
+          <label title="发生时间">发生时间:</label>
+          <div class="select-item-inner">
+            <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate" ms-duplex="@searchData.
+              startDate">
+            <span style="margin:0;">止</span>
+            <input type="text" class="bt-form-control datepicker date-day" :on-blur="@filDate"
+              ms-duplex="@searchData.endDate">
+          </div>
+        </div>
+        <div class="select-item">
+          <label title="指标范围">指标范围</label>
+          <select class="g-select" ms-duplex="@zbfwType" ms-on-change="@onchange($event)">
+            <option value="0">类型</option>
+            <option value="1">单项</option>
+          </select>
+        </div>
+        <div class="select-item">
+          <label title="指标选择">指标选择</label>
+          <input readonly type="text" ms-duplex="showZbfw" ms-click="@showZBTree">
+          <ul id="nkgltjSearchZB" class='ztree treeDiv1' style="left: 40%;width:200px"></ul>
+        </div>
+      </div>
+    </div>
+    <div style="padding-top: 54px;height: 100%;">
+      <div style="height: 100%;overflow: auto;">
+        <div class="clear row" style="height: 100%;" ms-if="@chartIndex==1">
+          <div class="tab clear">
+            <div class="tab-item" :class="activeIndex == '0' && 'active'" ms-click="changeTab('0')">按月统计</div>
+            <div class="tab-item" :class="activeIndex == '1' && 'active'" ms-click="changeTab('1')">按季度统计</div>
+            <div class="tab-item" :class="activeIndex == '2' && 'active'" ms-click="changeTab('2')">按年统计</div>
+          </div>
+          <div class="part-bar">
+            <div class="chart mb-10" id="nkgltj-chart1" style="height:100%;"></div>
+          </div>
+          <div class="part-table">
+            <div class="table" style="height: 100%;">
+              <div class="tableBox">
+                <div class="table-title">时间趋势情况统计</div>
+                <div class="table-content">
+                  <table id="table">
+                    <colgroup>
+                      <col width="150">
+                      <col ms-for="(index,item) in @barShowTable" width="150">
+                    </colgroup>
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th ms-for="(index,item) in @barShowTable">{{item.name}}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>事前</td>
+                        <td ms-for="(index,item) in @barShowTable">{{item.sqNumber}}</td>
+                      </tr>
+                      <tr>
+                        <td>事中</td>
+                        <td ms-for="(index,item) in @barShowTable">{{item.szNumber}}</td>
+                      </tr>
+                      <tr>
+                        <td>事后</td>
+                        <td ms-for="(index,item) in @barShowTable">{{item.shNumber}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="clear row" style="height: 100%;" ms-if="@chartIndex==2">
+          <div class="part-pie">
+            <div class="chart mb-10" id="nkgltj-chart3" style="height:100%;"></div>
+          </div>
+          <div class="part-table">
+            <div class="table centertable" style="height: 100%;">
+              <div class="tableBox">
+                <div class="table-title">税务机关占比统计</div>
+                <div class="table-content">
+                  <table id="swjgtable">
+                    <colgroup>
+                      <col width="150">
+                      <col ms-for="(index,item) in @swjgShowTable" width="150">
+                    </colgroup>
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th ms-for="(index,item) in @swjgShowTable">{{item.name}}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>数量</td>
+                        <td ms-for="(index,item) in @swjgShowTable">{{item.number}}</td>
+                      </tr>
+                      <tr>
+                        <td>占比(%)</td>
+                        <td ms-for="(index,item) in @swjgShowTable">{{item.percent}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="clear row" style="height: 100%;" ms-if="@chartIndex==3">
+          <div class="part-pie">
+            <div class="chart mb-10" id="nkgltj-chart2" style="height:100%;"></div>
+          </div>
+          <div class="part-table">
+            <div class="table centertable" style="height: 100%;">
+              <div class="tableBox">
+                <div class="table-title">环节占比统计</div>
+                <div class="table-content">
+                  <table id="hjtable">
+                    <colgroup>
+                      <col width="150">
+                      <col ms-for="(index,item) in @hjShowTable" width="150">
+                    </colgroup>
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th ms-for="(index,item) in @hjShowTable">{{item.name}}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>数量</td>
+                        <td ms-for="(index,item) in @hjShowTable">{{item.number}}</td>
+                      </tr>
+                      <tr>
+                        <td>占比(%)</td>
+                        <td ms-for="(index,item) in @hjShowTable">{{item.percent}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="clear row" style="height: 100%; display: flex;" ms-if="@chartIndex==4">
+          <div class="part-pie1">
+            <div class="chart mb-10" id="nkgltj-chart4" style="height:100%;"></div>
+          </div>
+          <div class="part-table1">
+            <div class="table" style="height: 100%;">
+              <div class="tableBox">
+                <div class="table-title">指标占比统计</div>
+                <div class="table-content">
+                  <table id="zbtable">
+                    <colgroup>
+                      <col width="100">
+                      <col width="200">
+                      <col width="100">
+                      <col width="100">
+                    </colgroup>
+                    <thead>
+                      <tr>
+                        <th>指标编号</th>
+                        <th>指标名称</th>
+                        <th>数量</th>
+                        <th>占比</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr ms-for="(index,item) in @zbShowTable">
+                        <td>{{item.zbbh}}</td>
+                        <td>{{item.name}}</td>
+                        <td>{{item.number}}</td>
+                        <td>{{item.percent}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

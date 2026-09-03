@@ -1,0 +1,86 @@
+<div class="dzshqkcx" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        单证核查情况查询
+      </div>
+      <div class="btns">
+          <div class="btn" ms-click="@search(1)">查询</div>
+          <div class="btn" ms-click="@exform">导出</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <form name="dzshqkcx-form">
+          <div class="select-wrapper">
+              <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+              <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+              <div class="select-main">
+                <div class="select-item">
+                    <label title="税务机关">税务机关</label>
+                    <input readonly type="text" ms-duplex="swjgmc" ms-click="@showTree">
+                    <ul id="dzshqkcxTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+                </div>
+                <div class="select-item">
+                  <label title="纳税人识别号">纳税人识别号</label>
+                  <input name="nsrsbh" type="text" ms-duplex="searchData.nsrsbh">
+                </div>
+                <div class="select-item">
+                  <label  title="企业名称">企业名称</label>
+                  <input name="nsrmc"  type="text" ms-duplex="searchData.nsrmc">
+                </div>
+              </div>
+              <div class="select-sub">
+                <div class="select-item">
+                    <label title="企业海关代码">企业海关代码</label>
+                    <input name="qyhgdm" type="text" ms-duplex="searchData.qyhgdm">
+                </div>
+                <div class="select-item">
+                  <label title="审核时间">审核时间</label>
+                  <div class="select-item-inner">
+                    <input type="text" class="datepicker date-day" ms-duplex="@searchData.examineTimeStart" :on-blur="@filDate" >
+                    <span>止</span>
+                    <input type="text" class="datepicker date-day" ms-duplex="@searchData.examineTimeEnd" :on-blur="@filDate">
+                  </div>
+                </div>
+                <div class="select-item">
+                  <label title="审核人">审核人</label>
+                  <input name="inspector" type="text" ms-duplex="searchData.inspector">
+                </div>
+                <div class="select-item">
+                  <label title="审核状态">审核状态</label>
+                  <select class="width-m" ms-duplex="searchData.inspectResult">
+                    <option value=""></option>
+                    <option value="0">待审核</option>
+                    <option value="1">通过</option>
+                    <option value="2">不通过</option>
+                  </select>
+                </div>
+                <div class="select-item">
+                  <label title="处理类型">处理类型</label>
+                  <select class="width-m" ms-duplex="searchData.processType">
+                    <option value=""></option>
+                    <option value="01">企业自查</option>
+                    <option value="02">转评估岗</option>
+                    <option value="03">转稽查</option>
+                  </select>
+                </div>
+                <div class="select-item">
+                  <label title="报关单号">报关单号</label>
+                  <input name="bgdh" type="text" ms-duplex="searchData.bgdh">
+                </div>
+                <div class="select-item">
+                  <label title="退免税额">退免税额</label>
+                  <div class="select-item-inner">
+                    <input type="text" ms-duplex="@searchData.tmseStart">
+                    <span>止</span>
+                    <input type="text" ms-duplex="@searchData.tmseEnd">
+                  </div>
+                </div>
+              </div>
+          </div>
+      </form>
+      <div class="form" style="padding-top: 54px">
+        <table id="dzshqkcx-table"></table>
+        <div id="dzshqkcx-tablePager"></div>
+      </div>
+  </div>
+</div>

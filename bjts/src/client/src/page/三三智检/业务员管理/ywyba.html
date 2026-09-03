@@ -1,0 +1,80 @@
+<div class="ywyba tableLine" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            业务员查询
+        </div>
+        <div class="btns">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+        </div>
+    </div>
+    <div ms-class="['page','active']" >
+        <div class="select-wrapper">
+            <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+            <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+            <div class="select-main">
+                <div class="select-item">
+                    <label  title="税务机关">税务机关</label>
+                    <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree">
+                    <ul id="ywybaZtree" class='ztree treeDiv' style="left: 90px;top:100%;"></ul>
+                </div>
+                <div class="select-item">
+                    <label  title="企业标识">企业标识</label>
+                    <input  type="text" ms-duplex="@searchData.qybs" placeholder="海关代码、税号、名称，支持模糊匹配">
+                </div>
+                <div class="select-item">
+                    <label title="业务员证件号码">业务员证件号码</label>
+                    <input type="text" ms-duplex="searchData.zjhm">
+                </div>
+            </div>
+            <div class="select-sub">
+                <div class="select-item">
+                    <label title="业务员姓名">业务员姓名</label>
+                    <input type="text" ms-duplex="searchData.xm">
+                </div>
+                <div class="select-item">
+                    <label title="业务员状态">业务员状态</label>
+                    <select ms-duplex="@searchData.status">
+                        <option value="">　</option>
+                        <option value="1">在职</option>
+                        <option value="0">离职</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label title="手机号码">手机号码</label>
+                    <input type="text" ms-duplex="searchData.phone">
+                </div>
+                <div class="select-item">
+                    <label title="作废标志">作废标志</label>
+                    <select ms-duplex="@searchData.zfbz">
+                        <option value="">　</option>
+                        <option value="Y">已作废</option>
+                        <option value="N">未作废</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label title="涉及企业户数">涉及企业户数</label>
+                    <input type="text" ms-duplex="searchData.sjqyhs">
+                </div>
+                <div class="select-item">
+                    <label  title="是否为风险业务员">是否为风险业务员</label>
+                    <select  ms-duplex="@searchData.sffxywy">
+                        <option value="">全部</option>
+                        <option value="Y">是</option>
+                        <option value="N">否</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 54px">
+            <table id="ywyba-table"></table>
+            <div id="ywyba-tablePager"></div>
+        </div>
+    </div>
+    
+    <div class="page-model img-page-model" >
+        <div class="close" ms-click="hideModel()">&times;</div>
+        <span class="emptyTips" ms-if="!@imgSrc">暂无证件图片</span>
+        <img ms-if="@imgSrc" style="width: 100%;height:100%;" ms-attr="{src: @imgSrc}" alt="">
+    </div>
+</div>

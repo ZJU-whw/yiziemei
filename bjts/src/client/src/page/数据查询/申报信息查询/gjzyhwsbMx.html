@@ -1,0 +1,116 @@
+<div class="gjzyhwsbMx" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            其他业务退税申报 / 其他业务申报明细
+        </div>
+    </div>
+    <div class="page active">
+        <div class="form gjzyhwsbMx-form" style="padding-top: 10px;overflow-y: scroll">
+            <div style="padding: 0 20px 10px 20px">
+                <div class="title" style="margin-left:0px">
+                    <span>申报业务：</span><span>{{form.baseinfo.sbywbMc}}</span>
+                    <span class="ml-20">所属期：</span><span>{{form.baseinfo.sb_ym}}</span>
+                    <span class="ml-20">批次：</span><span>{{form.baseinfo.sb_pc}}</span>
+                </div>
+                <div class="baseinfo-wrapper">
+                    <div>
+                        <span class="baseinfo-item">企业名称：<span>{{form.baseinfo.nsrmc}}</span></span>
+                        <span class="baseinfo-item">海关代码：<span>{{form.baseinfo.qyhgdm}}</span></span>
+                        <span class="baseinfo-item">社会信用代码：<span>{{form.baseinfo.shxyno}}</span></span>
+                    </div>
+                    <div>
+                        <span class="baseinfo-item">税务机关：<span>{{form.baseinfo.swjgmc}}</span></span>
+                        <span class="baseinfo-item">企业类型：<span>{{form.baseinfo.qylx}}</span></span>
+                        <span class="baseinfo-item">分类管理等级：<span>{{form.baseinfo.flglcd}}</span></span>
+                    </div>
+                </div>
+                <div class="maininfo-wrapper">
+                    <div class="tab-list">
+                        <span class="w-50per" :class="['tab-item',activeIndex == 0 && 'active']" ms-click="changeTab(0)">业务办理情况</span>
+                        <span class="w-50per" :class="['tab-item',activeIndex == 1 && 'active']" ms-click="changeTab(1)">申报数据</span>
+                    </div>
+                    <div class="maininfo-content" ms-visible="activeIndex == 0">
+                        <p class="mianinfo-title">业务事项情况:</p>
+                        <div class="mianinfo-item">
+                            <div class="clear">
+                                <p class="lf w-25per"><label>出口销售额(美元)：</label>{{@form.ywsxqk.usd_amt | number(2)}}</p>
+                                <p class="lf w-25per"><label>出口销售额(人民币)：</label>{{@form.ywsxqk.rmb_amt | number(2)}}</p>
+                                <p class="lf w-25per"><label>申报退税额：</label>{{@form.ywsxqk.sb_ts_amt | number(2)}}</p>
+                                <p class="lf w-25per"><label>申报免抵额：</label>{{@form.ywsxqk.sb_md_amt | number(2)}}</p>
+                            </div>
+                            <div class="clear">
+                                <p class="lf w-25per"><label>申报提交日期：</label>{{@form.ywsxqk.bjts_date}}</p>
+                                <p class="lf w-25per"><label>申报读入日期：</label>{{@form.ywsxqk.sb_date}}</p>
+                                <p class="lf w-25per"><label>受理日期：</label>{{@form.ywsxqk.sl_date}}</p>
+                                <p class="lf w-25per"><label>受理人：</label>{{@form.ywsxqk.sl_user}}</p>
+                            </div>
+                            <div class="clear">
+                                <p class="lf w-25per"><label>办理截止日期：</label>{{@form.ywsxqk.bljz_date}}</p>
+                                <p class="lf w-25per"><label>流程结束日期：</label>{{@form.ywsxqk.lcjsrq}}</p>
+                            </div>
+                        </div>
+                        <p class="mianinfo-title">审核情况:</p>
+                        <div class="mianinfo-item">
+                            <div class="clear">
+                                <p class="lf w-25per"><label>不予办理免抵退税额：</label>{{@form.shqk.bybl_amt | number(2)}}</p>
+                                <p class="lf w-25per"><label>不予退税免抵退税额：</label>{{@form.shqk.byts_amt | number(2)}}</p>
+                                <p class="lf w-25per"><label>暂缓免抵退税额：</label>{{@form.shqk.zh_amt | number(2)}}</p>
+                                <p class="lf w-25per"><label>暂不办理免抵退税额：</label>{{@form.shqk.zbbl_amt | number(2)}}</p>
+                            </div>
+                            <div class="clear">
+                                <p class="lf w-25per"><label>复审通过退税额：</label>{{@form.shqk.fh_ts_amt | number(2)}}</p>
+                                <p class="lf w-25per"><label>复审通过免抵额：</label>{{@form.shqk.fh_md_amt | number(2)}}</p>
+                                <p class="lf w-25per"><label>复审人：</label>{{@form.shqk.fh_user}}</p>
+                                <p class="lf w-25per"><label>复审日期：</label>{{@form.shqk.fh_date}}</p>
+                            </div>
+                        </div>
+                        <p class="mianinfo-title">核准情况:</p>
+                        <div class="mianinfo-item">
+                            <div class="clear">
+                                <p class="lf w-25per"><label>核准退税额：</label>{{@form.hzqk.sehz_ts_amt | number(2)}}</p>
+                                <p class="lf w-25per"><label>核准免抵额：</label>{{@form.hzqk.sehz_md_amt | number(2)}}</p>
+                                <p class="lf w-25per"><label>不予核准退税额：</label>{{@form.hzqk.byhz_ts_amt | number(2)}}</p>
+                                <p class="lf w-25per"><label>不予核准免抵额：</label>{{@form.hzqk.byhz_md_amt | number(2)}}</p>
+                            </div>
+                            <div class="clear">
+                                <p class="lf w-25per"><label>暂扣税额：</label>{{@form.hzqk.zk_amt | number(2)}}</p>
+                                <p class="lf w-25per"><label>业务核准日期：</label>{{@form.hzqk.ywhz_date}}</p>
+                                <p class="lf w-25per"><label>业务核准人：</label>{{@form.hzqk.ywhz_user}}</p>
+                                <p class="lf w-25per"><label>税额核准日期：</label>{{@form.hzqk.sehz_date}}</p>
+                            </div>
+                            <div class="clear">
+                                <p class="lf w-25per"><label>税额核准人：</label>{{@form.hzqk.sehz_user}}</p>
+                            </div>
+                        </div>
+                        <p class="mianinfo-title">收核退调库情况:</p>
+                        <div class="mianinfo-item">
+                            <div class="clear">
+                                <p class="lf w-25per"><label>开票退税额：</label>{{@form.ttkqk.kp_ts_amt | number(2)}}</p>
+                                <p class="lf w-25per"><label>开票免抵额：</label>{{@form.ttkqk.kp_md_amt | number(2)}}</p>
+                                <p class="lf w-25per"><label>开票日期：</label>{{@form.ttkqk.tskp_date}}</p>
+                                <p class="lf w-25per"><label>国库办理退税额：</label>{{@form.ttkqk.tk_ts_amt | number(2)}}</p>
+                            </div>
+                            <div class="clear">
+                                <p class="lf w-25per"><label>国库办理免抵额：</label>{{@form.ttkqk.tk_md_amt | number(2)}}</p>
+                            </div>
+                        </div>
+                        <p class="mianinfo-title">绩效考核:</p>
+                        <div class="mianinfo-item">
+                            <div class="clear">
+                                <p class="lf w-25per"><label>审核周期：</label>{{@form.jxkh.sh_day}}</p>
+                                <p class="lf w-25per"><label>核准周期：</label>{{@form.jxkh.hz_day}}</p>
+                                <p class="lf w-25per"><label>开票周期：</label>{{@form.jxkh.kp_day}}</p>
+                                <p class="lf w-25per"><label>总办理周期：</label>{{@form.jxkh.sum_day}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="maininfo-content" ms-visible="activeIndex == 1">
+                        <table ms-attr="{id: 'gjzyhwsbMx-table'+this.tableNum}"></table>
+                        <div ms-attr="{id: 'gjzyhwsbMx-tablePager'+this.tableNum}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

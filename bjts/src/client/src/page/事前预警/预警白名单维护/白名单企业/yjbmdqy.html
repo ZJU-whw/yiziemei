@@ -1,0 +1,57 @@
+<div class="yjbmdqy" >
+    <div class="pageTabs">
+        <div style="height:24px;line-height:24px;width:25%;float: left;margin: 5px;">
+            白名单放行对象维护
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <!--<div class="swjg" style="position: relative" ms-click="showSwjg">-->
+                <!--{{swjgMc}}-->
+                <!--<ul class='ztree treeDiv2' style="left: 0px;top:100%;"></ul>-->
+            <!--</div>-->
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-if="showFlag" ms-click="@showModel">新增</div>
+            <!--<div class="btn" ms-click="@delRow">删除</div>-->
+            <!--<div class="btn" ms-click="@exform">导出</div>-->
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="control">
+            <div class="panel">
+                <div style="width: 25%">
+                    <label class="width-s" title="社会信用代码">社会信用代码：</label>
+                    <span ms-attr="{title:formData.shxyno}">{{formData.shxyno}}</span>
+                </div>
+                <div style="width: 25%;overflow: hidden;">
+                    <label class="width-s" title="企业名称">企业名称：</label>
+                    <span ms-attr="{title:formData.nsrmc}">{{formData.nsrmc}}</span>
+                </div>
+                <div style="width:25%">
+                    <label class="width-s" title="预警代码">预警代码：</label>
+                    <span ms-attr="{title:formData.yjcode}">{{formData.yjcode}}</span>
+                </div>
+                <div style="width: 25%">
+                    <label class="width-s" title="预警名称">预警名称：</label>
+                    <span ms-attr="{title:formData.yjname}">{{formData.yjname}}</span>
+                </div>
+            </div>
+        </div>
+        <div class="form">
+            <table id="yjbmdqy-table"></table>
+            <div id="yjbmdqy-tablePager"></div>
+        </div>
+    </div>
+    <div class="page-model" style="height: 300px">
+        <div class="model-title">新增</div>
+        <div class="model-content" style="height: 200px;">
+            <p><label>预警代码</label><span>{{formData.yjcode}}</span></p>
+            <p><label>预警名称</label><span>{{formData.yjname}}</span></p>
+            <p><label><span class="text-red">*</span>放行对象</label><input type="text" class="width-l" ms-duplex="modelData.yjObject"></p>
+            <p><label>&nbsp; </label><span class="text-red">{{@getYjobtName}}</span></p>
+            <p><label>放行对象名称</label><input type="text" class="width-l" ms-duplex="modelData.yjObjname"></p>
+        </div>
+        <div class="model-btns">
+            <div class="btn" ms-click="saveModel">保存</div>
+            <div class="btn" ms-click="hideModel">取消</div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,72 @@
+<div :class="['yjzbcs',exClass,@userLevel=='province'?'yjzbcs-province':'']" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            预警参数设置
+        </div>
+        <div class="btns">
+
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <!-- 预警参数设置列表 -->
+         <div style="font-size: 14px;height:28px;line-height:28px;border-bottom: 1px solid #d9d9d9;background-color: #f2f2f254;width:70%;float:left;">
+                系统默认预警参数指标
+            </div>
+        <div class="form" style="padding-top: 0;height: 300px;overflow-y:hidden;">
+            <table ms-attr="{id:'yjzbcs-table-qsmr'+exClass}"></table>
+        </div>
+        
+        <!-- 地市税务机关自定义预警参数指标维护（省局隐藏） -->
+        <div ms-visible="@showCustomFlag">
+            <div style="font-size: 14px;height:28px;line-height:28px;border-bottom: 1px solid #d9d9d9;background-color: #f2f2f254;width:70%;float:left;">
+                税务机关自定义预警参数指标维护
+            </div>
+            <div class="select-item" style="float:left;font-size: 14px;height:28px;line-height:28px;border-bottom: 1px solid #d9d9d9;background-color: #f2f2f254;padding-right:5px;">
+                <label  title="指标" style="padding-right: 5px;">指标</label>
+
+                <select ms-duplex="@searchData.zbcode">
+                    <option ms-for="item in @zbSelect" ms-attr="{value:item.zbcode}">{{item.zbname}}</option>
+                </select>
+            </div>
+            <div class="btns" style="float:left;font-size: 14px;height:28px;line-height:28px;border-bottom: 1px solid #d9d9d9;background-color: #f2f2f254;width:6%;">
+                <div class="btn"  ms-click="@searchPositive(1)">查询</div>
+            </div>
+        </div>
+        
+        <!-- 自定义预警参数列表（省局隐藏表格但保留分页） -->
+        <div class="form" style="padding-top: 0;height: calc(100vh - 420px) ;" ms-class="@showCustomFlag ? '' : 'yjzbcs-hidden-table'">
+            <table ms-attr="{id:'yjzbcs-table'+exClass}"></table>
+            <div ms-attr="{id:'yjzbcs-tablePager'+exClass}"></div>
+        </div>
+    </div>
+    <div class="page-model">
+        <div class="model-title">设置</div>
+        <div class="model-content">
+            <p><label>启用标志：</label><input type="radio" style="float: none" value="Y" name="yxbz" ms-duplex="modelData.yxbz">启用 <input type="radio" style="float: none" name="yxbz" value="N" ms-duplex="modelData.yxbz">关闭</p>
+            <p><label>指标代码：</label><span>{{modelData.zbcode}}</span></p>
+
+            <div class="select-item" style="position: relative;padding-left:131px;" >
+                <label  title="税务机关">税务机关：</label>
+                <!-- <input readonly type="text" ms-duplex="modelData.swjgmc" ms-click="@showTree" style="width:250px;margin-left:15px;" id="swjgTree"> -->
+                <input readonly type="text" ms-duplex="modelData.swjgmc"  style="width:250px;margin-left:15px;" id="swjgTree">
+                <ul  class='ztree treeDiv' id="yjzbcs" style="left: 205px;"></ul>
+            </div>
+
+            <p><label>指标代码：</label><span>{{modelData.zbcode}}</span></p>
+            <p><label>指标名称：</label><span>{{modelData.zbname}}</span></p>
+            <p><label>参　 数1：</label><span>{{modelData.p1name}}</span></p>
+            <p><label>数　　值：</label><input ms-attr="{'disabled':(modelData.yxbz=='N'||modelData.p1name=='')?true:false}" type="text" class="width-l" ms-duplex="modelData.p1val"></p>
+            <p><label>参　 数2：</label><span>{{modelData.p2name}}</span></p>
+            <p><label>数　　值：</label><input ms-attr="{'disabled':(modelData.yxbz=='N'||modelData.p2name=='')?true:false}" type="text" class="width-l" ms-duplex="modelData.p2val"></p>
+            <p><label>参　 数3：</label><span>{{modelData.p3name}}</span></p>
+            <p><label>数　　值：</label><input ms-attr="{'disabled':(modelData.yxbz=='N'||modelData.p3name=='')?true:false}" type="text" class="width-l" ms-duplex="modelData.p3val"></p>
+            <p><label>参　 数4：</label><span>{{modelData.p4name}}</span></p>
+            <p><label>数　　值：</label><input ms-attr="{'disabled':(modelData.yxbz=='N'||modelData.p4name=='')?true:false}" type="text" class="width-l" ms-duplex="modelData.p4val"></p>
+            <p><label>分　　值：</label><input ms-attr="{'disabled':modelData.yxbz=='N'?true:false}" type="text" class="width-l" ms-duplex="modelData.score"></p>
+        </div>
+        <div class="model-btns">
+            <div class="btn" ms-click="saveModel">保存</div>
+            <div class="btn" ms-click="hideModel">取消</div>
+        </div>
+    </div>
+</div>

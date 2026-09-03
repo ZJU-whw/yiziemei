@@ -1,0 +1,358 @@
+<div class="fxydxxEdit">
+    <div class="pageTabs">
+        <div class="pageTitle">
+            {{"风险应对结果管理"+@params.title}}
+        </div>
+        <div class="btns btn-right" style="margin-right: 25px;">
+            <div class="btn" ms-click="@save" ms-visible="@params.title !== '查看'">保存</div>
+            <div class="btn" ms-click="@goBack">返回</div>
+        </div>
+    </div>
+    <div class="page active">
+        <div class="form fxydxxEdit-form" style="padding-top: 10px;overflow-y: scroll">
+            <div style="padding: 0 20px 10px 20px">
+                <div class="baseinfo-wrapper">
+                    <div>
+                        <span class="baseinfo-item">填报单位：<span>{{baseData.tbdw}}</span></span>
+                        <span class="baseinfo-item">填报人：<span>{{baseData.tbr}}</span></span>
+                        <span class="baseinfo-item">填报日期：<span>{{baseData.tbrq}}</span></span>
+                    </div>
+                </div>
+                <div class="maininfo-wrapper">
+                    <div class="maininfo-content" ms-visible="activeIndex == 0">
+                        <p class="mianinfo-title">风险应对任务基本信息:</p>
+                        <div class="mianinfo-item">
+                            <div class="clear" style="position: relative;">
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit"><span
+                                            class="text-red">*</span>所属年月批次：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <!-- <input type="text" class="datepicker date-month w-100per"
+                                        ms-duplex="@formData.ssny | change" :on-change="@filMonth"> -->
+                                    <input class="w-100per" type="text" ms-duplex="formData.ssny">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.ssny}}</span>
+                                </p>
+                                <p class="lf w-33per fl tyshxydm-box"><label class="w-fxydxxEdit tyshxydm-left"><span
+                                            class="text-red">*</span>统一社会信用代码：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="tyshxydm w-100per" type="text" ms-duplex="formData.shxyno"
+                                        ms-on-focus="@selectFocus" ms-on-blur="@selectBlur"
+                                        ms-on-keydown="@changeOption($event)" ms-on-keyup="@getQymc($event)">
+                                </div>
+                                <div class="g-autoselect" ms-if="@isFocus">
+                                    <div ms-for="(k,item) in @qymcList" class="select-list" ms-click="chooseOption(k)"
+                                        ms-mouseenter="setActiveOption(k)" :class="k === activeOption?'active':''">
+                                        {{item.nsrmc}}</div>
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.shxyno}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit"><span
+                                            class="text-red">*</span>企业名称：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.nsrmc">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.nsrmc}}</span>
+                                </p>
+                            </div>
+                            <div class="clear">
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit"><span
+                                            class="text-red"></span>企业类型：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.qylx" readonly>
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.qylx}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit"><span
+                                            class="text-red">*</span>风险企业来源：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <select class="g-select" ms-duplex="@formData.fxrwlyDm" style="width: 100%;">
+                                        <option value="">　</option>
+                                        <option ms-for="item in @fxlyList" ms-attr="{value:item.DCODE}">{{item.DNAME}}
+                                        </option>
+                                    </select>
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@fxrwlyDm}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit"><span
+                                            class="text-red"></span>风险任务批次名称：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.fxrwpcmc">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.fxrwpcmc}}</span>
+                                </p>
+                                <!-- <p class="lf w-33per fl"><label class="w-fxydxxEdit"><span
+                                            class="text-red">*</span>风险应对措施：</label>
+                                <div class="custom-bootstrap-multiselect bootstrap-multiselect lf fl-1"
+                                    style="height: 100%;width: 100%;max-width:none;"
+                                    ms-visible="@params.title !== '查看'">
+                                    <select id="jczlcjb_select_gllb" multiple="multiple"></select>
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.fxydcsJh}}</span>
+                                </p> -->
+                            </div>
+                            <div class="clear">
+                                <!-- <p class="lf w-33per fl"><label class="w-fxydxxEdit"><span
+                                            class="text-red"></span>风险任务批次名称：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.fxrwpcmc">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.fxrwpcmc}}</span>
+                                </p> -->
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit"><span
+                                            class="text-red"></span>涉及主要商品代码及名称：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.spdm2mc">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.spdm2mc}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit"><span
+                                            class="text-red">*</span>风险应对措施：</label>
+                                <div class="custom-bootstrap-multiselect bootstrap-multiselect lf fl-1"
+                                    style="height: 100%;width: 100%;max-width:none;"
+                                    ms-visible="@params.title !== '查看'">
+                                    <select id="jczlcjb_select_gllb" multiple="multiple"></select>
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.fxydcsJh}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit"><span
+                                    class="text-red">*</span>核查是否存在问题：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <select class="g-select" ms-duplex="@formData.sfhcywt" style="width: 100%;">
+                                        <option value="0">否</option>
+                                        <option value="1">是</option>
+                                    </select>
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@sfhcywt}}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <p class="mianinfo-title">风险企业退税情况:</p>
+                        <div class="mianinfo-item">
+                            <div class="clear">
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">下发任务分析期间涉及出口额（万美元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.rwfxqjMycke">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.rwfxqjMycke}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">下发任务分析期间涉及申报退税出口额（万美元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.rwfxqjSbmycke">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.rwfxqjSbmycke}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">任务分析期间内办理退税额（万元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.rwfxqjBltse">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.rwfxqjBltse}}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <p class="mianinfo-title">存在按规定不予退税问题:</p>
+                        <div class="mianinfo-item">
+                            <div class="clear">
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">出口额（万美元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.bytscke">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.bytscke}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">不予退税额（万元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.byts">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.byts}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">追回（补缴方式）退税额（万元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.yzhts">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.yzhts}}</span>
+                                </p>
+                            </div>
+                            <div class="clear">
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">追回（冲抵方式）退税额（万元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.yzhtscdfs">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.yzhtscdfs}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">视同内销征税额（万元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.stnxzs">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.stnxzs}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">暂缓退税额（万元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.zhts">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.zhts}}</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <p class="mianinfo-title">存在其他问题进项转出或应补交税款额:</p>
+                        <div class="mianinfo-item">
+                            <div class="clear">
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">进项转出税额（万元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.jxsezc">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.jxsezc}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">应补交增值税税款额（万元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.ybjzzs">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.ybjzzs}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">应补缴企业所得税税款额（万元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.ybjsds">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.ybjsds}}</span>
+                                </p>
+                            </div>
+                            <div class="clear">
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">应调增应纳税所得额（万元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.ybjsds2">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.ybjsds2}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">应补缴其他税种税款额（万元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.ybjqtsz">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.ybjqtsz}}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <p class="mianinfo-title">发现涉嫌骗税等问题暂缓退税情况:</p>
+                        <div class="mianinfo-item">
+                            <div class="clear">
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">涉嫌骗税申报出口额（万美元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.pscke">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.pscke}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">涉嫌骗税申报退税额（万元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.pstse">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.pstse}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">涉嫌骗税暂缓退税额（万元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.pszhtse">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.pszhtse}}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <p class="mianinfo-title">移送稽查查处情况:</p>
+                        <div class="mianinfo-item">
+                            <div class="clear">
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit"><span
+                                            class="text-red">*</span>是否移送稽查：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <select class="g-select" ms-duplex="@formData.sfysjc" style="width: 100%;">
+                                        <option value="N">否</option>
+                                        <option value="Y">是</option>
+                                    </select>
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@sfysjc}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">涉嫌骗税出口额（万美元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.jcpscke">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.jcpscke}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">涉嫌骗税退税额（万元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.jcpstse">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.jcpstse}}</span>
+                                </p>
+                            </div>
+                            <div class="clear">
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">稽查已定性骗取退税额（万元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.jcqrpstse">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.jcqrpstse}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">稽查已追缴入库退税额（万元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.jcrktse">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.jcrktse}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">稽查暂缓退税（万元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.jczhtse">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.jczhtse}}</span>
+                                </p>
+                            </div>
+                            <div class="clear">
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit"><span
+                                            class="text-red">*</span>是否移送公安：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <select class="g-select" ms-duplex="@formData.sfysga" style="width: 100%;">
+                                        <option value="N">否</option>
+                                        <option value="Y">是</option>
+                                    </select>
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@sfysga}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">风险应对应入库金额（万元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.fxydyrkje">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.fxydyrkje}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">风险应对已入库金额（万元）：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.fxydrkje">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.fxydrkje}}</span>
+                                </p>
+                            </div>
+                            <div class="clear">
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">任务要求完成时限：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input type="text" class="datepicker date-day w-100per" :on-blur="@filDate"
+                                        ms-duplex="@formData.rwyqsj">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.rwyqsj}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">金三系统中任务完成时间：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input type="text" class="datepicker date-day w-100per" :on-blur="@filDate"
+                                        ms-duplex="@formData.rwwcsj">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.rwwcsj}}</span>
+                                </p>
+                                <p class="lf w-33per fl"><label class="w-fxydxxEdit">备注：</label>
+                                <div class="g-form-item__content fl-1" ms-visible="@params.title !== '查看'">
+                                    <input class="w-100per" type="text" ms-duplex="formData.bz">
+                                </div>
+                                <span ms-visible="@params.title == '查看'">{{@formData.bz}}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="maininfo-content" ms-visible="activeIndex == 1">
+                        <table ms-attr="{id: 'fxydxxEdit-table'+this.tableNum}"></table>
+                        <div ms-attr="{id: 'fxydxxEdit-tablePager'+this.tableNum}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

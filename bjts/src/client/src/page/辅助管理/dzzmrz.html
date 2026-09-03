@@ -1,0 +1,93 @@
+<div class="dzzmrz" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            电子证明日志查询
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="select-wrapper">
+            <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+            <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+            <div class="select-main">
+                <div class="select-item">
+                    <label  title="海关代码">海关代码</label>
+                    <input  type="text" ms-duplex="@searchData.qyhgdm">
+                </div>
+                <div class="select-item">
+                    <label title="纳税人识别号">纳税人识别号</label>
+                    <input type="text" ms-duplex="searchData.nsrsbh">
+                </div>
+                <div class="select-item">
+                    <label  title="税务机关">税务机关</label>
+                    <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree">
+                    <ul id="dzzmrzZtree" class='ztree treeDiv' style="left: 90px;top:100%;"></ul>
+                </div>
+            </div>
+            <div class="select-sub">
+                <div class="select-item">
+                    <label title="企业类型">企业类型</label>
+                    <select ms-duplex="@searchData.qylx">
+                        <option value="">　</option>
+                        <option value="11">内资生产企业</option>
+                        <option value="12">外商投资企业</option>
+                        <option value="21">外贸（工贸）企业</option>
+                        <option value="90">其他企业（特许退税企业）</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label title="单证类型">单证类型</label>
+                    <select ms-duplex="@searchData.dzlx">
+                        <option value="">　</option>
+                        <option value="A0201001">代理出口证明申报</option>
+                        <option value="A0201002">代理进口证明申报</option>
+                        <option value="A0201003">委托代理证明申报</option>
+                        <option value="A0201004">出口转内销证明申报</option>
+                        <option value="A0201005">退运已补税(未退税)证明申报</option>
+                        <option value="A0203002">来料加工免税证明申报</option>
+                        <option value="A0205002">准予免税购进出口卷烟证明申报</option>
+                        <option value="A0205003">出口卷烟已免税证明申报</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="出具日期">出具日期起</label>
+                    <div class="select-item-inner">
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.cjrqq" :on-blur="@filDate" >
+                        <span>止</span>
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.cjrqz" :on-blur="@filDate">
+                    </div>
+                </div>
+                <div class="select-item">
+                    <label title="出具人员">出具人员</label>
+                    <input type="text" ms-duplex="searchData.cjr">
+                </div>
+                <div class="select-item">
+                    <label  title="作废标志">作废标志</label>
+                    <select  ms-duplex="@searchData.zfbz">
+                        <option value=""></option>
+                        <option value="Y">是</option>
+                        <option value="N">否</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="补打标志">补打标志</label>
+                    <select  ms-duplex="@searchData.bdbz">
+                        <option value=""></option>
+                        <option value="Y">是</option>
+                        <option value="N">否</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 54px">
+            <table id="dzzmrz-table"></table>
+            <div id="dzzmrz-tablePager"></div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==3&&'active']">
+        <div class="chartDiv"></div>
+    </div>
+</div>

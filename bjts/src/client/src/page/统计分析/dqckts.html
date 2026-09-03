@@ -1,0 +1,72 @@
+<div class="dqckts" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            统计分析 - 分地区出口退税基本情况统计
+        </div>
+        <div class="btns">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+            <!--<div class="btn" ms-click="@changeTab(3)" ms-if="@act==1">统计图</div>-->
+            <!--<div class="btn" ms-click="@changeTab(1)" ms-if="@act==3">统计表</div>-->
+        </div>
+    </div>
+    <div class="page active" >
+        <form name="dqckts">
+            <div class="select-wrapper" style="line-height: 1;padding-bottom: 10px">
+                <div class="select-main">
+                    <div class="select-item">
+                        <label  title="退税机关">退税机关</label>
+                        <input readonly type="text" ms-duplex="@searchData.swjgMc" ms-click="@showTree">
+                        <ul id="dqcktsTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+                    </div>
+                    <div class="select-item">
+                        <label  title="出口时间">出口时间起</label>
+                        <div class="select-item-inner">
+                            <input type="text" class="datepicker date-day" ms-duplex="@searchData.cksjStart"  :on-blur="@filDate">
+                            <span>止</span>
+                            <input type="text" class="datepicker date-day" ms-duplex="@searchData.cksjEnd"  :on-blur="@filDate">
+                        </div>
+                    </div>
+                    <div class="select-item">
+                        <label  title="企业类型">企业类型</label>
+                        <select ms-duplex="@searchData.qylx">
+                            <option value="1">生产企业</option>
+                            <option value="2">外贸企业</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="form" style="padding-top: 40px">
+            <table class="table" style="width: 800px;margin: 10px;">
+                <tr>
+                    <td colspan="4" class="title text-center">地区出口退税基本情况</td>
+                </tr>
+                <tr>
+                    <td style="width: 25%"  class="title"></td>
+                    <td style="width: 25%" class="title text-center">本期数据(元)</td>
+                    <td style="width: 25%" class="title text-center">上期数据(元)</td>
+                    <td style="width: 25%" class="title text-center">同比</td>
+                </tr>
+                <tr>
+                    <td class="title">每美元出口退税额</td>
+                    <td class="text-center">{{formData[0].JE | number(2)}}</td>
+                    <td class="text-center">{{formData[0].JE_SQ | number(2)}}</td>
+                    <td class="text-center">{{formData[0].TB}}</td>
+                </tr>
+                <tr>
+                    <td class="title">平均退税率</td>
+                    <td class="text-center">{{formData[1].JE }}</td>
+                    <td class="text-center">{{formData[1].JE_SQ }}</td>
+                    <td class="text-center">{{formData[1].TB}}</td>
+                </tr>
+                <tr>
+                    <td class="title">免抵比重</td>
+                    <td class="text-center">{{formData[2].JE }}</td>
+                    <td class="text-center">{{formData[2].JE_SQ }}</td>
+                    <td class="text-center">{{formData[2].TB}}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

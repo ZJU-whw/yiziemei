@@ -1,0 +1,70 @@
+<div class="ckyzshwgl">
+    <div class="pageTabs">
+        <div class="pageTitle">
+            出口应征税货物管理
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@normalSearch()">查询</div>
+            <div class="btn" ms-click="@multiHandle()" ms-visible="@hasHsPermission">批量处理</div>
+            <div class="btn" ms-click="@exform">导出</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']">
+        <form name="ckyzshwgl-form">
+            <div class="select-wrapper">
+                <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+                <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+                <div class="select-main">
+                    <div class="select-item">
+                        <label title="税务机关">税务机关</label>
+                        <input readonly type="text" ms-duplex="tsjgmc" ms-click="@showTree">
+                        <ul id="ckyzshwgltree" class='ztree treeDiv' style="left: 90px;"></ul>
+                    </div>
+                    <div class="select-item">
+                        <label title="企业标识">企业标识</label>
+                        <input class="width-l" type="text" ms-duplex="searchData.qybs">
+                    </div>
+                    <div class="select-item">
+                        <label>出口日期起</label>
+                        <div class="select-item-inner">
+                            <input type="text" class="datepicker date-day" :on-blur="@filDate" ms-duplex="@searchData.startDate">
+                            <!-- <input type="text" class="datepicker date-month" ms-duplex="@searchData.startDate | change"
+                                :on-change="@filMonth"> -->
+                            <span>止</span>
+                            <input type="text" class="datepicker date-day" :on-blur="@filDate" ms-duplex="@searchData.endDate">
+                            <!-- <input type="text" class="datepicker date-month" ms-duplex="@searchData.endDate | change"
+                                :on-change="@filMonth"> -->
+                        </div>
+                    </div>
+                </div>
+                <div class="select-sub">
+                    <div class="select-item">
+                        <label title="商品代码">商品代码</label>
+                        <input class="width-l" type="text" ms-duplex="searchData.spdm">
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="form" style="padding-top: 54px">
+            <table id="ckyzshwgl-table"></table>
+            <div id="ckyzshwgl-tablePager"></div>
+        </div>
+    </div>
+    <!-- 查看 -->
+    <div class="page-model add-page-model g-model"
+        style="height:422px;width: 900px;margin-left: -450px;top: 50px; margin-top: 0;">
+        <div class="model-title">{{@addTitle}}</div>
+        <div class="model-content g-form" style="height: 330px;padding: 10px 0;">
+            <div class="g-form-item">
+                <div class="g-form-item_label"><span class="text-red">*</span>标注信息：</div>
+                <div class="g-form-item__content">
+                    <textarea class="g-textarea" ms-duplex="modelData.remark" style="height: 300px;"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="model-btns">
+            <div class="btn" ms-click="@saveModel" ms-visible="@addTitle!=='查看'">保存</div>
+            <div class="btn" ms-click="@hideModel">退出</div>
+        </div>
+    </div>
+</div>

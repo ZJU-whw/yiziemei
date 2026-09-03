@@ -1,0 +1,43 @@
+<div :class="['bblist',exClass]" >
+    <div class="pageTabs">
+        <div class="pageTitle" ms-for="(index,item) in pageTitle">
+            <span>{{item}}</span>
+            <span ms-if="index!=(pageTitle.length-1)">-</span>
+        </div>
+    </div>
+    <div class="pageTabs" style="top:33px">
+        <div class="btns">
+            <label style="float: left;">
+                【报表年月】：<input type="text" ms-attr="{id:'datepicker'+exClass}" class="datepicker date-month width-m"  ms-on-change="@filMon($event)">
+            </label>
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn dropdown" ms-on-click="showMenu">
+                导出套表▼
+                <ul class="dropdown-menu">
+                    <li style="padding: 2px;overflow: hidden"><div class="btn" ms-click="@exTable('0')">原始数据</div></li>
+                    <li style="padding: 2px;overflow: hidden"><div class="btn" ms-click="@exTable('1')">上报数据</div></li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="sublist" style="padding-top:33px">
+            <div class="subListItem" style="height:30px;line-height:30px;border-color: #e7e7e7;">
+                <div class="lf text-center" style="color:#333;background: #f7f7f7;height:30px;line-height:30px"><b>报表代码</b></div>
+                <div class="rt text-center" style="color:#333;background: #f7f7f7;height:30px;line-height:30px"><b>报表名称</b></div>
+            </div>
+            <div ms-class="['subListItem',actIndex==index?'active':'']" ms-for="(index,item) in sublist">
+                <div class="lf text-center" ms-on-click="setbbdm(item.bbdm,index,item.bbmc)" ms-attr="{title:item.bbdm}">{{item.bbdm}}</div>
+                <div class="rt text-left" ms-on-click="setbbdm(item.bbdm,index,item.bbmc)" ms-attr="{title:item.bbmc}">{{item.bbmc}}</div>
+            </div>
+        </div>
+        <div class="form" style="padding-top:33px">
+            <table ms-attr="{id:'bblist-table'+exClass}"></table>
+            <div ms-attr="{id:'bblist-tablePager'+exClass}"></div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==3&&'active']">
+        <div class="chartDiv"></div>
+    </div>
+</div>

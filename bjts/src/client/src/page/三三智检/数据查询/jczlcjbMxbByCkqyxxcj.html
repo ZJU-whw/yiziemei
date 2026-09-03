@@ -1,0 +1,56 @@
+<div class="jczlcjbMxbByCkqyxxcj jczlcjbMx">
+  <div class="pageTabs">
+    <div class="pageTitle">
+      出口企业基础资料采集表详情
+    </div>
+  </div>
+  <div ms-class="['page','active']" >
+    <div class="descriptions" style="max-width: 960px; margin: 0 auto;">
+      <div class="title">出口企业信息采集</div>
+      <table>
+        <tr>
+          <td class="descriptions-label" title="统一社会信用代码"><div style="width:130px;">统一社会信用代码</div></td>
+          <td colspan="3">{{dataForm.nsrsbh}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label">纳税人名称</td>
+          <td colspan="3">{{dataForm.nsrmc}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label">注册地址</td>
+          <td colspan="7">{{dataForm.zcjydz}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">实际经营地址</td>
+          <td colspan="7">{{dataForm.sjjydz}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">经营场所(包括仓库）</td>
+          <td colspan="7">{{dataForm.yjbgcsMj}}平方米，自有（<span ms-if="yjbgcsCq.indexOf('自有') > -1">√</span>） 租赁（<span ms-if="yjbgcsCq.indexOf('租赁') > -1">√</span>）</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label">法定代表人</td>
+          <td><div style="width:130px;">{{dataForm.fddbrXm}}</div></td>
+          <td class="descriptions-label required">法定代表人联系电话</td>
+          <td><div style="width:140px;">{{dataForm.fddbrLxdh}}</div></td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">实际经营人</td>
+          <td>{{dataForm.sjjyrXm}}</td>
+          <td class="descriptions-label required">实际经营人联系电话</td>
+          <td>{{dataForm.sjjyrLxdh}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">办税人员</td>
+          <td>{{dataForm.bsrXm}}</td>
+          <td class="descriptions-label required">办税人员联系电话</td>
+          <td>{{dataForm.bsrLxdh}}</td>
+        </tr>
+        <tr ms-if="@params.tsjsfs == '1'">
+          <td class="descriptions-label required">主要生产设备</td>
+          <td colspan="7">{{dataForm.zyscsb}}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>

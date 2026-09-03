@@ -1,0 +1,56 @@
+<div class="user">
+    <div class="pageTabs">
+        <div class="pageTitle">系统设置 / 用户管理</div>
+        <div class="btns">
+            <div class="lf" style="display: inline-block; margin-right: 10px;position: relative;">
+              <input readonly type="text" ms-duplex="swjgmc" ms-click="@showTree" style="width: 212px;">
+              <ul id="userTree" class='ztree treeDiv' style="left: 0%;width:200px"></ul>
+            </div>
+            <input type="text" placeholder="请输入用户的名称或代码" class="lf" ms-duplex="@searchData.name"/>
+            <div class="btn" ms-click="search(1,true)">查询</div>
+            <div class="btn" ms-click="showModal('1')">新增</div>
+        </div>
+    </div>
+    <div class="page active">
+        <div class="form" style="padding-top: 0">
+            <table id="user-table"></table>
+            <div id="user-table-pager"></div>
+        </div>
+        <div class="page-model modal1" style="height: 300px;margin-top: -150px;width: 500px;margin-left: -250px;">
+            <div class="model-title">新增用户</div>
+            <div class="model-content" style="height: 200px;">
+                <p style="position: relative;">
+                    <label style="width: 140px">
+                        <span class="text-red">*</span>用户代码：
+                    </label>
+                    <input
+                        type="text"
+                        class="width-l"
+                        ms-duplex="modalData1.czryDm"
+                        placeholder="输入后自动从金三获取用户信息"
+                        ms-blur="syncUserInfo"
+                        ms-keyup="enterHandle | enter">
+                </p>
+                <p><label style="width: 140px"><span class="text-red">*</span>用户名称：</label><input type="text" class="width-l" ms-duplex="modalData1.czryMc" disabled></p>
+                <p><label style="width: 140px"><span class="text-red">*</span>密码：</label><input type="text" class="width-l addPwd" ms-duplex="modalData1.password"></p>
+                <p><label style="width: 140px"><span class="text-red">*</span>税务机关代码：</label><input maxlength="11" type="text" class="width-l" ms-duplex="modalData1.swjgDm" disabled></p>
+            </div>
+            <div class="model-btns">
+                <div class="btn" ms-click="submit">确定</div>
+                <div class="btn" ms-click="closeModal('1')">取消</div>
+            </div>
+        </div>
+        <div class="page-model modal2" style="height: 300px;">
+            <div class="model-title">重置密码</div>
+            <div class="model-content" style="height: 200px;">
+                <p><label style="width: 140px"><span class="text-red">*</span>请输入新密码：</label><input type="password" class="width-l" ms-duplex="modalData2.firstPwd"></p>
+                <p><label style="width: 140px"><span class="text-red">*</span>请再次输入新密码：</label><input type="password" class="width-l" ms-duplex="modalData2.secondPwd"></p>
+                <p style="color: #ff0000;line-height: 24px;display: none"><span class="pwd-warn"></span></p>
+            </div>
+            <div class="model-btns">
+                <div class="btn" ms-click="setPwd">确定</div>
+                <div class="btn" ms-click="closeModal('2')">取消</div>
+            </div>
+        </div>
+    </div>
+</div>

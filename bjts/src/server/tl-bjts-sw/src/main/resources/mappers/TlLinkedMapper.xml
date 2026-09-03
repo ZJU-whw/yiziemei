@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.tl.bjts.sw.dao.TlLinkedMapper">
+
+    <!--<insert id="insertDbsj" parameterType="com.tl.bjts.sw.model.vo.TbsjVo">-->
+        <!--insert into tb_dtbsj (id, tblx_dm, mainid,-->
+        <!--cjsj, tqbz, tqsj,-->
+        <!--tbcs, sbyy, yxj)-->
+        <!--values (SEQ_TB_DTBSJ_ID.nextval, #{tblxDm,jdbcType=VARCHAR}, #{mainid,jdbcType=BIGINT},-->
+        <!--#{cjsj,jdbcType=TIMESTAMP}, #{tqbz,jdbcType=VARCHAR}, #{tqsj,jdbcType=TIMESTAMP},-->
+        <!--#{tbcs,jdbcType=INTEGER}, #{sbyy,jdbcType=VARCHAR}, #{yxj,jdbcType=INTEGER})-->
+    <!--</insert>-->
+
+
+    <select id="checkLastMonthData" resultType="java.lang.Integer" parameterType="string">
+        select count(1) from tb_report_data t
+        where t.sbqb=#{sbqb}
+    </select>
+
+    <!--   将序列值更新为下一个值   -->
+    <update id="updateToNextVal" parameterType="string">
+		update sys_sequence set curvalue = curvalue + 1
+		where tblname = #{tblname,jdbcType=VARCHAR}
+	</update>
+
+    <!--    查询序列值    -->
+    <select id="selectCurvalue" resultType="long" parameterType="string">
+		select curvalue from sys_sequence
+		where tblname = #{tblname,jdbcType=VARCHAR}
+	</select>
+
+    <!-- 新增序列-->
+    <insert id="insertSequence">
+        insert into sys_sequence (tblname,curvalue) values(#{tblname,jdbcType=VARCHAR},1000)
+
+    </insert>
+
+    <!-- 按操作人代码获取分片管理信息 -->
+    <select id="getFpglXx" resultType="hashmap" parameterType="map" >
+			select b.swjg_mc,b.swjg_dm,b.swjg_jc,a.jsmode_set as jsms,a.zgswry_dm_set as zgyDm,
+					a.flgl_set as flgldj,a.zsjg_dm_set as zsswjgDm
+			from sys_cfg_czry_fpgl a ,dm_swjg b
+			where a.swjg_dm=b.swjg_dm and b.qybz='Y'
+						 and a.czry_dm = #{czryDm,jdbcType=VARCHAR}
+	</select>
+
+    <select id="queryUsersWithRole"
+            resultType="com.tl.bjts.sw.model.vo.UserInfoVo"
+            parameterType="map">
+        SELECT * FROM
+        (
+        SELECT A.*, ROWNUM RN
+        FROM (
+        select dc.czry_dm as czryDm,dc.czry_mc as czryMc,dc.swjg_dm as swjgDm,ds.swjg_mc as swjgMc,
+        nvl(aa.role_dm,'czy') as roleDm,dc.usrstate as usrState,dc.description,nvl(rr.role_mc,'普通用户') as roleMc,
+        dc.qybz,decode(dc.qybz,'Y','是','否') as qybzMc from dm_czry dc
+        left join sys_cfg_czry_role aa on dc.czry_dm = aa.czry_dm
+        inner join dm_swjg ds on dc.swjg_dm = ds.swjg_dm
+        left join dm_role rr on rr.role_dm=aa.role_dm
+        where
+        dc.swjg_dm like #{swjgDm}||'%' and
+        dc.qybz='Y'
+        <if test="czryDm != null and czryDm!=''">
+            and dc.czry_dm like '%'||#{czryDm,jdbcType=VARCHAR}||'%'
+        </if>
+        <if test="czryMc != null and czryMc!=''">
+            and dc.czry_mc like '%'||#{czryMc,jdbcType=VARCHAR}||'%'
+        </if>
+        <if test="roleDm != null and roleDm!=''">
+            and (CASE WHEN aa.role_dm is null THEN 'czy' else aa.role_dm end) = #{roleDm,jdbcType=VARCHAR}
+        </if>
+        <if test="swjgDmPramIn != null and swjgDmPramIn!=''">
+            and dc.swjg_dm = #{swjgDmPramIn,jdbcType=VARCHAR}
+        </if>
+        order by dc.czry_dm
+        ) A where 1=1
+        <if test="end != null and end!=''">
+            and ROWNUM &lt;= #{end}
+        </if>
+        )
+        WHERE 1=1
+        <if test="start != null and start!=''">
+            and RN &gt;= #{start}
+        </if>
+
+    </select>
+
+
+    <select id="queryUsersWithFpgl"
+            resultType="com.tl.bjts.sw.model.vo.UserInfoVo"
+            parameterType="map">
+        SELECT * FROM
+        (
+        SELECT A.*, ROWNUM RN
+        FROM (
+        select * from
+        (select rownum as id, dc.czry_dm as czryDm,dc.czry_mc as czryMc,dc.swjg_dm as swjgDm,ds.swjg_mc as swjgMc,
+        dc.usrstate AS userState,dc.description,
+        bb.qybz,decode(bb.qybz,'Y','是','否') as qybzMc,decode(fpbz,'1','接单人','') as fpbzMc,fpbz
+        from dm_czry dc
+        left join (select distinct qybz,czry_dm,swjg_dm,1 as fpbz from sys_cfg_czry_fpgl sc) bb
+        on dc.czry_dm=bb.czry_dm
+        inner join dm_swjg ds on dc.swjg_dm=ds.swjg_dm
+        where
+        dc.swjg_dm like #{swjgDm} || '%' and
+        dc.usrstate in ('2','3') and
+        dc.qybz='Y' ) zz where 1=1
+        <if test="czryDm != null and czryDm!=''">
+            and zz.czryDm like '%'||#{czryDm,jdbcType=VARCHAR}||'%'
+        </if>
+        <if test="czryMc != null and czryMc!=''">
+            and zz.czryMc like '%'||#{czryMc,jdbcType=VARCHAR}||'%'
+        </if>
+
+        order by zz.fpbz ,zz.czryDm
+        ) A where 1=1
+        <if test="end != null and end!=''">
+            and ROWNUM &lt;= #{end}
+        </if>
+        )
+        WHERE 1=1
+        <if test="start != null and start!=''">
+            and RN &gt;= #{start}
+        </if>
+    </select>
+
+
+    <select id="queryfpglView"
+            resultType="com.tl.bjts.sw.model.vo.UserInfoVo"
+            parameterType="map">
+        select t.id,t.czry_dm as czryDm,aa.czry_mc as czryMc,t.swjg_dm as swjgDm,
+        t.zgswry_dm_set as zgswryDm,
+        t.qybz,decode(t.qybz,'Y','是','否') as qybzMc,
+        t.limit_sc as limitSc,t.limit_wm as limitWm,t.limit_qt as limitQt,
+        t.cnt_sc as cntSc,t.cnt_wm as cntWm,t.cnt_qt as cntQt,
+        t.zsjg_dm_set as zsjgDm,(select wm_concat(cc.swjg_jc) from dm_swjg cc where instr(t.zsjg_dm_set,cc.swjg_dm) > 0
+        ) as zsjgMc,
+        t.flgl_set as flgl,(select wm_concat(dname) from sys_dict a where instr(t.flgl_set,a.dcode) > 0 and
+        a.dtype='flglcd') as flglMc,
+        t.jsmode_set as jsMode,(select wm_concat(dname) from sys_dict b where instr(t.jsmode_set,b.dcode) > 0 and
+        b.dtype='js_mode') as jsModeMc
+        from sys_cfg_czry_fpgl t
+        inner join dm_czry aa on ( aa.czry_dm=t.czry_dm
+        <if test="swjgDm != null and swjgDm!=''">
+            and aa.swjg_dm like  #{swjgDm,jdbcType=VARCHAR} || '%'
+        </if>
+       )
+        where 1=1
+        <if test="czryDm != null and czryDm!=''">
+            and t.czry_dm = #{czryDm,jdbcType=VARCHAR}
+        </if>
+        <if test="zsjgDm != null and zsjgDm!=''">
+            and t.zsjg_dm_set like '%' || #{zsjgDm,jdbcType=VARCHAR} || '%'
+        </if>
+        <if test="flgl != null and flgl!=''">
+            and (t.flgl_set = #{flgl,jdbcType=VARCHAR} or t.flgl_set like '%' || #{flgl,jdbcType=VARCHAR} ||'%' or t.flgl_set is null)
+        </if>
+        <if test="jsMode != null and jsMode!=''">
+            and (t.jsmode_set = #{jsMode,jdbcType=VARCHAR} or t.jsmode_set like '%' || #{jsMode,jdbcType=VARCHAR} ||'%' or t.jsmode_set is null)
+        </if>
+    </select>
+
+    <select id="querySbhzxxCount" resultType="java.lang.Integer" parameterType="map">
+        select count(*)
+        from sb_sbxx_hz a inner join gs_dj_cktmsdab b on (b.nsrdzdah = a.nsrdzdah)
+        inner join sys_dict c on (a.sbywb_dm = c.dcode and c.dtype='ywlx_dm')
+        inner join sys_dict d on (a.sbzt_dm = d.dcode and d.dtype='sbzt_dm')
+        where 1=1 and a.sbtype='ZSSB' and a.qybj='Y'
+        <if test="swjgDm != null and swjgDm!=''">
+            and b.swjg_dm like #{swjgDm}||'%'
+        </if>
+        <if test="nsrmc != null and nsrmc!=''">
+            and b.nsrmc like '%'||#{nsrmc}||'%'
+        </if>
+        <if test="qyhgdm != null and qyhgdm!=''">
+            and b.qyhgdm like '%'||#{qyhgdm}||'%'
+        </if>
+        <if test="nsrsbh != null and nsrsbh!=''">
+            and b.nsrsbh like '%'||#{nsrsbh}||'%'
+        </if>
+        <if test="sbrqStart!=null and sbrqStart!=''">
+            and to_char(a.sbrq,'yyyy-MM-dd') >=#{sbrqStart}
+        </if>
+        <if test="sbrqEnd!=null and sbrqEnd!=''">
+            and #{sbrqEnd} >= to_char(a.sbrq,'yyyy-MM-dd')
+        </if>
+        <if test="sbywbDm != null and sbywbDm!=''">
+            and a.sbywb_dm=#{sbywbDm}
+        </if>
+        <if test="sbztDm != null and sbztDm!=''">
+            and a.sbzt_dm=#{sbztDm}
+        </if>
+        <if test="sbfsDm =='1'.toString() ">
+            and a.sbfs=#{sbfsDm}
+        </if>
+        <if test="sbfsDm =='0'.toString() ">
+            and (a.sbfs=#{sbfsDm} or a.sbfs is null)
+        </if>
+        <if test="sbr != null and sbr!=''">
+            and a.sbr=#{sbr}
+        </if>
+    </select>
+
+    <select id="queryRoleInfo" resultType="hashmap" parameterType="map">
+	    select a.rolecode as ROLE_DM,a.rolename as ROLE_MC from sys_role a,sys_user_role b,sys_user u where a.rolecode=b.rolecode
+          and u.id=b.czyid
+          and u.czry_dm= #{czryDm}  and a.isvalid='1'
+	</select>
+
+
+    <select id="querySwjgxx" resultType="hashmap" parameterType="map">
+		select a.swjg_dm,a.swjg_dm_sj from dm_swjg a,dm_czry b where a.swjg_dm=b.swjg_dm
+			and b.czry_dm=#{czryDm} and a.qybz='Y'
+	</select>
+
+    <select id="findByUsername"
+            resultType="com.tl.bjts.sw.model.domain.TlUserProfile"
+            parameterType="string">
+		select CZRY_DM as czryDm, CZRY_MC as czryMc, PASSWORD, SWJG_DM as swjgDm, CZRY_DM_ZG as czryDmzg, YHLX, USRSTATE, DESCRIPTION, CRTIME,
+			CRNAME, UPTIME, UPNAME, QYBZ,QX_SWjG as qxSwjg
+		from dm_czry t
+		where t.qybz='Y' and upper(t.czry_dm)=#{czryDm}
+	</select>
+
+
+    <select id="checkJdMode" resultType="java.lang.Integer">
+		select nvl(s.jd_mode,'0') as jd_mode
+		from sys_cfg_sbdr_filemode s
+		where s.codetype='GS' and s.code=#{swjgDm}
+	</select>
+
+
+
+    <update id="removeSbr">
+		UPDATE sb_sbxx_hz set sbr = NULL where id=#{sbid} and sbzt_dm='2B'
+	</update>
+
+    <update id="removeSbrs">
+        UPDATE sb_sbxx_hz set sbr = NULL where id in
+        <foreach collection="collection" open="(" close=")" separator="," index="i" item="id">
+            #{id,jdbcType=NUMERIC}
+        </foreach>
+        and sbzt_dm='2B'
+    </update>
+
+    <!--<update id="updateEtpInfo" parameterType="com.tl.bjts.sw.model.domain.TlCktmsdabProfile">-->
+		<!--UPDATE gs_dj_cktmsdab set-->
+			<!--ZS_SWJG_DM=#{zsSwjgDm,jdbcType=VARCHAR},-->
+			<!--BSY1_DH=#{bsy1Dh,jdbcType=VARCHAR},-->
+			<!--BSY1_MC=#{bsy1Mc,jdbcType=VARCHAR},-->
+			<!--BSY1_ID=#{bsy1Id,jdbcType=VARCHAR}-->
+		<!--where nsrdzdah = #{nsrdzdah}-->
+	<!--</update>-->
+
+    <!--根据纳税人识别号查找纳税人备案信息-->
+    <!--<select id="getNsrxxByNsrsbh" parameterType="string" resultType="com.tl.bjts.sw.model.domain.TlCktmsdabProfile">-->
+        <!--select * from gs_dj_cktmsdab t where nsrsbh=#{nsrsbh}-->
+    <!--</select>-->
+
+    <!--<select id="querySbrView" resultType="com.tl.bjts.sw.model.vo.SbrVo" parameterType="map">-->
+        <!--select dc.czry_dm as czryDm,dc.czry_mc  as czryMc,dc.swjg_dm as swjgDm,ds.swjg_mc as swjgMc from sys_cfg_czry_fpgl sc-->
+        <!--inner join dm_czry dc on sc.czry_dm=dc.czry_dm-->
+        <!--left join dm_swjg ds on dc.swjg_dm=ds.swjg_dm-->
+        <!--where dc.swjg_dm = #{swjgDm}-->
+
+
+	<!--</select>-->
+
+    <!--&lt;!&ndash; 查询含有接单人的税务机关&ndash;&gt;-->
+    <!--<select id="querySbrSwjgView" resultType="com.tl.bjts.sw.model.vo.SbrSwjgVo" parameterType="map">-->
+
+        <!--select ds.swjg_dm as swjgDm,ds.swjg_Mc as swjgMc-->
+        <!--from dm_swjg ds,-->
+        <!--(select distinct substr(sc.swjg_dm, 0, length(#{presSjgDm})+2) as sub_swjg_dm-->
+        <!--from sys_cfg_czry_fpgl sc-->
+        <!--where sc.swjg_dm like #{presSjgDm} || '%') t-->
+        <!--where ds.swjg_dm = replace(rpad(t.sub_swjg_dm, 11), ' ', '0')-->
+        <!--and ds.swjg_dm ^=  replace(rpad(#{presSjgDm}, 11), ' ', '0')-->
+        <!--and ds.tsjg_bz = '1'-->
+        <!--and ds.qybz = 'Y'-->
+
+    <!--</select>-->
+
+
+
+
+    <select id="querySwjgState" resultType="com.tl.bjts.sw.model.domain.TlSWJGProfile" parameterType="map">
+		select
+		ds.swjg_dm as swjgDm,ds.swjg_mc as swjgMc ,ds.swjg_jc as swjgJc,
+       	ds.swjg_dm_sj as swjgDmSj,ds.swjg_bz as swjgBz,nvl(sc.qybz,'N') qybz
+		  from dm_swjg ds
+		  left join sys_cfg_sbdr_filemode sc
+			on (ds.swjg_dm = sc.code)
+		where ds.swjg_dm_sj = #{swjgDm}  and ds.qybz = 'Y' and  ds.tsjg_bz = '1' order by qybz
+	</select>
+
+
+
+    <select id="queryWrjdCount" resultType="java.lang.Integer" parameterType="map">
+        select func_get_wjdr_count(#{czryDm}) as count from dual
+    </select>
+
+
+    <select id="selectGcClyjInfoHisbByCnt" parameterType="map" resultType="java.lang.Long">
+        SELECT count(*)  FROM TSSH.gc_clyj_info_his
+        WHERE LCSLID = #{lcslid}  and yj_flag = '0'
+    </select>
+
+
+
+    <select id="queryFlglcd" parameterType="long" resultType="java.lang.String">
+        select coalesce(kzxx,'C') as flglcd from gs_dj_cktmsdab_kz t
+        where kzlx='FLGLCD' and nsrdzdah=#{nsrdzdah} and flag = '1'
+        and sysdate between st_date and end_date and rownum=1
+    </select>
+
+    <update id="updateZzsbbBySbid" parameterType="map">
+        UPDATE sb_sbxx_hz set zzsbb='1',sbr=#{sbr,jdbcType=VARCHAR}
+        WHERE  id=#{sbid,jdbcType=NUMERIC}
+        and sbzt_dm='2A'
+    </update>
+
+    <!--处理超期申报数据-->
+    <insert id="dealCqsbdata" parameterType="map">
+
+    insert into CQSB_TXSB(CPCODE,BGD_NO,DLZM_NO,ZYFP_NO,LJ_DATE,SWCODE,OP_USER,OP_DATE,NOTE)
+    select mx.CPCODE,mx.BGD_NO,mx.DLZM_NO,mx.ZYFP_NO,mx.LJ_DATE,pc.SWCODE,#{opUser} as OP_USER ,#{opDate} as OP_DATE ,#{note} as NOTE
+    from SHQ_CQSB_SBMX  mx ,SHQ_CQSB_SBPC pc
+    where mx.cpcode=#{cpcode}
+        and mx.sb_no=#{sbNo}
+        and pc.CPCODE=mx.CPCODE
+        and pc.SWCODE=#{swcode}
+        and mx.cq_flag NOT  IN ('1','2','3','4','5')
+
+    </insert>
+
+    <!--  根据税务机关代码获取名称 -->
+    <select id="getSwjgmcByCode" resultType="com.tl.bjts.sw.model.SwjgModel">
+        select swjg_dm as swjgdm,swjg_mc as swjgmc,swjg_jc as swjgjc,swjg_dm_sj as sjdm,dispsx
+        from dm_swjg
+        where swjg_dm=#{swjgdm}
+    </select>
+
+</mapper>

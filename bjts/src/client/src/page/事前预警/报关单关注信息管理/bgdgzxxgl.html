@@ -1,0 +1,129 @@
+<div class="bgdgzxxgl">
+  <div ms-class="['page','active']">
+    <div class="g-tabs">
+        <div class="tab-title mb-5">
+          <div class="tab-title-wrap">
+            <div ms-for="(index,item) in @tabList" class="tab-title-item"
+              :class="[@activeName == item.activeName&&'active', item.activeName]"
+              ms-click="changeTab(item.activeName,index)">
+              {{item.name}}
+            </div>
+          </div>
+          <div class="btns">
+            <div class="btn" ms-click="@searchActive">查询</div>
+            <div class="btn" ms-if="activeName === 'wsbshz'" ms-click="@showAdd">新增</div>
+          </div>
+        </div>
+        <div class="tab-content">
+          <!-- 未申报/审核中 START -->
+          <div class="tab-content-item" ms-visible="activeName === 'wsbshz'">
+            <div class="select-wrapper">
+              <span class="reset" title="重置查询条件" ms-click="@doReset('wsbshz')">重置：</span>
+              <i class="icon" ms-click="@showHyper" title="展开查询条件"></i>
+              <div class="select-main">
+                <div class="select-item">
+                  <label class="width-s" title="企业税号">企业税号</label>
+                  <input class="width-m" type="text" ms-duplex="gcbSearch.nsrsbh">
+                </div>
+                <div class="select-item">
+                  <label class="width-s" title="企业名称">企业名称</label>
+                  <input class="width-m" type="text" ms-duplex="gcbSearch.nsrmc">
+                </div>
+                <div class="select-item">
+                  <label class="width-s" title="报关单号">报关单号</label>
+                  <input class="width-m" type="text" ms-duplex="gcbSearch.ckbgdh">
+                </div>
+              </div>
+              <div class="select-sub">
+                <div class="select-item">
+                  <label class="width-s" title="操作日期">操作日期</label>
+                  <div class="select-item-inner">
+                    <input class="datepicker date-day" type="text" ms-duplex="gcbSearch.czrqStart" ms-click="@showDatetimepicker($event)" readonly>
+                    <span>-</span>
+                    <input class="datepicker date-day" type="text" ms-duplex="gcbSearch.czrqEnd" ms-click="@showDatetimepicker($event)" readonly>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form">
+              <table id="bgdgzxxgl-gcb-table"></table>
+              <div id="bgdgzxxgl-gcb-pager"></div>
+            </div>
+          </div>
+          <!-- 未申报/审核中 END -->
+          <!-- 审核结束 START -->
+          <div class="tab-content-item" ms-visible="activeName === 'shjs'">
+            <div class="select-wrapper">
+              <span class="reset" title="重置查询条件" ms-click="@doReset('shjs')">重置：</span>
+              <i class="icon" ms-click="@showHyper" title="展开查询条件"></i>
+              <div class="select-main">
+                <div class="select-item">
+                  <label class="width-s" title="企业税号">企业税号</label>
+                  <input class="width-m" type="text" ms-duplex="jgbSearch.nsrsbh">
+                </div>
+                <div class="select-item">
+                  <label class="width-s" title="企业名称">企业名称</label>
+                  <input class="width-m" type="text" ms-duplex="jgbSearch.nsrmc">
+                </div>
+                <div class="select-item">
+                  <label class="width-s" title="报关单号">报关单号</label>
+                  <input class="width-m" type="text" ms-duplex="jgbSearch.ckbgdh">
+                </div>
+              </div>
+              <div class="select-sub">
+                <div class="select-item">
+                  <label class="width-s" title="操作日期">操作日期</label>
+                  <div class="select-item-inner">
+                    <input class="datepicker date-day" type="text" ms-duplex="jgbSearch.czrqStart" ms-click="@showDatetimepicker($event)" readonly>
+                    <span>-</span>
+                    <input class="datepicker date-day" type="text" ms-duplex="jgbSearch.czrqEnd" ms-click="@showDatetimepicker($event)" readonly>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form">
+              <table id="bgdgzxxgl-jgb-table"></table>
+              <div id="bgdgzxxgl-jgb-pager"></div>
+            </div>
+          </div>
+          <!-- 审核结束 END -->
+        </div>
+      </div>
+    <!-- 新增/编辑 弹窗 START -->
+    <div class="page-model bgdgzxx-model">
+      <div class="model-title">
+        {{ modalTitle }}
+        <span class="close" ms-click="@closeModal">×</span>
+      </div>
+      <div class="model-content">
+        <p>
+          <label><span class="text-red">*</span>企业税号：</label>
+          <input ms-if="modalType === 'add'" type="text" class="width-l" ms-duplex="formData.nsrsbh" :on-blur="@loadDetail">
+          <input ms-if="modalType === 'edit'" type="text" class="width-l" ms-duplex="formData.nsrsbh" readonly>
+        </p>
+        <p>
+          <label><span class="text-red">*</span>报关单号：</label>
+          <input ms-if="modalType === 'add'" type="text" class="width-l" ms-duplex="formData.ckbgdh" :on-blur="@loadDetail">
+          <input ms-if="modalType === 'edit'" type="text" class="width-l" ms-duplex="formData.ckbgdh" readonly>
+        </p>
+        <p><label>企业名称：</label><input type="text" class="width-l" ms-duplex="formData.nsrmc" readonly></p>
+        <p><label>出口日期：</label><input type="text" class="width-l" ms-duplex="formData.ckrq" readonly></p>
+        <p><label>出口商品代码：</label><input type="text" class="width-l" ms-duplex="formData.ckspdm" readonly></p>
+        <p><label>出口商品名称：</label><input type="text" class="width-l" ms-duplex="formData.ckspmc" readonly></p>
+        <p><label>出口数量：</label><input type="text" class="width-l" ms-duplex="formData.cksl" readonly></p>
+        <p><label>美元离岸价：</label><input type="text" class="width-l" ms-duplex="formData.mylj" readonly></p>
+        <p><label>人民币离岸价：</label><input type="text" class="width-l" ms-duplex="formData.rmbj" readonly></p>
+        <p><label>参与退税申报记录：</label><input type="text" class="width-l" ms-duplex="formData.cytssb" readonly></p>
+        <p class="model-textarea">
+          <label><span class="text-red">*</span>关注信息：</label>
+          <textarea rows="3" maxlength="1000" ms-duplex="formData.gzxx"></textarea>
+        </p>
+      </div>
+      <div class="model-btns">
+        <div class="btn" ms-click="@saveModal">保存</div>
+        <div class="btn" ms-click="@closeModal">取消</div>
+      </div>
+    </div>
+    <!-- 新增/编辑 弹窗 END -->
+  </div>
+</div>

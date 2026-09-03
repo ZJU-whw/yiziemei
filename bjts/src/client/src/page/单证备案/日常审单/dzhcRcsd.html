@@ -1,0 +1,248 @@
+<div class="dzhc-new dzhc-rcsd">
+  <div class="pageTabs">
+    <div class="pageTitle">
+      审单核查
+    </div>
+    <div class="btns">
+      <div class="btn" ms-click="@search(1)">刷新</div>
+      <div class="btn" ms-click="@plReleaseBatch">批量下达</div>
+      <div class="btn" ms-click="@plWithdrawBatch">批量作废</div>
+      <div class="btn" ms-click="@plBackBatchPre">批量退回</div>
+      <div class="btn" ms-click="@showModelSd(1)">批量审核</div>
+      <div class="btn" ms-click="@createTask">添加</div>
+    </div>
+  </div>
+
+  <div class="page active">
+    <form name="dzhc-rcsd-form">
+      <div class="select-wrapper">
+        <div class="select-main">
+          <div class="select-item">
+            <label title="税务机关">税务机关</label>
+            <input readonly type="text" class="bt-form-control" ms-duplex="@rcsdInfo.swjgmc" disabled>
+          </div>
+          <div class="select-item">
+            <label title="企业名称">企业名称</label>
+            <input readonly type="text" class="bt-form-control" ms-duplex="@rcsdInfo.nsrmc" disabled>
+          </div>
+          <div class="select-item">
+            <label title="纳税人识别号">纳税人识别号</label>
+            <input readonly type="text" class="bt-form-control" ms-duplex="@rcsdInfo.nsrsbh" disabled>
+          </div>
+          <div class="select-item">
+            <label title="申报业务类型">申报业务类型</label>
+            <input readonly type="text" class="bt-form-control" ms-duplex="@rcsdInfo.sbywzl" disabled>
+          </div>
+        </div>
+        <div class="select-main">
+          <div class="select-item">
+            <label title="申报年月批次">申报年月批次</label>
+            <input readonly type="text" class="bt-form-control" ms-duplex="@rcsdInfo.sbnypc" disabled>
+          </div>
+          <div class="select-item">
+            <label title="单证备案方式">单证备案方式</label>
+            <input readonly type="text" class="bt-form-control" ms-duplex="@rcsdInfo.balxName" disabled>
+          </div>
+          <div class="select-item qhms">
+            <label title="状态"
+              ms-click="@statusChg">状态({{@searchData.statusMode=='1'?
+              '任务模式':'核查模式'}})</label>
+            <span class="icon-qhms"
+              ms-click="@statusChg">
+              <span class="arrow up" title="切换至任务模式" ms-class="[@searchData.statusMode=='1'? 'active':'']"></span>
+              <span class="arrow down" title="切换至核查模式" ms-class="[@searchData.statusMode=='2'? 'active':'']"></span>
+            </span>
+            <select ms-if="@searchData.statusMode=='1'" class="bt-form-control width-m" ms-duplex="searchData.status">
+              <option value=""></option>
+              <option value="10">在办</option>
+              <!-- <option value="20">办结</option> -->
+            </select>
+            <select ms-if="@searchData.statusMode=='2'" class="bt-form-control width-m" ms-duplex="searchData.status">
+              <option value=""></option>
+              <option value="0">未下达</option>
+              <option value="1">已下达</option>
+              <option value="2">已收讫</option>
+              <option value="3">已上报</option>
+              <option value="1A">已退回</option>
+              <!-- <option value="4">已审核</option> -->
+            </select>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="form" style="padding-top: 54px">
+      <table id="dzhc-rcsd-table"></table>
+      <div id="dzhc-rcsd-tablePager"></div>
+    </div>
+  </div>
+
+  <!-- 审核 -->
+  <div class="page-model page-model-end"
+  ms-css="{width: @isPlsd==0?'900px': '520px', 'margin-left': @isPlsd==0? '-450px': '-260px', 'height': @isPlsd==0? '540px': '300px', 'margin-top': @isPlsd==0? '-270px': '-150px'}">
+    <div class="model-title">
+      <span>{{@isPlsd==0? '': '批量'}}审核结束</span>
+      <span class="model-close" ms-click="hideModelSd">&times;</span>
+    </div>
+    <div class="model-content" ms-css="{'height': @isPlsd==0? '432px': '214px'}">
+      <div class="btns clear" ms-if="@isPlsd==0" style="float: right; height: 20px; margin-right: 28px; margin-top: -5px; margin-bottom: 10px;">
+        <div ms-if="isWindows" class="btn rt" ms-class="[curRow.status >=3?'': 'disabled']" ms-click="searchDz">查看单证</div>
+        <div ms-if="!isWindows" class="btn rt" ms-class="[curRow.status >=3 && hasTypeTreeFiles()? '': 'disabled']" ms-click="showMultiPdf">查看单证</div>
+      </div>
+      <div class="model-item clear" ms-if="@isPlsd==0">
+        <div class="lf width-s text-right" style="padding-right: 10px;">核查内容：</div>
+        <div style="overflow: hidden;">
+          <div class="hcEnd clear">
+            <div class="end-item clear w-33per" ms-for="item in @finisnList">
+              <div class="label">{{item.label}}：</div>
+              <input ms-if="item.type!='number'" type="text"
+                ms-attr="{value: @finisnData[item.key]?@finisnData[item.key]:'', title: @finisnData[item.key]?@finisnData[item.key]:''}"
+                disabled>
+              <input ms-if="item.type=='number'" type="text" ms-duplex="@finisnData[item.key] | number(2)"
+                ms-attr="{title: @finisnData[item.key]?@finisnData[item.key]:''}" disabled>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="dzlx model-item clear" ms-if="@isPlsd==0">
+        <div ms-if="isWindows || !(curRow.status >=3)" class="clear" ms-for="item in @typeTreeData">
+          <div class="lf width-s text-right" style="padding-right: 10px;">{{item.name}}：</div>
+          <div style="overflow: hidden;">
+            <div class="end-item lf w-33per" ms-for="tmp in item.item">
+              <label>
+              <input class="vertical-middle label" type="checkbox" disabled ms-duplex="editRangeList"
+                ms-attr="{value: tmp.value, id: 'rcsd-type-'+tmp.value}">
+              </label>
+              <span ms-attr="{for: 'rcsd-type-'+tmp.value}">{{tmp.name}}</span>
+            </div>
+          </div>
+        </div>
+        <div ms-if="!isWindows && curRow.status >=3" style="padding:0 10px;">
+          <wbr ms-widget="[{is:'dzhcTypeTree'}, {typeTreeData: @typeTreeData, detailInfo: @pdfDetailInfo, configContainerId: 'rcsd', onRemarkSave: @refreshAfterRemarkSave}]" />
+        </div>
+      </div>
+      <div class="model-item clear">
+        <div class="lf width-s text-right" style="padding-right: 10px;">审核结果：</div>
+        <input type="radio" class="radio" value="0" name="examineResult" id="rcsd-examineResult-inp-0"
+          ms-duplex="modelData.examineResult">
+        <label for="rcsd-examineResult-inp-0" style="float: none;">暂未发现问题</label>
+        <input type="radio" class="radio" value="1" name="examineResult" id="rcsd-examineResult-inp-1"
+          ms-duplex="modelData.examineResult">
+        <label for="rcsd-examineResult-inp-1" style="float: none;">核查有问题</label>
+      </div>
+      <div class="model-item clear" style="margin-top: 10px;">
+        <div class="lf width-s text-right" style="padding-right: 10px;">
+          <span ms-if="modelData.examineResult=='1'" class="text-red">*</span>审核意见：</div>
+        <textarea class="g-textarea" rows="4" ms-css="{width: @isPlsd==0? '777px': '400px'}"
+          ms-duplex="modelData.examineNote"></textarea>
+        <div style="position: absolute; left: 100px;" ms-visible="!modelData.examineNote && modelData.examineResult=='1'"
+          class="text-red">请输入审核意见</div>
+      </div>
+    </div>
+    <div class="model-btns">
+      <div class="btn" ms-click="saveModelSd">确定</div>
+      <div class="btn" ms-click="hideModelSd">取消</div>
+    </div>
+  </div>
+
+  <!-- 退回 -->
+  <div class="page-model page-model-back" style="height: 360px; margin-top: -180px; width: 700px; margin-left: -350px;">
+    <div class="model-title">
+      <span>退回（可增加需要审核的单证类型）</span>
+      <span class="model-close" ms-click="hideBackSingle">&times;</span>
+    </div>
+    <div class="model-content" style="height: 260px; padding: 20px;">
+
+      <div class="dzlx">
+        <div class="clear mb-5" ms-for="item in @typeTreeData" style="font-size: 14px;">
+          <div class="lf width-s text-right" style="padding-right: 10px;">{{item.name}}:</div>
+          <div style="overflow: hidden;">
+            <div class="lf mr-10" style="width: 147px;" ms-for="tmp in item.item">
+              <input class="vertical-middle" type="checkbox" ms-duplex="editRangeList"
+                ms-attr="{value: tmp.value, disabled: tmp.chkDisabled, id: 'rcsd-type-back-'+tmp.value}" />
+              <label ms-attr="{for: 'rcsd-type-back-'+tmp.value}">{{tmp.name}}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="model-item clear" style="margin-top: 10px; margin-left: 20px; font-size: 14px;">
+        <label>
+          <span class="text-red">*</span>退回原因：
+        </label>
+        <textarea class="g-textarea" rows="4" style="width: 521px;" ms-duplex="@backData.backReason"></textarea>
+        <div style="position: absolute; left: 120px;" ms-visible="@isErrorBack && !@backData.backReason" class="text-red">请输入退回原因</div>
+      </div>
+    </div>
+    <div class="model-btns">
+      <div class="btn" ms-click="saveBackSingle">确定</div>
+      <div class="btn" ms-click="hideBackSingle">取消</div>
+    </div>
+  </div>
+
+  <!-- 新增任务 -->
+  <div class="page-model page-model-add" ms-css="{
+    width: @modelAddStyle[@addIndex].width,
+    'margin-left': @modelAddStyle[@addIndex].marginLeft,
+    height: @modelAddStyle[@addIndex].height,
+    'margin-top': @modelAddStyle[@addIndex].marginTop,
+  }">
+    <div class="model-title">
+      <span>添加-{{@addIndex ==0 ? '选择出口业务（批次:'+@searchAddCkywData.sbnypc+'）': '选择核查单证类型'}}</span>
+      <span class="model-close" ms-mousedown="$event.preventDefault()" ms-click="hideModelTask">&times;</span>
+    </div>
+    <div class="model-content" ms-css="{height: @modelAddStyle[@addIndex].contentHeight}">
+      <div ms-visible="addIndex == 0">
+        <div class="btns clear">
+          <div class="btn rt" ms-click="searchCkyw(1)" title="查询结果将过滤已添加过的出口业务数据">查询</div>
+          <div class="select-wrapper" style="height: 30px;">
+            <div class="select-main">
+              <div class="select-item w-35per">
+                <label title="出口日期">出口日期</label>
+                <div class="select-item-inner" style="width: calc(100% - 80px);">
+                  <input type="text" class="bt-form-control datepicker date-day" ms-click="@showDatetimepicker($event)" readonly ms-duplex="@searchAddCkywData.ckrqq">
+                  <span style="margin:0;">止</span>
+                  <input type="text" class="bt-form-control datepicker date-day" ms-click="@showDatetimepicker($event)" readonly ms-duplex="@searchAddCkywData.ckrqz">
+                </div>
+              </div>
+              <div class="select-item w-30per">
+                <label title="报关单/代理证明号">报关单号</label>
+                <input type="text" class="bt-form-control entryId" data-duplex-changed="@ckywEntryidChg"
+                  ms-duplex="@searchAddCkywData.entryId" placeholder="请输入报关单/代理证明号">
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <div>
+          <div class="form rcsd-ckyw-table" style="padding-top: 6px">
+            <table id="dzhc-rcsd-ckyw-table"></table>
+            <div id="dzhc-rcsd-ckyw-tablePager" style="height: 26px; line-height: 26px; text-align: right; padding-right: 20px; border-bottom: 1px solid #ddd;">共 {{ckywTotal}} 条</div>
+          </div>
+        </div>
+      </div>
+      <div ms-visible="addIndex == 1" class="dzlx" style="padding: 20px 10px 0;">
+        <div class="clear mb-5" ms-for="item in @typeTreeData" style="font-size: 14px;">
+          <div class="lf width-s text-right" style="padding-right: 10px;">{{item.name}}:</div>
+          <div style="overflow: hidden;">
+            <div class="lf mr-10" style="width: 147px;" ms-for="tmp in item.item">
+              <input class="vertical-middle" type="checkbox" ms-duplex="rangeList"
+                ms-attr="{value: tmp.value, disabled: tmp.chkDisabled, id: 'rcsd-type-add-'+tmp.value}" />
+              <label ms-attr="{for: 'rcsd-type-add-'+tmp.value}">{{tmp.name}}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="model-btns">
+      <div class="btn" ms-visible="addIndex==0" ms-click="nextStep">下一步</div>
+      <div class="btn" ms-visible="addIndex==1" ms-click="addIndex=0">上一步</div>
+      <div class="btn" ms-visible="addIndex==1" ms-click="createTaskConfirm">确定</div>
+    </div>
+  </div>
+
+  <!-- 出口业务详情 -->
+  <wbr ms-widget="[{is:'dzhcCkywDetail'}, @propsToPager]" />
+
+  <!-- 预警信息 -->
+  <wbr ms-widget="[{is:'dzhcYjxx'}, @propsToPager]" />
+  
+</div>

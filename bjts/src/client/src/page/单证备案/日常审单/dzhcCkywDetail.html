@@ -1,0 +1,125 @@
+<div class="dzhc-ckyw-detail">
+  <!-- 编辑 -->
+  <div class="page-model page-model-edit" style="width: 1060px;margin-left: 0px;height: 550px; margin-top: 0px;max-height: 95vh;transform: translate(-50%,-50%);" ms-css="{height: @autoH + 550 + 'px'}">
+    <div class="model-title">
+      <span>{{@editData.status=='0' && @isEdit? '编辑': '查看'}}（序号：{{@editData.id}}，状态：{{@editData.statusName}}）</span>
+      <span class="model-close" ms-click="hideEdit">&times;</span>
+    </div>
+    <div class="model-content" style="max-height: calc(95vh - 64px);" ms-css="{height: @autoH + 488 + 'px'}">
+      <div class="btns clear" style="float: right; height: 20px;">
+        <div ms-if="(@editData.status=='0' && @isEdit && editData.balx!=1)" class="btn rt" ms-click="@saveEdit">保存</div>
+        <div ms-if="isWindows" class="btn rt" ms-class="[(editData.status >=3 && editData.balx!=1)?'': 'disabled']" ms-click="searchDz">查看单证</div>
+        <div ms-if="!isWindows" class="btn rt" ms-class="[(editData.status >=3 && editData.balx!=1 && hasTypeTreeFiles())?'': 'disabled']" ms-click="showMultiPdf">查看单证</div>
+      </div>
+      <div class="g-form">
+        <div class="g-form-item lf" style="width: 100%;margin-bottom: 0;">
+          <label class="g-form-item_label" style="width: 100%;text-align: left;"><b>一、纳税人信息:</b></label>
+        </div>
+        <div class="g-form-item lf w-25per">
+          <label class="g-form-item_label">纳税人识别号</label>
+          <div class="g-form-item__content">
+            <input class="g-input" type="text" ms-duplex="@editData.nsrsbh" disabled
+              ms-attr="{title: @editData.nsrsbh}">
+          </div>
+        </div>
+        <div class="g-form-item lf w-25per">
+          <label class="g-form-item_label">纳税人名称</label>
+          <div class="g-form-item__content">
+            <input class="g-input" type="text" ms-duplex="@editData.nsrmc" disabled ms-attr="{title: @editData.nsrmc}">
+          </div>
+        </div>
+        <div class="g-form-item lf w-25per">
+          <label class="g-form-item_label">联系人</label>
+          <div class="g-form-item__content">
+            <input class="g-input" type="text" ms-duplex="@editData.lxr" disabled ms-attr="{title: @editData.lxr}">
+          </div>
+        </div>
+        <div class="g-form-item lf w-25per">
+          <label class="g-form-item_label">联系电话</label>
+          <div class="g-form-item__content">
+            <input class="g-input" type="text" ms-duplex="@editData.lxrDh" disabled ms-attr="{title: @editData.lxrDh}">
+          </div>
+        </div>
+        <div class="g-form-item lf w-50per">
+          <label class="g-form-item_label">联系地址</label>
+          <div class="g-form-item__content">
+            <input class="g-input" type="text" ms-duplex="@editData.jydz" disabled ms-attr="{title: @editData.jydz}">
+          </div>
+        </div>
+        <div class="g-form-item lf w-50per">
+          <label class="g-form-item_label">备注信息</label>
+          <div class="g-form-item__content">
+            <textarea class="g-textarea" rows="1" ms-duplex="@editData.note"
+              ms-attr="{disabled: @editData.status!='0' || !@isEdit, title: (@editData.status!='0' || !@isEdit) && @editData.note}"></textarea>
+          </div>
+        </div>
+        <div class="g-form-item lf" style="width: 100%;">
+          <label class="g-form-item_label" style="width: 100%;text-align: left;"><b>二、核查单证类型:</b></label>
+          <div ms-if="isWindows || !(editData.status >=3 && editData.balx!=1)">
+            <div class="clear mb-5" ms-for="item in @typeTreeData" style="font-size: 14px;">
+              <div class="lf width-s" style="text-align: right;padding-right: 12px;">{{item.name}}:</div>
+              <div style="overflow: hidden;">
+                <div class="lf mr-10" style="width: 147px;" ms-for="tmp in item.item">
+                  <input class="vertical-middle" type="checkbox" ms-duplex="editRangeList"
+                    ms-attr="{value: tmp.value, disabled: (tmp.chkDisabled || @editData.status!='0' || !@isEdit || editData.balx==1), id: @templateName+tmp.value}" />
+                  <label ms-attr="{for: @templateName+tmp.value}">{{tmp.name}}</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div ms-if="!isWindows && (editData.status >=3 && editData.balx!=1)">
+            <wbr ms-widget="[{is:'dzhcTypeTree'}, {typeTreeData: @typeTreeData, detailInfo: @editData, configContainerId: 'ckywDetail'}]" />
+          </div>
+        </div>
+        <div class="g-form-item lf" style="width: 100%;margin-bottom: 0px;">
+          <label class="g-form-item_label" style="width: 100%;text-align: left;"><b>三、业务数据</b>:</label>
+        </div>
+        <div class="g-form-item lf w-25per" ms-for="item in @finisnList.slice(4,@finisnList.length)">
+          <label class="g-form-item_label">{{item.label}}</label>
+          <div class="g-form-item__content">
+            <input ms-if="item.type!='number'" type="text"
+              ms-attr="{value: @editData[item.key]||'', title: @editData[item.key]||''}" disabled>
+            <input ms-if="item.type=='number'" type="text" ms-duplex="@editData[item.key] | number(2)"
+              ms-attr="{title: @editData[item.key]||''}" disabled>
+          </div>
+        </div>
+        <div class="g-form-item lf" style="width: 100%;margin-bottom: 0px;">
+          <label class="g-form-item_label" style="width: 100%;text-align: left;"><b>四、核查任务退回记录</b>: <b ms-visible="!hasBackList">无退回记录</b></label>
+        </div>
+        <div class="g-table" ms-visible="hasBackList">
+          <table ms-attr="{id: @templateName + '-back-table'}"></table>
+        </div>
+        <div ms-if="@editData.status=='4'">
+          <div class="g-form-item lf" style="width: 100%;margin-bottom: 0px;">
+            <label class="g-form-item_label" style="width: 100%;text-align: left;"><b>五、审核信息</b>:</label>
+          </div>
+          <div class="g-form-item lf w-25per">
+            <label class="g-form-item_label">审核结果</label>
+            <div class="g-form-item__content">
+              <input class="g-input" type="text" ms-duplex="@editData.examineResult" disabled
+                ms-attr="{title: @editData.examineResult}">
+            </div>
+          </div>
+          <div class="g-form-item lf" style="width: 75%">
+            <label class="g-form-item_label">审核意见</label>
+            <div class="g-form-item__content">
+              <textarea class="g-textarea" rows="1" disabled
+                ms-attr="{value: @editData.examineNote? @editData.examineNote: '',title: @editData.examineNote}"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 退回文件弹框 -->
+  <div class="page-model-back-file-overlay" style="display: none;" ms-on-click="hideBackFile"></div>
+  <div class="page-model page-model-back-file" style="display: none;">
+    <div class="model-title">
+      <span>退回文件</span>
+      <span class="model-close" ms-click="hideBackFile">&times;</span>
+    </div>
+    <div class="model-content" style="padding: 10px;">
+      <wbr ms-widget="[{is:'dzhcTypeTree'}, {typeTreeData: @backFileTreeData, detailInfo: @editData, configContainerId: 'backFile', customApi: 'dzbaInspectDailyBackFileViewPdf'}]" />
+    </div>
+  </div>
+</div>

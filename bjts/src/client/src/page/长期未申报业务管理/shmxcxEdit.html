@@ -1,0 +1,305 @@
+<div class="shmxcxEdit">
+    <div class="pageTabs">
+        <div class="pageTitle">
+            <span>{{"长期未申报业务"+@params.title}}</span>
+            <span style="font-size: 13px;">（税号：{{@formData.nsrsbh}}</span>
+            <span style="font-size: 13px;margin-left: 20px;">名称：{{@formData.nsrmc}}</span>
+            <span style="font-size: 13px;margin-left: 20px;">退税计算方式：{{@formData.tsjsffdm}}）</span>
+        </div>
+        <div class="btns btn-right" style="margin-right: 25px;">
+            <!-- <div class="btn" ms-click="@fjView" ms-visible="@formData.zmsFj">附件</div> -->
+            <!-- <div class="btn" style="background-color: #ccc;" ms-visible="!@formData.zmsFj">附件</div> -->
+            <div class="btn" ms-click="@jsCheck" ms-visible="@jsFlag&&!@wqrFlag">机审</div>
+            <div class="btn" style="background-color: #ccc;" ms-visible="!@jsFlag||@wqrFlag">机审</div>
+            <div class="btn" ms-click="@showModel" ms-visible="@params.title !== '查看'" title="人工审核长期未申报出口业务的确认信息">审核</div>
+            <!-- <div class="btn" ms-click="@goBack">返回</div> -->
+        </div>
+    </div>
+    <div class="page active">
+        <div class="form shmxcxEdit-form" style="padding-top: 10px;overflow-y: scroll">
+            <div style="padding: 0 20px 10px 20px">
+                <div class="baseinfo-wrapper" ms-visible="false">
+                    <div class="mianinfo-item">
+                        <div class="clear">
+                            <p class="lf w-33per fl"><label class="w-shmxcxEdit">税务审核状态：</label>
+                            <div class="g-form-item__content fl-1">
+                                <select ms-duplex="@submitData.swshZt" class="w-100per">
+                                    <option value=""></option>
+                                    <option value="1">审核通过</option>
+                                    <option value="2">退回</option>
+                                </select>
+                            </div>
+                            </p>
+                        </div>
+                        <div class="clear" style="margin-top: 10px;">
+                            <p class="lf w-33per fl"><label class="w-shmxcxEdit"><span class="text-red" ms-visible="@submitData.swshZt=='2'">*</span>税务审核审核意见：</label>
+                                <div class="g-form-item__content fl-1">
+                                    <textarea class="g-textarea" ms-duplex="@submitData.swshHtyj"></textarea>
+                                </div>
+                                </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="maininfo-wrapper" style="border: none;">
+                    <div class="maininfo-content">
+                        <p class="mianinfo-title">税局审核信息:</p>
+                        <!-- <div class="mianinfo-item" ms-visible="@params.title !== '查看'">
+                            <div class="clear">
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">审核状态：</label>
+                                    <div class="g-form-item__content fl-1">
+                                        <select ms-duplex="@submitData.swshZt" class="g-select" style="width: 100%;">
+                                            <option value=""></option>
+                                            <option value="1">审核通过</option>
+                                            <option value="2">退回</option>
+                                        </select>
+                                    </div>
+                                </p>
+                                <p class="lf w-50per fl"><label class="w-shmxcxEdit">审核意见：</label>
+                                    <input class="fl-1" type="text" ms-duplex="@submitData.swshHtyj">
+                                </p>
+                            </div>
+                        </div> -->
+                        <div class="mianinfo-item">
+                            <div class="clear">
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">审核状态：</label>
+                                    <span>{{@formData.swshZt}}</span>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">审核人员：</label>
+                                    <span>{{@formData.swshRy}}</span>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">审核意见：</label>
+                                    <span>{{@formData.swshHtyj}}</span>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">审核时间：</label>
+                                    <span>{{@formData.swshRq}}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <p class="mianinfo-title">报关单信息:</p>
+                        <div class="mianinfo-item">
+                            <div class="clear">
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">报关单号/代理证明号：</label>
+                                    <span>{{@formData.ckbgdh}}</span>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">出口日期：</label>
+                                    <span>{{@formData.ckrq1}}</span>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">海关商品代码：</label>
+                                    <span>{{@formData.ckspDm}}</span>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">海关商品名称：</label>
+                                    <span>{{@formData.gfhhgspmc}}</span>
+                                </p>
+                            </div>
+                            <div class="clear">
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">监管方式：</label>
+                                    <span>{{@formData.jgfsMc}}</span>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">美元离岸价：</label>
+                                    <span>{{@formData.mylaj}}</span>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">人民币离岸价：</label>
+                                    <span>{{@formData.rmblaj}}</span>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">法定单位：</label>
+                                    <span>{{@formData.jldwmc}}</span>
+                                </p>
+                            </div>
+                            <div class="clear">
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">出口数量：</label>
+                                    <span>{{@formData.cksl}}</span>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">未申报数量：</label>
+                                    <span>{{@formData.wsbsl}}</span>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">征税率：</label>
+                                    <span>{{@formData.zssl}}</span>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">退税率：</label>
+                                    <span>{{@formData.tsl}}</span>
+                                </p>
+                            </div>
+                            <div class="clear">
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">新增日期：</label>
+                                    <span>{{@formData.cjrq}}</span>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">征免税类型：</label>
+                                    <span>{{@formData.zmtbz}}</span>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">数据来源：</label>
+                                    <span>{{@formData.sjly}}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <p class="mianinfo-title">企业确认信息:</p>
+                        <div class="mianinfo-item">
+                            <div class="clear">
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">企业确认状态：</label>
+                                    <span>{{@formData.qyqrZt}}</span>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">企业确认日期：</label>
+                                    <span>{{@formData.qyqrRq}}</span>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">申报所属期：</label>
+                                    <span>{{@formData.zmsSbssq}}</span>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">应税销售额：</label>
+                                    <span>{{@formData.zsYsxse}}</span>
+                                </p>
+                            </div>
+                            <div class="clear">
+                                
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">计提销项税额：</label>
+                                    <span>{{@formData.zsJtxxse}}</span>
+                                </p>
+                                <p class="lf w-25per fl" style="position: relative;"><label class="w-shmxcxEdit">出口发票号码：</label>
+                                    <span style="overflow: hidden;flex: 1;text-overflow: ellipsis;cursor: pointer;" ms-mouseenter="@showTooltip('ckfp')" ms-mouseleave="@hideTooltip('ckfp')">{{@formData.zmsCkfphm}}</span>
+                                    <div class="tooltip ckfp-tooltip" ms-visible="@isCkfphmVisible" ms-html="@ckfphmText"></div>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">是否开具出口发票：</label>
+                                    <span>{{@formData.zmsCkfpbz}}</span>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">免税销售额：</label>
+                                    <span>{{@formData.msMsxse}}</span>
+                                </p>
+                            </div>
+                            <div class="clear">
+                                
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">有无进货凭证号：</label>
+                                    <span>{{@formData.msJhpzhbz}}</span>
+                                </p>
+                                <p class="lf w-25per fl" style="position: relative;"><label class="w-shmxcxEdit">进货凭证号：</label>
+                                    <span style="overflow: hidden;flex: 1;text-overflow: ellipsis;cursor: pointer;" ms-mouseenter="@showTooltip('jhpz')" ms-mouseleave="@hideTooltip('jhpz')">{{@formData.msJhpzh}}</span>
+                                    <div class="tooltip jhpz-tooltip" ms-visible="@isJhpzhVisible" ms-html="@jhpzhText"></div>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">是否进项转出：</label>
+                                    <span>{{@formData.msJxzcbz}}</span>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">进项转出所属期：</label>
+                                    <span>{{@formData.msJxzcssq}}</span>
+                                </p>
+                            </div>
+                            <div class="clear">
+                                
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">进项转出金额：</label>
+                                    <span>{{@formData.msJxzcje}}</span>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">备注：</label>
+                                    <span>{{@formData.zmsBz}}</span>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">未申报原因类型：</label>
+                                    <span>{{@formData.wsbYylx}}</span>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">具体原因说明：</label>
+                                    <span>{{@formData.wsbYysm}}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <p class="mianinfo-title">机审信息:</p>
+                        <div class="mianinfo-item">
+                            <div class="clear">
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">机审状态：</label>
+                                    <span>{{@formData.jsZt!='机审通过'&&@formData.jsDm?@formData.jsZt+'   '+'('+@formData.jsDm+')':@formData.jsZt}}</span>
+                                </p>
+                                <p class="lf w-25per fl"><label class="w-shmxcxEdit">机审日期：</label>
+                                    <span>{{@formData.jsRq}}</span>
+                                </p>
+                                <p class="lf w-50per fl"><label class="w-shmxcxEdit" style="flex-shrink: 0;">机审意见：</label>
+                                    <span>{{@formData.jsYd}}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="maininfo-content table-content shmxcxEdit-fjlb-table">
+                        <div class="table-header-toggle" >
+                            <p class="mianinfo-title toggle-collapse">
+                                <span>附件（{{totalCount}}）</span>
+                                
+                                <img class="toggle-icon rotated" ms-click="toggleCollapse" src="../../../static/image/down-icon.png">
+                            </p>
+                        </div>
+                        <div ms-if="@isFjlbCollapsed">
+                            <table id="shmxcxEdit-fjlb-table"></table>
+                            <div id="shmxcxEdit-fjlb-tablePager"></div>
+                        </div>
+                    </div>
+                    <div class="maininfo-content table-content">
+                        <p class="mianinfo-title">审核日志:</p>
+                        <table id="shmxcxEdit-ckyw-table"></table>
+                        <div id="shmxcxEdit-ckyw-tablePager"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-model hscl-page-model" style="height:390px;width: 500px;margin-top: -140px;" >
+      <div class="model-title">
+        <span>审核</span>
+        <span class="model-close" ms-mousedown="$event.preventDefault()" ms-click="hideModel">&times;</span>
+      </div>
+      <div class="model-content g-form clear" style="height: 290px;padding: 10px 20px;">
+        <div class="g-form-item">
+          <div class="g-form-item_label">税务审核状态：</div>
+          <div class="g-form-item__content">
+            <div class="radio-div">
+                <input type="radio" class="radio" value="1" name="swshZt" id="swshZt-inp-shmx-0"
+                ms-duplex="submitData.swshZt" ms-attr="{disabled:@selectShzt}">
+                <label for="swshZt-inp-shmx-0" style="float: none;">审核通过</label>
+                <input type="radio" class="radio" value="2" name="swshZt" id="swshZt-inp-shmx-1"
+                ms-duplex="submitData.swshZt" style="margin-left: 20px;">
+                <label for="swshZt-inp-shmx-1" style="float: none;">退回</label>
+            </div>
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label">税务审核意见：</div>
+          <div class="g-form-item__content">
+            <textarea ms-attr="{disabled: @titleName=='查看'}" rows="3" style="height: 80px;" class="g-textarea" ms-duplex="@submitData.swshHtyj"></textarea>
+          </div>
+        </div>
+        <div class="g-form-item">
+          <div class="g-form-item_label"><span ms-if="@submitData.swshZt=='2'" class="text-red"></span>机审意见：</div>
+          <div class="g-form-item__content">
+            <textarea disabled rows="3" style="height: 80px;" class="g-textarea" ms-duplex="@formData.jsYd"></textarea>
+          </div>
+        </div>
+        <div style="line-height: 1.6;">
+        <p style="color: #666;">
+          税务审核意见非空时，企业端展现税务审核意见；税务审核意见为空时，企业端直接展现机审意见。
+        </p>
+      </div>
+      </div>
+      <div class="model-btns">
+        <div class="btn" ms-click="@save">审核</div>
+      </div>
+    </div>
+    <!-- 查看 -->
+    <div class="page-model add-page-model g-model"
+        style="height:260px;width: 500px;margin-top: -140px;">
+        <!-- <div class="model-title">{{@addTitle}}</div> -->
+        <div class="model-title">
+            <span>{{@addTitle}}</span>
+            <span class="model-close" ms-mousedown="$event.preventDefault()" ms-click="hideFjModel">&times;</span>
+          </div>
+        <div class="model-content g-form" style="height: 170px;padding: 10px 0;">
+            <div class="g-form-item">
+                <div class="g-form-item_label" style="width: 100px;">税务备注：</div>
+                <div class="g-form-item__content" style="margin-left: 100px;">
+                    <textarea class="g-textarea" ms-duplex="modelData.note2" style="height: 120px;"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="model-btns">
+            <div class="btn" ms-click="@saveModel" ms-visible="@addTitle!=='查看'">保存</div>
+            <!-- <div class="btn" ms-click="@hideFjModel">退出</div> -->
+        </div>
+    </div>
+    <!-- pdf预览 -->
+    <div class="page-model page-model-pdf">
+        <div id="sb-shmxcxEdit-pdf"></div>
+        <!-- <img ms-attr="{src:@imgSrc}" alt="11"> -->
+        <div class="close" title="关闭" ms-on-click="hideModelPdf()">&times;</div>
+        <div id="sb-shmxcxEdit-results"></div>
+    </div>
+</div>

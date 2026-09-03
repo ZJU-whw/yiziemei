@@ -1,0 +1,44 @@
+<div class="wmckyyzl" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        外贸出口运营质量情况分析表
+      </div>
+      <div class="btns">
+          <div class="btn" ms-click="@search(1)">查询</div>
+          <div class="btn" ms-click="@exform">导出</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <form name="wmckyyzl-form">
+          <div class="select-wrapper">
+              <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+              <div class="select-main">
+                <div class="select-item">
+                    <label class="item-label" title="退税机关">退税机关</label>
+                    <input class="item-content" readonly type="text" ms-duplex="swjgmc" ms-click="@showTree">
+                    <ul id="cktstjzbTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+                </div>
+                <div class="select-item">
+                  <label  title="出口日期">出口日期</label>
+                  <div class="select-item-inner">
+                      <input type="text" class="datepicker date-month" ms-duplex="@searchData.ssnyStart" readonly>
+                      <span>止</span>
+                      <input type="text" class="datepicker date-month" ms-duplex="@searchData.ssnyEnd" readonly>
+                  </div>
+                </div>
+                <div class="select-item">
+                  <label  title="企业类型">企业类型</label>
+                  <select class="width-m" ms-duplex="searchData.tsjsfs">
+                      <option value=""></option>
+                      <option ms-for="el in @qylxOptions" ms-attr="{value: el.value}">{{el.name}}</option>
+                  </select>
+                </div>
+              </div>
+          </div>
+      </form>
+      <div class="form" style="padding-top: 54px">
+          <table id="wmckyyzl-table"></table>
+          <div id="wmckyyzl-tablePager"></div>
+      </div>
+  </div>
+</div>

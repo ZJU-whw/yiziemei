@@ -1,0 +1,85 @@
+<div class="yjbmdwh" >
+    <div class="pageTabs">
+        <div class="pageTitle">预警白名单企业</div>
+        <div class="btns" ms-if="@act==1">
+            <!--<div class="swjg" style="position: relative" ms-click="showSwjg">-->
+                <!--{{swjgMc}}-->
+                <!--<ul class='ztree treeDiv2' style="left: 0px;top:100%;"></ul>-->
+            <!--</div>-->
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-if="showFlag" ms-click="@showModel">新增</div>
+            <!--<div class="btn" ms-click="@delRow">删除</div>-->
+            <div class="btn" ms-click="@exform">导出</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="select-wrapper">
+            <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+            <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+            <div class="select-main">
+                <div class="select-item">
+                    <label class="width-s" title="纳税人名称">纳税人名称：</label>
+                    <input class="width-m" type="text" ms-duplex="searchData.qymc">
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="企业标识">企业标识<i class="question" title="企业海关代码或社会信用代码"></i>：</label>
+                    <input class="width-m" type="text" ms-duplex="searchData.qybs">
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="白名单类型">白名单类型：</label>
+                    <select class="width-m" ms-duplex="searchData.objflag">
+                        <option value=""></option>
+                        <option value="0">整体放行</option>
+                        <option value="1">按预警对象放行</option>
+                    </select>
+                </div>
+            </div>
+            <div class="select-sub">
+                <div class="select-item">
+                    <label class="width-s" title="预警代码">预警代码：</label>
+                    <select class="width-m" ms-duplex="searchData.yjcode">
+                        <option value=""></option>
+                        <option ms-for="(index,item) in yjList" ms-attr="{'value':item.yjcode , 'data-op':index}">{{'('+item.yjcode+')'+item.yjname}}</option>
+                    </select>
+                </div>
+                <div class="select-item" style="position: relative;">
+                    <label  class="width-s" title="退税机关">退税机关</label>
+                    <input class="width-m" type="text" ms-duplex="searchData.swjgMc" ms-click="@showTree">
+                    <ul id="yjbmdwhTree" class='ztree treeDiv' style="left: 40%;top:100%;width:150px;"></ul>
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 54px;">
+            <table id="yjbmdwh-table"></table>
+            <div id="yjbmdwh-tablePager"></div>
+        </div>
+    </div>
+    <div class="page-model">
+        <div class="model-title">新增</div>
+        <div class="model-content">
+            <p><label>&nbsp;　</label><span id="yjbmdAddTips">{{tips}}</span></p>
+            <p><label><span class="text-red">*</span>企业标识：</label>
+                <input type="text" class="width-l" ms-duplex="modelData.qybs" ms-on-blur="getQyxx($event)">
+                <i class="question" title="企业海关代码或社会信用代码"></i></p>
+            <p><label><span class="text-red">*</span>预警项：</label>
+                <select id="yjbmdwhSel" class="width-l" ms-duplex="modelData.yjcode" ms-on-change="checkObjFlag">
+                    <option value=""></option>
+                    <option ms-for="(index,item) in yjList" ms-attr="{'value':item.yjcode , 'data-op':index}">{{'('+item.yjcode+')'+item.yjname}}</option>
+                </select>
+            </p>
+            <p><label><span class="text-red">*</span>白名单类型：</label>
+                <select  class="width-l" ms-duplex="modelData.objflag">
+                    <option value=""></option>
+                    <option value="0">整体放行</option>
+                    <option id="yjbmdwhOpt" style="display: none" value="1">按白名单子表（预警对象）进行放行</option>
+                </select>
+            </p>
+            <!--<p><label>退税机关名称</label><input type="text" class="width-l" ms-duplex="modelData."></p>-->
+            <p><label>原因描述：</label><textarea rows="5" class="width-l" ms-duplex="modelData.yyms"></textarea></p>
+        </div>
+        <div class="model-btns">
+            <div class="btn" ms-click="saveModel">保存</div>
+            <div class="btn" ms-click="hideModel">取消</div>
+        </div>
+    </div>
+</div>

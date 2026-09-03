@@ -1,0 +1,51 @@
+<div class="cwqktjb jcfx" >
+  <div class="mask bg">
+    <img src="../../../static/image/loading2.gif" width="64" height="64"/>
+  </div>
+  <div class="pageTabs">
+      <div class="pageTitle">
+        财务情况统计表
+      </div>
+      <div class="btns">
+        <div class="btn" ms-click="@search(1, false, true)">查询</div>
+        <div class="btn" ms-click="@exform">导出</div>
+        <div class="btn" ms-click="@showModel">历史记录</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <form name="cwqktjb-form">
+          <div class="select-wrapper">
+            <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+            <div class="select-main">
+              <div class="select-item">
+                  <label class="item-label" title="退税机关">退税机关</label>
+                  <input class="item-content" readonly type="text" ms-duplex="swjgmc" ms-click="@showTree">
+                  <ul id="cwqktjbTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+              </div>
+              <div class="select-item">
+                <label class="item-label" title="出口年月">出口年月</label>
+                <div class="select-item-inner item-content">
+                  <input type="text" class="datepicker date-month" ms-duplex="@searchData.ssnyStart" :on-blur="@filDate($event, 'ssnyStart')" ms-click="@showDatetimepicker">
+                  <span>至</span>
+                  <input type="text" class="datepicker date-month" ms-duplex="@searchData.ssnyEnd" :on-blur="@filDate($event, 'ssnyEnd')" ms-click="@showDatetimepicker">
+                </div>
+              </div>
+              <div class="select-item">
+                <label class="item-label" title="样本企业">样本企业</label>
+                <select style="width: calc(60% - 50px);" ms-duplex="searchData.zid" >
+                  <option value=""></option>
+                  <option ms-for="el in @qyfzList" ms-attr="{value: el.zid}">{{el.sname}}</option>
+                </select>
+                <span class="link ml-10" ms-click="toYbqywh">维护</span>
+              </div>
+            </div>
+          </div>
+      </form>
+      <div class="form" style="padding-top: 54px">
+        <table id="cwqktjb-table"></table>
+        <div id="cwqktjb-tablePager"></div>
+      </div>
+  </div>
+  <!-- 历史记录 -->
+  <wbr ms-widget="[{is:'historyTable'}, @historyConfig]"/>
+</div>

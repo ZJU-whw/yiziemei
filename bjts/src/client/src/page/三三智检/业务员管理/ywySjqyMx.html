@@ -1,0 +1,28 @@
+<div class="ywysjqymx tableLine" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        企业明细
+      </div>
+      <div class="btns">
+          <div class="btn" ms-click="@search(1)">查询</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+    <div class="clear qymsg">
+      <div class="lf qymsg-item">税务机关名称：{{@params.swjgmc}}</div>
+      <div class="lf qymsg-item">企业海关代码：{{@params.qyhgdm}}</div>
+      <div class="lf qymsg-item">纳税人识别号：{{@params.nsrsbh}}</div>
+      <div class="lf qymsg-item">企业名称：{{@params.nsrmc}}</div>
+    </div>
+    <div class="form" style="padding-top: 0;">
+      <table id="ywysjqymx-table"></table>
+      <div id="ywysjqymx-tablePager"></div>
+    </div>
+  </div>
+  
+  <div class="page-model img-page-model" >
+      <div class="close" ms-click="hideModel()">&times;</div>
+      <span class="emptyTips" ms-if="!@imgSrc">暂无证件图片</span>
+      <img ms-if="@imgSrc" style="width: 100%;height:100%;" ms-attr="{src: @imgSrc}" alt="">
+  </div>
+</div>

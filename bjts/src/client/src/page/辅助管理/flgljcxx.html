@@ -1,0 +1,30 @@
+<div class="flgljcxx" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            分类管理评定指标 / 基础信息统计
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="select-wrapper" style="padding-bottom: 10px">
+            <div class="select-main" style="line-height: 1">
+                <div class="select-item">
+                    <label  title="税务机关">税务机关</label>
+                    <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree">
+                    <ul id="flgljcxxZtree" class='ztree treeDiv' style="left: 90px;top:100%;"></ul>
+                </div>
+                <div class="select-item">
+                    <label  title="分类管理评定年月">分类管理评定年月</label>
+                    <input type="text"  ms-duplex="@searchData.ssny">
+                </div>
+            </div>
+        </div>
+        <div class="form grid-th-auto-height" style="padding-top: 40px">
+            <table id="flgljcxx-table"></table>
+            <div id="flgljcxx-tablePager"></div>
+        </div>
+    </div>
+</div>

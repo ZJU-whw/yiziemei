@@ -1,0 +1,93 @@
+<div class="jdfswh jdgl" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            接单方式维护
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div id="jdfswh">
+            <div class="leftPanel">
+                <!-- <div class="search_box">
+                    <input type="text" class="search" value="" onfocus="$(this).val('')"><button onclick=".onCxBtnClicked()">搜索</button>
+                </div> -->
+                <div id='jdfswh-custreeDiv' class="ztree" style="box-sizing: border-box"></div>
+                <div id="leftTablePager"></div>
+            </div>
+            <div class="rightPanel">
+                <div class="topPanel">
+                    <div class="btn-group clear">
+                        <span>税务机关名称:</span>
+                        <span>{{swjgMc}}</span>
+                        <div class="qy-group">
+                            <span class="qy-title">启用:</span>
+                            <button ms-visible="formData.qybz=='N'" id="jdfswh-QY-btn" ms-click="setQybz('Y')"></button>
+                            <button ms-visible="formData.qybz=='Y'" id="jdfswh-JY-btn" ms-click="setQybz('N')"></button>
+                        </div>
+                    </div>
+                    <div class="toggle-content" ms-visible="formData.qybz=='Y'">
+                        <div class="box-ar" style="height: 200px;overflow: auto;">
+                            <div id="jdfswh-ywlx">
+                                <div ms-for="item in sbyws">
+                                    <input type="checkbox" ms-duplex="formData.dcode" ms-attr="{value:item.dcode}">
+                                    {{item.dcode+" "+item.dname}}
+                                </div>
+                            </div>
+                        </div>
+                        <table class="main-content box-ar">
+                            <tr id="jdfswh-flgl">
+                                <td>
+                                    <span>分类管理等级:</span>
+                                    <span class="checkbox" :class="[@isCheckedFlgl('A')&&'checked']" ms-click="@checkFlgl('A')" name="flgl" data-bind="A">一类</span>
+                                    <span class="checkbox" :class="[@isCheckedFlgl('B')&&'checked']" ms-click="@checkFlgl('B')" name="flgl" data-bind="B">二类</span>
+                                    <span class="checkbox" :class="[@isCheckedFlgl('C')&&'checked']" ms-click="@checkFlgl('C')" name="flgl" data-bind="C">三类</span>
+                                    <span class="checkbox" :class="[@isCheckedFlgl('D')&&'checked']" ms-click="@checkFlgl('D')" name="flgl" data-bind="D">四类</span>
+                                </td>
+                            </tr>
+                            <tr id="jdfswh-jsMode">
+                                <td>
+                                    <span>退税计算方式:</span>
+                                    <span class="checkbox" :class="[@isCheckedJsMode('1')&&'checked']" ms-click="@checkJsMode('1')" name="jsMode" data-bind="1">生产</span>
+                                    <span class="checkbox" :class="[@isCheckedJsMode('2')&&'checked']" ms-click="@checkJsMode('2')" name="jsMode" data-bind="2">外贸</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <select id="jdfswh-qybz">
+                                        <option value="Y">启用</option>
+                                        <option value="N">未启用</option>
+                                    </select>
+                                </td>
+
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span>预警信息显示:</span>
+                                    <select id="jdfswh-yjClose" ms-duplex="formData.yjClose.">
+                                        <option value="">请选择</option>
+                                        <option value="0">显示</option>
+                                        <option value="1">关闭显示</option>
+                                    </select>
+                                </td>
+
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span>分单方式:</span>
+                                    <select id="jdfswh-jdMode" ms-duplex="formData.jdMode">
+                                        <option value="">请选择</option>
+                                        <option value="0">非随机分单</option>
+                                        <option value="1">随机分单</option>
+                                    </select>
+                                </td>
+
+                            </tr>
+                        </table>
+                        <div style="text-align: center;">
+                            <button id="jdfswh-save-btn" ms-click="saveForm">保存</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

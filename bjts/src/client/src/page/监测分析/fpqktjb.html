@@ -1,0 +1,75 @@
+<div class="fpqktjb jcfx" >
+  <div class="mask bg">
+    <img src="../../../static/image/loading2.gif" width="64" height="64"/>
+  </div>
+  <div class="pageTabs">
+      <div class="pageTitle">
+        发票情况统计表
+      </div>
+      <div class="btns">
+        <div class="btn" ms-click="@search(1, false, true)">查询</div>
+        <div class="btn" ms-click="@exform">导出</div>
+        <div class="btn" ms-click="@showModel">历史记录</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <form name="fpqktjb-form">
+          <div class="select-wrapper">
+            <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+            <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+            <div class="select-main">
+              <div class="select-item">
+                  <label class="item-label" title="退税机关">退税机关</label>
+                  <input class="item-content" readonly type="text" ms-duplex="swjgmc" ms-click="@showTree">
+                  <ul id="fpqktjbTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+              </div>
+              <div class="select-item">
+                <label class="item-label" title="出口年月">出口年月</label>
+                <div class="select-item-inner item-content">
+                  <input type="text" class="datepicker date-month" ms-duplex="@searchData.ssnyStart" :on-blur="@filDate($event, 'ssnyStart')" ms-click="@showDatetimepicker">
+                  <span>至</span>
+                  <input type="text" class="datepicker date-month" ms-duplex="@searchData.ssnyEnd" :on-blur="@filDate($event, 'ssnyEnd')" ms-click="@showDatetimepicker">
+                </div>
+              </div>
+              <div class="select-item">
+                <label class="item-label" title="样本企业">样本企业</label>
+                <select style="width: calc(60% - 50px);" ms-duplex="searchData.zid" >
+                  <option value=""></option>
+                  <option ms-for="el in @qyfzList" ms-attr="{value: el.zid}">{{el.sname}}</option>
+                </select>
+                <span class="link ml-10" ms-click="toYbqywh">维护</span>
+              </div>
+            </div>
+            <div class="select-sub">
+              <div class="select-item item-title" style="width: 100px;">分组指标</div>
+              <div class="select-item lf" ms-for="(index,item) in @allSelectList">
+                <label class="item-label" ms-attr="{title:item.zbxmmc}">{{item.zbxmmc}}</label>
+                <div
+                  class="bootstrap-multiselect lf"
+                  ms-if="item.isTree=='0' && item.zbxmbm != 'fzck.cksp'">
+                  <select  ms-attr="{id:'fpqktjb_select_'+item.zbxmbm.split('.')[0]+'_'+item.zbxmbm.split('.')[1]}" multiple="multiple"></select>
+                </div>
+                <div
+                  class="tree clear lf"
+                  ms-if="item.isTree=='1' || item.zbxmbm == 'fzck.cksp'">
+                  <div
+                    class="item-content showSelect text-ellipsis"
+                    ms-click="@showTree"
+                    ms-attr="{title: @selectMc[item.zbxmbm]&&@selectMc[item.zbxmbm].name}">{{@selectMc[item.zbxmbm]&&(@selectMc[item.zbxmbm].value.length>3 ? @selectMc[item.zbxmbm].value.length+ '项已选择':@selectMc[item.zbxmbm].name)}}</div>
+                  <ul
+                    ms-attr="{id:'fpqktjb_tree_'+item.zbxmbm.split('.')[0]+'_'+item.zbxmbm.split('.')[1]}"
+                    class='showSelect ztree treeDiv'
+                    style="left: 0;width:200px"></ul>
+                </div>
+              </div>
+            </div>
+          </div>
+      </form>
+      <div class="form" style="padding-top: 54px">
+        <table id="fpqktjb-table"></table>
+        <div id="fpqktjb-tablePager"></div>
+      </div>
+  </div>
+  <!-- 历史记录 -->
+  <wbr ms-widget="[{is:'historyTable'}, @historyConfig]"/>
+</div>

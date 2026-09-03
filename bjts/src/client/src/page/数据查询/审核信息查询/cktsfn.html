@@ -1,0 +1,126 @@
+<div class="cktsfn" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            出口退税返纳情况查询
+        </div>
+
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+            <div class="btn dropdown" ms-on-click="showMenu">
+                配置表格▼
+                <ul class="dropdown-menu">
+                    <li ms-for="(index,item) in @tableOption"><label><input type="checkbox" ms-duplex-checked="item.show" ms-on-click="@setTableOption(item,$event)">{{item.label}}</label></li>
+                </ul>
+            </div>
+        </div>
+        <div class="btns" ms-if="@act==2">
+            <div class="btn rt" ms-click="@printForm($event)">打印</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <form name="cktsfn-form">
+            <div class="select-wrapper">
+                <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+                <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+                <div class="select-main">
+                    <div class="select-item">
+                        <label  title="海关代码">海关代码</label>
+                        <input name="hgdm" class="width-l" type="text" ms-duplex="searchData.hgdm">
+                    </div>
+                    <div class="select-item">
+                        <label  title="主管税务机关">主管税务机关</label>
+                        <input  readonly  type="text" ms-duplex="swjgmc" ms-click="@showTree">
+                        <ul id="cktsfnZtree" class='ztree treeDiv' style="left: 90px;"></ul>
+                    </div>
+                    <div class="select-item">
+                        <label title="社会信用代码">社会信用代码</label>
+                        <input  name="shxydm" type="text" ms-duplex="searchData.shxydm">
+                    </div>
+                </div>
+                <div class="select-sub">
+                    <div class="select-item">
+                        <label  title="纳税人名称">纳税人名称</label>
+                        <input name="nsrmc" type="text" ms-duplex="searchData.nsrmc">
+                    </div>
+                    <div class="select-item">
+                        <label  title="录入日期">录入日期起</label>
+                        <div class="select-item-inner">
+                            <input type="text" class="datepicker date-day" ms-duplex="@searchData.lrrqq | change" :on-blur="@filDate">
+                            <span>止</span>
+                            <input type="text" class="datepicker date-day" ms-duplex="@searchData.lrrqz | change" :on-blur="@filDate">
+                        </div>
+                    </div>
+                    <div class="select-item">
+                        <label  title="所属期">所属期起</label>
+                        <div class="select-item-inner">
+                            <input type="text" class="datepicker date-month" ms-duplex="@searchData.ssrqq | change" :on-change="@filMonth">
+                            <span>止</span>
+                            <input type="text" class="datepicker date-month" ms-duplex="@searchData.ssrqz | change" :on-change="@filMonth">
+                        </div>
+                    </div>
+                    <div class="select-item">
+                        <label  title="管理类别">管理类别</label>
+                        <select  ms-duplex="@searchData.gllb">
+                            <option value="">　</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                    <div class="select-item">
+                        <label  title="企业类型">企业类型</label>
+                        <select  ms-duplex="@searchData.qylx">
+                            <option value="">　</option>
+                            <option value="11">内资生产企业</option>
+                            <option value="12">外商投资企业</option>
+                            <option value="21">外贸（工贸）企业</option>
+                            <option value="90">其他企业（特许退税企业）</option>
+                        </select>
+                    </div>
+                    <div class="select-item">
+                        <label  title="应追回原因">应追回原因</label>
+                        <select  ms-duplex="@searchData.yzhyy">
+                            <option value="">　</option>
+                            <option value="1">退运补税</option>
+                            <option value="2">进料补税</option>
+                            <option value="3">检查补税</option>
+                            <option value="4">预退补税</option>
+                            <option value="5">银行退票</option>
+                            <option value="6">清算补税</option>
+                            <option value="7">其他补税</option>
+                        </select>
+                    </div>
+                    <div class="select-item">
+                        <label  title="出口报关单号码">出口报关单号码</label>
+                        <input  type="text" ms-duplex="searchData.ckbgdh">
+                    </div>
+                    <div class="select-item" >
+                        <label  title="出口发票号码">出口发票号码</label>
+                        <input  type="text" ms-duplex="searchData.ckfph">
+                    </div>
+                    <div class="select-item">
+                        <label  title="应征凭证序号">应征凭证序号</label>
+                        <input  type="text" ms-duplex="searchData.zzsjhfzh">
+                    </div>
+                    <div class="select-item">
+                        <label  title="税款入库标识">税款入库标识</label>
+                        <select  ms-duplex="@searchData.skrkbs">
+                            <option value="">　</option>
+                            <option value="0">否</option>
+                            <option value="1">是</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="form" style="padding-top: 54px">
+            <table id="cktsfn-table"></table>
+            <div id="cktsfn-tablePager"></div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==3&&'active']">
+        <div class="chartDiv"></div>
+    </div>
+</div>

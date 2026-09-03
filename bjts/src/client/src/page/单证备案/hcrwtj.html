@@ -1,0 +1,37 @@
+<div class="hcrwtj" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        单证核查结果分类统计
+      </div>
+      <div class="btns">
+          <div class="btn" ms-click="@search(1)">查询</div>
+          <div class="btn" ms-click="@exform">导出</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <form name="hcrwtj-form">
+          <div class="select-wrapper">
+              <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+              <div class="select-main">
+                <div class="select-item">
+                    <label title="税务机关">税务机关</label>
+                    <input readonly type="text" ms-duplex="swjgmc" ms-click="@showTree">
+                    <ul id="hcrwtjTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+                </div>
+                <div class="select-item">
+                  <label title="审核日期">审核日期起</label>
+                  <div class="select-item-inner">
+                      <input type="text" class="datepicker date-day" ms-duplex="@searchData.inspectTimeStart | change" :on-blur="@filDate">
+                      <span>止</span>
+                      <input type="text" class="datepicker date-day" ms-duplex="@searchData.inspectTimeEnd | change" :on-blur="@filDate">
+                  </div>
+                </div>
+              </div>
+          </div>
+      </form>
+      <div class="form" style="padding-top: 54px">
+          <table id="hcrwtj-table"></table>
+          <div id="hcrwtj-tablePager"></div>
+      </div>
+  </div>
+</div>

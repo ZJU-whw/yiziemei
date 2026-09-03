@@ -1,0 +1,81 @@
+<div class="hdzbrw" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        函调在办流程查询
+      </div>
+      <div class="btns">
+          <div class="btn" ms-click="@searchInit(1)">查询</div>
+          <div class="btn" ms-click="@exform">导出</div>
+          <div class="btn dropdown" ms-on-click="showMenu">
+            配置表格▼
+            <ul class="dropdown-menu">
+              <li ms-for="(index,item) in @tableOption"><label><input type="checkbox" ms-duplex-checked="item.show" ms-on-click="@setTableOption(item,$event)">{{item.label}}</label></li>
+            </ul>
+        </div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <form name="hdzbrw-form">
+          <div class="select-wrapper">
+              <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+              <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+              <div class="select-main">
+                <div class="select-item">
+                    <label title="税务机关">税务机关</label>
+                    <input readonly type="text" ms-duplex="swjgmc" ms-click="@showTree">
+                    <ul id="hdzbrwTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+                </div>
+                <div class="select-item">
+                  <label  title="复函状态">复函状态</label>
+                  <select class="width-m" ms-duplex="searchData.fuhStatus">
+                    <option value=""></option>
+                    <option ms-for="el in @fhztList" ms-attr="{value: el.value}">{{el.name}}</option>
+                  </select>
+                </div>
+                <div class="select-item">
+                  <label title="核实函编号">核实函编号</label>
+                  <input type="text" ms-duplex="searchData.wsbh">
+                </div>
+              </div>
+              <div class="select-sub">
+                <div class="select-item">
+                  <label  title="签发日期">签发日期</label>
+                  <div class="select-item-inner">
+                    <input type="text" class="datepicker date-day" ms-duplex="@searchData.fahsjq" :on-blur="@filDate" >
+                    <span>止</span>
+                    <input type="text" class="datepicker date-day" ms-duplex="@searchData.fahsjz" :on-blur="@filDate">
+                  </div>
+                </div>
+                <div class="select-item">
+                  <label  title="复函日期">复函日期</label>
+                  <div class="select-item-inner">
+                    <input type="text" class="datepicker date-day" ms-duplex="@searchData.fuhsjq" :on-blur="@filDate" >
+                    <span>止</span>
+                    <input type="text" class="datepicker date-day" ms-duplex="@searchData.fuhsjz" :on-blur="@filDate">
+                  </div>
+                </div>
+                <div class="select-item">
+                  <label title="供货企业标识">供货企业标识</label>
+                  <input type="text" ms-duplex="searchData.ghqydesc">
+                </div>
+                <div class="select-item">
+                  <label title="购方企业标识">购方企业标识</label>
+                  <input type="text" ms-duplex="searchData.gfqydesc">
+                </div>
+                <div class="select-item">
+                  <label  title="函件类型">函件类型</label>
+                  <select class="width-m" ms-duplex="searchData.hjlx">
+                    <option value=""></option>
+                    <option value="0">核实(复)函</option>
+                    <option value="1">向下游企业复函</option>
+                  </select>
+                </div>
+              </div>
+          </div>
+      </form>
+      <div class="form" style="padding-top: 54px">
+          <table id="hdzbrw-table"></table>
+          <div id="hdzbrw-tablePager"></div>
+      </div>
+  </div>
+</div>

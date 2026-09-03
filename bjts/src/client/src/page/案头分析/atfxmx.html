@@ -1,0 +1,38 @@
+<div class="atfxmx">
+  <div ms-class="['page','active']" style="padding-top: 0;">
+    <div class="form" style="padding-top: 0;">
+      <div class="g-tabs" style="padding-top: 0;">
+        <div class="tab-title mb-5">
+          <div class="tab-title-wrap">
+            <div ms-for="(index,item) in @tabList" class="tab-title-item"
+              :class="[@activeName == item.activeName&&'active', item.activeName]"
+              ms-click="changeTab(item.activeName,index,item.tabNum)">
+              {{item.name}}
+            </div>
+          </div>
+        </div>
+        <div class="tab-content">
+          <!-- 企业基本情况START -->
+          <div class="tab-content-item" ms-class="[item.activeName]" ms-visible="activeName === 'qyjbqk'">
+            <wbr ms-widget="[{is: 'baseInfo'}, {componentName: 'baseInfo', uuid: @params.uuid}]"/>
+          </div>
+          <!-- 企业基本情况END -->
+          <!-- 在企业经营情况区域添加折线图 -->
+          <!-- 企业经营情况start -->
+          <div class="tab-content-item" ms-class="[item.activeName]" ms-visible="activeName === 'qyjyfx'">
+            <wbr ms-widget="[{is: 'atfxCharts'}, {componentName: 'atfxCharts', startDate: @params.startDate, uuid: @params.uuid, endDate: @params.endDate}]"/>
+          </div>
+          <!-- 企业经营情况end -->
+          <div class="tab-content-item" ms-class="[item.activeName]" ms-visible="activeName === 'atfxSjcx'">
+            <wbr ms-widget="[{is: 'atfxzycx'}, {componentName: 'atfxzycx', uuid: @params.uuid,djxh:@params.djxh}]"/>
+          </div>
+          <div class="tab-content-item" ms-class="[item.activeName]" ms-visible="activeName === 'atfxYdyx'">
+            <wbr ms-widget="[{is: 'atfxydyx'}, {componentName: 'atfxydyx', uuid: @params.uuid,djxh:@params.djxh, fxqq: @params.fxqq, fxqz: @params.fxqz}]"/>
+          </div>
+          <div class="tab-content-item" ms-class="[item.activeName]" ms-visible="activeName === 'fxfxbg'">
+            <wbr ms-widget="[{is: 'fxfxbg'}, {componentName: 'fxfxbg', uuid: @params.uuid, nsrmc: @params.nsrmc, nsrsbh: @params.nsrsbh, atfxrqqz: @params.atfxrqqz, swjgDm: @params.swjgDm, djxh: @params.djxh, nsrsbhFromList: @params.nsrsbh, ckhwtmsjsffDm: @params.ckhwtmsjsffDm}]"/>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

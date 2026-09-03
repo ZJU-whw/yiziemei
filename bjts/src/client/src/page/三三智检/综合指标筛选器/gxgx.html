@@ -1,0 +1,52 @@
+<div class="gxgx tableLine" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        共享关系查询
+      </div>
+      <div class="btns">
+          <div class="btn" ms-click="@search(1)">查询</div>
+          <div class="btn" ms-click="@showModel('1')">新增</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <div class="form" style="padding-top: 0">
+          <table id="gxgx-table"></table>
+          <div id="gxgx-tablePager"></div>
+      </div>
+  </div>
+  <!-- 编辑/新增 -->
+  <div class="page-model edit-page-model" style="height:340px;width: 500px;" >
+    <div class="model-title">{{@modelData.action == '1' ? '新增' : '修改'}}</div>
+    <div class="model-content g-form clear" style="height: 240px;padding: 10px 20px;">
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>共享范围：</div>
+        <div class="g-form-item__content" style="position: relative;">
+          <input readonly type="text" ms-duplex="gxfwMc" ms-click="showTree">
+          <ul id="gxgxTree" class='ztree treeDiv' style="left: 0;top:100%;width: 100%;height: 190px;"></ul>
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>对象类型：</div>
+        <div class="g-form-item__content">
+          <select class="g-select" ms-duplex="@modelData.dxlx" style="height: 30px;width: 100%">
+            <option value=""></option>
+            <option value="SWJG">税务机关</option>
+          </select>
+        </div>
+      </div>
+      <div class="g-form-item">
+        <div class="g-form-item_label"><span class="text-red">*</span>启用标志：</div>
+        <div class="g-form-item__content">
+          <select class="g-select" ms-duplex="@modelData.qybz" style="height: 30px;width: 100%;">
+            <option value="Y">启用</option>
+            <option value="N">不启用</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="model-btns">
+      <div class="btn" ms-click="@saveModel">确定</div>
+      <div class="btn" ms-click="@hideModel">取消</div>
+    </div>
+  </div>
+</div>

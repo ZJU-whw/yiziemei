@@ -1,0 +1,180 @@
+<div class="ckllzhgl">
+    <div class="pageTabs">
+        <div class="pageTitle">出口业务物流链路综合管理</div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+            <div class="btn dropdown" ms-on-click="showMenu">
+                配置表格▼
+                <ul class="dropdown-menu">
+                    <li ms-for="(index,item) in @tableOption"><label><input type="checkbox" ms-duplex-checked="item.show" ms-on-click="@setTableOption(item,$event)">{{item.label}}</label></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']">
+        <div class="select-wrapper">
+            <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+            <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+            <div class="select-main">
+                <div class="select-item" style="position: relative;">
+                    <label class="width-s" title="税务机关">税务机关</label>
+                    <input class="width-m" type="text" ms-duplex="searchData.swjgMc" ms-click="showTree">
+                    <ul id="ckllzhglTree" class='ztree treeDiv' style="left: 40%;top:100%;"></ul>
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="数据刷新时间">数据刷新时间</label>
+                    <div class="select-item-inner">
+                        <input class="datepicker date-day" type="text" ms-duplex="searchData.fxdjGxrqQ" ms-click="@showDatetimepicker($event)" readonly>
+                        <span>-</span>
+                        <input class="datepicker date-day" type="text" ms-duplex="searchData.fxdjGxrqZ" ms-click="@showDatetimepicker($event)" readonly>
+                    </div>
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="链路概率等级">链路概率等级</label>
+                    <select class="width-m" ms-duplex="@searchData.fxdjDm">
+                        <option value=""> </option>
+                        <option ms-for="el in @fxdjList" ms-attr="{value: el.fxdjDm}">{{el.fxdjMc}}</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="发货模式">发货模式</label>
+                    <select class="width-m" ms-duplex="@searchData.fhmsDm">
+                        <option value="">　</option>
+                        <option value="1">整柜</option>
+                        <option value="2">散货(拼箱)</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="运输方式">运输方式</label>
+                    <select class="width-m" ms-duplex="@searchData.ysfsDm">
+                        <option value=""> </option>
+                        <option value="0">非保税区</option>
+                        <option value="1">监管仓库</option>
+                        <option value="2">水路运输</option>
+                        <option value="3">铁路运输</option>
+                        <option value="4">公路运输</option>
+                        <option value="5">航空运输</option>
+                        <option value="6">邮件运输</option>
+                        <option value="7">保税区</option>
+                        <option value="8">保税仓库</option>
+                        <option value="9">其他方式运输</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="出口发票号">出口发票号</label>
+                    <input class="width-m" type="text" ms-duplex="searchData.ckfph">
+                </div>
+            </div>
+            <div class="select-sub">
+                <div class="select-item">
+                    <label class="width-s" title="退税计算方式">退税计算方式</label>
+                    <select class="width-m" ms-duplex="@searchData.tmsjsffDm">
+                        <option value="">　</option>
+                        <option value="1">生产</option>
+                        <option value="2">外贸</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="企业标识">企业标识<i class="question" title="税号或名称"></i></label>
+                    <input class="width-m" type="text" ms-duplex="searchData.qybs">
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="供应商标识">供应商标识</label>
+                    <input class="width-m" type="text" ms-duplex="searchData.gybs">
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="报关单号">报关单号</label>
+                    <input class="width-m" type="text" ms-duplex="searchData.bgdhgbh" placeholder="18位完整或尾号模糊">
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="出口日期">出口日期</label>
+                    <div class="select-item-inner">
+                        <input class="datepicker date-day" type="text" ms-duplex="searchData.ckrqQ" ms-click="@showDatetimepicker($event)" readonly>
+                        <span>-</span>
+                        <input class="datepicker date-day" type="text" ms-duplex="searchData.ckrqZ" ms-click="@showDatetimepicker($event)" readonly>
+                    </div>
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="集装箱号">集装箱号</label>
+                    <input class="width-m" type="text" ms-duplex="searchData.jzxh">
+                </div>
+                <div class="select-item">
+                    <label class="width-s" title="车牌号">车牌号</label>
+                    <input class="width-m" type="text" ms-duplex="searchData.cph">
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 84px;">
+            <table id="ckllzhgl-table"></table>
+            <div id="ckllzhgl-tablePager"></div>
+        </div>
+    </div>
+    <div class="page-model ckllzhgl-logistics-model">
+        <div class="model-title">
+            物流查询
+            <span class="ckllzhgl-logistics-close" ms-mousedown="$event.preventDefault()" ms-click="@closeLogisticsDialog">×</span>
+        </div>
+        <div class="ckllzhgl-logistics-body">
+            <div class="ckllzhgl-edit-panel">
+                <!-- <div class="ckllzhgl-panel-title">物流链路信息</div> -->
+                <div class="model-content">
+                    <p>
+                        <label>车牌号：</label>
+                        <span class="ckllzhgl-cph-select">
+                            <input class="width-l" type="text" maxlength="8" ms-duplex="@editDialog.cph" ms-focus="@showCphKeyboard" ms-keyup="@onCphInput" ms-blur="@hideCphKeyboard">
+                            <i class="ckllzhgl-keyboard-icon" title="使用小键盘" ms-click="@toggleCphKeyboard"></i>
+                            <div class="ckllzhgl-plate-keyboard" ms-visible="@editDialog.cphKeyboardShow">
+                                <div class="ckllzhgl-keyboard-section" ms-visible="@editDialog.cph === ''">
+                                    <div class="ckllzhgl-keyboard-row" ms-for="row in @provinceKeys">
+                                        <span class="ckllzhgl-keyboard-key" ms-for="key in row" ms-click="@appendCphChar(key)">{{key}}</span>
+                                    </div>
+                                </div>
+                                <div class="ckllzhgl-keyboard-section" ms-visible="@editDialog.cph !== ''">
+                                    <div class="ckllzhgl-keyboard-row" ms-for="row in @charKeys">
+                                        <span class="ckllzhgl-keyboard-key" ms-for="key in row" ms-click="@appendCphChar(key)">{{key}}</span>
+                                    </div>
+                                </div>
+                                <div class="ckllzhgl-keyboard-row ckllzhgl-keyboard-actions">
+                                    <span class="ckllzhgl-keyboard-key" ms-click="@clearCph">清空</span>
+                                    <span class="ckllzhgl-keyboard-key" ms-click="@deleteCphChar">删除</span>
+                                    <span class="ckllzhgl-keyboard-key" ms-click="@hideCphKeyboard">完成</span>
+                                </div>
+                            </div>
+                        </span>
+                    </p>
+                    <p>
+                        <label>车牌颜色：</label>
+                        <span class="ckllzhgl-radio-group">
+                            <span class="ckllzhgl-radio-item" ms-for="el in @cpysList" ms-click="@selectCpys(el.code)"><input type="radio" ms-attr="{value: el.code}" ms-duplex="@editDialog.cpysCode"><em>{{el.name}}</em></span>
+                        </span>
+                    </p>
+                    <p>
+                        <label>起运日：</label>
+                        <input class="width-l datepicker date-day" type="text" ms-duplex="@editDialog.qyrq" ms-click="@showDatetimepicker($event)" readonly>
+                    </p>
+                    <p>
+                        <label>启运地：</label>
+                        <input class="width-l" type="text" ms-duplex="@editDialog.qyd">
+                    </p>
+                    <div class="ckllzhgl-edit-tip">提示：请完善车牌号、起运日、启运地等信息后点击“保存”，系统将自动刷新右侧二维码。</div>
+                    <div class="btn" ms-click="@saveEditDialog" style="float: none;margin: 20px auto 0;width: 60px;">保存</div>
+                </div>
+            </div>
+            <div class="ckllzhgl-qr-panel">
+                <!-- <div class="ckllzhgl-panel-title">物流查询二维码</div> -->
+                <div class="ckllzhgl-qr-content">
+                    <img ms-if="@qrDialog.qrBase && !@qrDialog.qrImgError" ms-attr="{src: 'data:image/png;base64,' + qrDialog.qrBase}" class="ckllzhgl-qr-image" ms-on-load="@onQrImgLoad" ms-on-error="@onQrImgError">
+                    <div ms-if="@qrDialog.qrBase == ''" class="ckllzhgl-qr-empty">{{@qrDialog.emptyText}}</div>
+                    <div class="ckllzhgl-qr-tip">方式一 ：使用微信扫一扫;<br/>方式二 ：打开“中天易税云”小程序，进入“云阅”模块，点击页面底部“扫码添加”按钮扫描二维码；<br/>首次使用中天易税云微信小程序，可以使用云阅的账号密码登录；也可以打开云阅-系统设置-微信授权-新增授权，执行扫码登录，完成绑定微信账号</div>
+                </div>
+            </div>
+        </div>
+        <div class="model-btns">
+            <!-- <div class="btn" ms-click="@saveEditDialog">保存并刷新二维码</div> -->
+            <!-- <div class="btn" ms-click="@closeLogisticsDialog">关闭</div> -->
+        </div>
+    </div>
+    <wbr ms-widget="[{is:'bgdDetail'}, {instanceId: 'ckllzhgl-bgd'}]" />
+    <wbr ms-widget="[{is:'fpDetail'}, {instanceId: 'ckllzhgl-fp'}]" />
+</div>

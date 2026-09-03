@@ -1,0 +1,47 @@
+<div class="dxtxlcrwcx" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        短信关联业务查询（每日凌晨更新）
+      </div>
+      <div class="btns">
+        <div class="btn" ms-click="@search(1)">查询</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <form name="dxtxlcrwcx-form">
+          <div class="select-wrapper">
+              <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+              <div class="select-main">
+                <div class="select-item w-25per">
+                    <label title="税务机关">税务机关</label>
+                    <input readonly type="text" ms-duplex="swjgmc" ms-click="@showTree">
+                    <ul id="dxtxlcrwcxTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+                </div>
+                <div class="select-item w-25per">
+                    <label title="企业标识">企业标识</label>
+                    <input name="nsrsbh" type="text" ms-duplex="searchData.qybs" placeholder="支持纳税人识别号、纳税人名称查询">
+                </div>
+                <div class="select-item w-25per">
+                  <label  title="业务类型">业务类型</label>
+                  <select class="width-m" ms-duplex="searchData.biztype">
+                      <option value=""></option>
+                      <option ms-attr="item.ywlxMc" ms-for="(index,item) in @bizList">{{item.ywlxMc}}</option>
+                  </select>
+                </div>
+                <div class="select-item w-25per">
+                  <label  title="生成日期">生成日期</label>
+                  <div class="select-item-inner">
+                    <input type="text" class="datepicker date-day" ms-duplex="@searchData.startTbDate" :on-blur="@filDate" >
+                    <span>止</span>
+                    <input type="text" class="datepicker date-day" ms-duplex="@searchData.endTbDate" :on-blur="@filDate">
+                  </div>
+                </div>
+              </div>
+          </div>
+      </form>
+      <div class="form" style="padding-top: 54px">
+        <table id="dxtxlcrwcx-table"></table>
+        <div id="dxtxlcrwcx-tablePager"></div>
+      </div>
+  </div>
+</div>

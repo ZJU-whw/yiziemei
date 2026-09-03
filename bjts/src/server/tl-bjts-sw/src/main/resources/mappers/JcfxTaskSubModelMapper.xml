@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.JcfxTaskSubModelMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.JcfxTaskSubModel" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="PID" property="pid" jdbcType="VARCHAR" />
+    <id column="PAGE_NO" property="pageNo" jdbcType="DECIMAL" />
+    <result column="RESP_DATA" property="respData" jdbcType="BLOB" />
+  </resultMap>
+</mapper>

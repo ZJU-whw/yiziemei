@@ -1,0 +1,58 @@
+<div class="jszbrw" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        金三即将超期审核流程查询（实时）
+      </div>
+      <div class="btns">
+        <div class="btn" ms-click="@searchInit(1)">查询</div>
+        <div class="btn" ms-click="@exform">导出</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <form name="jszbrw-form">
+          <div class="select-wrapper">
+              <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+              <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+              <div class="select-main clear">
+                <div class="select-item lf">
+                    <label title="税务机关">税务机关</label>
+                    <input readonly type="text" ms-duplex="swjgmc" ms-click="@showTree">
+                    <ul id="jszbrwTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+                </div>
+                <div class="select-item lf">
+                  <label  title="办理期限">办理期限</label>
+                  <select class="width-m" ms-duplex="searchData.blqx">
+                    <option value="">全部</option>
+                    <option value="1">即将逾期</option>
+                    <option value="2">已逾期</option>
+                  </select>
+                </div>
+                <div class="select-item lf">
+                  <label  title="管理类别">管理类别</label>
+                  <div class="bootstrap-multiselect custom-bootstrap-multiselect lf">
+                    <select id="jszbrw-gllb-select" class="width-m" multiple="multiple"></select>
+                  </div>
+                </div>
+                <div class="select-sub">
+                  <div class="select-item">
+                    <label  title="受理日期">受理日期</label>
+                    <div class="select-item-inner">
+                      <input type="text" class="datepicker date-day" ms-duplex="@searchData.slrqQ" :on-blur="@filDate" >
+                      <span>止</span>
+                      <input type="text" class="datepicker date-day" ms-duplex="@searchData.slrqZ" :on-blur="@filDate">
+                    </div>
+                  </div>
+                  <div class="select-item">
+                    <label title="企业标识">企业标识</label>
+                    <input type="text" ms-duplex="searchData.qybs" placeholder="请输入税号/企业名称,支持模糊查询">
+                  </div>
+                </div>
+              </div>
+          </div>
+      </form>
+      <div class="form" style="padding-top: 54px">
+          <table id="jszbrw-table"></table>
+          <div id="jszbrw-tablePager"></div>
+      </div>
+  </div>
+</div>

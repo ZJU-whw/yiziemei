@@ -1,0 +1,346 @@
+<div class="jczlcjbMx" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        出口企业基础资料采集表详情
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+    <div class="descriptions" ms-if="@params.zlbdlx == '1'">
+      <div class="title">生产企业基础信息采集表</div>
+      <table>
+        <tr>
+          <td class="descriptions-label" title="统一社会信用代码/纳税人识别号"><div style="width:130px;">纳税人识别号</div></td>
+          <td colspan="3">{{dataForm.nsrsbh}}</td>
+          <td colspan="2" class="descriptions-label">一般纳税人登记日期</td>
+          <td colspan="2">{{dataForm.ybnsrDjrq}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label">纳税人名称</td>
+          <td colspan="3">{{dataForm.nsrmc}}</td>
+          <td colspan="2" class="descriptions-label">首笔出口业务发生日期</td>
+          <td colspan="2">{{dataForm.sbckywFsrq}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label">注册经营地址</td>
+          <td colspan="7">{{dataForm.zcjydz}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label">法定代表人</td>
+          <td><div style="width:130px;">{{dataForm.fddbrXm}}</div></td>
+          <td class="descriptions-label required"><div style="width:110px;">联系电话</div></td>
+          <td><div style="width:140px;">{{dataForm.fddbrLxdh}}</div></td>
+          <td class="descriptions-label"><div style="width:120px;">财务负责人</div></td>
+          <td><div style="width:120px;">{{dataForm.cwfzrXm}}</div></td>
+          <td class="descriptions-label required"><div style="width:80px;">联系电话</div></td>
+          <td><div style="width:140px;">{{dataForm.cwfzrLxdh}}</div></td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">办税人员</td>
+          <td>{{dataForm.bsrXm}}</td>
+          <td class="descriptions-label required">联系电话</td>
+          <td>{{dataForm.bsrLxdh}}</td>
+          <td class="descriptions-label required">身份证号码</td>
+          <td>{{dataForm.bsrSfzh}}</td>
+          <td class="descriptions-label required">职业类型</td>
+          <td>{{dataForm.bsrZzjz}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">实际控制人</td>
+          <td>{{dataForm.sjjyrXm}}</td>
+          <td class="descriptions-label required">联系电话</td>
+          <td>{{dataForm.sjjyrLxdh}}</td>
+          <td class="descriptions-label required">身份证号码</td>
+          <td>{{dataForm.sjjyrSfzh}}</td>
+          <td class="descriptions-label required">实际控制人籍贯</td>
+          <td>{{dataForm.sjjyrJgXzqh}}</td>
+        </tr>
+        <tr>
+          <td colspan="3" class="descriptions-label required">法定代表人与实际控制人之间的关系</td>
+          <td>{{dataForm.sjjyrFddbrGx}}</td>
+          <td colspan="2">{{dataForm.sjjyrFddbrGxQt}}</td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">实际经营地址</td>
+          <td colspan="7">{{dataForm.sjjydz}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">注册资本(元)</td>
+          <td style="text-align:right;">{{dataForm.zczb | number(2)}}</td>
+          <td class="descriptions-label required">固定资产总值</td>
+          <td style="text-align:right;">{{dataForm.gdzczz | number(2)}}</td>
+          <td class="descriptions-label required">资产合计(元)</td>
+          <td style="text-align:right;">{{dataForm.zchj | number(2)}}</td>
+          <td class="descriptions-label required">职工人数</td>
+          <td>{{dataForm.zgrs}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">预计年生产能力（元）</td>
+          <td style="text-align:right;">{{dataForm.yjnscnl | number(2)}}</td>
+          <td class="descriptions-label required">上年实际外销收入(万元)</td>
+          <td style="text-align:right;">{{dataForm.snSjwxsr}}</td>
+          <td class="descriptions-label required">当年预计全年外销售收入(万元)</td>
+          <td style="text-align:right;">{{dataForm.dnYjwxsr}}</td>
+          <td class="descriptions-label required">其中：社保缴费人数</td>
+          <td>{{dataForm.sbjfrs}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">经营场所面积</td>
+          <td style="text-align:right;">{{dataForm.yjbgcsMj || ''}}平方米</td>
+          <td class="descriptions-label required">经营场所产权</td>
+          <td>{{dataForm.yjbgcsCq}}</td>
+          <td class="descriptions-label">经营场所租赁期限</td>
+          <td>{{dataForm.yjbgcsZlqx}}</td>
+          <td class="descriptions-label">年租赁费(元)</td>
+          <td style="text-align:right;">{{dataForm.yjbgcsZlnf}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">出口方式</td>
+          <td>{{dataForm.ckfs}}</td>
+          <td class="descriptions-label">租赁发票开具情况</td>
+          <td class="p-0">{{dataForm.yjbgcsYwzlfp == 'Y' ? '有' : (dataForm.yjbgcsYwzlfp == 'N' ? '无':'')}}</td>
+          <td class="descriptions-label required">是否设置仓库</td>
+          <td class="p-0">{{dataForm.ywSzck == 'Y' ? '是' : (dataForm.ywSzck == 'N' ? '否':'')}}</td>
+          <td class="descriptions-label">仓库面积</td>
+          <td style="text-align:right;">{{dataForm.ckMj || ''}}平方米</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">贸易方式</td>
+          <td colspan="7" class="p-0">
+            <input type="checkbox" ms-duplex="myfsCheckList" value='一般贸易' disabled>一般贸易
+            <input type="checkbox" ms-duplex="myfsCheckList" value='进料加工' disabled>进料加工
+            <input type="checkbox" ms-duplex="myfsCheckList" value='深加工结转' disabled>深加工结转
+            <input type="checkbox" ms-duplex="myfsCheckList" value='来料加工' disabled>来料加工
+          </td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">主要生产设备</td>
+          <td colspan="7">{{dataForm.zyscsb}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">帐面设备与实际是否相符</td>
+          <td class="p-0">{{dataForm.sfxfZmsbysj == 'Y' ? '是' : (dataForm.sfxfZmsbysj == 'N' ? '否':'')}}</td>
+          <td class="descriptions-label required">供电方式</td>
+          <td class="p-0">{{dataForm.gdfs}}</td>
+          <td class="descriptions-label">自有电表(户号)</td>
+          <td>{{dataForm.hhZydb}}</td>
+          <td class="descriptions-label">外搭电(电表户主)</td>
+          <td>{{dataForm.hhWddb}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">出口产品的主要生产工艺流程</td>
+          <td colspan="7">{{dataForm.ckspgylc}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">有无外购产品出口</td>
+          <td class="p-0">{{dataForm.ywWgcpck == 'Y' ? '有' : (dataForm.ywWgcpck == 'N' ? '无':'')}}</td>
+          <td class="descriptions-label required">有无委托加工产品出口</td>
+          <td class="p-0">{{dataForm.ywWtjgcpck == 'Y' ? '有' : (dataForm.ywWtjgcpck == 'N' ? '无':'')}}</td>
+          <td colspan="3" class="descriptions-label required">生产企业已与境外单位或个人签订出口合同</td>
+          <td class="p-0">{{dataForm.sfqdhtJwdzhgr == 'Y' ? '是' : (dataForm.sfqdhtJwdzhgr == 'N' ? '否':'')}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">有无收购成员企业产品出口</td>
+          <td class="p-0">{{dataForm.ywSgcyqycpck == 'Y' ? '有' : (dataForm.ywSgcyqycpck == 'N' ? '无':'')}}</td>
+          <td class="descriptions-label required">有无国内销售</td>
+          <td class="p-0">{{dataForm.ywGnxs == 'Y' ? '有' : (dataForm.ywGnxs == 'N' ? '无':'')}}</td>
+          <td colspan="3" class="descriptions-label required">生产企业已与外贸综合服务企业签订外贸综合服务合同(协议)</td>
+          <td class="p-0">{{dataForm.sfqdhtWmzhfw == 'Y' ? '是' : (dataForm.sfqdhtWmzhfw == 'N' ? '否':'')}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">是否按规定设置账册</td>
+          <td class="p-0">{{dataForm.ywAgdszzc == 'Y' ? '是' : (dataForm.ywAgdszzc == 'N' ? '否':'')}}</td>
+          <td class="descriptions-label required">是否按规定进行单证备案</td>
+          <td class="p-0">{{dataForm.ywAgddzba == 'Y' ? '是' : (dataForm.ywAgddzba == 'N' ? '否':'')}}</td>
+          <td class="descriptions-label">单证备案方式</td>
+          <td colspan="3" class="p-0">{{dataForm.dzbaFs == '1' ? '数字化' : (dataForm.dzbaFs == '0' ? '纸质': '')}}</td>
+        </tr>
+        <tr>
+          <td colspan="3" class="descriptions-label required">出口销售货物的品种、规格等是否与自产货物(含视同自产货物)一致</td>
+          <td class="p-0">{{dataForm.sfyzCkxsZchw == 'Y' ? '是' : (dataForm.sfyzCkxsZchw == 'N' ? '否':'')}}</td>
+          <td class="descriptions-label">情况描述</td>
+          <td colspan="3">{{dataForm.qkms}}</td>
+        </tr>
+        <tr>
+          <td colspan="3" class="descriptions-label required">主要经营商品(海关商品编码和名称)</td>
+          <td colspan="5">{{dataForm.zyCksp}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">主要报关口岸</td>
+          <td colspan="3">{{dataForm.zyBgka}}</td>
+          <td class="descriptions-label required">主要出口国别</td>
+          <td colspan="3">{{dataForm.zyCkgb}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label">其他事项</td>
+          <td colspan="7">{{dataForm.qtsx}}</td>
+        </tr>
+        <tr>
+          <td colspan="8">
+            <p>企业声明：本采集表采集的内容与本公司实际情况相符</p>
+            <div class="clear signature">
+              <p>办税人员（签名）：</p>
+              <p>实际控制人（签名）：</p>
+              <p>法定代表人（签名）：</p>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div class="descriptions" ms-if="@params.zlbdlx == '2'">
+      <div class="title">
+        <span>外贸企业基础信息采集表</span>
+        <slot></slot>
+      </div>
+      <table ref="print">
+        <tr>
+          <td class="descriptions-label" title="统一社会信用代码/纳税人识别号"><div style="width:130px;">纳税人识别号</div></td>
+          <td colspan="3">{{dataForm.nsrsbh}}</td>
+          <td colspan="2" class="descriptions-label">一般纳税人登记日期</td>
+          <td colspan="2">{{dataForm.ybnsrDjrq}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label">纳税人名称</td>
+          <td colspan="3">{{dataForm.nsrmc}}</td>
+          <td colspan="2" class="descriptions-label">首笔出口业务发生日期</td>
+          <td colspan="2">{{dataForm.sbckywFsrq}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label">注册经营地址</td>
+          <td colspan="7">{{dataForm.zcjydz}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label">法定代表人</td>
+          <td>{{dataForm.fddbrXm}}</td>
+          <td class="descriptions-label required"><div style="width:110px;">联系电话</div></td>
+          <td>{{dataForm.fddbrLxdh}}</td>
+          <td class="descriptions-label"><div style="width:120px;">财务负责人</div></td>
+          <td>{{dataForm.cwfzrXm}}</td>
+          <td class="descriptions-label required"><div style="width:80px;">联系电话</div></td>
+          <td>{{dataForm.cwfzrLxdh}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">办税人员</td>
+          <td>{{dataForm.bsrXm}}</td>
+          <td class="descriptions-label required">联系电话</td>
+          <td>{{dataForm.bsrLxdh}}</td>
+          <td class="descriptions-label required">身份证号码</td>
+          <td>{{dataForm.bsrSfzh}}</td>
+          <td class="descriptions-label required">职业类型</td>
+          <td>{{dataForm.bsrZzjz}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">实际控制人</td>
+          <td>{{dataForm.sjjyrXm}}</td>
+          <td class="descriptions-label required">联系电话</td>
+          <td>{{dataForm.sjjyrLxdh}}</td>
+          <td class="descriptions-label required">身份证号码</td>
+          <td>{{dataForm.sjjyrSfzh}}</td>
+          <td class="descriptions-label required">实际控制人籍贯</td>
+          <td>{{dataForm.sjjyrJgXzqh}}</td>
+        </tr>
+        <tr>
+          <td colspan="3" class="descriptions-label required">法定代表人与实际控制人之间的关系</td>
+          <td>{{dataForm.sjjyrFddbrGx}}</td>
+          <td colspan="2">{{dataForm.sjjyrFddbrGxQt}}</td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">实际经营地址</td>
+          <td colspan="7">{{dataForm.sjjydz}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">注册资本(元)</td>
+          <td style="text-align:right;">{{dataForm.zczb | number(2)}}</td>
+          <td class="descriptions-label required">固定资产总值</td>
+          <td style="text-align:right;">{{dataForm.gdzczz | number(2)}}</td>
+          <td class="descriptions-label required">资产合计(元)</td>
+          <td style="text-align:right;">{{dataForm.zchj | number(2)}}</td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">配套公司税号</td>
+          <td colspan="3">{{dataForm.ptgsNsrsbh}}</td>
+          <td class="descriptions-label required">配套公司名称</td>
+          <td colspan="3" class="p-0">{{dataForm.ptgsNsrmc}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">上年实际外销收入(万元)</td>
+          <td style="text-align:right;">{{dataForm.snSjwxsr}}</td>
+          <td class="descriptions-label required">当年预计全年外销售收入(万元)</td>
+          <td style="text-align:right;">{{dataForm.dnYjwxsr}}</td>
+          <td class="descriptions-label required">职工人数</td>
+          <td>{{dataForm.zgrs}}</td>
+          <td class="descriptions-label required">其中：社保缴费人数</td>
+          <td>{{dataForm.sbjfrs}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">办公场所面积</td>
+          <td style="text-align:right;">{{dataForm.yjbgcsMj || ''}}平方米</td>
+          <td class="descriptions-label required">办公场所产权</td>
+          <td>{{dataForm.yjbgcsCq}}</td>
+          <td class="descriptions-label">办公场所租赁期限</td>
+          <td>{{dataForm.yjbgcsZlqx}}</td>
+          <td class="descriptions-label">年租赁费(元)</td>
+          <td style="text-align:right;">{{dataForm.yjbgcsZlnf}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">样品间面积</td>
+          <td>{{dataForm.ypjMj}}</td>
+          <td class="descriptions-label">租赁发票开具情况</td>
+          <td class="p-0">{{dataForm.yjbgcsYwzlfp == 'Y' ? '有' : (dataForm.yjbgcsYwzlfp == 'N' ? '无':'')}}</td>
+          <td class="descriptions-label required">是否设置仓库</td>
+          <td class="p-0">{{dataForm.ywSzck == 'Y' ? '是' : (dataForm.ywSzck == 'N' ? '否':'')}}</td>
+          <td class="descriptions-label">仓库面积</td>
+          <td style="text-align:right;">{{dataForm.ckMj || ''}}平方米</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">出口方式</td>
+          <td>{{dataForm.ckfs}}</td>
+          <td class="descriptions-label required">贸易方式</td>
+          <td colspan="5" class="p-0">
+            <input type="checkbox" ms-duplex="myfsCheckList" value='一般贸易' disabled>一般贸易
+            <input type="checkbox" ms-duplex="myfsCheckList" value='进料加工' disabled>进料加工
+            <input type="checkbox" ms-duplex="myfsCheckList" value='深加工结转' disabled>深加工结转
+            <input type="checkbox" ms-duplex="myfsCheckList" value='来料加工' disabled>来料加工
+          </td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">是否按规定设置账册</td>
+          <td class="p-0">{{dataForm.ywAgdszzc == 'Y' ? '是' : (dataForm.ywAgdszzc == 'N' ? '否':'')}}</td>
+          <td class="descriptions-label required">是否按规定进行单证备案</td>
+          <td class="p-0">{{dataForm.ywAgddzba == 'Y' ? '是' : (dataForm.ywAgddzba == 'N' ? '否':'')}}</td>
+          <td class="descriptions-label">单证备案方式</td>
+          <td colspan="3" class="p-0">{{dataForm.dzbaFs == '1' ? '数字化' : (dataForm.dzbaFs == '0' ? '纸质': '')}}</td>
+        </tr>
+        <tr>
+          <td colspan="3" class="descriptions-label required">主要经营商品(海关商品编码和名称)</td>
+          <td colspan="5">{{dataForm.zyCksp}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label required">主要报关口岸</td>
+          <td colspan="3">{{dataForm.zyBgka}}</td>
+          <td class="descriptions-label required">主要出口国别</td>
+          <td colspan="3">{{dataForm.zyCkgb}}</td>
+        </tr>
+        <tr>
+          <td class="descriptions-label">其他事项</td>
+          <td colspan="7">{{dataForm.qtsx}}</td>
+        </tr>
+        <tr>
+          <td colspan="8">
+            <p>企业声明：本采集表采集的内容与本公司实际情况相符</p>
+            <div class="clear signature">
+              <p>办税人员（签名）：</p>
+              <p>实际控制人（签名）：</p>
+              <p>法定代表人（签名）：</p>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>

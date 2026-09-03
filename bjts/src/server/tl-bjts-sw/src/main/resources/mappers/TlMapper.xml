@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.TlMapper">
+
+
+    <update id="saveExtraCkts" parameterType="com.tl.bjts.sw.model.domain.TjfxExtraCkts">
+        merge into SW_TJFX_EXTRA_CKTS T
+        USING (SELECT #{swcode} AS swcode,#{nd} as nd,
+                 #{m_type} AS m_type FROM DUAL ) S ON
+        (T.nd=S.nd and s.swcode=t.swcode and s.m_type=T.m_type)
+        WHEN MATCHED THEN
+        UPDATE SET T.m1=#{m1}, T.m2=#{m2}, T.m3=#{m3},T.m4=#{m4}, T.m5=#{m5}, T.m6=#{m6},
+                    T.m7=#{m7}, T.m8=#{m8}, T.m9=#{m9},T.m10=#{m10}, T.m11=#{m11}, T.m12=#{m12}
+        WHEN NOT MATCHED THEN
+        insert (SWCODE, ND, M1, M2, M3, M4, M5, M6, M7, M8, M9,M10, M11, M12, M_TYPE)
+        values (#{swcode}, #{nd}, #{m1}, #{m2}, #{m3}, #{m4}, #{m5}, #{m6}, #{m7}, #{m8}, #{m9}, #{m10}, #{m11}, #{m12},#{m_type})
+    </update>
+
+    <update id="lockDynamicQueryTask">
+        <![CDATA[
+			UPDATE jcfx_task a
+						   	SET a.tqbz = #{tqbz,jdbcType=VARCHAR},
+						        a.tqsj = sysdate,
+						        a.task_flag ='1',
+						        a.tqcs = tqcs+1
+						 	WHERE id=#{idkey} and task_flag<>'2' and a.tqcs<20
+
+
+        ]]>
+        <if test="lastTqbz != null and lastTqbz!=''">
+            and a.tqbz = #{lastTqbz}
+        </if>
+        <if test="lastTqbz==null or lastTqbz==''">
+            and a.tqbz is null
+        </if>
+    </update>
+
+    <update id="updateTaskFish">
+
+        <![CDATA[
+			UPDATE jcfx_task a
+						   	SET a.RESP_DATA = #{up.respData},
+						        a.WCSJ = sysdate,
+						        a.task_flag ='2',
+						        a.SQLTEXT = #{up.sqltext}
+						 	WHERE id=#{up.id}
+        ]]>
+
+    </update>
+
+    <!--  根据类型和代码查找字典表的中文 -->
+    <select id="selectDnameByTypeCode" resultType="string">
+        select dname
+        from tl_admin.sys_dict
+        where dtype = #{dtype} and dcode = #{dcode}
+    </select>
+
+    <select id="getVirSwjgdmXh" resultType="java.lang.String" parameterType="string">
+        select to_char(count(t.vir_swjgdm)+1,'00') as xh
+          from dm_swjg_virtual t where t.swjg_dm=#{swjgDm} and t.vir_flag='1'
+    </select>
+
+    <select id="selectVirReceiveTask" resultType="com.tl.bjts.sw.model.domain.TjbbTaskModel">
+        select t.* from tjbb_task t ,
+        (select * from dm_swjg_virtual b where b.vir_flag='0'
+        and b.yxbz='Y' and b.swjg_dm =#{swjgdm}) d
+        where t.ny=#{ssny}  and t.bbdldm=#{bbdldm} and  t.swjgdm=d.vir_swjgdm
+        order by t.swjgdm
+    </select>
+
+    <select id="countVirswjgSb" resultType="java.lang.Integer" >
+        select count(1) from (select swjg_dm from table(tl_admin.Func_Get_Xj_swjg(#{swjgdm}))) s
+             left join tjbb_task t on (t.swjgdm=s.swjg_dm and ny=#{ssny} and bbdldm=#{bbdldm})
+        where status !='20' or status is null
+    </select>
+
+    <select id="getSelectTree" resultType="com.tl.bjts.sw.model.TreeNode" parameterType="string">
+        select t.swjg_dm id,t.swjg_jc text from dm_swjg t
+              where swjg_dm in (select swjg_dm from table(Func_Get_Xj_swjg(#{swjgDm})))
+               order by swjg_dm
+    </select>
+
+
+    <select id="selectBblcHeader" resultType="java.lang.String">
+        select '【'||showname||'】' from tjbb_report_header t where bbdm=#{bbdm} and type =2
+        and ( horder=#{x} or (ismerg = 1 and horder+h>#{x}) and #{x}>horder) order by horder,vorder
+    </select>
+    <select id="selectTitleHeader" resultType="java.lang.String">
+        select '【'||showname||'】' from tjbb_report_header t where bbdm=#{bbdm} and type =1
+        and ( vorder=#{y} or (ismerg = 1 and vorder+w>#{y}) and #{y}>vorder ) order by vorder,horder
+    </select>
+
+    <select id="selectDynamicTableDetails" resultType="java.util.LinkedHashMap">
+        ${sqlScript}
+    </select>
+
+    <select id="selectDynamicTaskList" resultType="com.tl.bjts.sw.model.domain.JcfxTaskModel">
+        SELECT * FROM
+        (
+        SELECT A.*, ROWNUM RN
+        FROM (
+        select a.id,tqbz,tqsj,req_param as reqParam from jcfx_task  a
+        where task_flag in ('0','1') and  (task_flag='0' or sysdate-(tqsj+0) > #{delay}) and 20>a.tqcs
+        ) A where 1=1
+        <if test="end != null and end!=''">
+            and ROWNUM &lt;= #{end}
+        </if>
+        )
+        WHERE 1=1
+        <if test="start != null and start!=''">
+            and RN &gt;= #{start}
+        </if>
+        <if test="orderByCaluse != null and orderByCaluse !=''">
+            ORDER BY #{orderByCaluse}
+        </if>
+    </select>
+
+    <select id="selectZdyZbdm" resultType="com.tl.bjts.sw.model.vo.jcfx.SelectItemVo">
+
+        select zid||'' as code ,zdyname as name,'0' as parentId from jcfx_cs_zdyxm
+        where instr(#{zbxmbm},ss_zbxmbm)>0 and qybz='Y' and instr(#{swjgdm},syfw_swjg)>0
+        union all
+        select b.dm as code ,b.mc as name,b.zid||''  as parentId from  jcfx_cs_zdyxm_sub b
+        where zid in (select a.zid from jcfx_cs_zdyxm a
+        where instr(#{zbxmbm},ss_zbxmbm)>0 and a.qybz='Y' and instr(#{swjgdm},syfw_swjg)>0 )
+
+    </select>
+    <select id="selectZbxmByZid" resultType="java.lang.String">
+        select dm from jcfx_cs_zdyxm_sub where zid=#{zid} and qybz = 'Y'
+    </select>
+
+
+</mapper>

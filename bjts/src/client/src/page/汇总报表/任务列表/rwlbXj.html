@@ -1,0 +1,23 @@
+<div :class="['rwlbXj',exClass]" >
+    <div class="pageTabs">
+        <div class="pageTitle" ms-for="(index,item) in pageTitle">
+            <span>{{item}}</span>
+            <span ms-if="index!=(pageTitle.length-1)">-</span>
+        </div>
+    </div>
+    <div class="pageTabs"  style="top:33px;">
+        <div  style="height:33px;line-height:33px;float: left;">
+            <span style="margin: 0 5px">{{"【申报年月】"+searchData.ssny}}</span>
+            <span style="margin: 0 5px">{{"【税务机关】"+swjgmc}}</span>
+        </div>
+        <div class="btns">
+            <div class="btn" ms-click="@search(1)">刷新</div>
+        </div>
+    </div>
+    <div class="page active">
+        <div class="form" style="padding-top: 33px">
+            <table ms-attr="{id:'rwlbXj-table'+exClass}"></table>
+            <div ms-attr="{id:'rwlbXj-tablePager'+exClass}"></div>
+        </div>
+    </div>
+</div>

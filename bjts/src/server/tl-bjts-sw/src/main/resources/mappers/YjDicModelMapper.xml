@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.YjDicModelMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.YjDicModel" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="YJCODE" property="yjcode" jdbcType="VARCHAR" />
+    <result column="YJNAME" property="yjname" jdbcType="VARCHAR" />
+    <result column="YJINFO" property="yjinfo" jdbcType="VARCHAR" />
+    <result column="ZXFLAG" property="zxflag" jdbcType="CHAR" />
+    <result column="YJOBJECT" property="yjobject" jdbcType="VARCHAR" />
+    <result column="YXBZ" property="yxbz" jdbcType="CHAR" />
+    <result column="YJLX" property="yjlx" jdbcType="CHAR" />
+    <result column="TSYWLX" property="tsywlx" jdbcType="DECIMAL" />
+    <result column="SWJG_FW" property="swjgFw" jdbcType="VARCHAR" />
+  </resultMap>
+</mapper>

@@ -1,0 +1,25 @@
+<div class="line-chart">
+  <div style="display: flex;justify-content: space-between;">
+    <div style="width: 95px;"></div>
+    <div style="font-size: 14px;font-weight: bold;">
+      {{getTitle()}}
+    </div>
+    <div class="select-item" style="position: relative;">
+      <label title="统计跨度">统计跨度：</label>
+      <select data-duplex-changed="@selectChange()" ms-duplex="@searchData.hzwd">
+        <option value="n">年</option>
+        <option value="j">季</option>
+        <option value="y">月</option>
+      </select>
+    </div>
+
+  </div>
+  <div class="chart-container">
+    <!-- 折线图区域 -->
+    <div class="chart-area" style="width: 100%;position: relative;">
+      <div ms-attr="{id:componentName}" style="width: 100%; height: 200px;"></div>
+      <span ms-visible="@hw==0" class="linktext" ms-click="linkMore"
+        style="position: absolute; top: 10px; right: 10px; z-index: 10;">更多</span>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.YjDicYjzbModelMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.YjDicYjzbModel" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ZBCODE" property="zbcode" jdbcType="VARCHAR" />
+    <result column="YJCODE" property="yjcode" jdbcType="VARCHAR" />
+    <result column="YJNAME" property="yjname" jdbcType="VARCHAR" />
+    <result column="ZBNAME" property="zbname" jdbcType="VARCHAR" />
+    <result column="JSLX" property="jslx" jdbcType="CHAR" />
+    <result column="P1NAME" property="p1name" jdbcType="VARCHAR" />
+    <result column="P1VAL" property="p1val" jdbcType="DECIMAL" />
+    <result column="P2NAME" property="p2name" jdbcType="VARCHAR" />
+    <result column="P2VAL" property="p2val" jdbcType="DECIMAL" />
+    <result column="P3NAME" property="p3name" jdbcType="VARCHAR" />
+    <result column="P3VAL" property="p3val" jdbcType="DECIMAL" />
+    <result column="P4NAME" property="p4name" jdbcType="VARCHAR" />
+    <result column="P4VAL" property="p4val" jdbcType="DECIMAL" />
+    <result column="SCORE" property="score" jdbcType="DECIMAL" />
+    <result column="YJMSG" property="yjmsg" jdbcType="VARCHAR" />
+    <result column="NOTE" property="note" jdbcType="VARCHAR" />
+    <result column="WSQL" property="wsql" jdbcType="VARCHAR" />
+    <result column="SYSW" property="sysw" jdbcType="CHAR" />
+    <result column="SYQY" property="syqy" jdbcType="CHAR" />
+  </resultMap>
+</mapper>

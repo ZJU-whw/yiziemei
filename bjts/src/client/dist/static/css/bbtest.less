@@ -1,0 +1,115 @@
+.main .content .work .bbtest,.main .content .work .bbmx{
+  .form{
+    padding-right: 17px;
+  }
+  .form .table{
+    margin:0;
+  }
+  .table-wrapper {
+    position: relative;
+    height: 100%;
+    border-bottom: 1px solid #666666;
+    box-sizing: border-box;
+  }
+  .table-t3{
+    height: 90%;
+    .table-body-wrapper{
+      margin-right: -16.5px;
+    }
+  }
+  .table-page{
+    padding-top: 5px;
+    height: 10%;
+    clear: both;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  .table-head-wrapper{
+    position:absolute;
+    top:0;
+    left:0;
+    z-index: 10;
+    width:100%;
+    overflow: hidden;
+  }
+  .table-body-wrapper {
+    overflow-x: auto;
+    overflow-y: scroll;
+    height: 100%;
+    margin-right: -16.5px;
+  }
+  .table {
+    width: auto;
+    min-width: 100%;
+    margin-bottom: 0;
+    thead {
+      background: #eee;
+    }
+    th {
+      padding:4px;
+      height: 34px;
+      white-space:nowrap;
+      text-overflow: ellipsis;
+    }
+    th,td{
+      box-sizing: border-box;
+      border: 1px solid #666666;
+      .header-cell{
+        min-width: 100% !important;
+        overflow: hidden;
+        text-align: center;
+        margin: 0 auto;
+      }
+      .liner-cell{
+        min-width: 100%;
+        overflow: hidden;
+        text-align: center;
+      }
+      div{
+        word-break: break-all;
+        white-space: normal;
+      }
+      .tableDataCell{
+        height: 100%;
+        width: 100%;
+        position: relative;
+        .redDelta{
+          position: absolute;
+          right: 0px;
+          top: 0px;
+          background: url("../image/redDelta.png") no-repeat right top;
+          width: 6px;
+          height: 6px;
+        }
+        input{
+          display: block;
+          height: 100%;
+          width: 100%;
+          border: none;
+          box-sizing: border-box;
+          padding: 0 5px;
+        }
+      }
+    }
+  }
+  .table>tbody>tr>td{
+    vertical-align: middle;
+    padding:0px;
+    white-space:nowrap;
+    text-overflow: ellipsis;
+    height: 34px;
+  }
+  .table>tbody>tr.active>.tablecell,
+  .table>tbody>tr.active>.tablecell input ,
+  .tableDataCell.active input{
+    background: #e3f2fd;
+  }
+
+  .pager-btn{
+    cursor: pointer;
+    color: #0079c8;
+  }
+  .pager-btn.disabled{
+    color: #dddddd;
+  }
+}

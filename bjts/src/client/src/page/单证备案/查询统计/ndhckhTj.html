@@ -1,0 +1,34 @@
+<div class="hctj-new ndhckh-tj">
+  <div class="pageTabs">
+    <div class="pageTitle">
+      年度单证核查工作考核统计
+    </div>
+    <div class="btns">
+      <div class="btn" ms-click="@search(1)">查询</div>
+      <div class="btn" ms-click="@exform">导出</div>
+    </div>
+  </div>
+  <div class="page active">
+    <form name="ndhckh-tj-form">
+      <div class="select-wrapper">
+        <div class="select-main">
+          <div class="select-item">
+            <label title="税务机关">税务机关</label>
+            <input readonly type="text" class="bt-form-control" ms-duplex="swjgmc" ms-click="@showTree">
+            <ul id="ndhckh-tjTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+          </div>
+          <div class="select-item">
+            <label title="统计年度">统计年度</label>
+            <div class="select-item-inner">
+              <input type="text" class="bt-form-control datepicker date-year" ms-click="@showDatetimepicker($event)" ms-duplex="@searchData.tjnd" readonly>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="form" style="padding-top: 33px">
+      <table id="ndhckh-tj-table"></table>
+      <div class="total-num">共 {{totalNum}} 条</div>
+    </div>
+  </div>
+</div>

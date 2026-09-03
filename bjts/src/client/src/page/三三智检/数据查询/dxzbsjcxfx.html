@@ -1,0 +1,175 @@
+<div class="dxzbsjcxfx tableLine" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        单项指标（元）数据查询分析
+      </div>
+      <div class="btns">
+        <div class="btn" ms-click="@search(1)">查询</div>
+        <div class="btn dropdown" ms-on-click="showMenu">
+          查看正态分布图▼
+          <ul class="dropdown-menu">
+            <li style="padding: 2px;overflow: hidden"><div class="btn" ms-click="@getChart('0')">所有数据</div></li>
+            <li style="padding: 2px;overflow: hidden"><div class="btn" ms-click="@getChart('1')">抽样取数</div></li>
+          </ul>
+      </div>
+        <div class="btn" ms-click="@exform">导出</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+      <div class="select-wrapper">
+          <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+          <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+          <div class="select-main">
+              <div class="select-item">
+                  <label title="企业类型">企业类型</label>
+                  <select ms-duplex="@searchData.qylx" data-duplex-changed="qylxChange">
+                    <option value=""></option>
+                    <option value="1">生产</option>
+                    <option value="2">外贸</option>
+                </select>
+              </div>
+              <div class="select-item">
+                  <label  title="指标（元）">指标（元）</label>
+                  <input ms-attr="{disabled: @searchData.qylx==''}" readonly type="text" ms-duplex="codeName" ms-click="showTree">
+                  <ul class='ztree treeDiv zbTree' style="left: 90px;top:100%;"></ul>
+              </div>
+              <div class="select-item">
+                  <label  title="税务机关">税务机关</label>
+                  <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree">
+                  <ul id="dxzbsjcxfxZtree" class='ztree treeDiv swjgTree' style="left: 90px;top:100%;"></ul>
+              </div>
+              <div class="select-item">
+                <label title="分析期（年度）">分析期（年度）</label>
+                <div class="select-item-inner" style="max-width: 230px;">
+                  <select class="w-25per" ms-duplex="@searchData.bgqTyp">
+                    <option value="1">年</option>
+                    <option value="2">季</option>
+                  </select>
+                  <select class="w-30per ml-5" ms-duplex="@bgqY">
+                    <option value=""></option>
+                    <option ms-for="item in @bgqList" ms-attr="{value: item}">{{item}}</option>
+                  </select>
+                  <select class="w-40per ml-5" ms-duplex="@bgqJd" ms-visible="searchData.bgqTyp == '2'" ms-attr="{disabled: bgqY == ''}">
+                    <option value=""></option>
+                    <option value="1">第一季度</option>
+                    <option value="2">第二季度</option>
+                    <option value="3">第三季度</option>
+                    <option value="4">第四季度</option>
+                  </select>
+                </div>
+              </div>
+          </div>
+          <div class="select-sub">
+            <div class="select-item">
+              <label title="企业标识">企业标识</label>
+              <input type="text" ms-duplex="@searchData.qybs" placeholder="海关代码/税号/名称，支持模糊匹配">
+            </div>
+            <div class="select-item">
+              <label title="备案状态">备案状态</label>
+              <select ms-duplex="@searchData.bazt">
+                <option value=""></option>
+                <option value="N">备案有效</option>
+                <option value="Y">备案注销</option>
+              </select>
+            </div>
+            <div class="select-item clear" ms-for="(index,item) in @fzItemsList">
+              <label ms-attr="{title:item.zbxmmc}">{{item.zbxmmc}} </label>
+              <div class="custom-multiselect item-content fz clear lf w-60per" style="max-width: 230px;">
+                <div
+                  class="custom-bootstrap-multiselect bootstrap-multiselect"
+                  style="height: 20px;"
+                  ms-if="item.isTree=='0'">
+                  <select ms-attr="{id:'dxzbsjcxfx_select_'+item.zbxmbm.split('.')[0]+'_'+item.zbxmbm.split('.')[1]}" multiple="multiple"></select>
+                </div>
+                <div
+                  ms-css="{width: '100%'}"
+                  class="tree clear lf"
+                  ms-if="item.isTree=='1'">
+                  <div
+                    class="item-content showSelect text-ellipsis tree"
+                    ms-click="@showTree"
+                    ms-attr="{title: @selectMc[item.zbxmbm]&&@selectMc[item.zbxmbm].name}">{{@selectMc[item.zbxmbm]&&(@selectMc[item.zbxmbm].value.length>3 ? @selectMc[item.zbxmbm].value.length+ '项已选择':@selectMc[item.zbxmbm].name)}}</div>
+                  <ul
+                    ms-css="{height: '200px'}"
+                    ms-attr="{id:'dxzbsjcxfx_tree_'+item.zbxmbm.split('.')[0]+'_'+item.zbxmbm.split('.')[1]}"
+                    class='treeSelect ztree treeDiv'></ul>
+                </div>
+              </div>
+            </div>
+            <div class="select-item">
+              <label title="是否包含零值">是否包含零值</label>
+              <select ms-duplex="@searchData.includeZero">
+                <option value="0">否</option>
+                <option value="1">是</option>
+              </select>
+            </div>
+            <div class="select-item">
+              <label title="退税计算方式">退税计算方式</label>
+              <select ms-duplex="@searchData.tsjsfs">
+                <option value=""></option>
+                <option value="1">免抵退税</option>
+                <option value="2">免退税</option>
+                <option value="3">免税</option>
+                <option value="9">其他</option>
+              </select>
+            </div>
+          </div>
+      </div>
+      <div class="g-form zbxx" style="padding-top: 54px">
+        <div class="g-form-item clear" style="max-width: 100%;width: 100%;">
+          <div class="g-form-item_label" style="font-weight: bold;">指标信息:</div>
+          <div class="g-form-item__content">
+            <div class="g-form-item lf">
+              <div class="g-form-item_label">指标名称:</div>
+              <div class="g-form-item__content text-ellipsis" ms-attr="{title: @zbxx.name}">{{@zbxx.name}}</div>
+            </div>
+            <div class="g-form-item lf">
+              <div class="g-form-item_label">指标ID:</div>
+              <div class="g-form-item__content text-ellipsis" ms-attr="{title: @zbxx.code}">{{@zbxx.code}}</div>
+            </div>
+            <div class="g-form-item lf">
+              <div class="g-form-item_label">结果类型:</div>
+              <div class="g-form-item__content text-ellipsis" ms-attr="{title: @zbxx.rsType}">{{@zbxx.rsType}}</div>
+            </div>
+            <div class="g-form-item lf" style="max-width: 100%;">
+              <div class="g-form-item_label">业务描述:</div>
+              <div class="g-form-item__content text-ellipsis" ms-attr="{title: @zbxx.ywms}">{{@zbxx.ywms}}</div>
+            </div>
+          </div>
+        </div>
+        <div class="g-form-item clear" style="max-width: 100%;width: 100%;">
+          <div class="g-form-item_label" style="font-weight: bold;">聚合分析:</div>
+          <div class="g-form-item__content" style="height: 30px;">
+            <div class="g-form-item lf">
+              <div class="g-form-item_label">最大值:</div>
+              <div class="g-form-item__content text-ellipsis" ms-attr="{title: @jhfx.maxval}">{{@jhfx.maxval}}</div>
+            </div>
+            <div class="g-form-item lf">
+              <div class="g-form-item_label">最小值:</div>
+              <div class="g-form-item__content text-ellipsis" ms-attr="{title: @jhfx.minval}">{{@jhfx.minval}}</div>
+            </div>
+            <div class="g-form-item lf">
+              <div class="g-form-item_label">中位数:</div>
+              <div class="g-form-item__content text-ellipsis" ms-attr="{title: @jhfx.median}">{{@jhfx.median}}</div>
+            </div>
+            <div class="g-form-item lf">
+              <div class="g-form-item_label">平均值:</div>
+              <div class="g-form-item__content text-ellipsis" ms-attr="{title: @jhfx.average}">{{@jhfx.average}}</div>
+            </div>
+            <div class="g-form-item lf">
+              <div class="g-form-item_label">标准差:</div>
+              <div class="g-form-item__content text-ellipsis" ms-attr="{title: @jhfx.stddev}">{{@jhfx.stddev}}</div>
+            </div>
+            <!-- <div class="g-form-item lf">
+              <div class="g-form-item_label">标准值:</div>
+              <div class="g-form-item__content text-ellipsis" ms-attr="{title: @jhfx.stdval}">{{@jhfx.stdval}}</div>
+            </div> -->
+          </div>
+        </div>
+      </div>
+      <div class="form" style="padding-top: 0;">
+        <table id="dxzbsjcxfx-table"></table>
+        <div id="dxzbsjcxfx-tablePager"></div>
+      </div>
+  </div>
+</div>

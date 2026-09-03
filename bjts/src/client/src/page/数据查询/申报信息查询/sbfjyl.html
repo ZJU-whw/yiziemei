@@ -1,0 +1,90 @@
+<div class="dzhc-new sb-fjyl" ms-click="hideNsrsbh">
+  <div class="pageTabs">
+    <div class="pageTitle">
+      申报附件调阅
+    </div>
+    <div class="btns">
+      <div class="btn" ms-click="@search(1)">查询</div>
+    </div>
+  </div>
+
+  <div class="page active">
+    <form name="sb-fjyl-form">
+      <div class="select-wrapper">
+        <span class="reset" title="重置查询条件" ms-click="@resetSearchData">重置：</span>
+        <div class="select-main">
+          <div class="select-item">
+            <label title="税务机关">税务机关</label>
+            <input readonly type="text" class="bt-form-control" ms-duplex="swjgmc" ms-click="@showTree">
+            <ul id="zbrwTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+          </div>
+          <div class="select-item">
+            <label  title="企业标识">企业标识<i class="question" title="企业名称、企业海关代码或社会信用代码"></i></label>
+            <input name="nsrsbh" type="text" class="bt-form-control"
+              ms-duplex="@searchData.qybs">
+          </div>
+          <div class="select-item">
+            <label title="申报业务种类">申报业务种类</label>
+            <select class="bt-form-control width-m" ms-duplex="searchData.sbywb">
+              <option value=""></option>
+              <option ms-for="ywb in sbywbMap" ms-attr="{value: ywb.value}">{{ywb.label}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="select-main">
+          <div class="select-item">
+            <label title="所属期">所属期</label>
+            <div class="select-item-inner">
+              <input type="text" readonly class="bt-form-control datepicker date-month" ms-click="@showDatetimepicker($event)" ms-duplex="@searchData.sssqStart" data-duplex-changed="@ssqChange('sssqStart')">
+              <span>止</span>
+              <input type="text" readonly class="bt-form-control datepicker date-month" ms-click="@showDatetimepicker($event)" ms-duplex="@searchData.sssqEnd" data-duplex-changed="@ssqChange('sssqEnd')">
+            </div>
+          </div>
+          <div class="select-item">
+            <label title="上传日期">上传日期</label>
+            <div class="select-item-inner">
+              <input type="text" readonly class="bt-form-control datepicker date-day" ms-click="@showDatetimepicker($event)" ms-duplex="@searchData.yxscrqq">
+              <span>止</span>
+              <input type="text" readonly class="bt-form-control datepicker date-day" ms-click="@showDatetimepicker($event)" ms-duplex="@searchData.yxscrqz">
+            </div>
+          </div>
+          <div class="select-item">
+            <label title="附件状态">附件状态</label>
+            <select class="bt-form-control width-m" ms-duplex="searchData.fjzt">
+              <option value="">全部</option>
+              <option value="1">有附件</option>
+              <option value="0">无附件</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="form" style="padding-top: 54px">
+      <table id="sb-fjyl-table"></table>
+      <div id="sb-fjyl-tablePager"></div>
+    </div>
+  </div>
+
+  <!-- 附件列表 -->
+  <div class="page-model page-model-fjlb" style="
+    width: 800px;
+    margin-left: -400px;
+  ">
+    <div class="model-title">
+      <span>附件列表</span>
+      <span class="model-close" ms-mousedown="$event.preventDefault()" ms-click="hideFjlb">&times;</span>
+    </div>
+    <div class="model-content" style="height: 400px;">
+      <table id="sb-fjyl-fj-table"></table>
+      <div id="sb-fjyl-fj-tablePager"></div>
+    </div>
+  </div>
+
+  <!-- pdf预览 -->
+  <div class="page-model page-model-pdf" >
+    <div id="sb-fjyl-pdf"></div>
+    <div class="close" title="关闭" ms-on-click="hideModelPdf()">&times;</div>
+    <div id="sb-fjyl-results"></div>
+  </div>
+
+</div>

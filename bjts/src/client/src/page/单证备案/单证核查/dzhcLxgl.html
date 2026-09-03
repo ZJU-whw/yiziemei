@@ -1,0 +1,411 @@
+<div class="dzhc-new dzhc-lxgl" ms-click="hideNsrsbh">
+  <div class="pageTabs">
+    <div class="pageTitle">
+      单证核查立项
+    </div>
+    <div class="btns">
+      <div class="btn" ms-click="@search(1)">查询</div>
+      <div class="btn dropdown" ms-on-click="showDropdown">
+        新建▼
+        <ul class="dropdown-menu">
+          <li>
+            <a style="cursor: pointer;" ms-click="@createTaskAuto">自动生成</a>
+          </li>
+          <li>
+            <a style="cursor: pointer;" ms-click="@createTaskImport">导入EXCEL</a>
+          </li>
+        </ul>
+      </div>
+      <!-- <div class="btn" ms-click="@createTask">新建</div>
+        <div class="btn" ms-click="@createTask">导入</div> -->
+      <div class="btn" ms-click="@delBatch">批量删除</div>
+      <div class="btn" ms-click="@showFpDialog(1, '')">批量分配</div>
+      <div class="btn" ms-click="@approveBatch">批量立项</div>
+      <div class="btn" ms-click="@voidBatch">批量作废</div>
+      <div class="btn warning" ms-click="@exform">导出</div>
+    </div>
+  </div>
+
+  <div class="page active">
+    <form name="dzhc-lxgl-form">
+      <div class="select-wrapper">
+        <span class="reset" title="重置查询条件" ms-click="@resetSearchData">重置：</span>
+        <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+        <div class="select-main">
+          <div class="select-item">
+            <label title="税务机关">税务机关</label>
+            <input readonly type="text" class="bt-form-control" ms-duplex="swjgmc" ms-click="@showTree">
+            <ul id="dzhcLxglTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+          </div>
+          <div class="select-item nsrsbh-group">
+            <label>
+              <select class="bt-form-control select-nsrsbh" ms-duplex="qySearchType"
+                data-duplex-changed="qySearchTypeChg">
+                <option value="nsrsbh">纳税人识别号</option>
+                <option value="qymc">企业名称</option>
+                <option value="hgdm">海关代码</option>
+              </select>
+            </label>
+            <input ms-if="qySearchType!='nsrsbh'" name="nsrsbh" type="text" class="bt-form-control"
+              ms-duplex="@qySearchVal">
+            <input ms-if="qySearchType=='nsrsbh'" name="nsrsbh" type="text" ms-duplex="@qySearchVal"
+              class="bt-form-control" data-duplex-changed="inpChangeNsrsbh('searchData')" ms-focus="@showNsrsbh"
+              ms-keyup="@nsrsbhEnterSearch | enter" ms-keydown="@keydown($event, 'lxglNrsbhList')"
+              placeholder="请输入至少4位税号,支持模糊查询" autocomplete="off">
+            <div ms-visible="@showNsrsbhList" class="nrsbhList" id="lxglNrsbhList" style="left: 40%;">
+              <p ms-for="(index,item) in @nsrsbhList" ms-click="@setNsrsbh(item, 'searchData')" ms-attr="{index: index}"
+                ms-mouseover="activeBgIndex = index" ms-class="{activeBg: activeBgIndex == index}"
+                ms-css="{width: item.nsrmc.length * 12 + 150 +'px'}">
+                {{item.nsrxx}}
+              </p>
+            </div>
+          </div>
+          <div class="select-item">
+            <label title="年度">年度</label>
+            <input type="text" readonly class="bt-form-control datepicker date-year" name="date_field" ms-click="@showDatetimepicker($event)" ms-duplex="@searchData.year">
+          </div>
+        </div>
+        <div class="select-sub">
+          <div class="select-item">
+            <label title="企业类型">企业类型</label>
+            <select class="bt-form-control width-m" ms-duplex="searchData.qylx">
+              <option value=""></option>
+              <option value="1">内资生产企业</option>
+              <option value="2">外商投资企业</option>
+              <option value="3">外贸(工贸)企业</option>
+              <option value="9">其他(特许退税)企业</option>
+            </select>
+          </div>
+          <div class="select-item">
+            <label title="管理等级">管理等级</label>
+            <select class="bt-form-control width-m" ms-duplex="searchData.flglcd">
+              <option value=""></option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+            </select>
+          </div>
+          <div class="select-item">
+            <label title="企业规模">企业规模</label>
+            <select class="bt-form-control width-m" ms-duplex="searchData.qygm">
+              <option value=""></option>
+              <option ms-for="item in qygmList" ms-attr="{value: item.val}">{{item.label}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="select-sub">
+          <div class="select-item">
+            <label title="备案方式">备案方式</label>
+            <select class="bt-form-control width-m" ms-duplex="searchData.balx">
+              <option value=""></option>
+              <option value="0">数字化备案</option>
+              <option value="1">纸质备案</option>
+            </select>
+          </div>
+          <div class="select-item">
+            <label title="项目来源">项目来源</label>
+            <select class="bt-form-control width-m" ms-duplex="searchData.source">
+              <option value=""></option>
+              <option value="0">指定</option>
+              <option value="1">随机</option>
+            </select>
+          </div>
+          <div class="select-item">
+            <label title="审核人">审核人</label>
+            <select class="bt-form-control" ms-duplex="@searchData.inspector">
+              <option value=""></option>
+              <option ms-for="item in inspectorList" ms-attr="{value: item.inspector}">{{item.inspector}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="select-sub">
+          <div class="select-item">
+            <label title="项目状态">项目状态</label>
+            <select class="bt-form-control width-m" ms-duplex="searchData.status">
+              <option value=""></option>
+              <option value="0">创建</option>
+              <option value="1">审核</option>
+              <option value="2">复核</option>
+              <option value="3">发放</option>
+              <option value="9">结案</option>
+            </select>
+          </div>
+          <div class="select-item">
+            <label title="项目状态">逾期标志</label>
+            <select class="bt-form-control width-m" ms-duplex="searchData.yqbz">
+              <option value=""></option>
+              <option value="1">一周后逾期</option>
+              <option value="2">一月后逾期</option>
+              <option value="3">三月后逾期</option>
+              <option value="9">已逾期</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="form" style="padding-top: 53px">
+      <table id="dzhc-lxgl-table"></table>
+      <div id="dzhc-lxgl-tablePager"></div>
+    </div>
+  </div>
+
+  <!-- 分配审核人 -->
+  <div class="page-model page-model-fp" style="height: 240px; margin-top: -120px; width: 400px; margin-left: -200px;">
+    <div class="model-title">
+      <span>{{@isPlfp==1? '批量': ''}}分配任务</span>
+      <span class="model-close" ms-mousedown="$event.preventDefault()" ms-click="hideFpDialog">&times;</span>
+    </div>
+    <div class="model-content">
+      <div>
+        <div class="model-item">
+          <label><span style="color: red;">*</span>审核人：</label>
+          <select class="width-l bt-form-control" ms-duplex="@fpInspector" style="height: 100%;">
+            <option value=""></option>
+            <option ms-for="item in inspectorList" ms-attr="{value: item.inspector}">{{item.inspector}}</option>
+          </select>
+          <p style="color: red; padding-left: 110px; font-size: 13px; float: left;"
+            ms-visible="@showInspectorErr && !@fpInspector">审核人不能为空</p>
+        </div>
+      </div>
+      <div class="model-btns">
+        <div class="btn" ms-click="fpConfirm">确定</div>
+        <div class="btn" ms-click="hideFpDialog">取消</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新建核查项目-自动生成 -->
+  <div class="page-model page-model-addtask"
+    style="height: 540px; width: 1060px; margin-left: -530px; margin-top: -270px;">
+    <div class="model-title">
+      <span>新建-自动生成</span>
+      <span class="model-close" ms-mousedown="$event.preventDefault()" ms-click="hideAddTask">&times;</span>
+    </div>
+    <div class="model-content">
+      <div class="md-ct-pr">
+        <div class="project">
+          <p class="title">一、纳税人信息:</p>
+          <div class="select-main">
+            <div class="select-item w-30per nsrsbh-group" style="position: relative;">
+              <label title="社会信用码">
+                <span class="text-red">*</span>社会信用码
+              </label>
+              <input type="text" ms-duplex="@nsrxx.nsrsbh" class="bt-form-control"
+                data-duplex-changed="inpChangeNsrsbh('nsrxx')" ms-focus="@showNsrsbhCkyw" placeholder="请输入至少4位,支持模糊查询"
+                autocomplete="off" ms-keyup="@getNsrxx() | enter" ms-keydown="@keydown($event,'lxglNrsbhCkywList')">
+              <div ms-visible="@showNsrsbhCkywList" class="nrsbhList" ms-mousedown="$event.preventDefault()"
+                id="lxglNrsbhCkywList" style="left: 85px;min-width: 280px">
+                <p style="margin:0" ms-for="(index,item) in @nsrsbhCkywList" ms-click="@setNsrsbh(item, 'nsrxx')"
+                  ms-mousedown="$event.preventDefault()" ms-mouseover="@activeBgCkywIndex = index"
+                  ms-class="{activeBg: @activeBgCkywIndex == index}" ms-attr="{index: index}"
+                  ms-css="{width: item.nsrmc.length * 12 + 150 +'px'}">
+                  {{item.nsrxx}}
+                </p>
+              </div>
+            </div>
+            <div class="select-item w-35per long">
+              <label title="纳税人名称">纳税人名称</label>
+              <input type="text" class="bt-form-control" ms-duplex="@nsrxx.nsrmc" disabled>
+            </div>
+            <div class="select-item w-35per long">
+              <label title="企业类型">企业类型</label>
+              <input type="text" class="bt-form-control" ms-duplex="@nsrxx.qylx" disabled>
+            </div>
+          </div>
+          <div>
+            <div class="select-item w-30per">
+              <label title="管理等级">管理等级</label>
+              <input type="text" class="bt-form-control" ms-duplex="@nsrxx.flglcd" disabled>
+            </div>
+            <div class="select-item w-35per long">
+              <label title="企业规模">企业规模</label>
+              <input type="text" class="bt-form-control" ms-duplex="@nsrxx.qygmName" disabled>
+            </div>
+            <div class="select-item w-35per long">
+              <label title="fob起点"><span class="text-red">*</span>FOB起点</label>
+              <input type="text" class="bt-form-control" style="text-align: right;" ms-duplex="@nsrxx.fobqd"  data-duplex-changed="@inpChgFob($event)">
+            </div>
+          </div>
+          <div class="clear">
+            <div class="select-item w-30per multip-select">
+              <label title="抽查业务比例">抽查业务比例</label>
+              <div class="ct-box">
+                  <p class="ct-box-p" ms-for="ywItem in ywccblList">
+                    <span class="ct-box-til">{{ywItem.range.indexOf('以上')==-1? ywItem.range+'笔': (ywItem.range.split('-').length>1? ywItem.range.split('-')[0]+'笔以上': ywItem.range)}}</span>
+                    <input class="ct-inp bt-form-control num rate" ms-duplex="@ywItem.ywccbl" ms-on-blur="inpChgYwccbl($event, ywItem)">
+                    <span class="dw">%</span>
+                  </p>
+              </div>
+            </div>
+            <div class="select-item w-35per multip-select long ct-p-res">
+              <label title="意向商品代码">意向商品代码</label>
+              <div class="ct-box dropdown">
+                <div class="drop-box">
+                  <p ms-for="(indexCheck, spCheck) in spdmCheckedList" ms-attr="{title: spCheck.spmc}">
+                    <span class="drop-box-i">
+                      {{spCheck.spmc}}
+                      <span class="close" title="删除" ms-click="@spCheckDel(indexCheck, 'spdm')">X</span>
+                    </span>
+                  </p>
+                </div>
+              </div>
+              <span class="icon-add" ms-click="@showModelSearch('spdm')" title="点击添加意向商品代码">+</span>
+            </div>
+            <div class="select-item w-35per multip-select long ct-p-res">
+              <label title="敏感贸易国">敏感贸易国</label>
+              <div class="ct-box dropdown">
+                <div class="drop-box">
+                  <p ms-for="(indexCheck, mygCheck) in mygCheckedList" ms-attr="{title: mygCheck.gbName}">
+                    <span class="drop-box-i">
+                      {{mygCheck.gbName}}
+                      <span class="close" title="删除" ms-click="@spCheckDel(indexCheck, 'myg')">X</span>
+                    </span>
+                  </p>
+                </div>
+              </div>
+              <span class="icon-add" ms-click="@showModelSearch('myg')" title="点击添加敏感贸易国">+</span>
+            </div>
+          </div>
+        </div>
+        <div class="project">
+          <p class="title">二、核查配置</p>
+          <div>
+            <div class="select-item w-25per">
+              <label title="立项年度">立项年度</label>
+              <select class="width-l bt-form-control" ms-duplex="@hcConf.year">
+                <option ms-for="item in yearList" ms-attr="{value: item}">{{item}}</option>
+              </select>
+              <!-- <input type="text" class="bt-form-control" style="text-align: right;" ms-duplex="@hcConf.year" disabled> -->
+            </div>
+            <div class="select-item w-25per">
+              <label title="审核人"><span class="text-red">*</span>审核人</label>
+              <select class="width-l bt-form-control" ms-duplex="@hcConf.inspector">
+                <option value=""></option>
+                <option ms-for="item in inspectorList" ms-attr="{value: item.inspector}">{{item.inspector}}</option>
+              </select>
+            </div>
+            <div class="select-item w-25per">
+              <label title="项目期限"><span class="text-red">*</span>项目期限</label>
+              <input type="text" class="bt-form-control deadline datepicker date-day" ms-duplex="@hcConf.deadline" ms-click="@showDatetimepicker($event)" readonly>
+            </div>
+            <div class="select-item w-25per">
+              <label title="联系电话">联系电话</label>
+              <input type="text" class="bt-form-control" ms-duplex="@hcConf.lxdh">
+            </div>
+          </div>
+        </div>
+        <div class="project">
+          <p class="title">三、核查单证类型</p>
+          <div class="clear mb-5" ms-for="item in @typeTreeData">
+            <div class="lf width-s" style="text-align: right;padding-right: 12px;">{{item.name}}:</div>
+            <div style="overflow: hidden;">
+              <div class="lf mr-10" style="width: 150px;" ms-for="tmp in item.item">
+                <input class="vertical-middle" type="checkbox" ms-duplex="editRangeList"
+                  ms-attr="{value: tmp.value, disabled: tmp.chkDisabled, id: 'lxgl-type-edit'+tmp.value}" />
+                <label ms-attr="{for: 'lxgl-type-edit'+tmp.value}">{{tmp.name}}</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="model-btns">
+        <div class="btn" ms-click="runAddTask">确定</div>
+        <div class="btn" ms-click="hideAddTask">取消</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新建核查项目-导入 -->
+  <div class="page-model page-model-addtaskImport"
+    style="height: 240px; margin-top: -120px; width: 400px; margin-left: -200px;">
+    <div class="model-title">
+      <span>新建-导入</span>
+      <span class="model-close" ms-mousedown="$event.preventDefault()" ms-click="hideAddTaskImport">&times;</span>
+    </div>
+    <div class="model-content">
+      <div>
+        <p>1.请按模板填写数据，再进行导入；</p>
+        <p>2.点击下载<a class="btn-import" ms-click='@exformModel'>导入模板</a>。</p>
+      </div>
+      <div class="model-btns">
+        <div class="btn" ms-click="hideAddTaskImport">
+          <input id="dzhcLxglFileupload" type="file" name="file"
+            data-url="/dzba/inspect/year/project/approve/importExcel">
+          开始导入
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--弹框搜索 -->
+  <div class="page-model page-model-search-lx"
+    style="height: 350px; margin-top: -175px; width: 600px; margin-left: -300px;">
+    <div class="model-title">
+      <span>添加{{@searchType=='spdm'? '意向商品代码': '敏感贸易国'}}</span>
+      <span class="model-close" ms-mousedown="$event.preventDefault()" ms-click="hideModelSearch">&times;</span>
+    </div>
+    <div class="model-content">
+      <div class="md-ct" ms-visible="@searchType=='spdm'">
+        <div class="ct-p multip-select ct-res">
+          <span class="ct-til">意向商品代码：</span>
+          <div class="ct-box dropdown">
+            <div class="drop-box">
+              <p ms-for="(indexCheck, spCheck) in spdmCheckedList" ms-attr="{title: spCheck.spmc}">
+                <span class="drop-box-i">
+                  {{spCheck.spmc}}
+                  <span class="close" title="删除" ms-click="@spCheckDel(indexCheck, 'spdm')">X</span>
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="ct-p">
+          <span class="ct-til">添加意向商品代码：</span>
+          <div class="ct-box dropdown search" ms-on-click="showDropdown($event, 'spdm')">
+            <input type="text" class="ct-inp" id="dzhcLxglspdm" ms-keyup="@spdmSearchChg($event, 'chg')" placeholder="请至少输入4位，支持模糊查询" autocomplete="off" >
+            <ul class="dropdown-menu spdm" ms-if="@spdmSearchList.length > 0">
+              <li ms-for="(indexSearch, spSearch) in spdmSearchList">
+                <input type="checkbox" ms-attr="{id: 'drop_s_lxgl_'+indexSearch}" ms-duplex-checked="@spSearch.checked" data-duplex-changed="@spSearchChg(indexSearch, 'spdm')">
+                <label ms-attr="{for: 'drop_s_lxgl_'+indexSearch}">{{spSearch.spmc}}</label>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="md-ct" ms-visible="@searchType=='myg'">
+        <div class="ct-p multip-select ct-res">
+          <span class="ct-til">敏感贸易国：</span>
+          <div class="ct-box dropdown">
+            <div class="drop-box">
+              <p ms-for="(indexCheck, mygCheck) in mygCheckedList" ms-attr="{title: mygCheck.gbName}">
+                <span class="drop-box-i">
+                  {{mygCheck.gbName}}
+                  <span class="close" title="删除" ms-click="@spCheckDel(indexCheck, 'myg')">X</span>
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="ct-p">
+          <span class="ct-til">添加敏感贸易国：</span>
+          <div class="ct-box dropdown search" ms-on-click="showDropdown($event, 'spdm')">
+            <input type="text" class="ct-inp" id="dzhcLxglmyg" ms-keyup="@mygSearchChg($event)" placeholder="请输入国别代码或者国别名称" autocomplete="off" >
+            <ul class="dropdown-menu myg" ms-if="@mygSearchList.length > 0">
+              <li ms-for="(indexSearch, mygSearch) in mygSearchList">
+                <input type="checkbox" ms-attr="{id: 'drop_g_lxgl_'+indexSearch}" ms-duplex-checked="@mygSearch.checked" data-duplex-changed="@spSearchChg(indexSearch, 'myg')">
+                <label ms-attr="{for: 'drop_g_lxgl_'+indexSearch}">{{mygSearch.gbName}}</label>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="model-btns">
+        <div class="btn" ms-click="hideModelSearch">
+          完成
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

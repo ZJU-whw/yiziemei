@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tl.bjts.sw.dao.JcfxTaskModelMapper">
+  <resultMap id="BaseResultMap" type="com.tl.bjts.sw.model.domain.JcfxTaskModel">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" jdbcType="VARCHAR" property="id" />
+    <result column="CZRY_DM" jdbcType="VARCHAR" property="czryDm" />
+    <result column="REQ_PARAM" jdbcType="VARCHAR" property="reqParam" />
+    <result column="TASK_FLAG" jdbcType="CHAR" property="taskFlag" />
+    <result column="TQBZ" jdbcType="VARCHAR" property="tqbz" />
+    <result column="TQSJ" jdbcType="TIMESTAMP" property="tqsj" />
+    <result column="WCSJ" jdbcType="TIMESTAMP" property="wcsj" />
+    <result column="TQCS" jdbcType="DECIMAL" property="tqcs" />
+    <result column="CRTIME" jdbcType="TIMESTAMP" property="crtime" />
+    <result column="RESP_DATA" jdbcType="BLOB" property="respData" />
+    <result column="TITLE" jdbcType="VARCHAR" property="title" />
+    <result column="SQLTEXT" jdbcType="VARCHAR" property="sqltext" />
+    <result column="SWJGDM" jdbcType="VARCHAR" property="swjgdm" />
+    <result column="BBTYPE" jdbcType="VARCHAR" property="bbtype" />
+  </resultMap>
+</mapper>

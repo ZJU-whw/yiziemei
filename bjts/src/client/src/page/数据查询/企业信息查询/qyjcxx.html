@@ -1,0 +1,258 @@
+<div class="qyjcxx" >
+    <div class="pageTabs">
+        <div class="pageTitle">企业信息一户式查询</div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+            <div class="btn dropdown" ms-on-click="showMenu">
+                配置表格▼
+                <ul class="dropdown-menu">
+                    <li ms-for="(index,item) in @tableOption"><label><input type="checkbox" ms-duplex-checked="item.show" ms-on-click="@setTableOption(item,$event)">{{item.label}}</label></li>
+                </ul>
+            </div>
+        </div>
+        <div class="btns" ms-if="@act==2">
+            <div class="btn rt" ms-click="@printForm($event)">打印</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <form name="qyjcxx-form">
+            <div class="select-wrapper">
+                <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+                <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+                <div class="select-main">
+                    <div class="select-item" style="position: relative;">
+                        <label  title="退税机关">退税机关</label>
+                        <input readonly type="text" ms-duplex="swjgmc" ms-click="@showTree">
+                        <ul  class='ztree treeDiv' id="qyjcssTsjg" style="left: 90px;"></ul>
+                    </div>
+                    <div class="select-item">
+                        <label  title="社会信用代码">社会信用代码</label>
+                        <input name="shxy_no" type="text" ms-duplex="searchData.shxy_no">
+                    </div>
+                    <div class="select-item" style="position: relative">
+                        <label title="企业名称">企业名称</label>
+                        <input name="name" type="text" ms-duplex="searchData.name">
+                    </div>
+                </div>
+                <div class="select-sub">
+                    <div class="select-item">
+                        <label title="海关代码">海关代码</label>
+                        <input name="qydm" type="text" ms-duplex="searchData.qydm">
+                    </div>
+                    <div class="select-item" style="position: relative;">
+                        <label  title="街道乡镇">街道乡镇</label>
+                        <input readonly type="text" ms-duplex="jdxz_mc" ms-click="@showTree">
+                        <ul  class='ztree treeDiv' id="qyjcssJdxz" style="left: 90px;"></ul>
+                    </div>
+                    <div class="select-item" style="position: relative">
+                        <label  title="审核岗人员">审核岗人员</label>
+                        <input style="background: #f9f9f9" placeholder="暂不支持"  type="text" ms-duplex="@searchData.shgry">
+                    </div>
+                    <div class="select-item" style="position: relative">
+                        <label  title="调查评估岗人员">调查评估岗人员</label>
+                        <input style="background: #f9f9f9" placeholder="暂不支持"  type="text" ms-duplex="@searchData.dcpggry">
+                    </div>
+                    <div class="select-item" style="position: relative">
+                        <label  title="企业类型">企业类型</label>
+                        <select  ms-duplex="@searchData.qylx">
+                            <option value="">　</option>
+                            <option value="1">内资生产企业</option>
+                            <option value="2">外商投资企业</option>
+                            <option value="3">外贸（工贸）企业</option>
+                            <option value="9">其他企业（特许退税企业）</option>
+                        </select>
+                    </div>
+                    <div class="select-item" style="position: relative">
+                        <label  title="纳税人类型">纳税人类型</label>
+                        <select  ms-duplex="@searchData.nsrlb">
+                            <option value="">　</option>
+                            <option value="1">增值税一般纳税人</option>
+                            <option value="2">增值税小规模纳税人</option>
+                            <option value="3">其他</option>
+                        </select>
+                    </div>
+                    <div class="select-item" style="position: relative">
+                        <label  title="退（免）税计算方法">退（免）税计算方法</label>
+                        <select  ms-duplex="@searchData.js_mode">
+                            <option value="">　</option>
+                            <option value="1">免抵退</option>
+                            <option value="2">免退税</option>
+                            <option value="3">免税</option>
+                            <option value="9">其他</option>
+                        </select>
+                    </div>
+                    <div class="select-item">
+                        <label  title="管理类别">管理类别</label>
+                        <select  ms-duplex="@searchData.gllb">
+                            <option value="">　</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                    <div class="select-item" style="position: relative">
+                        <label  title="信用等级">信用等级</label>
+                        <select style="background: #f9f9f9;color: #666;"  ms-duplex="searchData.xydj">
+                            <!--<option value="">  </option>-->
+                            <option value="" selected>暂不支持</option>
+                            <option value="A">A类</option>
+                            <option value="B">B类</option>
+                            <option value="C">C类</option>
+                            <option value="D">D类</option>
+                        </select>
+                    </div>
+                    <div class="select-item" style="position: relative">
+                        <label  title="管理类型">企业状态</label>
+                        <select  ms-duplex="@searchData.nsrztcode">
+                            <option value="">　</option>
+                            <option value="01">受理</option>
+                            <option value="02">筹建期</option>
+                            <option value="03">正常</option>
+                            <option value="04">停业</option>
+                            <option value="05">非正常</option>
+                            <option value="06">清算</option>
+                            <option value="07">注销</option>
+                            <option value="08">非正常户注销</option>
+                            <option value="09">报验</option>
+                            <option value="10">核销报验</option>
+                            <option value="11">中断缴费</option>
+                            <option value="12">恢复缴费</option>
+                            <option value="13">简易注销无异议</option>
+                            <option value="99">其他</option>
+                        </select>
+                    </div>
+                    <div class="select-item" style="position: relative">
+                        <label  title="预算级次">预算级次</label>
+                        <select  ms-duplex="@searchData.ysjccode">
+                            <option value="">　</option>
+                            <option value="10">中央</option>
+                            <option value="20">省级(包括自治区、直辖市)</option>
+                            <option value="30">地(市)级</option>
+                            <option value="40">区(县)级</option>
+                            <option value="50">乡镇级</option>
+                        </select>
+                    </div>
+                    <div class="select-item" style="position: relative">
+                        <label  title="调库级次">调库级次</label>
+                        <select  ms-duplex="@searchData.tkjc">
+                            <option value="">　</option>
+                            <option value="1000">中央100%</option>
+                            <option value="2000">中央75%省25%</option>
+                        </select>
+                    </div>
+                    <div class="select-item" style="position: relative">
+                        <label  title="备案时间">备案时间起</label>
+                        <div class="select-item-inner">
+                            <input type="text" class="datepicker date-day" ms-duplex="@searchData.sq_dateq | change" :on-blur="@filDate">
+                            <span>止</span>
+                            <input type="text" class="datepicker date-day" ms-duplex="@searchData.sq_datez | change" :on-blur="@filDate">
+                        </div>
+                    </div>
+                    <div class="select-item" style="position: relative">
+                        <label  title="外综服标志">外综服标志</label>
+                        <select  ms-duplex="@searchData.wzfqy">
+                            <option value="">　</option>
+                            <option value="0">否</option>
+                            <option value="1">是</option>
+                        </select>
+                    </div>
+                    <div class="select-item" style="position: relative">
+                        <label  title="是否提供零税率服务">是否提供零税率服务</label>
+                        <select  ms-duplex="@searchData.ysfw">
+                            <option value="">　</option>
+                            <option value="N">否</option>
+                            <option value="Y">是</option>
+                        </select>
+                    </div>
+                    <div class="select-item" style="position: relative">
+                        <label  title="研发机构标志">研发机构标志</label>
+                        <select  ms-duplex="searchData.yfjg">
+                            <option value="">　</option>
+                            <option value="1">内资研发机构</option>
+                            <option value="2">外资研发机构</option>
+                        </select>
+                    </div>
+                    <div class="select-item" style="position: relative">
+                        <label  title="水电气标志">水电气标志</label>
+                        <select  ms-duplex="@searchData.sdqqy">
+                            <option value="">　</option>
+                            <option value="0">否</option>
+                            <option value="1">是</option>
+                        </select>
+                    </div>
+                    <div class="select-item" style="position: relative">
+                        <label  title="无纸化标志">无纸化标志</label>
+                        <select  ms-duplex="@searchData.wzhqy">
+                            <option value="">　</option>
+                            <option value="0">否</option>
+                            <option value="1">是</option>
+                        </select>
+                    </div>
+                    <!--<div class="select-item" style="visibility: hidden">-->
+                        <!--<label>无纸化标志</label>-->
+                        <!--<input hidden/>-->
+                    <!--</div>-->
+                    <div class="select-item" style="position: relative">
+                        <label  title="欠税标志">欠税标志</label>
+                        <select style="background: #f9f9f9;color: #666;"  ms-duplex="searchData.qfbz">
+                            <option value="" selected>暂不支持</option>
+                            <option value="0">否</option>
+                            <option value="1">是</option>
+                        </select>
+                    </div>
+                    <div class="select-item" style="position: relative">
+                        <label  title="下户核查标志">下户核查标志</label>
+                        <select style="background: #f9f9f9;color: #666;"  ms-duplex="searchData.xhhc_flag">
+                            <option value="" selected>暂不支持</option>
+                            <option value="0">否</option>
+                            <option value="1">是</option>
+                        </select>
+                    </div>
+
+                    <div class="select-item" style="position: relative">
+                        <label  title="评估稽查标志">评估稽查标志</label>
+                        <select style="background: #f9f9f9;color: #666;"  ms-duplex="searchData.pgjc_flag">
+                            <option value="" selected>暂不支持</option>
+                            <option value="0">否</option>
+                            <option value="1">是</option>
+                        </select>
+                    </div>
+                    <div class="select-item" style="position: relative">
+                        <span style="position: absolute;left:0;line-height:16px;padding-left: 10px;">与金三一致:</span>
+                        <label class="width-l" title="退税账号和金三出口退税账号一致标志">退税账号</label>
+                        <select style="background: #f9f9f9;color: #666;"    ms-duplex="searchData.tszh_sfyz">
+                            <option value="" selected>暂不支持</option>
+                            <option value="0">否</option>
+                            <option value="1">是</option>
+                        </select>
+                    </div>
+                    <div class="select-item" style="position: relative">
+                        <label class="width-l" title="金三注销和审核系统备案撤回一致标志">备案撤回</label>
+                        <select style="background: #f9f9f9;color: #666;"  ms-duplex="searchData.bzch_sfyz">
+                            <option value=""  selected>暂不支持</option>
+                            <option value="0">否</option>
+                            <option value="1">是</option>
+                        </select>
+                    </div>
+                    <div class="select-item" style="position: relative">
+                        <label class="width-l" title="审核系统备案和金三归类一致标志">归类一致</label>
+                        <select  style="background: #f9f9f9;color: #666;"   ms-duplex="searchData.glyz_flag">
+                            <option value=""  selected>暂不支持</option>
+                            <option value="0">否</option>
+                            <option value="1">是</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="form" style="padding-top: 54px">
+            <table id="qyjcxx-table"></table>
+            <div id="qyjcxx-tablePager"></div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==3&&'active']">
+        <div class="chartDiv"></div>
+    </div>
+</div>

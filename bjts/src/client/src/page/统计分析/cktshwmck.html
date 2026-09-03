@@ -1,0 +1,95 @@
+<div class="bbmx cktshwmck">
+    <div class="pageTabs">
+        <div class="pageTitle">
+            统计分析 - 出口退税和外贸出口情况
+        </div>
+        <div class="btns">
+            <div class="btn" ms-click="@flesh(1)">刷新</div>
+            <div class="btn" ms-click="@showModel">新增期别</div>
+            <div class="btn" ms-click="@editType = '2'" ms-if="editType == '1'">编辑</div>
+            <div class="btn" ms-click="@saveBB" ms-if="editType == '2'">保存</div>
+            <div class="btn" ms-click="@calTable">计算同比</div>
+            <div class="btn" ms-click="@exform">导出</div>
+            <div class="btn" ms-click="@changeTab(3)" ms-if="@act==1">统计图</div>
+            <div class="btn" ms-click="@changeTab(1)" ms-if="@act==3">统计表</div>
+            <!--<div class="btn dropdown" ms-on-click="showMenu">-->
+                <!--导出报表▼-->
+                <!--<ul class="dropdown-menu">-->
+                    <!--<li style="padding: 2px;overflow: hidden"><div class="btn" ms-click="@exform('0')">原始数据</div></li>-->
+                    <!--<li style="padding: 2px;overflow: hidden"><div class="btn" ms-click="@exform('1')">上报数据</div></li>-->
+                <!--</ul>-->
+            <!--</div>-->
+        </div>
+    </div>
+    <div class="page active" >
+        <div class="select-wrapper" style="line-height: 1;padding-bottom: 10px">
+            <div class="select-main">
+                <div class="select-item">
+                    <label  title="统计年份" style="width: auto;padding-left: 10px">统计年份</label>
+                    <select  ms-duplex="@searchData.ssny" ms-change="handleChange($event)">
+                        <option ms-for="(index,item) in yearArr">{{item}}</option>
+                    </select>
+                </div>
+                <!--<div class="select-item">-->
+                    <!--<label  title="税务机关">税务机关</label>-->
+                    <!--<input readonly type="text" ms-duplex="@searchData.swjgMc" ms-click="@showTree">-->
+                    <!--<ul id="cktshwmckTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>-->
+                <!--</div>-->
+            </div>
+        </div>
+        <div class="form" style="padding-top: 40px" ms-visible="@act==3">
+            <div id="cktshwmck-chart"></div>
+        </div>
+        <div class="form" style="padding-top: 40px" ms-visible="@act==1">
+            <div class="table-wrapper bbtype1" ms-if="form.bbtype=='1'">
+                <table class="table" style="width: 100%">
+                    <thead>
+                    <tr ms-for="row in tableOption.header">
+                        <th ms-for="cell in row" ms-attr="{colspan:cell.w,rowspan:cell.h}">
+                            <div ms-css="{overflow:'hidden'}">
+                                {{cell.showname}}
+                            </div>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ms-for="(index,row) in tableOption.liner">
+                        <td ms-for="cell in row" ms-attr="{colspan:cell.w,rowspan:cell.h}" style="background:#eee;">
+                            <div ms-css="{'text-align':'center',overflow:'hidden'}">
+                                {{cell.showname}}
+                            </div>
+                        </td>
+                        <td ms-for="col in tableOption.column">
+                            <div class="tableDataCell" ms-if="tableData.rows[index]&&tableData.rows[index][col.fname]!==undefind">
+                                <div class="redDelta" ms-visible="@checkRed(index,col.fname)"></div>
+                                <input ms-css="{'text-align':col.align=='0'?'left':col.align=='1'?'center':'right'}" ms-duplex="tableData.rows[index][col.fname]" ms-on-change="degree(index,col.fname,col.degree)"
+                                       ms-attr="[{disabled:(col.allowupdate=='N'||tableData.rows[index].ALLOWUPDATE=='N' || @editType == '1')?true:false},{title:@checkHz(index,col.fname)}]"
+                                >
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="bz">
+                    <p style="padding-left: 5px;">说明：</p>
+                    <p>（1）外贸出口额（商务厅公布的口径）、出口退税金额（税务部门收规公布的口径）、报关单出口额（审核系统收到的已申报出口退税的口径）</p>
+                    <p>（2）上述第2、3项税务收规和审核系统口径刷新时自动取数。另外商务厅和税务收规口径数字允许手工修改调整。</p>
+                    <p>（3）由于数据口径取得问题，本功能主要由省市级数据统计分析使用。</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="page-model zbxxModel" style="width: 400px;height: 200px">
+        <div class="model-title">新增期别</div>
+        <div class="model-content" style="height: auto">
+            <p style="text-align: center;"><label style="float: none">年份：</label><input style="float: none" type="text" ms-duplex="modalData.ssny"></p>
+        </div>
+        <div class="model-btns">
+            <div class="btn" ms-click="saveModel">提交</div>
+            <div class="btn" ms-click="hideModel">取消</div>
+        </div>
+    </div>
+</div>

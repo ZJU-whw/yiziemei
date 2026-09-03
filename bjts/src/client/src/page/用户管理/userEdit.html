@@ -1,0 +1,52 @@
+<div class="userEdit">
+    <div class="tabs-wrapper">
+        <div class="tabs-list">
+            <div :class="['tabs-item',activeIndex == index && 'active']"  ms-for="(index,item) in tabs" ms-click="@handleClick(item.index,index)">{{item.name}}</div>
+        </div>
+        <div class="tabs-underline"></div>
+    </div>
+    <div :class="['page',activeIndex == 0 && 'active']">
+        <div class="form-wrapper">
+            <div class="form-item"><label>ID：</label><span>{{formData.id}}</span></div>
+            <div class="form-item"><label><span class="text-red">*</span>用户代码：</label><span>{{formData.czryDm}}</span></div>
+            <div class="form-item"><label><span class="text-red">*</span>用户名称：</label><span>{{formData.czryMc}}</span></div>
+            <!--<div class="form-item"><label><span class="text-red">*</span>密码：</label><input type="text" ms-duplex="formData.password"></div>-->
+            <div class="form-item"><label><span class="text-red">*</span>税务机关代码：</label><input maxlength="11" type="text" ms-duplex="formData.swjgDm"></div>
+            <div class="form-item"><label>联系电话：</label><input type="text" ms-duplex="formData.lxrdh"></div>
+            <div class="form-item"><label>是否启用：</label><input type="checkbox" style="width: 18px;height: 18px" ms-duplex-checked="formData.qybz"></div>
+            <!-- <div class="form-item"><label>对应征管系统代码：</label><input type="text" ms-duplex="formData.czryDmZg"></div>
+            <div class="form-item"><label>审核系统用户状态：</label><input type="text" ms-duplex="formData.usrstate"></div> -->
+            <div class="btn" ms-click="saveInfo">保存</div>
+        </div>
+    </div>
+    <div :class="['page',activeIndex == 1 && 'active']">
+        <h3 class="title">现有用户组</h3>
+        <div class="table-wrapper" style="padding: 0 20px">
+            <table id="current-user-group"></table>
+            <div id="current-user-group-pager"></div>
+        </div>
+        <h3 class="title">用户组列表</h3>
+        <div class="table-wrapper" style="padding: 0 20px">
+            <table id="user-group"></table>
+            <div id="user-group-pager"></div>
+        </div>
+    </div>
+    <div :class="['page',activeIndex == 2 && 'active']">
+        <div class="lf">
+           <h3 class="title">已拥有角色</h3>
+            <div class="table-wrapper" style="padding: 0 20px">
+                <table id="current-user-role"></table>
+                <div id="current-user-role-pager"></div>
+            </div>
+            <h3 class="title">角色列表</h3>
+            <div class="table-wrapper" style="padding: 0 20px">
+                <table id="user-role"></table>
+                <div id="user-role-pager"></div>
+            </div> 
+        </div>
+        <div class="func-menu-wrapper lf" ms-visible="currentRolecode != ''">
+            <h3 class="menu-title">【{{@currentRolename}}】角色拥有的菜单</h3>
+            <ul id="userEditTree" class="ztree func-menu"></ul>
+        </div>
+    </div>
+</div>

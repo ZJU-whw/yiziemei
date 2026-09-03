@@ -1,0 +1,74 @@
+<div class="gsbj" >
+    <div class="pageTabs">
+        <div style="height:24px;line-height:24px;width:35%;float: left;margin: 5px;">
+            【公式编辑】
+        </div>
+        <div style="height:24px;line-height:24px;width:35%;float: left;margin: 5px;">
+            【报表代码】：<span>{{searchData.bbdm}}</span>
+        </div>
+        <div class="btns">
+            <div class="btn" ms-click="@search(1)">刷新</div>
+        </div>
+    </div>
+    <div class="page active">
+        <div class="form" style="padding-top: 0">
+            <div class="lf">
+                <fieldset>
+                    <legend>行编辑</legend>
+                    <div class="table-wrap">
+                        <table class="table">
+                            <tr>
+                                <th>行代码</th>
+                                <th>名称</th>
+                                <th>行下标</th>
+                            </tr>
+                            <tr ms-for="item in tableData.rows" ms-dblclick="editRow(item)">
+                                <td>{{item.fname}}</td>
+                                <td>{{item.cname}}</td>
+                                <td>{{item.bh}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="ipt">
+                        <textarea ms-duplex="form.rowContent" id="rowContent">
+
+                        </textarea>
+                    </div>
+                    <div class="btns">
+                        <div class="btn" ms-click="resetRow">重置</div>
+                        <div class="btn" ms-click="saveRow">保存</div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="lf">
+                <fieldset>
+                    <legend>列编辑</legend>
+                    <div class="table-wrap">
+                        <table class="table">
+                            <tr>
+                                <th>列代码</th>
+                                <th>名称</th>
+                                <th>列下标</th>
+                            </tr>
+                            <tr ms-for="item in tableData.cols" ms-dblclick="editCol(item)">
+                                <td>{{item.fname}}</td>
+                                <td>{{item.cname}}</td>
+                                <td>{{item.bh}}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="ipt">
+                        <textarea ms-duplex="form.colContent" id="colContent">
+
+                        </textarea>
+                    </div>
+                    <div class="btns">
+                        <div class="btn" ms-click="resetCol">重置</div>
+                        <div class="btn" ms-click="saveCol">保存</div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>

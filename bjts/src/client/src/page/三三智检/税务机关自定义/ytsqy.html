@@ -1,0 +1,37 @@
+<div class="ytsqy zbpzWarp" ms-click="hideNsrsbh">
+  <div class="pageTabs">
+    <div class="pageTitle">
+      9810预退税企业
+    </div>
+    <div class="btns">
+      <div class="btn" ms-click="@search(1)">查询</div>
+      <div class="btn" ms-click="@exform">导出</div>
+    </div>
+  </div>
+  <div ms-class="['page','active']">
+    <div class="select-wrapper">
+      <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+      <!-- <i class="icon" ms-click="showHyper" title="展开查询条件"></i> -->
+      <div class="select-main">
+        <div class="select-item">
+          <label title="退税税务机关">退税税务机关</label>
+          <input readonly type="text" ms-duplex="swjgmc" ms-click="showTree">
+          <ul id="ytsqySwjgTree" class='ztree treeDiv ytsqySwjgTree' style="left: 40%;width: 200px;"></ul>
+        </div>
+        <div class="select-item">
+            <label title="申报日期起">申报日期起</label>
+            <div class="select-item-inner">
+              <input type="text" class="bt-form-control datepicker date-day start-date" readonly :on-blur="@filDate" ms-duplex="@searchData.
+              sbrqq">
+              <span style="margin:0;">止</span>
+              <input type="text" class="bt-form-control datepicker date-day end-date" readonly :on-blur="@filDate" ms-duplex="@searchData.sbrqz">
+            </div>
+          </div>
+      </div>
+    </div>
+    <div class="form" style="padding-top: 54px">
+      <table id="ytsqy-table"></table>
+      <div id="ytsqy-tablePager"></div>
+    </div>
+  </div>
+</div>

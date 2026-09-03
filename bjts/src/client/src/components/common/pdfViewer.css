@@ -1,0 +1,57 @@
+/* PDF预览组件样式 */
+.pdf-viewer .pdf-viewer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 3500;
+  display: none;
+}
+.pdf-viewer .pdf-viewer-model {
+  position: fixed;
+  width: 90vw;
+  height: calc(100vh - 120px);
+  top: 0;
+  left: 50%;
+  margin-left: -45vw;
+  border-radius: 5px;
+  display: none;
+  z-index: 3600;
+  background-color: #fff;
+  margin-top: 40px;
+}
+.pdf-viewer .pdf-viewer-header {
+  height: 60px;
+  line-height: 60px;
+  padding: 0 20px;
+  border-bottom: 1px solid #ddd;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+.pdf-viewer .pdf-viewer-container {
+  width: calc(100% - 20px);
+  height: calc(100% - 80px);
+  margin: 10px auto 0;
+  overflow: hidden !important;
+  background-color: #fff;
+}
+.pdf-viewer .close {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  background: #ccc;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  line-height: 35px;
+  font-size: 36px;
+  text-align: center;
+  cursor: pointer;
+  color: #fff;
+}
+.pdf-viewer .close:hover {
+  background: #e74c3c;
+}

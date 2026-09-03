@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.bjts.sw.dao.JsxtMapper">
+    <!--  统计分析-出口退税和外贸出口情况：获取出口退税额数据本月数据 -->
+    <select id="selectE01001Cktse" parameterType="map" resultType="hashmap">
+        <foreach collection="monthsCktse" item="item" index="index" separator="union all" >
+            select sum(se) as cktse,#{item.yue} as yue
+            from hx_zs.zs_srths t
+            where t.tdsfyylx_dm = '101'
+                and t.skssswjg_dm like  #{qxdm}||'%'
+                and t.kprq >= to_date( #{item.byq},'yyyy-MM-dd')
+                <![CDATA[
+                and kprq < to_date( #{item.byz},'yyyy-MM-dd')
+                 ]]>
+        </foreach>
+    </select>
+
+    <!--  统计分析-出口退税和外贸出口情况：获取出口退税额数据上年同期数据 -->
+    <select id="selectE01001Cktse4LastSsny" parameterType="map" resultType="hashmap">
+        <foreach collection="monthsCktse" item="item" index="index" separator="union all" >
+            select sum(se) as cktse,#{item.yue} as yue
+            from hx_zs.zs_srths t
+            where t.tdsfyylx_dm = '101'
+                and t.skssswjg_dm like  #{qxdm}||'%'
+                and t.kprq >=  to_date( #{item.sntqq},'yyyy-MM-dd')
+                <![CDATA[
+                and kprq < to_date( #{item.sntqz},'yyyy-MM-dd')
+                 ]]>
+        </foreach>
+    </select>
+
+</mapper>

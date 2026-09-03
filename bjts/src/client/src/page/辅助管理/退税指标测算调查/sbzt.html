@@ -1,0 +1,108 @@
+<div class="sbzt" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            退税预测企业报送状态查询 <span style="font-size: 0.7em;float: none">金额单位：退税额(元)</span>
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@normalSearch()">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="select-wrapper" style="padding-bottom: 20px;line-height: 1">
+            <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+            <div class="select-main">
+                <div class="select-item" style="width:25%">
+                    <label  title="税务机关">税务机关</label>
+                    <input readonly type="text" ms-duplex="swjgmc" ms-click="@showTree">
+                    <ul id="sbztTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+                </div>
+                <!-- <div class="select-item" style="width:25%">
+                    <label title="纳税人标识">纳税人标识</label>
+                    <input type="text" ms-duplex="searchData.nsrbs">
+                </div> -->
+                <div class="select-item" style="width:25%">
+                    <label  title="上报状态">上报状态</label>
+                    <select  ms-duplex="@searchData.sbbz" >
+                        <option value=""></option>
+                        <option value="0">未上报</option>
+                        <option value="1">已上报</option>
+                    </select>
+                </div>
+                <div class="select-item" style="width:25%">
+                    <label  title="企业重点标志">企业重点标志</label>
+                    <select  ms-duplex="@searchData.zdbz" >
+                        <option value=""></option>
+                        <option value="Y">是</option>
+                        <option value="N">否</option>
+                    </select>
+                </div>
+                <div class="select-item" style="width:25%">
+                    <label  title="统计年月">统计年月</label>
+                    <div class="select-item-inner">
+                        <select  ms-duplex="@searchData.tjnd" style="width: 75px">
+                            <option ms-for="item in tjndList" ms-attr="{value:item}">{{item}}</option>
+                        </select>
+                        <span>年</span>
+                        <select  ms-duplex="@searchData.tjyf" style="width: 60px">
+                            <option value="01">1</option>
+                            <option value="02">2</option>
+                            <option value="03">3</option>
+                            <option value="04">4</option>
+                            <option value="05">5</option>
+                            <option value="06">6</option>
+                            <option value="07">7</option>
+                            <option value="08">8</option>
+                            <option value="09">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                        </select>
+                        <span>月</span>
+                    </div>
+                </div>
+            </div>
+            <div class="select-sub">
+                <div class="select-item" style="width:25%">
+                    <label title="纳税人标识">纳税人标识</label>
+                    <input type="text" ms-duplex="searchData.nsrbs">
+                </div>
+                <!-- <div class="select-item">
+                    <label  title="上报状态">上报状态</label>
+                    <select  ms-duplex="@searchData.sbbz" >
+                        <option value=""></option>
+                        <option value="0">未上报</option>
+                        <option value="1">已上报</option>
+                    </select>
+                </div>
+                <div class="select-item">
+                    <label  title="企业重点标志">企业重点标志</label>
+                    <select  ms-duplex="@searchData.zdbz" >
+                        <option value=""></option>
+                        <option value="Y">是</option>
+                        <option value="N">否</option>
+                    </select>
+                </div> -->
+                <div class="select-item" style="width:25%">
+                    <label  title="退税计算方法">退税计算方法</label>
+                    <select  ms-duplex="@searchData.tsjsfs" >
+                        <option value=""></option>
+                        <option value="1">生产</option>
+                        <option value="2">外贸</option>
+                    </select>
+                </div>
+                <div class="select-item" style="width:25%">
+                    <label title="报送来源">报送来源</label>
+                    <select ms-duplex="@searchData.bsly">
+                        <option value="1">易税云单证备案</option>
+                        <option value="2">老电局便捷退税</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form" style="padding-top: 52px">
+            <table id="sbzt-table"></table>
+            <div id="sbzt-tablePager"></div>
+        </div>
+    </div>
+</div>

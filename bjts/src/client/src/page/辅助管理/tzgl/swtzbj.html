@@ -1,0 +1,90 @@
+<div class="swtzbj tzgl" >
+    <div class="pageTabs">
+        <div class="pageTitle" ms-if="params.type == 'add'">
+            通知管理 / 税务通知内容新增
+        </div>
+        <div class="pageTitle" ms-if="params.type == 'update'">
+            通知管理 / 税务通知内容编辑
+        </div>
+        <div class="pageTitle" ms-if="params.type == 'check'">
+            通知管理 / 税务通知内容查看
+        </div>
+        <div class="btns" ms-if="@act==1 && type != 'check'">
+            <div class="btn" ms-click="@saveInfo">保存</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']">
+        <div class="form" style="padding: 20px;max-width: 1000px;">
+            <div class="tzgl-devide">
+                <div class="form-item">
+                    <label class="form-title">通知类型：</label>
+                    <label><input type="radio" name="swtzlx" value="1" ms-duplex="formData.main.notitype" ms-on-change="handleChange">按税务机关群发</label>
+                    <label><input type="radio" name="swtzlx" value="2" ms-duplex="formData.main.notitype" ms-on-change="handleChange">按操作员代码定向发送</label>
+                    <input style="width: 80px;" class="datepicker date-day rt" ms-duplex="formData.main.valid_time" :on-blur="@filDate" type="text" >
+                    <span class="rt" style="margin-right: 10px">截止日期:</span>
+                </div>
+                <div class="form-item">
+                    <label class="form-title">通知对象：</label>
+                    <input ms-if="formData.main.notitype == '1'" readonly type="text" class="form-input" ms-duplex="formData.main.objvalMc" ms-click="showTree('1')">
+                    <input ms-if="formData.main.notitype == '2'" readonly type="text" class="form-input" ms-duplex="formData.main.objvalMc" ms-click="showModal('1')">
+                    <ul id="swtzZtree1" class='ztree treeDiv tzdx' style="left: 100px;top:100%;"></ul>
+                </div>
+                <div class="form-item">
+                    <label class="form-title">抄送对象：</label>
+                    <div ms-if="formData.main.notitype == '1'" class="fake-textarea" ms-click="showTree('2')">
+                        <p ms-for="(index,item) in formData.csxx"><span style="vertical-align: middle">{{item.objvalMc}}</span><span ms-click="deleteItem(index) | stop" class="icon-close"></span></p>
+                    </div>
+                    <div ms-if="formData.main.notitype == '2'" class="fake-textarea" ms-click="showModal('2')">
+                        <p ms-for="(index,item) in formData.csxx"><span style="vertical-align: middle">{{item.objvalMc}}</span><span ms-click="deleteItem(index) | stop" class="icon-close"></span></p>
+                    </div>
+                    <ul id="swtzZtree2" class='ztree treeDiv csdx' style="left: 100px;top:100%;"></ul>
+                </div>
+                <div class="form-item">
+                    <label class="form-title">附件：</label>
+                    <div ms-if="type != 'check'" class="btn fileupload">添加附件<input name="file" type="file"  /></div>
+                    <span ms-if="type != 'check'">(要求单个文件小于2000k)</span>
+                    <ul class="file-list">
+                        <li ms-for="(index,item) in formData.attach" class="file-list-item"><span class="file-title" ms-click="loadFile(item.id)">{{item.filename}}</span><span class="file-size">{{item.filesize}}</span><span ms-if="type != 'check'" class="btn file-state" ms-click="deleteFile(item.id)">删除</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tzgl-devide">
+                <div class="form-item">
+                    <label class="form-title">标题：</label>
+                    <input maxlength="100"  type="text" class="form-input" ms-duplex="formData.main.title">
+                </div>
+                <div class="form-item">
+                    <label class="form-title">通知内容：</label>
+                    <textarea maxlength="1000" rows="12" type="text" class="form-input" placeholder="输入字数在1000字内" ms-duplex="formData.main.content"></textarea>
+                </div>
+                <div class="form-item">
+                    <label class="form-title">备注：</label>
+                    <textarea maxlength="100" rows="4"  type="text" class="form-input" ms-duplex="formData.main.bz"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="page-model modal1">
+            <div class="model-title">单户添加</div>
+            <div class="model-content" style="height: auto">
+                <p><label style="width: 120px"><span class="text-red">*</span>税局操作员代码：</label><input type="text" class="width-l" ms-duplex="modalData"></p>
+            </div>
+            <div class="model-btns">
+                <div class="btn" ms-click="submit('1')">确定</div>
+                <div class="btn" ms-click="closeModal('1')">取消</div>
+            </div>
+        </div>
+        <div class="page-model modal2">
+            <div class="model-title">批量添加</div>
+            <div class="model-content" style="height: auto">
+                <textarea id="swModalData" placeholder="请输入税局操作员代码，一个代码占一行" class="textarea" type="text" rows="10"></textarea>
+            </div>
+            <div class="model-btns">
+                <div class="btn" ms-click="submit('2')">确定</div>
+                <div class="btn" ms-click="closeModal('2')">取消</div>
+            </div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==3&&'active']">
+        <div class="chartDiv"></div>
+    </div>
+</div>

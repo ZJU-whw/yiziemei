@@ -1,0 +1,60 @@
+<div class="bbzb" >
+    <div class="pageTabs">
+        <div style="height:24px;line-height:24px;width:35%;float: left;margin: 5px;">
+            【报表指标维护】
+        </div>
+        <div style="height:24px;line-height:24px;width:35%;float: left;margin: 5px;">
+            【报表代码】：<span>{{searchData.bbdm}}</span>
+        </div>
+        <div class="btns">
+            <div class="btn" ms-click="@search(1)">刷新</div>
+            <div class="btn" ms-click="@saveTable">保存</div>
+            <!--<div class="btn" ms-click="@addRow">新增指标</div>-->
+        </div>
+    </div>
+    <div class="page active">
+        <div class="form" style="padding-top: 0">
+            <table class="table">
+                <thead>
+                <tr>
+                    <td class="text-center" style="background: #eee;">报表栏次</td>
+                    <td class="text-center" style="background: #eee;">栏次名称</td>
+                    <td class="text-center" style="background: #eee;">显示序号</td>
+                    <td class="text-center" style="background: #eee;">允许行编辑</td>
+                    <td class="text-center" style="background: #eee;">汇总方式</td>
+                    <td class="text-center" style="background: #eee;">对象列</td>
+                    <td class="text-center" style="background: #eee;">允许公式计算</td>
+
+                </tr>
+                </thead>
+                <tbody>
+                <tr ms-for="(index,item) in tableData">
+                    <td><input type="text" disabled ms-duplex="item.bblc"></td>
+                    <td><input type="text" disabled ms-duplex="item.lcmc"></td>
+                    <td><input type="text" disabled ms-duplex="item.showorder"></td>
+                    <td><select ms-duplex="item.allowupdate">
+                        <option value=""></option>
+                        <option value="Y">是</option>
+                        <option value="N">否</option>
+                    </select></td>
+                    <td><select ms-duplex="item.hztype">
+                        <option value=""></option>
+                        <option value="1">求和汇总</option>
+                        <option value="2">同比汇总</option>
+                        <option value="3">占比汇总</option>
+                    </select></td>
+                    <td><select ms-duplex="item.hzobj">
+                        <option value=""></option>
+                        <option ms-for="opt in tableData" ms-attr="{value:opt.bblc}">{{opt.lcmc}}</option>
+                    </select></td>
+                    <td><select ms-duplex="item.allowformula">
+                        <option value=""></option>
+                        <option value="Y">是</option>
+                        <option value="N">否</option>
+                    </select></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

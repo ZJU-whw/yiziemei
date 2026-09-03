@@ -1,0 +1,131 @@
+<div class="hdqktj" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            函调情况统计
+        </div>
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <!--<div class="btn" ms-click="@exform">导出</div>-->
+        </div>
+        <div class="btns" ms-if="@act==2">
+            <div class="btn rt" ms-click="@printForm($event)">打印</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <div class="select-wrapper">
+            <!--<i class="icon" ms-click="showHyper" title="展开查询条件"></i>-->
+            <div class="select-main">
+                <div class="select-item">
+                    <label  title="主管税务机关代码">主管税务机关代码</label>
+                    <input readonly  type="text" ms-duplex="swjgmc" ms-click="@showTree">
+                    <ul id="hdqktjZtree" class='ztree treeDiv' style="left: 90px;"></ul>
+                </div>
+                <div class="select-item">
+                    <label  title="查询日期">查询日期起</label>
+                    <div class="select-item-inner">
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.cxrqq| change" :on-blur="@filDate">
+                        <span>止</span>
+                        <input type="text" class="datepicker date-day" ms-duplex="@searchData.cxrqz| change" :on-blur="@filDate">
+                    </div>
+                </div>
+            </div>
+            <div class="select-sub">
+            </div>
+        </div>
+        <div class="form" style="padding-top: 50px">
+            <table class="table">
+                <tr>
+                    <td style="width: 20%" class="title text-center">项目</td>
+                    <td style="width: 20%" class="title text-center">数量</td>
+                    <td style="width: 20%" class="title text-center">发票数量</td>
+                    <td style="width: 20%" class="title text-center">计税金额</td>
+                    <td style="width: 20%" class="title text-center">退税额</td>
+                </tr>
+                <tr>
+                    <td class="title">发出核实函</td>
+                    <td>{{form.fchsh_sl}}</td>
+                    <td>{{form.fchsh_fpsl}}</td>
+                    <td class="text-right">{{form.fchsh_jsje | number(2)}}</td>
+                    <td class="text-right">{{form.fchsh_tse | number(2)}}</td>
+                </tr>
+                <tr>
+                    <td class="title">其中：向上游发函</td>
+                    <td>{{form.xsyfh_sl}}</td>
+                    <td>{{form.xsyfh_fpsl}}</td>
+                    <td class="text-right">{{form.xsyfh_jsje | number(2)}}</td>
+                    <td class="text-right">{{form.xsyfh_tse | number(2)}}</td>
+                </tr>
+                <tr>
+                    <td class="title">收到复函</td>
+                    <td>{{form.sdfh_sl}}</td>
+                    <td>{{form.sdfh_fpsl}}</td>
+                    <td class="text-right">{{form.sdfh_jsje | number(2)}}</td>
+                    <td class="text-right">{{form.sdfh_tse | number(2)}}</td>
+                </tr>
+                <tr>
+                    <td class="title">同意退税</td>
+                    <td>{{form.tyts_sl}}</td>
+                    <td>{{form.tyts_fpsl}}</td>
+                    <td class="text-right">{{form.tyts_jsje | number(2)}}</td>
+                    <td class="text-right">{{form.tyts_tse | number(2)}}</td>
+                </tr>
+                <tr>
+                    <td class="title">暂缓退税</td>
+                    <td>{{form.zhts_sl}}</td>
+                    <td>{{form.zhts_fpsl}}</td>
+                    <td class="text-right">{{form.zhts_jsje | number(2)}}</td>
+                    <td class="text-right">{{form.zhts_tse | number(2)}}</td>
+                </tr>
+                <tr>
+                    <td class="title">不予退税</td>
+                    <td>{{form.byts_sl}}</td>
+                    <td>{{form.byts_fpsl}}</td>
+                    <td class="text-right">{{form.byts_jsje | number(2)}}</td>
+                    <td class="text-right">{{form.byts_tse | number(2)}}</td>
+                </tr>
+                <tr>
+                    <td class="title">收到核实函</td>
+                    <td>{{form.sdhsh_sl}}</td>
+                    <td>{{form.sdhsh_fpsl}}</td>
+                    <td class="text-right">{{form.sdhsh_jsje | number(2)}}</td>
+                    <td class="text-right">{{form.sdhsh_tse | number(2)}}</td>
+                </tr>
+                <tr>
+                    <td class="title">已处理复函</td>
+                    <td>{{form.yclfh_sl}}</td>
+                    <td>{{form.yclfh_fpsl}}</td>
+                    <td class="text-right">{{form.yclfh_jsje | number(2)}}</td>
+                    <td class="text-right">{{form.yclfh_tse | number(2)}}</td>
+                </tr>
+                <tr>
+                    <td class="title">其中：逾期复函</td>
+                    <td>{{form.yqfh_sl}}</td>
+                    <td>{{form.yqfh_fpsl}}</td>
+                    <td class="text-right">{{form.yqfh_jsje | number(2)}}</td>
+                    <td class="text-right">{{form.yqfh_tse | number(2)}}</td>
+                </tr>
+                <tr>
+                    <td class="title">未处理复函</td>
+                    <td>{{form.wclfh_sl}}</td>
+                    <td>{{form.wclfh_fpsl}}</td>
+                    <td class="text-right">{{form.wclfh_jsje | number(2)}}</td>
+                    <td class="text-right">{{form.wclfh_tse | number(2)}}</td>
+                </tr>
+                <tr>
+                    <td class="title">其中：逾期未复函</td>
+                    <td>{{form.yqwfh_sl}}</td>
+                    <td>{{form.yqwfh_fpsl}}</td>
+                    <td class="text-right">{{form.yqwfh_jsje | number(2)}}</td>
+                    <td class="text-right">{{form.yqwfh_tse | number(2)}}</td>
+                </tr>
+                <tr>
+                    <td class="title">非本地区管辖</td>
+                    <td>{{form.fbdqgx_sl}}</td>
+                    <td>{{form.fbdqgx_fpsl}}</td>
+                    <td class="text-right">{{form.fbdqgx_jsje | number(2)}}</td>
+                    <td class="text-right">{{form.fbdqgx_tse | number(2)}}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

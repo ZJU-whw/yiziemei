@@ -1,0 +1,67 @@
+<div class="hctj-new rcsdhc-fh-tj">
+  <div class="pageTabs">
+    <div class="pageTitle">
+      审单核查情况(分户)统计
+    </div>
+    <div class="btns">
+      <div class="btn" ms-click="@search(1)">查询</div>
+      <div class="btn" ms-click="@exform">导出</div>
+    </div>
+  </div>
+  <div class="page active">
+    <form name="rcsdhc-fh-tj-form">
+      <div class="select-wrapper" style="padding: 10px 10px 15px 0;">
+        <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+        <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+        <div class="select-main">
+          <div class="select-item">
+            <label title="税务机关">税务机关</label>
+            <input readonly type="text" class="bt-form-control" ms-duplex="swjgmc" ms-click="@showTree">
+            <ul id="rcsdhc-fh-tjTree" class='ztree treeDiv' style="left: 40%;width:200px"></ul>
+          </div>
+          <div class="select-item">
+            <label title="统计日期">统计日期</label>
+            <div class="select-item-inner">
+              <input type="text" class="bt-form-control datepicker date-day" ms-click="@showDatetimepicker($event)" ms-duplex="@searchData.timeStart" readonly>
+              止
+              <input type="text" class="bt-form-control datepicker date-day" ms-click="@showDatetimepicker($event)" ms-duplex="@searchData.timeEnd" readonly>
+            </div>
+          </div>
+          <div class="select-item">
+            <label title="分类管理等级">分类管理等级</label>
+            <select class="bt-form-control width-m" ms-duplex="searchData.flglcd">
+              <option value="">全部</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+            </select>
+          </div>
+        </div>
+        <div class="select-sub">
+          <div class="select-item">
+            <label title="退税计算方式">退税计算方式</label>
+            <select class="bt-form-control width-m" ms-duplex="searchData.jsmode">
+              <option value="">全部</option>
+              <option value="1">免抵退</option>
+              <option value="2">免退税</option>
+              <option value="3">免税</option>
+              <option value="9">其他</option>
+            </select>
+          </div>
+          <div class="select-item">
+            <label title="核查情况"><i class="question" title="表示统计日期起止范围内是否下达过日常审单核查"></i>核查情况</label>
+            <select class="bt-form-control width-m" ms-duplex="searchData.hcqk">
+              <option value="0">未核查</option>
+              <option value="1">已核查</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="form" style="padding-top: 54px">
+      <table id="rcsdhc-fh-tj-table"></table>
+      <div id="rcsdhc-fh-tj-tablePager"></div>
+    </div>
+  </div>
+</div>

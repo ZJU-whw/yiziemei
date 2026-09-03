@@ -1,0 +1,169 @@
+<div class="zbypz zbpzWarp tableLine" >
+  <div class="pageTabs">
+      <div class="pageTitle">
+        指标元配置
+      </div>
+      <div class="btns">
+          <div class="btn" ms-click="@search(1)">查询</div>
+          <div class="btn" ms-click="@showModel('新增')">新增</div>
+          <div class="btn" ms-click="@exform">导出</div>
+      </div>
+  </div>
+  <div ms-class="['page','active']" >
+    <div class="select-wrapper">
+      <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+      <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+      <div class="select-main">
+          <div class="select-item">
+            <label  title="指标元全称">指标元全称</label>
+            <input  type="text" ms-duplex="@searchData.zbuCname">
+          </div>
+          <div class="select-item">
+            <label title="业务分类代码">业务分类代码</label>
+            <input type="text" ms-duplex="searchData.ywflDm">
+          </div>
+          <div class="select-item">
+            <label title="数据源">数据源</label>
+            <input type="text" ms-duplex="searchData.dsId">
+          </div>
+      </div>
+      <div class="select-sub">
+        <div class="select-item">
+          <label title="数据表">数据表</label>
+          <input type="text" ms-duplex="searchData.tablename">
+        </div>
+        <div class="select-item">
+          <label title="数据项">数据项</label>
+          <input type="text" ms-duplex="searchData.fieldname">
+        </div>
+      </div>
+    </div>
+    <div class="form" style="padding-top: 54px;">
+        <table id="zbypz-table"></table>
+        <div id="zbypz-tablePager"></div>
+    </div>
+  </div>
+  <!-- 新增/编辑 -->
+  <div class="page-model add-page-model" style="height:400px;width: 960px;margin-left: -480px;" >
+    <div class="model-title">{{addTitle}}</div>
+    <div class="model-content g-form" style="height: 300px;">
+      <div class="clear">
+        <div class="g-form-item lf">
+          <div class="g-form-item_label"><span class="text-red">*</span>指标元全称：</div>
+          <div class="g-form-item__content">
+            <input type="text" ms-duplex="modelData.zbuCname">
+          </div>
+        </div>
+        <div class="g-form-item lf mt-0">
+          <div class="g-form-item_label"><span class="text-red">*</span>指标元简称：</div>
+          <div class="g-form-item__content">
+            <input type="text" ms-duplex="modelData.zbuSname">
+          </div>
+        </div>
+      </div>
+      <div class="clear mt-10">
+        <div class="g-form-item lf">
+          <div class="g-form-item_label"><span class="text-red">*</span>业务分类：</div>
+          <div class="g-form-item__content">
+            <select
+              style="width: 100%;"
+              class="g-select"
+              ms-duplex="@modelData.ywflDm">
+              <option value=""></option>
+              <option ms-for="item in @ywflList" ms-attr="{value: item.ywflDm}">{{item.ywflMc}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="g-form-item lf mt-0">
+          <div class="g-form-item_label"><span class="text-red">*</span>数据类型：</div>
+          <div class="g-form-item__content">
+            <select style="width: 100%;" class="g-select" ms-duplex="@modelData.datatype">
+              <option value=""></option>
+              <option value="1">字符型</option>
+              <option value="2">数值型</option>
+              <option value="3">日期型</option>
+              <option value="4">逻辑性</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="clear mt-10">
+        <div class="g-form-item lf">
+          <div class="g-form-item_label"><span class="text-red">*</span>业务描述：</div>
+          <div class="g-form-item__content" style="height: 70px;">
+            <textarea class="g-textarea" style="resize: none;height: 70px;" ms-duplex="modelData.ywms"></textarea>
+          </div>
+        </div>
+        <div class="lf">
+          <div class="g-form-item">
+            <div class="g-form-item_label"><span class="text-red">*</span>数据源：</div>
+            <div class="g-form-item__content">
+              <select
+                style="width: 100%;"
+                class="g-select"
+                ms-duplex="@modelData.dsId"
+                data-duplex-changed="dsChange()">
+                <option value=""></option>
+                <option ms-for="item in @dsNameList" ms-attr="{value: item.dsId}">{{item.dsName}}</option>
+              </select>
+            </div>
+          </div>
+          <div class="g-form-item">
+            <div class="g-form-item_label"><span class="text-red">*</span>数据表：</div>
+            <div class="g-form-item__content">
+              <select
+                style="width: 100%;"
+                class="g-select"
+                ms-duplex="@modelData.tablename"
+                data-duplex-changed="tblChange()">
+                <option value=""></option>
+                <option ms-for="item in @tblNameList" ms-attr="{value: item.tablename}">{{item.tablecname}}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="clear mt-10">
+        <div class="g-form-item lf">
+          <div class="g-form-item_label"><span class="text-red">*</span>限制条件：</div>
+          <div class="g-form-item__content">
+            <input type="text" ms-duplex="modelData.xztj">
+          </div>
+        </div>
+        <div class="g-form-item lf mt-0">
+          <div class="g-form-item_label"><span class="text-red">*</span>数据项：</div>
+          <div class="g-form-item__content">
+            <select
+                style="width: 100%;"
+                class="g-select"
+                ms-duplex="@modelData.fieldname">
+                <option value=""></option>
+                <option ms-for="item in @fieldNameList" ms-attr="{value: item.fieldname}">{{item.fieldcname}}</option>
+              </select>
+          </div>
+        </div>
+      </div>
+      <div class="clear mt-10">
+        <div class="g-form-item lf">
+          <div class="g-form-item_label"><span class="text-red">*</span>有效标志：</div>
+          <div class="g-form-item__content">
+            <select style="width: 100%;" class="g-select" ms-duplex="@modelData.yxbz">
+              <option value="Y">是</option>
+              <option value="N">否</option>
+            </select>
+          </div>
+        </div>
+        <div class="g-form-item lf mt-0">
+          <div class="g-form-item_label"><span class="text-red">*</span>版本号：</div>
+          <div class="g-form-item__content">
+            <input type="text" ms-duplex="modelData.bbh">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="model-btns">
+        <div class="btn" ms-click="saveModel">保存</div>
+        <div class="btn" ms-click="hideModel">取消</div>
+    </div>
+  </div>
+</div>

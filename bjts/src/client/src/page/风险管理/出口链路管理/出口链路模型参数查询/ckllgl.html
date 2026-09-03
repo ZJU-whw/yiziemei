@@ -1,0 +1,56 @@
+<div class="ckllgl" style="height: calc(100vh - 140px);">
+    <div class="content-wrapper">
+        <div class="tree-panel">
+            <div class="tree-header">出口链路模型参数</div>
+            <ul id="ckllglTree" style="overflow: auto;height: calc(100% - 42px);" class='szyjTree ztree'></ul>
+        </div>
+        <div class="right-panel">
+    <div class="toolbar select-wrapper" style="padding:0;background: #fff;border: none;">
+        <div class="select-main">
+            <!-- 菜单1/2/3：通用查询条件 -->
+            <div class="select-item" ms-if="@curKey==='hgHydqdzb' || @curKey==='hgKaqydzb' || @curKey==='zzmdgQydzb'">
+                <div class="select-item-inner">
+                    <select ms-duplex="@searchParams.col1Type">
+                        <option value="name">{{@col1Label}}名称</option>
+                        <option value="code">{{@col1Label}}代码</option>
+                    </select>
+                    <input type="text" ms-duplex="@searchParams.col1" placeholder="">
+                </div>
+            </div>
+            <div class="select-item" ms-if="@curKey==='hgHydqdzb' || @curKey==='hgKaqydzb' || @curKey==='xzqhdzb'">
+                <div class="select-item-inner">
+                    <select ms-duplex="@searchParams.xzqhType">
+                        <option value="name">行政区划名称</option>
+                        <option value="code">行政区划代码</option>
+                    </select>
+                    <input type="text" ms-duplex="@searchParams.xzqh" placeholder="">
+                </div>
+            </div>
+            <div class="select-item" ms-if="@curKey==='hgHydqdzb' || @curKey==='hgKaqydzb' || @curKey==='xzqhdzb'">
+                <div class="select-item-inner">
+                    <label>国内区域</label>
+                    <select ms-duplex="@searchParams.qy">
+                        <option value=""></option>
+                        <option ms-for="el in @qyOptions" ms-attr="{value: el.qycode}">{{el.qyname}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="select-item" ms-if="@curKey==='zzmdgQydzb'">
+                <div class="select-item-inner">
+                    <label>贸易区域</label>
+                    <select ms-duplex="@searchParams.qy">
+                        <option value=""></option>
+                        <option ms-for="el in @gjqyOptions" ms-attr="{value: el.gjqycode}">{{el.gjqyname}}</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn btn-default" ms-click="searchInfo(1)">查询</button>
+        </div>
+    </div>
+        <div class="grid-container">
+            <table id="ckllgl-grid"></table>
+            <div id="ckllgl-pager"></div>
+        </div>
+        </div>
+    </div>
+</div>

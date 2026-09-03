@@ -1,0 +1,109 @@
+<div class="yqjh" >
+    <div class="pageTabs">
+        <div class="pageTitle">
+            远期结汇情况查询
+        </div>
+
+        <div class="btns" ms-if="@act==1">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+            <div class="btn dropdown" ms-on-click="showMenu">
+                配置表格▼
+                <ul class="dropdown-menu">
+                    <li ms-for="(index,item) in @tableOption"><label><input type="checkbox" ms-duplex-checked="item.show" ms-on-click="@setTableOption(item,$event)">{{item.label}}</label></li>
+                </ul>
+            </div>
+        </div>
+        <div class="btns" ms-if="@act==2">
+            <div class="btn rt" ms-click="@printForm($event)">打印</div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==1&&'active']" >
+        <form name="yqjh-form">
+            <div class="select-wrapper">
+                <span class="reset" title="重置查询条件" ms-click="@reset">重置：</span>
+                <i class="icon" ms-click="showHyper" title="展开查询条件"></i>
+                <div class="select-main">
+                    <div class="select-item">
+                        <label  title="海关代码">海关代码</label>
+                        <input name="hgdm" class="width-l" type="text" ms-duplex="searchData.hgdm">
+                    </div>
+                    <div class="select-item">
+                        <label  title="主管税务机关">主管税务机关</label>
+                        <input readonly  type="text" ms-duplex="swjgmc" ms-click="@showTree">
+                        <ul id="yqjhZtree" class='ztree treeDiv' style="left: 90px;"></ul>
+                    </div>
+                    <div class="select-item">
+                        <label title="社会信用代码">社会信用代码</label>
+                        <input name="shxydm" type="text" ms-duplex="searchData.shxydm">
+                    </div>
+                </div>
+                <div class="select-sub">
+                    <div class="select-item">
+                        <label  title="企业类型">企业类型</label>
+                        <select  ms-duplex="@searchData.qylx">
+                            <option value="">　</option>
+                            <option value="11">内资生产企业</option>
+                            <option value="12">外商投资企业</option>
+                            <option value="21">外贸（工贸）企业</option>
+                            <option value="90">其他企业（特许退税企业）</option>
+                        </select>
+                    </div>
+                    <div class="select-item">
+                        <label  title="纳税人名称">纳税人名称</label>
+                        <input name="nsrmc" class="width-l" type="text" ms-duplex="searchData.nsrmc">
+                    </div>
+                    <div class="select-item">
+                        <label  title="交割日期">交割日期起</label>
+                        <div class="select-item-inner">
+                            <input type="text" class="datepicker date-day" ms-duplex="@searchData.jgrqq | change" :on-blur="@filDate">
+                            <span>止</span>
+                            <input type="text" class="datepicker date-day" ms-duplex="@searchData.jgrqz | change" :on-blur="@filDate">
+                        </div>
+                    </div>
+                    <div class="select-item">
+                        <label  title="管理类别">管理类别</label>
+                        <select  ms-duplex="@searchData.gllb">
+                            <option value="">　</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                    <div class="select-item">
+                        <label class="width-s" title="银行名称">银行名称</label>
+                        <input class="width-m" type="text" ms-duplex="searchData.yhmc">
+                    </div>
+                    <!--<div class="select-item">-->
+                        <!--<label class="width-s" title="外币金额">外币金额</label>-->
+                        <!--<input class="width-m" type="text" ms-duplex="searchData.wbje">-->
+                    <!--</div>-->
+                    <!--<div class="select-item">-->
+                        <!--<label class="width-s" title="人民币金额">人民币金额</label>-->
+                        <!--<input class="width-m" type="text" ms-duplex="searchData.rmbje">-->
+                    <!--</div>-->
+                    <!--<div class="select-item">-->
+                        <!--<label class="width-s" title="汇率">汇率</label>-->
+                        <!--<input class="width-m" type="text" ms-duplex="searchData.hlv">-->
+                    <!--</div>-->
+                    <div class="select-item">
+                        <label class="width-s" title="交割标识">交割标识</label>
+                        <select  ms-duplex="@searchData.jgbs">
+                            <option value="">　</option>
+                            <option value="0">否</option>
+                            <option value="1">是</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="form" style="padding-top: 54px">
+            <table id="yqjh-table"></table>
+            <div id="yqjh-tablePager"></div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==3&&'active']">
+        <div class="chartDiv"></div>
+    </div>
+</div>

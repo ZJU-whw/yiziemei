@@ -1,0 +1,59 @@
+<div class="qypmbgd" >
+    <div class="pageTabs">
+        <div style="height:24px;line-height:24px;width:25%;float: left;margin: 5px;">
+            出口企业排名情况统计（税务机关收到报关单数据口径）
+        </div>
+
+        <div class="btns">
+            <div class="btn" ms-click="@search(1)">查询</div>
+            <div class="btn" ms-click="@exform">导出</div>
+            <!--<div class="btn" ms-click="@changeTab(3)" ms-if="@act==1">统计图</div>-->
+            <!--<div class="btn" ms-click="@changeTab(1)" ms-if="@act==3">统计表</div>-->
+        </div>
+    </div>
+    <div class="page active" >
+        <div class="control">
+            <div class="panel">
+                <div style="width: 25%">
+                    <label class="width-s" title="出口时间">出口时间起</label>
+                    <input type="text" class="datepicker date-day width-s" ms-duplex="@searchData.dateStart" :on-blur="@filDate">
+                    <span style="margin: 0 5px;">止</span>
+                    <input type="text" class="datepicker date-day width-s" ms-duplex="@searchData.dateEnd" :on-blur="@filDate">
+                </div>
+                <div style="width: 25%;">
+                    <label class="width-s" title="出口时间">排名限定条件</label>
+                    <select name="" class="width-s" ms-duplex="" ms-click="">
+                        <option value="">出口贸易国</option>
+                    </select>
+                    <span style="margin: 0 5px;"> </span>
+                    <input type="text" class="width-s" ms-duplex="">
+                </div>
+                <div style="position: relative;width: 15%;">
+                    <label  class="width-s" title="退税机关">退税机关</label>
+                    <input class="width-s" type="text" ms-duplex="" ms-click="">
+                </div>
+                <div style="width: 15%">
+                    <label class="width-s" title="企业类型">企业类型</label>
+                    <select class="width-s" ms-duplex="@searchData.qylx">
+                        <option value="">　</option>
+                        <option value="11">内资生产企业</option>
+                        <option value="12">外商投资企业</option>
+                        <option value="21">外贸（工贸）企业</option>
+                        <option value="90">其他企业（特许退税企业）</option>
+                    </select>
+                </div>
+                <div style="width: 15%">
+                    <label class="width-s" title="排名标志">排名标志</label>
+                    <input class="width-s" type="text" ms-duplex="" ms-click="">
+                </div>
+            </div>
+        </div>
+        <div class="form">
+            <table id="qypmbgd-table"></table>
+            <div id="qypmbgd-tablePager"></div>
+        </div>
+    </div>
+    <div ms-class="['page',@act==3&&'active']">
+        <div class="chartDiv"></div>
+    </div>
+</div>
