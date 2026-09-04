@@ -59,12 +59,12 @@ public class AppProperties {
     public static String updatefile = "update.json";
 
     /**
-     * 以下是阿里云oss配置
+     * 以下是oss配置
      */
-    private  String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";//阿里云对象存储参数endpoint
-    private  String accessKeyId = "LTAIdIdzbftJkSka";//阿里云对象存储参数accessKeyId
-    private  String accessKeySecret = "VP03u7UFkpeYGwmljnfI3BDgiToajW";//阿里云对象存储参数accessKeySecret
-    private  String bucketName = "zjsw-bjts";//阿里云对象存储参数bucketName
+    private  String endpoint = "http://aaa.com";
+    private  String accessKeyId = "1111111111";
+    private  String accessKeySecret = "22222222222222";
+    private  String bucketName = "zjsw-bjts";
 
     /**
      * 审核助手基准版本
