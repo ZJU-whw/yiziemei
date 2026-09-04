@@ -61,10 +61,10 @@ public class AppProperties {
     /**
      * 以下是oss配置
      */
-    private  String endpoint = "http://aaa.com";
-    private  String accessKeyId = "1111111111";
-    private  String accessKeySecret = "22222222222222";
-    private  String bucketName = "zjsw-bjts";
+//    private  String endpoint ;
+//    private  String accessKeyId ;
+//    private  String accessKeySecret ;
+//    private  String bucketName ;
 
     /**
      * 审核助手基准版本
