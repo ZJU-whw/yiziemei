@@ -1,0 +1,2420 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.tl.web.bjts.yj.dao.YjMapper">
+
+    <select id="selectTsshBank4Yj" resultType="com.tl.web.bjts.yj.model.TssbBankVo" parameterType="string">
+        select * from (select name,bkname,acc_no as accno,qyfr from tssh.gc_cpcode_jcxx t
+               where nsrdj_no=#{nsrdjno} order by op_date desc ) where rownum=1
+    </select>
+
+
+    <select id="selectJsxtBank4Yj" resultType="com.tl.web.bjts.yj.model.TssbBankVo" parameterType="string">
+        select yh.zhmc as name,yh.yhzh as accno,yhhb.yhyywdmc as bkname from DJ_NSRCKZHZHXX yh,hx_dm_zdy.DM_GY_YHYYWD yhhb where djxh = (
+                select djxh from (
+                         select A.djxh from hx_dj.dj_nsrxx A
+                         where (A.nsrsbh = #{nsrdjno} or A.shxydm = #{nsrdjno})
+                         and nvl(KQCCSZTDJBZ,'N') = 'N' and A.yxbz = 'Y'
+                         and exists(select 1 from hx_rd.RD_SFZRDXXB where RD_SFZRDXXB.djxh=A.djxh and RD_SFZRDXXB.yxbz = 'Y')
+                         order by SWDJBLBZ desc) TT
+                     where rownum=1
+             ) and  yh.cktszhbz = 'Y' and sysdate between yh.yxqq and yh.yxqz and yh.yhyywd_dm = yhhb.yhyywd_dm
+             and  rownum = 1
+    </select>
+
+
+    <select id="selectJsxtQyfr" resultType="java.lang.String" parameterType="string">
+        select fddbrxm from hx_dj.dj_nsrxx where djxh = (
+            select djxh from (
+            select A.djxh from hx_dj.dj_nsrxx A
+            where (A.nsrsbh = #{nsrdjno} or A.shxydm = #{nsrdjno})
+            and nvl(KQCCSZTDJBZ,'N') = 'N' and A.yxbz = 'Y'
+            and exists(select 1 from hx_rd.RD_SFZRDXXB where RD_SFZRDXXB.djxh=A.djxh and RD_SFZRDXXB.yxbz = 'Y')
+            order by SWDJBLBZ desc) TT
+            where rownum=1
+        )
+    </select>
+
+    <select id="selectYjBmd" resultType="com.tl.web.bjts.yj.model.vo.YjBmdVo">
+        select  t.yjcode ,t.objflag ,s.yj_object as yjobject
+              from tl_admin.yj_cs_bmd t
+          left join tl_admin.yj_cs_bmd_sub s on (t.id=s.bmdid and  s.yxbz='Y')
+          where t.yxbz='Y'
+          and t.nsrdzdah=#{nsrdzdah} and t.swjgdm=#{swjgdm} order by t.swjgdm,yjcode
+    </select>
+
+
+    <select id="selectSwjgYjcodeDic" resultType="com.tl.web.bjts.yj.model.vo.DmYjxxVo">
+        SELECT s.yjcode, s.yjname, s.sysw AS gs_flag, s.syqy AS qy_flag, s.yjlx,
+               NVL(t.qyflag, NVL(t5.qyflag, 1)) AS ispush
+        FROM tl_admin.YJ_DIC_CODE s
+                -- 本级区县配置
+                 LEFT JOIN tl_admin.YJ_DIC_SWJG t
+                           ON s.yjcode = t.yjcode
+                               AND t.swjgdm = #{swjgdm}
+                -- 上级市局配置
+                 LEFT JOIN tl_admin.YJ_DIC_SWJG t5
+                           ON s.yjcode = t5.yjcode
+                               AND t5.swjgdm = SUBSTR(#{swjgdm}, 1, 5) || '000000'
+        WHERE s.yxbz = 'Y' and
+            (REGEXP_LIKE(s.swjg_fw, '(^|\|)' || SUBSTR(#{swjgdm}, 1, 7) || '($|\|)')
+                OR REGEXP_LIKE(s.swjg_fw, '(^|\|)' || SUBSTR(#{qxdm}, 1, 5) || '($|\|)')
+                OR REGEXP_LIKE(s.swjg_fw, '(^|\|)' || SUBSTR(#{qxdm}, 1, 3) || '($|\|)'))
+        ORDER BY t5.swjgdm, t.swjgdm, s.yjcode
+    </select>
+
+    <!--sysw='1' 这个配置项可以通过运维开关来控制某个单一指标是否执行预警 -->
+    <select id="selectYjzbItem" resultType="com.tl.web.bjts.yj.model.vo.YjzbItemVo">
+            select zbcode,zbname,jslx,p1name,p1val,p2name,p2val,score,yjmsg,sysw,syqy,yxbz,p3name,p3val,p4name,p4val
+            from (
+                select s.zbcode,s.zbname,s.jslx,
+                s.p1name,
+                nvl(t.p1val,s.p1val) as p1val,
+                s.p2name,
+                nvl(t.p2val,s.p2val) as p2val,
+                s.p3name,
+                nvl(t.p3val,s.p3val) as p3val,
+                s.p4name,
+                nvl(t.p4val,s.p4val) as p4val,
+                nvl(t.score,s.score) as score,
+                s.yjmsg,
+                t.swjgdm,s.sysw,s.syqy,nvl(t.yxbz,'Y') as yxbz,
+                row_number() over(partition by s.zbcode order by t.swjgdm desc) as RN
+                  from YJ_DIC_YJZB s left join YJ_DIC_YJZBSWJG t on
+                   (s.zbcode=t.zbcode  and t.yxbz='Y' and
+                    (t.swjgdm=#{swjgdm} or (substr(t.swjgdm,1,5)=substr(#{swjgdm},1,5) and substr(t.swjgdm,-6)='000000')))
+                where s.sysw='1'
+            ) where RN=1
+            order by zbcode
+    </select>
+
+
+
+    <select id="selectSpdmSc10101" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+                                    parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        SELECT T.LCSLID,T.YJ_OBJECT,T.YJ_RECORD,T.YJ_COUNT,T.YJ_AMT,T.YJ_TAX,y.ckqygllb_dm as ckqygllbDm,
+                  (SELECT B.SBHGSPMC FROM HX_CKTS.CKTS_SB_MDT_TSSB_GCB B
+                    WHERE B.LCSLID=T.LCSLID AND B.SBXH=T.YJ_RECORD
+                     AND SUBSTR(B.CKSP_DM,1,8)=T.YJ_OBJECT AND ROWNUM=1) AS CMNAME
+             FROM (SELECT A.DJXH,
+                          A.LCSLID,
+                          SUBSTR(A.CKSP_DM,1,8) AS YJ_OBJECT,
+                          MIN(A.SBXH) AS YJ_RECORD,
+                          COUNT(1) AS YJ_COUNT,
+                          SUM(A.MYLAJ) AS YJ_AMT,
+                          SUM(A.MDTSE) AS YJ_TAX,
+                          MIN(A.CKRQ_1) AS CKRQ0
+                     FROM HX_CKTS.CKTS_SB_MDT_TSSB_GCB A
+                    WHERE LCSLID = #{lcslid}
+                    GROUP BY A.DJXH,A.LCSLID,SUBSTR(A.CKSP_DM,1,8)
+                   HAVING SUM(A.MDTSE) >#{pval1}
+                  ) T
+        left join hx_ckts.ckts_ty_ywblxx y on y.djxh=T.DJXH  AND nvl(y.zfbz_1, 'N') = 'N'  AND nvl(y.FFBZ, 'N') = 'N' and y.lcslid=T.LCSLID
+        WHERE NOT EXISTS (SELECT 1
+                                FROM HX_CKTS.CKTS_SB_MDT_TSSB_JGB S
+                               WHERE S.DJXH = T.DJXH
+                                 AND SUBSTR(S.CKSP_DM,1,8) = T.YJ_OBJECT
+                                 AND S.CKRQ_1 >=ADD_MONTHS(TRUNC(T.CKRQ0,'YY'),-24))
+    </select>
+
+    <select id="selectSpdmWm10101" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo">
+           WITH
+           GLMX AS (
+           SELECT A1.DJXH,A1.LCSLID,A1.CKSP_DM,A1.GLH,A1.CKRQ_1,A1.MYLAJ,
+                  (SELECT SUM(A2.TSE) FROM HX_CKTS.CKTS_SB_MTS_TSJH_GCB A2 WHERE A2.DJXH=A1.DJXH AND A2.GLH=A1.GLH) AS TSE
+             FROM HX_CKTS.CKTS_SB_MTS_TSSB_GCB A1
+            WHERE A1.LCSLID = #{lcslid}
+           ),
+           FZTJ AS (
+           SELECT A.DJXH,A.LCSLID,
+                  SUBSTR(A.CKSP_DM,1,6) AS YJ_OBJECT,
+                  MIN(A.GLH) AS YJ_RECORD,
+                  COUNT(1) AS YJ_COUNT,
+                  SUM(A.MYLAJ) AS YJ_AMT,
+                  SUM(A.TSE) AS YJ_TAX,
+                  MIN(A.CKRQ_1) AS CKRQ0
+             FROM GLMX A
+            GROUP BY A.DJXH,A.LCSLID,SUBSTR(A.CKSP_DM,1,6)
+           HAVING SUM(A.TSE) > #{pval1}
+           )
+           SELECT T.LCSLID,T.YJ_OBJECT,T.YJ_RECORD,T.YJ_COUNT,T.YJ_AMT,T.YJ_TAX,y.ckqygllb_dm as ckqygllbDm,
+                  (SELECT B.SBHGSPMC FROM HX_CKTS.CKTS_SB_MTS_TSSB_GCB B WHERE B.LCSLID=T.LCSLID AND B.GLH=T.YJ_RECORD) AS CMNAME
+             FROM FZTJ T
+            left join hx_ckts.ckts_ty_ywblxx y on y.djxh=T.DJXH  AND nvl(y.zfbz_1, 'N') = 'N'  AND nvl(y.FFBZ, 'N') = 'N'  and y.lcslid=T.LCSLID
+            WHERE NOT EXISTS (SELECT 1
+                                FROM HX_CKTS.CKTS_SB_MTS_TSSB_JGB S
+                               WHERE S.DJXH = T.DJXH
+                                 AND SUBSTR(S.CKSP_DM,1,6) = T.YJ_OBJECT
+                                 AND S.CKRQ_1 >=ADD_MONTHS(TRUNC(T.CKRQ0,'YY'),-24))
+    </select>
+
+
+
+    <select id="selectSpdmSc10102" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo">
+                <![CDATA[
+            select object as yj_object, '' as yj_record, yj_count, yj_amt, yj_tax, cmname
+              from (select substr(cmcode,1,8) as object, min(cmname) as cmname,
+                           count(*) as yj_count,
+                           sum(usd_amt) as yj_amt,
+                           sum(tse) as yj_tax,
+                           min(lj_date) as lj_date0
+                      from (select a.cksp_dm as cmcode, a.sbhgspmc as cmname,
+                                   a.mylaj as usd_amt,
+                                   a.mdtse as tse,
+                                   a.ckrq_1 as lj_date
+                              from tl_bjts.ckts_sb_mdt_tssb_lsb a
+                             where sbid in
+                                   (select id
+                                      from tl_bjts.sb_sbxx_hz
+                                     where nsrdzdah =#{nsrdzdah}
+                                       and sbrq >= to_date(to_char(add_months(sysdate, -6),'yyyymm') || '01','yyyymmdd')
+                                       and sbywb_dm='A0305001'
+                                       and sbtype = 'ZSSB'
+                                       and sbzl_dm = 'TSSB'
+                                       and sbzt_dm in ('21', '2A', '2B', '30', '39'))
+                             ) group by substr(cmcode,1,8)
+                        having sum(tse) > #{pval1}) t
+                 where not exists
+                 (select 1
+                          from tl_tssh.ckts_sb_mdt_ckmx s
+                         where s.djxh =#{cpcode}
+                           and substr(s.cksp_dm,1,8) = t.object
+                           and s.ckrq_1 >=
+                               to_date((to_char(t.lj_date0, 'yyyy') - 2) || '0101', 'yyyymmdd')
+                           and s.sbrq < to_date(to_char(add_months(sysdate, -6), 'yyyymm') || '01',
+                                                   'yyyymmdd'))
+                   and not exists
+                 (select 1
+                          from tl_admin.yj_data_yjxx u
+                         where u.nsrdzdah =#{nsrdzdah}
+                           and u.yjcode = '101'
+                           and u.zbcode in ('10101','10102')
+                           and substr(u.yj_object,1,8) = t.object
+                           and u.sbym >= to_char(add_months(sysdate, -6), 'yyyymm'))
+                   and exists
+                  (select 1
+                          from tl_tssh.glxt_bb_shxt_djxx
+                         where djxh_js =#{cpcode}
+                           and first_sb_ym < to_char(add_months(sysdate, -6), 'yyyymm'))
+
+        ]]>
+    </select>
+    <select id="selectSpdmWm10102" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo">
+                <![CDATA[
+            select object as yj_object, '' as yj_record, yj_count, yj_amt, yj_tax, cmname
+              from (select substr(cmcode, 1, 6) as object,
+               min(cmname) as cmname,
+               count(*) as yj_count,
+               sum(usd_amt) as yj_amt,
+               sum(tse) as yj_tax,
+               min(lj_date) as lj_date0
+                  from (select min(a.cksp_dm) as cmcode,
+                               min(a.sbhgspmc) as cmname,
+                               round(sum(a.mylaj)/count(1),2) as usd_amt,
+                               sum(b.tse) as tse,
+                               min(a.ckrq_1) as lj_date
+                          from tl_bjts.ckts_sb_mts_tssb_lsb a,
+                               tl_bjts.ckts_sb_mts_tsjh_lsb b
+                             where a.sbid in
+                            (select id
+                          from tl_bjts.sb_sbxx_hz
+                         where nsrdzdah =  #{nsrdzdah}
+                           and sbrq >= to_date(to_char(add_months(sysdate, -6),
+                                                       'yyyymm') || '01',
+                                               'yyyymmdd')
+                           and sbtype = 'ZSSB'
+                           and sbzl_dm = 'TSSB'
+                           and sbzt_dm in ('21', '2A', '2B', '30', '39'))
+                           and a.sbid = b.sbid
+                           and a.glh = b.glh group by a.glh)
+                group by substr(cmcode, 1, 6)
+                    having sum(tse) > #{pval1}) t
+             where not exists
+             (select 1
+                      from tl_tssh.ckts_sb_mts_ckmx s
+                     where s.djxh =#{cpcode}
+                       and substr(s.cksp_dm, 1, 6) = t.object 
+                       and s.ckrq_1 >=
+                           to_date((to_char(t.lj_date0, 'yyyy') - 2) || '0101', 'yyyymmdd')
+                       and s.sbrq < to_date(to_char(add_months(sysdate, -6), 'yyyymm') || '01',
+                                               'yyyymmdd'))
+               and not exists
+             (select 1
+                      from tl_admin.yj_data_yjxx u
+                     where u.nsrdzdah =  #{nsrdzdah}
+                       and u.yjcode = '101'
+                       and u.zbcode in ('10101', '10102')
+                       and substr(u.yj_object, 1, 6) = t.object
+                       and u.sbym >= to_char(add_months(sysdate, -6), 'yyyymm'))
+               and exists
+             (select 1
+                      from tl_tssh.glxt_bb_shxt_djxx
+                     where djxh_js = #{cpcode}
+                       and first_sb_ym < to_char(add_months(sysdate, -6), 'yyyymm'))
+
+        ]]>
+    </select>
+
+    <select id="selectGhqy10201" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+            parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+          WITH
+           FZTJ AS (
+           SELECT A.DJXH,
+                  A.LCSLID,
+                  A.GHFNSRSBH_1 AS YJ_OBJECT,
+                  MIN(A.GLH) AS YJ_RECORD,
+                  COUNT(1) AS YJ_COUNT,
+                  SUM(A.JSJE) AS YJ_AMT,
+                  SUM(A.TSE) AS YJ_TAX,
+                  MIN(A.KPRQ) AS KPRQ0
+             FROM HX_CKTS.CKTS_SB_MTS_TSJH_GCB A
+            WHERE A.LCSLID = #{lcslid}
+            GROUP BY A.DJXH,A.LCSLID,A.GHFNSRSBH_1
+           HAVING SUM(A.TSE) > #{pval1}
+           )
+           SELECT T.LCSLID,T.YJ_OBJECT,T.YJ_RECORD,T.YJ_COUNT,T.YJ_AMT,T.YJ_TAX,y.ckqygllb_dm as ckqygllbDm
+             FROM FZTJ T
+            left join hx_ckts.ckts_ty_ywblxx y on y.djxh=T.DJXH  AND nvl(y.zfbz_1, 'N') = 'N'  AND nvl(y.FFBZ, 'N') = 'N'  and y.lcslid=T.LCSLID
+            WHERE NOT EXISTS (SELECT 1
+                                FROM HX_CKTS.CKTS_SB_MTS_TSJH_JGB S
+                               WHERE S.DJXH = T.DJXH
+                                 AND S.GHFNSRSBH_1 = T.YJ_OBJECT
+                                 AND S.KPRQ >=ADD_MONTHS(TRUNC(T.KPRQ0,'YY'),-24))
+    </select>
+
+    <select id="selectGhqy10202" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+            parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+        select object as yj_object, '' as yj_record, yj_count, yj_amt, yj_tax
+              from (select object,
+                           count(1) as yj_count,
+                           sum(amt) as yj_amt,
+                           sum(tse) as yj_tax,
+                           min(kprq) as kprq0
+                      from (select a.ghfnsrsbh_1 as object, a.jsje as amt, a.tse as tse, a.kprq
+                              from tl_bjts.ckts_sb_mts_tsjh_lsb a
+                             where sbid in (select id
+                                      from tl_bjts.sb_sbxx_hz
+                                     where nsrdzdah = #{nsrdzdah}
+                                       and sbrq >= to_date(to_char(add_months(sysdate, -6), 'yyyymm') || '01', 'yyyymmdd')
+                                       and sbywb_dm='A0301001'
+                                       and sbtype = 'ZSSB'
+                                       and sbzt_dm in ('21', '2A', '2B', '30', '39'))
+                           )
+                     group by object
+                    having sum(tse) > #{pval1}) t
+             where not exists
+             (select 1
+                      from tl_tssh.ckts_sb_mts_jhmx s
+                     where s.djxh =#{cpcode}
+                       and s.ghfnsrsbh_1 = t.object
+                       and s.kprq >=
+                            to_date((to_char(t.kprq0, 'yyyy') - 2) || '0101', 'yyyymmdd')
+                       and s.sbrq < to_date(to_char(add_months(sysdate, -6), 'yyyymm') || '01',
+                                   'yyyymmdd'))
+
+               and not exists
+             (select 1
+                      from tl_admin.yj_data_yjxx u
+                     where u.nsrdzdah =#{nsrdzdah}
+                       and u.yjcode = '102'
+                       and u.zbcode in ( '10201', '10202')
+                       and u.yj_object = t.object
+                       and u.sbym > to_char(add_months(sysdate, -6), 'yyyymm'))
+        ]]>
+    </select>
+
+
+
+    <select id="selectHydbyz10401" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+            parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+          WITH
+           GLMX AS (
+           SELECT A.DJXH,A.LCSLID,SUBSTR(A.CKBGDH,1,18) AS YJ_OBJECT,A.GLH AS YJ_RECORD,A.MYLAJ,
+                  C.HZDWDQ_DM,D.HZDWDQ_MC,D.XZQH_DM,B.SBXH,B.JSJE,B.TSE,B.GHFNSRSBH_1,
+                  (CASE WHEN DJ.ZGSWJ_DM IS NOT NULL AND SUBSTR(DJ.ZGSWJ_DM,2,LENGTH(D.XZQH_DM))=D.XZQH_DM THEN 0
+                        ELSE 1 END) *
+                  (CASE WHEN LENGTH(B.GHFNSRSBH_1)=18 AND SUBSTR(B.GHFNSRSBH_1,5,2)='00' AND SUBSTR(B.GHFNSRSBH_1,3,2)=SUBSTR(D.XZQH_DM,1,2) THEN 0
+                       WHEN LENGTH(B.GHFNSRSBH_1)=18 AND SUBSTR(B.GHFNSRSBH_1,5,2)<>'00' AND SUBSTR(B.GHFNSRSBH_1,3,LENGTH(D.XZQH_DM))=D.XZQH_DM THEN 0
+                       WHEN LENGTH(B.GHFNSRSBH_1)>=15 AND LENGTH(B.GHFNSRSBH_1)<>18 AND SUBSTR(B.GHFNSRSBH_1,1,LENGTH(D.XZQH_DM))=D.XZQH_DM THEN 0
+                       ELSE 1 END) AS HYDYZ
+             FROM HX_CKTS.CKTS_SB_MTS_TSSB_GCB A
+            INNER JOIN HX_CKTS.CKTS_SB_MTS_TSJH_GCB B ON A.DJXH=B.DJXH AND A.GLH=B.GLH
+            INNER JOIN HX_CKTS.CKTS_WBSJ_HG_BGD201 C ON C.DJXH=A.DJXH AND C.CKBGDH=A.CKBGDH
+            INNER JOIN FXGL_DM_HZDWDQ D ON D.HZDWDQ_DM=C.HZDWDQ_DM
+            LEFT JOIN HX_DJ.DJ_NSRXX DJ ON COALESCE(DJ.SHXYDM,DJ.NSRSBH)=B.GHFNSRSBH_1 AND DJ.KZZTDJLX_DM='1110' AND DJ.NSRZT_DM='03'
+            WHERE A.LCSLID=#{lcslid}
+              AND A.CKBGDH IS NOT NULL
+            UNION ALL
+           SELECT A.DJXH,A.LCSLID,SUBSTR(A.DLZMH,1,18) AS YJ_OBJECT,A.GLH AS YJ_RECORD,A.MYLAJ,
+                  C.JNHYD_DM AS HZDWDQ_DM,D.HZDWDQ_MC,D.XZQH_DM,B.SBXH,B.JSJE,B.TSE,B.GHFNSRSBH_1,
+                  (CASE WHEN DJ.ZGSWJ_DM IS NOT NULL AND SUBSTR(DJ.ZGSWJ_DM,2,LENGTH(D.XZQH_DM))=D.XZQH_DM THEN 0
+                        ELSE 1 END) *
+                  (CASE WHEN LENGTH(B.GHFNSRSBH_1)=18 AND SUBSTR(B.GHFNSRSBH_1,5,2)='00' AND SUBSTR(B.GHFNSRSBH_1,3,2)=SUBSTR(D.XZQH_DM,1,2) THEN 0
+                       WHEN LENGTH(B.GHFNSRSBH_1)=18 AND SUBSTR(B.GHFNSRSBH_1,5,2)<>'00' AND SUBSTR(B.GHFNSRSBH_1,3,LENGTH(D.XZQH_DM))=D.XZQH_DM THEN 0
+                       WHEN LENGTH(B.GHFNSRSBH_1)>=15 AND LENGTH(B.GHFNSRSBH_1)<>18 AND SUBSTR(B.GHFNSRSBH_1,1,LENGTH(D.XZQH_DM))=D.XZQH_DM THEN 0
+                       ELSE 1 END) AS HYDYZ
+             FROM HX_CKTS.CKTS_SB_MTS_TSSB_GCB A
+            INNER JOIN HX_CKTS.CKTS_SB_MTS_TSJH_GCB B ON A.DJXH=B.DJXH AND A.GLH=B.GLH
+            INNER JOIN HX_CKTS.CKTS_WBSJ_ZJ_DLCKHWZM C ON C.DJXH=A.DJXH AND C.TSSWJG_DM_1=A.TSSWJG_DM_1 AND C.DLCKHWZMHM=A.DLZMH
+            INNER JOIN FXGL_DM_HZDWDQ D ON D.HZDWDQ_DM=C.JNHYD_DM
+            LEFT JOIN HX_DJ.DJ_NSRXX DJ ON COALESCE(DJ.SHXYDM,DJ.NSRSBH)=B.GHFNSRSBH_1 AND DJ.KZZTDJLX_DM='1110' AND DJ.NSRZT_DM='03'
+            WHERE A.LCSLID=#{lcslid}
+              AND A.CKBGDH IS NULL
+           ),
+           BYZMX AS (
+           SELECT DJXH,LCSLID,YJ_OBJECT,YJ_RECORD,MYLAJ,HZDWDQ_DM,HZDWDQ_MC,XZQH_DM,SBXH,JSJE,TSE,GHFNSRSBH_1,
+                  ROW_NUMBER() OVER (PARTITION BY YJ_RECORD ORDER BY JSJE DESC) AS JSMY,
+                  ROW_NUMBER() OVER (PARTITION BY YJ_OBJECT ORDER BY JSJE DESC) AS XSYJ
+             FROM GLMX T
+            WHERE HYDYZ=1
+              AND NOT EXISTS (SELECT 1 FROM GLMX S WHERE S.YJ_OBJECT=T.YJ_OBJECT AND S.HYDYZ=0)
+           ),
+           BYZTJ AS (
+           SELECT YJ_OBJECT,COUNT(1) AS YJ_COUNT,SUM(CASE WHEN JSMY=1 THEN MYLAJ ELSE 0 END) AS YJ_USD,SUM(JSJE) AS YJ_AMT,SUM(TSE) AS YJ_TAX
+             FROM BYZMX
+            GROUP BY YJ_OBJECT
+            HAVING SUM(TSE)>#{pval1}
+           )
+           SELECT DJXH,BYZMX.LCSLID,BYZMX.YJ_OBJECT,BYZMX.YJ_RECORD,BYZTJ.YJ_COUNT,BYZTJ.YJ_USD,BYZTJ.YJ_AMT,BYZTJ.YJ_TAX,
+                  BYZMX.HZDWDQ_DM as hzdwdqdm,
+                  BYZMX.HZDWDQ_MC as hzdwdqMc,
+                  BYZMX.XZQH_DM,
+                  BYZMX.GHFNSRSBH_1 as ghfns_no
+             FROM BYZMX
+            INNER JOIN BYZTJ ON BYZTJ.YJ_OBJECT=BYZMX.YJ_OBJECT
+            WHERE BYZMX.XSYJ=1
+        ]]>
+    </select>
+
+
+
+    <select id="selectSpmcByz10501" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+            parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+            select distinct glh as yj_record,
+                            1 as yj_count,
+                            max(cksp_dm) as yj_object,
+                            max(spmc_ck) as hgcmname,
+                            max(spmc_jh) as cmname,
+                            sum(jsje) as yj_amt,
+                            sum(tse) as yj_tax
+              from (with T as (select a.glh,
+                                      b.sbxh,
+                                      a.ckbgdh,
+                                      a.cksp_dm,
+                                      replace(to_single_byte(substr(a.sbhgspmc,instr(a.sbhgspmc,'*',1,2)+1)),' ','') as spmc_ck,
+                                      a.mylaj,
+                                      b.jsje,
+                                      b.tse,
+                                      replace(to_single_byte(substr(b.sbhgspmc,instr(b.sbhgspmc,'*',1,2)+1)),' ','') as spmc_jh
+                                 from tl_bjts.ckts_sb_mts_tssb_lsb a,
+                                      tl_bjts.ckts_sb_mts_tsjh_lsb b
+                                where a.sbid = #{sbid}
+                                  and a.sbid = b.sbid
+                                  and a.glh = b.glh)
+                     select ckbgdh,
+                            glh,
+                            jsje,
+                            tse,
+                            spmc_ck,spmc_jh,cksp_dm
+                       from T T1
+                      where T1.spmc_ck <> T1.spmc_jh
+                        and not exists
+                      (select 1
+                               from T T2
+                              where T2.glh = T1.glh
+                                and T2.sbxh <> T1.sbxh
+                                and T2.spmc_ck <> T2.spmc_jh))
+                      group by glh
+                      having sum(tse)>#{pval1}
+
+        ]]>
+    </select>
+
+
+    <select id="selectYcghs10701" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+            parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+            select t.ghfnsrsbh_1 as yj_object,
+                   min(t.glh) as yj_record,
+                   count(1) as yj_count,
+                   sum(t.jsje) as yj_amt,
+                   sum(t.tse) as yj_tax
+              from tl_bjts.ckts_sb_mts_tsjh_lsb t
+             where t.sbid = #{sbid}
+               and exists (select 1
+                      from tl_admin.yj_cs_ycghqy s
+                     where s.nsrsbh = t.ghfnsrsbh_1
+                       and #{swjgdm} like s.swjgfw || '%'
+                       and (s.jzrq is null or sysdate <= s.jzrq)
+                       and s.yxbz = 'Y')
+             group by t.ghfnsrsbh_1
+            having sum(t.tse) >= #{pval1}
+        ]]>
+    </select>
+
+
+    <select id="selectYcghs10702" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+            parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+            select object as yj_object, '' as yj_record, yj_count, yj_amt, yj_tax
+            from (select object,
+                           count(1) as yj_count,
+                           sum(amt) as yj_amt,
+                           sum(tse) as yj_tax
+                      from (select a.ghfnsrsbh_1 as object, a.jsje as amt, a.tse as tse
+                              from tl_bjts.ckts_sb_mts_tsjh_lsb a
+                             where sbid in (select id
+                                      from tl_bjts.sb_sbxx_hz
+                                     where nsrdzdah = #{nsrdzdah}
+                                       and sbrq >= to_date(to_char(add_months(sysdate, -6), 'yyyymm') || '01', 'yyyymmdd')
+                                       and sbywb_dm='A0301001'
+                                       and sbtype = 'ZSSB'
+                                       and sbzt_dm in ('21', '2A', '2B', '30', '39'))
+                            )
+                     group by object
+                    having sum(tse) > #{pval1}) t
+             where exists (select 1
+                      from tl_admin.yj_cs_ycghqy s
+                     where t.object = s.nsrsbh
+                       and #{swjgdm} like s.swjgfw || '%'
+                       and (s.jzrq is null or sysdate <= s.jzrq)
+                       and s.yxbz = 'Y')
+               and not exists
+             (select 1
+                      from tl_admin.yj_data_yjxx u
+                     where u.nsrdzdah = #{nsrdzdah}
+                       and u.yjcode = '107'
+                       and u.zbcode in ( '10701', '10702')
+                       and u.yj_object = t.object
+                       and u.sbym > to_char(add_months(sysdate, -6), 'yyyymm'))
+        ]]>
+    </select>
+
+
+    <select id="selectYcghs10703" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+            parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+
+            select '' as yj_object,
+                   '' as yj_record,
+                   count(distinct yj_object) as yj_count,
+                   sum(yj_amt) as yj_amt,
+                   sum(yj_tax) as yj_tax
+                     from tl_admin.yj_data_yjxx t
+             where t.nsrdzdah = #{nsrdzdah}
+               and t.yjcode = '107'
+               and t.zbcode in ('10701', '10702')
+               and t.sbym > to_char(add_months(sysdate, -6), 'yyyymm') having
+             count(distinct yj_object) >= #{pval1}
+               and not exists
+             (select 1
+                      from tl_admin.yj_data_yjxx s
+                     where s.nsrdzdah = #{nsrdzdah}
+                       and s.yjcode = '107'
+                       and s.zbcode = '10703'
+                       and s.sbym > to_char(add_months(sysdate, -6), 'yyyymm'))
+        ]]>
+    </select>
+
+
+    <select id="selectGfxspSc10801" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo">
+        <![CDATA[
+        select object as yj_object, yj_record,  yj_count,
+               amt as yj_amt, tse as yj_tax,cmname
+          from (select a.cksp_dm as object,min(a.sbhgspmc) as cmname,
+                       min(a.sbxh) as yj_record,
+                       count(1) as yj_count,
+                       sum(a.mylaj) as amt,
+                       sum(a.mdtse) as tse
+                  from tl_bjts.ckts_sb_mdt_tssb_lsb a
+                 where sbid = #{sbid}
+                 group by a.cksp_dm
+                having sum(a.mdtse) > #{pval1}) t
+          where exists (select 1
+                  from tl_admin.yj_cs_mgsp s
+                 where substr(t.object, 1, length(s.spdm)) = s.spdm
+                   and #{swjgdm} like s.swjgfw || '%'
+                   and (s.jzrq is null or sysdate <= s.jzrq)
+                   and s.yxbz = 'Y')
+        ]]>
+    </select>
+
+    <select id="selectGfxspWm10801" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo">
+        <![CDATA[
+            select object as yj_object, yj_record,  yj_count,
+                   amt as yj_amt, tse as yj_tax, cmname
+              from (select a.cksp_dm as object, min(a.sbhgspmc) as cmname,
+                           min(a.glh) as yj_record,
+                           count(1) as yj_count,
+                           sum(a.jsje) as amt,
+                           sum(a.tse) as tse
+                      from tl_bjts.ckts_sb_mts_tsjh_lsb  a
+                     where sbid = #{sbid}
+                     group by cksp_dm
+                 having sum(tse) > #{pval1}) t
+          where exists (select 1
+                  from tl_admin.yj_cs_mgsp s
+                 where substr(t.object, 1, length(s.spdm)) = s.spdm
+                   and #{swjgdm} like s.swjgfw || '%'
+                   and (s.jzrq is null or sysdate <= s.jzrq)
+                   and s.yxbz = 'Y')
+        ]]>
+    </select>
+
+    <select id="selectGfxspSc10802" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo">
+        <![CDATA[
+                select object as yj_object, '' as yj_record, yj_count, yj_amt, yj_tax, cmname
+                  from (select object, min(sbhgspmc) as cmname,
+                               count(1) as yj_count,
+                               sum(amt) as yj_amt,
+                               sum(tse) as yj_tax
+                          from (select a.cksp_dm as object, a.sbhgspmc,
+                                       a.mylaj as amt,
+                                       a.mdtse as tse
+                                  from tl_bjts.ckts_sb_mdt_tssb_lsb a
+                                 where sbid in (select id
+                                          from tl_bjts.sb_sbxx_hz
+                                         where nsrdzdah = #{nsrdzdah}
+                                           and sbrq >= to_date(to_char(add_months(sysdate, -6), 'yyyymm') || '01', 'yyyymmdd')
+                                           and sbywb_dm='A0305001'
+                                           and sbtype = 'ZSSB'
+                                           and sbzt_dm in ('21', '2A', '2B', '30', '39'))
+                                )
+                         group by object
+                         having sum(tse) > #{pval1}) t
+                 where exists (select 1
+                          from tl_admin.yj_cs_mgsp s
+                         where substr(t.object, 1, length(s.spdm)) = s.spdm
+                           and #{swjgdm} like s.swjgfw || '%'
+                           and (s.jzrq is null or sysdate <= s.jzrq)
+                           and s.yxbz = 'Y')
+                   and not exists
+                 (select 1
+                          from tl_admin.yj_data_yjxx u
+                         where u.nsrdzdah = #{nsrdzdah}
+                           and u.yjcode = '108'
+                           and u.zbcode in ( '10801', '10802')
+                           and u.yj_object = t.object
+                           and u.sbym > to_char(add_months(sysdate, -6), 'yyyymm'))
+        ]]>
+    </select>
+
+    <select id="selectGfxspWm10802" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo">
+        <![CDATA[
+            select object as yj_object, '' as yj_record, yj_count, yj_amt, yj_tax, cmname
+              from (select object, min(sbhgspmc) as cmname,
+                           count(1) as yj_count,
+                           sum(amt) as yj_amt,
+                           sum(tse) as yj_tax
+                      from (select a.cksp_dm as object, a.sbhgspmc,
+                                   a.jsje as amt,
+                                   a.tse as tse
+                              from tl_bjts.ckts_sb_mts_tsjh_lsb a
+                             where sbid in (select id
+                                      from tl_bjts.sb_sbxx_hz
+                                     where nsrdzdah =  #{nsrdzdah}
+                                       and sbrq >= to_date(to_char(add_months(sysdate, -6), 'yyyymm') || '01', 'yyyymmdd')
+                                       and sbywb_dm='A0301001'
+                                       and sbtype = 'ZSSB'
+                                       and sbzt_dm in ('21', '2A', '2B', '30', '39'))
+                            )
+                     group by object
+                     having sum(tse) > #{pval1}) t
+                 where exists (select 1
+                          from tl_admin.yj_cs_mgsp s
+                         where substr(t.object, 1, length(s.spdm)) = s.spdm
+                           and #{swjgdm} like s.swjgfw || '%'
+                           and (s.jzrq is null or sysdate <= s.jzrq)
+                           and s.yxbz = 'Y')
+                   and not exists
+                 (select 1
+                          from tl_admin.yj_data_yjxx u
+                         where u.nsrdzdah = #{nsrdzdah}
+                           and u.yjcode = '108'
+                           and u.zbcode in ( '10801', '10802')
+                           and u.yj_object = t.object
+                           and u.sbym > to_char(add_months(sysdate, -6), 'yyyymm'))
+        ]]>
+    </select>
+
+
+    <select id="selectMgCkka10901Wm" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+            parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+            select object as yj_object, yj_record, yj_count, yj_amt, yj_tax, dm.hgmc
+              from (select a.hgcode as object,
+                           min(a.glh) as yj_record,
+                           count(1) as yj_count,
+                           sum(case when RN=1 then a.mylaj else 0 end) as yj_amt,
+                           sum(a.tse) as yj_tax
+                      from (
+                      select a.hgcode,a.glh,a.mylaj,b.tse,
+                      row_number() over(partition by a.glh order by b.sbxh) as RN
+                     from tl_bjts.ckts_sb_mts_tssb_lsb a,tl_bjts.ckts_sb_mts_tsjh_lsb b
+                     where a.sbid = #{sbid}
+                     and a.sbid=b.sbid and a.glh=b.glh) a
+                     group by hgcode
+                    having sum(a.tse) > #{pval1}) t
+             inner join tl_bjts.dm_hgcode dm
+                on t.object = dm.hgcode
+             where exists (select 1
+                      from tl_admin.yj_cs_mgka_wm s
+                     where t.object = s.kacode
+                       and #{swjgdm} like s.swjgfw || '%'
+                       and (s.jzrq is null or sysdate <= s.jzrq)
+                       and s.yxbz = 'Y')
+        ]]>
+    </select>
+
+    <select id="selectMgCkka10902Wm" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+            parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+        select object as yj_object, '' as yj_record, yj_count,
+                   yj_amt, yj_tax, dm.hgmc
+              from (select object,
+                           count(1) as yj_count,
+                           sum(case when RN=1 then amt else 0 end) as yj_amt,
+                           sum(tse) as yj_tax
+                      from (select hgcode as object,
+                                   a.mylaj as amt,
+                                   b.tse as tse,
+                                   row_number() over(partition by a.glh order by b.sbxh) as RN
+                              from tl_bjts.ckts_sb_mts_tssb_lsb a, tl_bjts.ckts_sb_mts_tsjh_lsb b
+                             where a.sbid in (select id
+                                      from tl_bjts.sb_sbxx_hz
+                                     where nsrdzdah = #{nsrdzdah}
+                                       and sbrq >= to_date(to_char(add_months(sysdate, -6), 'yyyymm') || '01', 'yyyymmdd')
+                                       and sbywb_dm='A0301001'
+                                       and sbtype = 'ZSSB'
+                                       and sbzt_dm in ('21', '2A', '2B', '30', '39'))
+                                 and a.sbid=b.sbid and a.glh=b.glh
+                             )
+                     group by object
+                     having sum(tse) >#{pval1}) t
+             inner join tl_bjts.dm_hgcode dm
+                on t.object = dm.hgcode
+             where exists (select 1
+                      from tl_admin.yj_cs_mgka_wm s
+                     where t.object = s.kacode
+                       and #{swjgdm}  like s.swjgfw || '%'
+                       and (s.jzrq is null or sysdate <= s.jzrq)
+                       and s.yxbz = 'Y')
+               and not exists
+             (select 1
+                      from tl_admin.yj_data_yjxx u
+                     where u.nsrdzdah = #{nsrdzdah}
+                       and u.yjcode = '109'
+                       and u.zbcode in ( '10901', '10902')
+                       and u.yj_object = t.object
+                       and u.sbym > to_char(add_months(sysdate, -6), 'yyyymm'))
+        ]]>
+    </select>
+
+
+    <select id="selectMgCkka11001Sc" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+            parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+            select object as yj_object, yj_record, yj_count, yj_amt, yj_tax, dm.hgmc
+              from (select a.hgcode as object,
+                           min(a.sbxh) as yj_record,
+                           count(1) as yj_count,
+                           sum(a.mylaj) as yj_amt,
+                           sum(a.mdtse) as yj_tax
+                      from tl_bjts.ckts_sb_mdt_tssb_lsb a
+                     where sbid = #{sbid}
+                     group by hgcode
+                    having sum(mdtse) > #{pval1}) t
+             inner join tl_bjts.dm_hgcode dm
+                on t.object = dm.hgcode
+             where exists (select 1
+                      from tl_admin.yj_cs_mgka_sc s
+                     where t.object = s.kacode
+                       and s.yxbz = 'Y')
+        ]]>
+    </select>
+
+
+    <select id="selectMgCkka11002Sc" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+            parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+            select object as yj_object,'' as yj_record,yj_count,
+                   yj_amt, yj_tax, dm.hgmc
+              from (select object,
+                           count(1) as yj_count,
+                           sum(amt) as yj_amt,
+                           sum(tse) as yj_tax
+                      from (select hgcode as object, a.mylaj as amt, a.mdtse as tse
+                              from tl_bjts.ckts_sb_mdt_tssb_lsb a
+                             where sbid in (select id
+                                      from tl_bjts.sb_sbxx_hz
+                                     where nsrdzdah = #{nsrdzdah}
+                                       and sbrq >= to_date(to_char(add_months(sysdate, -6), 'yyyymm') || '01', 'yyyymmdd')
+                                       and sbywb_dm='A0305001'
+                                       and sbtype = 'ZSSB'
+                                       and sbzt_dm in ('21', '2A', '2B', '30', '39'))
+                            )
+                     group by object
+                        having sum(tse) > #{pval1}) t
+                 inner join tl_bjts.dm_hgcode dm
+                    on t.object = dm.hgcode
+                 where not exists (select 1
+                          from tl_admin.yj_cs_mgka_sc s
+                         where t.object = s.kacode
+                           and s.yxbz = 'Y')
+                   and not exists
+                 (select 1
+                          from tl_admin.yj_data_yjxx u
+                         where u.nsrdzdah = #{nsrdzdah}
+                           and u.yjcode = '110'
+                           and u.zbcode in ( '11001', '11002')
+                           and u.yj_object = t.object
+                           and u.sbym > to_char(add_months(sysdate, -6), 'yyyymm'))
+        ]]>
+    </select>
+
+
+    <select id="selectGhqyhd11101" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+            parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+        select t.ghfnsrsbh_1 as yj_object,
+               min(t.glh) as yj_record,
+               count(1) as yj_count,
+               sum(t.jsje) as yj_amt,
+               sum(t.tse) as yj_tax
+          from tl_bjts.ckts_sb_mts_tsjh_lsb t
+             where t.sbid = #{sbid}
+               and exists
+             (select 1
+                      from tl_admin.yj_cs_ychd s
+                     where s.nsrsbh = t.ghfnsrsbh_1
+                       and (s.fhrq is null or s.fhrq >= add_months(sysdate, -12))
+                       and s.yxbz = 'Y')
+             group by t.ghfnsrsbh_1
+            having sum(tse) >= #{pval1}
+        ]]>
+    </select>
+
+
+    <select id="selectGhqyhd11102" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+            parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+        select object as yj_object, '' as yj_record, yj_count, yj_amt, yj_tax
+              from (select object,
+                           count(1) as yj_count,
+                           sum(amt) as yj_amt,
+                           sum(tse) as yj_tax
+                      from (select a.ghfnsrsbh_1 as object, a.jsje as amt, a.tse as tse
+                              from tl_bjts.ckts_sb_mts_tsjh_lsb a
+                             where sbid in (select id
+                                      from tl_bjts.sb_sbxx_hz
+                                     where nsrdzdah =  #{nsrdzdah}
+                                       and sbrq >= to_date(to_char(add_months(sysdate, -6), 'yyyymm') || '01', 'yyyymmdd')
+                                       and sbywb_dm='A0301001'
+                                       and sbtype = 'ZSSB'
+                                       and sbzt_dm in ('21', '2A', '2B', '30', '39'))
+                             )
+                     group by object
+                    having sum(tse) > #{pval1}) t
+             where exists (select 1
+                      from tl_admin.yj_cs_ychd s
+                     where t.object = s.nsrsbh
+                       and (s.fhrq is null or s.fhrq >= add_months(sysdate, -12))
+                       and s.yxbz = 'Y')
+               and not exists
+             (select 1
+                      from tl_admin.yj_data_yjxx u
+                     where u.nsrdzdah = #{nsrdzdah}
+                       and u.yjcode = '111'
+                       and u.zbcode in ( '11101', '11102')
+                       and u.yj_object = t.object
+                       and u.sbym > to_char(add_months(sysdate, -6), 'yyyymm'))
+        ]]>
+    </select>
+
+
+
+    <select id="selectGhqyhd11103" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+            parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+            select '' as yj_object,
+                   '' as yj_record,
+                   count(distinct yj_object) as yj_count,
+                   sum(yj_amt) as yj_amt,
+                   sum(yj_tax) as yj_tax
+              from yj_data_yjxx t
+             where t.nsrdzdah = #{nsrdzdah}
+               and t.yjcode = '111'
+               and t.zbcode in ('11101', '11102')
+               and t.sbym > to_char(add_months(sysdate, -6), 'yyyymm') having
+             count(distinct yj_object) >= #{pval1}
+               and not exists
+             (select 1
+                      from yj_data_yjxx s
+                     where s.nsrdzdah = #{nsrdzdah}
+                       and s.yjcode = '111'
+                       and s.zbcode = '11103'
+                       and s.sbym > to_char(add_months(sysdate, -6), 'yyyymm'))
+        ]]>
+    </select>
+
+
+    <select id="selectGhqyhd130" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+            parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+            with TT as (
+            select t.ghfnsrsbh_1,sum(t.jsje) as yj_amt,sum(t.tse) as yj_tax,count(1) as yj_count
+            from tl_bjts.ckts_sb_mts_tsjh_lsb t
+            where t.sbid=#{sbid}
+            group by t.ghfnsrsbh_1)
+            Select
+              --S.Ghqynsrsbh_1 as yj_object,
+              S.Ghqynsrsbh_1 as ghfns_no, S.GHFQYMC_1 as yj_object,
+              S.WSBH as yj_record ,
+              TT.yj_amt,
+              TT.yj_tax,
+              TT.yj_count
+            from TT inner join tl_admin.yj_cs_ychd_js S on S.GHQYNSRSBH_1=TT.ghfnsrsbh_1
+                AND (S.GHQYNSRSBH=#{nsrsbh} AND S.Hdjglx in ('1','2') OR  SUBSTR(S.FAHDSWJG_DM,1,7)=SUBSTR(#{swjgdm},1,7) AND S.Hdjglx in ('3'))
+                AND S.Hdjglx=#{pval1}
+        ]]>
+    </select>
+
+
+    <select id="selectSbckka11201Sc" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+            parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+            select  t.hgcode as yj_object,
+                    t.bgd_no as yj_record,
+                   1 as yj_count,
+                   t.sbka,
+                   h1.hgmc as sbkamc,
+                   h2.hgmc as ckkamc,
+                   t.amt as yj_amt,
+                   t.tse as yj_tax
+            from (
+              select substr(a.ckbgdh,1,18) as bgd_no,
+                max(substr(a.ckbgdh,1,4)) as sbka,
+                max(a.hgcode) as hgcode,
+                sum(a.mylaj) as amt,
+                sum(a.mdtse) as tse
+              from tl_bjts.ckts_sb_mdt_tssb_lsb a
+                 where sbid = #{sbid}
+                  group by substr(a.ckbgdh,1,18)) t
+                  inner join tl_bjts.dm_hgcode h1 on h1.hgcode=t.sbka
+                  inner join tl_bjts.dm_hgcode h2 on h2.hgcode=t.hgcode
+                   and t.sbka <> t.hgcode
+                   and t.tse >= #{pval1}
+        ]]>
+    </select>
+
+
+    <select id="selectSbckka11201Wm" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+            parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+            select  t.hgcode as yj_object,
+                    t.glh as yj_record,
+                   1 as yj_count,
+                   t.sbka,
+                   h1.hgmc as sbkamc,
+                   h2.hgmc as ckkamc,
+                   t.amt as yj_amt,
+                   t.tse as yj_tax
+            from (
+              select substr(a.ckbgdh,1,18) as bgd_no,
+                max(substr(a.ckbgdh,1,4)) as sbka,
+                max(a.hgcode) as hgcode,
+				min(a.glh) as glh,
+                sum(a.mylaj) as amt,
+                sum(a.tse) as tse
+                from (
+                select    a.ckbgdh,a.hgcode,a.glh,a.mylaj,b.tse,
+                row_number() over(partition by a.glh order by b.sbxh) as RN
+              from tl_bjts.ckts_sb_mts_tssb_lsb a,tl_bjts.ckts_sb_mts_tsjh_lsb b
+                     where a.sbid = #{sbid}
+                       and a.sbid=b.sbid and a.glh=b.glh) a
+                      group by substr(a.ckbgdh,1,18)) t
+                      inner join tl_bjts.dm_hgcode h1 on h1.hgcode=t.sbka
+                      inner join tl_bjts.dm_hgcode h2 on h2.hgcode=t.hgcode
+                       and t.sbka <> t.hgcode
+                       and t.tse >= #{pval1}
+
+
+        ]]>
+    </select>
+
+
+    <select id="selectYcdj11301Sc" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+            parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+            select t.cksp_dm as yj_object,
+                   t.sbxh as yj_record,
+                   1 as yj_count,
+                   t.mylaj as yj_amt,
+                   t.mdtse as yj_tax,
+                   spdj
+            from (
+            select a.cksp_dm,
+                   a.sbxh,
+                   a.mylaj,
+                   a.mdtse,
+                   case when a.cksl=0 then 0 else a.mylaj / a.cksl end as spdj
+              from tl_bjts.ckts_sb_mdt_tssb_lsb a
+              where a.sbid = #{sbid}) t,tl_admin.YJ_CS_QSPJDJ_SC s
+               where t.cksp_dm = s.spdm
+               and s.dj > 0
+               and (t.spdj - s.dj) / s.dj > 1
+               and t.mdtse  >= #{pval1}
+        ]]>
+    </select>
+
+
+    <select id="selectYcdj11302Wm" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+            parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+            select t.cksp_dm as yj_object,
+                   t.glh as yj_record,
+                   1 as yj_count,
+                   t.jsje as yj_amt,
+                   t.tse as yj_tax,
+                   spdj
+            from (
+            select a.glh,a.cksp_dm,
+                   a.sbxh,
+                   a.jsje,
+                   a.tse,
+                   case when a.sl=0 then 0 else a.jsje / a.sl end as spdj
+              from tl_bjts.ckts_sb_mts_tsjh_lsb a
+             where a.sbid = #{sbid}) t, tl_admin.YJ_CS_QSPJDJ_WM s
+               where t.cksp_dm = s.spdm
+               and s.dj > 0
+               and (t.spdj - s.dj) / s.dj > 1
+               and t.tse >= #{pval1}
+        ]]>
+    </select>
+
+
+    <select id="selectBghfsSc11501" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo">
+                <![CDATA[
+               select  ' ' as yj_record,' ' as yj_object,1 as yj_count,
+                count(distinct object) as bghsl,
+                       count(1) as bgdsl,
+                       sum(t.mylaj) as yj_amt,
+                       sum(t.mdtse) as yj_tax
+                  from (select a.sbdwdm as object, a.mylaj, a.mdtse
+                          from tl_bjts.ckts_sb_mdt_tssb_lsb a
+                        where sbid in (select id
+                                from tl_bjts.sb_sbxx_hz
+                               where nsrdzdah = #{nsrdzdah}
+                                 and sbrq >= to_date(to_char(add_months(sysdate, -6), 'yyyymm') || '01', 'yyyymmdd')
+                                 and sbywb_dm='A0305001'
+                                 and sbtype = 'ZSSB'
+                                 and sbzt_dm in ('21', '2A', '2B', '30', '39'))
+                         ) t
+                  where (object is not null or object <> ' ') having
+                       count(distinct object) >= #{pval1}
+                       and count(distinct object) / count(1) >= #{pval2}
+                       and not exists
+                     (select 1
+                              from tl_admin.yj_data_yjxx s
+                             where s.nsrdzdah = #{nsrdzdah}
+                               and s.yjcode = '115'
+                               and s.zbcode = '11501'
+                               and s.sbym > to_char(add_months(sysdate, -6), 'yyyymm'))
+        ]]>
+    </select>
+
+    <select id="selectBghfsWm11501" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo">
+        <![CDATA[
+                select  ' ' as yj_record,' ' as yj_object,1 as yj_count,
+                count(distinct object) as bghsl,
+                       count(1) as bgdsl,
+                       sum(mylaj) as yj_amt,
+                       sum(zzstse) as yj_tax
+                  from (select a.sbdwdm as object, a.mylaj, a.zzstse
+                          from tl_bjts.ckts_sb_mts_tssb_lsb a
+                        where sbid in (select id
+                                from tl_bjts.sb_sbxx_hz
+                               where nsrdzdah = #{nsrdzdah}
+                                 and sbrq >= to_date(to_char(add_months(sysdate, -6), 'yyyymm') || '01', 'yyyymmdd')
+                                 and sbywb_dm='A0301001'
+                                 and sbtype = 'ZSSB'
+                                 and sbzt_dm in ('21', '2A', '2B', '30', '39'))
+                         )
+                 where (object is not null or object <> ' ') having
+                   count(distinct object) >= #{pval1}
+                   and count(distinct object) / count(1) >= #{pval2}
+                   and not exists
+                 (select 1
+                          from tl_admin.yj_data_yjxx s
+                         where s.nsrdzdah = #{nsrdzdah}
+                           and s.yjcode = '115'
+                           and s.zbcode = '11501'
+                           and s.sbym > to_char(add_months(sysdate, -6), 'yyyymm'))
+        ]]>
+    </select>
+
+
+    <select id="selectHegs20201Sc" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+            parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+            select 1 as yj_count,'' as yj_record,ck.ckbgdh as yj_object,
+             ck.cksp_dm as cmcode
+             from tl_bjts.CKTS_SB_MDT_TSSB_LSB ck
+            where sbid=#{sbid} and ck.cksp_dm like '43%' and ck.hgcode='9421' and ck.mylaj>=#{pval1}
+        ]]>
+    </select>
+
+    <select id="selectHegs20201Wm" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+            parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+            select 1 as yj_count,ck.glh as yj_record,ck.ckbgdh as yj_object,ck.cksp_dm  as cmcode from tl_bjts.CKTS_SB_MTS_TSSB_LSB ck
+            where sbid=#{sbid} and ck.cksp_dm like '43%' and ck.hgcode='9421' and ck.mylaj>=#{pval1}
+        ]]>
+    </select>
+
+    <select id="selectHegs20201Wzf" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+            parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+            select 1 as yj_count,'' as yj_record,ck.ckbgdh as yj_object,ck.cksp_dm as cmcode from tl_bjts.CKTS_SB_DB_TSSB_LSB ck
+            where sbid=#{sbid} and ck.cksp_dm like '43%' and ck.hgcode='9421' and ck.mylaj>=#{pval1}
+        ]]>
+    </select>
+
+    <!--  根据纳税人识别号查询登记序号   -->
+    <select id="selectDjxhByNsrsbh" resultType="String" parameterType="String">
+        select to_char(DJXH) as djxh from (
+        select A.djxh from hx_dj.dj_nsrxx A
+        where (A.nsrsbh = #{nsrsbh} or A.shxydm = #{nsrsbh})
+        and nvl(KQCCSZTDJBZ,'N') = 'N' and A.yxbz = 'Y'
+        and exists(select 1 from hx_rd.RD_SFZRDXXB where RD_SFZRDXXB.djxh=A.djxh and RD_SFZRDXXB.yxbz = 'Y')
+        and exists(select 1 from hx_rd.rd_nsrzgxx_jgb zg where zg.djxh=A.djxh and zg.yxqz>sysdate and zg.qxbz='N')
+        and A.nsrzt_dm  in ('03','06')
+        order by SWDJBLBZ desc) TT
+        where rownum=1
+    </select>
+
+    <select id="selectFirstTsck10301Wm" resultType="java.lang.Integer">
+        WITH
+        SCSBQK AS (
+        SELECT B.DJXH, B.LCSWSX_DM, NVL(B.SDHCWCBZ,'0') AS SDHCWCBZ, B.QYZTLX, TRUNC(B.QYZTBGSJ) AS QYZTBGSJ
+        FROM (SELECT T.DJXH, T.LCSWSX_DM, T.LCSLID, T.QDSJ, A.SDHCWCBZ, A.QYZTLX, A.QYZTBGSJ, A.LRRQ
+        FROM HX_CKTS.CKTS_TY_YWBLXX T
+        INNER JOIN HX_CKTS.CKTS_TY_SCSBQK A ON A.DJXH=T.DJXH
+        WHERE T.LCSLID=#{lcslid}
+        ORDER BY A.LRRQ DESC) B
+        WHERE ROWNUM=1),
+        SDHCBG AS (
+        SELECT D.DJXH, D.HCYYSM, D.HCJGSM
+        FROM (SELECT C.DJXH, C.HCYYSM, C.HCJGSM, C.LRRQ
+        FROM SCSBQK
+        INNER JOIN HX_CKTS.CKTS_SDHC_SDHCBG_JGB C ON C.DJXH=SCSBQK.DJXH
+        <![CDATA[
+          WHERE SCSBQK.SDHCWCBZ<>'2'
+        ]]>
+        AND REGEXP_LIKE(C.HCYYSM, DECODE(SCSBQK.QYZTLX,'1','01|20|21|22','2',DECODE(SCSBQK.LCSWSX_DM,'LCSXA081038001','17|20|21|22','18|20|21|22'),'3','12'))
+        AND C.LRRQ >=SCSBQK.QYZTBGSJ
+        ORDER BY C.LRRQ DESC) D
+        WHERE ROWNUM=1)
+        SELECT COUNT(1)
+        FROM DUAL
+        WHERE NOT EXISTS (SELECT 1 FROM SCSBQK WHERE SCSBQK.SDHCWCBZ='2'
+                            UNION
+                          SELECT 1 FROM SDHCBG WHERE REGEXP_LIKE(SDHCBG.HCJGSM,'01|02|03|04'))
+    </select>
+
+    <select id="selectGhqy10203" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo">
+
+        <![CDATA[
+            select '' as yj_object,
+                   '' as yj_record,
+                   count(distinct yj_object) as yj_count,
+                   sum(yj_amt) as yj_amt,
+                   sum(yj_tax) as yj_tax
+              from tl_admin.yj_data_yjxx t
+             where t.nsrdzdah = #{nsrdzdah}
+               and t.yjcode = '102'
+               and t.zbcode in ('10201', '10202')
+               and t.sbym > to_char(add_months(sysdate, -6), 'yyyymm') having
+             count(distinct yj_object) >= #{pval1}
+               and not exists
+             (select 1
+                      from tl_admin.yj_data_yjxx s
+                     where s.nsrdzdah =  #{nsrdzdah}
+                       and s.yjcode = '102'
+                       and s.zbcode = '10203'
+                       and s.sbym > to_char(add_months(sysdate, -6), 'yyyymm'))
+        ]]>
+
+    </select>
+
+    <select id="selectSbmtse" resultType="java.math.BigDecimal">
+        select nvl(sbtmse,0) as sbtmse from tl_bjts.sb_sbxx_hz
+        where id=#{sbid}
+    </select>
+
+    <select id="selectMaxYjSbsj" resultType="java.lang.String">
+        <![CDATA[
+        select TO_CHAR(max(sbrq), 'YYYY-MM-DD HH24:MI:SS') from tl_admin.yj_sbxx_hz where sbcs<999
+         ]]>
+    </select>
+    <select id="selectJsxtTaskList" resultType="com.tl.web.bjts.yj.model.vo.FetchTaskVo">
+          SELECT t.djxh, t.lcswsx_dm as lcswsxDm, t.ssq, t.sbpc, TO_CHAR(t.qdsj, 'YYYY-MM-DD HH24:MI:SS') as sbrq,
+              t.ckqygllb_dm as ckqygllbDm, t.lcslid
+          FROM hx_ckts.ckts_ty_ywblxx t
+          inner join zj_mh.mh_lcxx lc on lc.lcslid=t.lcslid
+         WHERE t.lcswsx_dm in ('LCSXA081039001', 'LCSXA081038001')
+           AND t.zlclcslid = t.lcslid
+           AND nvl(t.zfbz_1, 'N') = 'N'
+           AND nvl(t.FFBZ, 'N') = 'N'
+           AND t.qdsj >= #{sbsj}
+    </select>
+
+    <select id="selectNsrdzdahByDjxh" resultType="java.math.BigDecimal">
+          Select nsrdzdah from tl_bjts.gs_dj_cktmsdab where cpcode=#{djxh}
+    </select>
+    <select id="selectFirstTsck10301Sc" resultType="java.lang.Integer">
+        WITH
+        SCSBQK AS (
+        SELECT B.DJXH, B.LCSWSX_DM, NVL(B.SDHCWCBZ,'0') AS SDHCWCBZ, B.QYZTLX, TRUNC(B.QYZTBGSJ) AS QYZTBGSJ
+        FROM (SELECT T.DJXH, T.LCSWSX_DM, T.LCSLID, T.QDSJ, A.SDHCWCBZ, A.QYZTLX, A.QYZTBGSJ, A.LRRQ
+        FROM HX_CKTS.CKTS_TY_YWBLXX T
+        INNER JOIN HX_CKTS.CKTS_TY_SCSBQK A ON A.DJXH=T.DJXH
+        WHERE T.LCSLID=#{lcslid}
+        ORDER BY A.LRRQ DESC) B
+        WHERE ROWNUM=1),
+        SDHCBG AS (
+        SELECT D.DJXH, D.HCYYSM, D.HCJGSM
+        FROM (SELECT C.DJXH, C.HCYYSM, C.HCJGSM, C.LRRQ
+        FROM SCSBQK
+        INNER JOIN HX_CKTS.CKTS_SDHC_SDHCBG_JGB C ON C.DJXH=SCSBQK.DJXH
+        <![CDATA[
+          WHERE SCSBQK.SDHCWCBZ<>'2'
+        ]]>
+        AND REGEXP_LIKE(C.HCYYSM, DECODE(SCSBQK.QYZTLX,'1','01|20|21|22','2',DECODE(SCSBQK.LCSWSX_DM,'LCSXA081038001','17|20|21|22','18|20|21|22'),'3','12'))
+        AND C.LRRQ >=SCSBQK.QYZTBGSJ
+        ORDER BY C.LRRQ DESC) D
+        WHERE ROWNUM=1)
+        SELECT COUNT(1)
+             FROM DUAL
+            WHERE NOT EXISTS (SELECT 1 FROM SCSBQK WHERE SCSBQK.SDHCWCBZ='2'
+                              UNION
+                              SELECT 1 FROM SDHCBG WHERE REGEXP_LIKE(SDHCBG.HCJGSM,'01|02|03|04'))
+             AND EXISTS (SELECT 1
+                           FROM HX_CKTS.CKTS_SB_MDT_SBHZ_GCB
+                          WHERE LCSLID=#{lcslid}
+                            AND MDTSE>0)
+    </select>
+
+    <select id="selectDzabWwc11601" resultType="java.lang.Integer">
+        <![CDATA[
+          SELECT COUNT(1)
+            FROM TL_TSSH.GLXT_BB_SHXT_DJXX T
+            INNER JOIN TL_ADMIN.EDOC_RECORD_TASK S
+            ON S.NSRSBH = NVL(T.SHXYNO, T.NSRDJNO)
+            INNER JOIN TL_ADMIN.YJ_DIC_YJZB ZB
+            ON ZB.ZBCODE='11601'
+            LEFT JOIN TL_ADMIN.YJ_DIC_YJZBSWJG SW ON SW.ZBCODE=ZB.ZBCODE AND SW.SWJGDM=T.SWJGDM
+         WHERE T.DJXH_JS = #{djxh}
+            AND S.BAQX >= ADD_MONTHS(TRUNC(SYSDATE, 'MM'), (-1) * NVL(SW.P1VAL,ZB.P1VAL))
+            AND S.BAQX < TRUNC(SYSDATE, 'MM')
+            AND S.BAZT <> '3'
+        ]]>
+    </select>
+    <select id="selectMtsmxByLcslid" resultType="java.util.Map">
+        select a.glh,TO_CHAR(a.djxh) djxh,NVL(dlzmh,ckbgdh) ckbgdh,
+               (select sum(nvl(tse,0)) from hx_ckts.ckts_sb_mts_tsjh_gcb t where a.djxh=t.djxh and a.glh=t.glh) as tse
+        from HX_CKTS.CKTS_SB_MTS_TSSB_GCB a where lcslid=#{lcslid}  and a.cksl>0
+    </select>
+    <select id="selectCqwsbConfirmData" resultType="java.lang.Integer">
+        select count(1) from tl_tssh.rcgl_cqwsb_data t
+        where djxh=#{djxh} and ckbgdh=#{ckbgdh}
+              and t.qyqr_zt in ('1','2') and t.swsh_zt='1'
+    </select>
+    <select id="selectMdtmxByLcslid" resultType="java.util.Map">
+        select sbxh,TO_CHAR(djxh) djxh,NVL(dlckhwzmhm,ckbgdh) ckbgdh,NVL(MYLAJ,0) AS MYLAJ,NVL(mdtse,0) AS mdtse
+        from HX_CKTS.CKTS_SB_MDT_TSSB_GCB where lcslid=#{lcslid} AND CKSL>0
+    </select>
+
+    <select id="callProcedureCheckXblqy" parameterType="com.tl.web.bjts.yj.model.YjProcParamModel" statementType="CALLABLE">
+        { call TL_TSSH.PRO_FXGL_SZYJ_XBLQY(#{swjgdm,mode=IN,jdbcType=VARCHAR},#{djxh,mode=IN,jdbcType=VARCHAR},#{outmsg,mode=OUT,jdbcType=VARCHAR})}
+    </select>
+    <select id="selectSbhTzb11901Wm" resultType="java.lang.Integer">
+        select count(1) FROM HX_CKTS.CKTS_SB_MTS_TZSB_GCB T WHERE T.LCSLID=#{lcslid}
+    </select>
+
+    <select id="selectYwBghSc12001" resultType="com.tl.web.bjts.yj.model.vo.YwbgCkeVo">
+        WITH
+            SB_JGB AS (
+                SELECT NVL(SUM(T.MYLAJ),0) AS JGB_MYLAJ,
+                       NVL(SUM(CASE WHEN T.LRRQ>=ADD_MONTHS(TRUNC(SYSDATE,'MM'),-2) THEN T.MYLAJ ELSE 0 END),0) AS JGB_3M
+                FROM HX_CKTS.CKTS_SB_MDT_TSSB_JGB T
+                         INNER JOIN HX_CKTS.CKTS_WBSJ_HG_BGD201 S
+                                    ON S.DJXH=T.DJXH AND S.CKBGDH=T.CKBGDH
+                         INNER JOIN HX_CKTS.CKTS_TY_YWBLXX R ON R.DJXH=T.DJXH
+                WHERE R.LCSLID=#{lcslid}
+                  AND T.LRRQ>=DATE'2026-04-01'
+                  AND T.TSSWJG_DM_1 NOT LIKE '13307%'
+                  AND S.SBDWDM LIKE '33189%'
+            ),
+            SB_GCB AS (
+                SELECT NVL(SUM(T.MYLAJ),0) AS GCB_MYLAJ,
+                       NVL(SUM(CASE WHEN T.LRRQ>=ADD_MONTHS(TRUNC(SYSDATE,'MM'),-2) THEN T.MYLAJ ELSE 0 END),0) AS GCB_3M
+                FROM HX_CKTS.CKTS_SB_MDT_TSSB_GCB T
+                         INNER JOIN HX_CKTS.CKTS_WBSJ_HG_BGD201 S
+                                    ON S.DJXH=T.DJXH AND S.CKBGDH=T.CKBGDH
+                         INNER JOIN HX_CKTS.CKTS_TY_YWBLXX R ON R.DJXH=T.DJXH
+                WHERE R.LCSLID=#{lcslid}
+                  AND T.LRRQ>=DATE'2026-04-01'
+                  AND T.TSSWJG_DM_1 NOT LIKE '13307%'
+                  AND S.SBDWDM LIKE '33189%'
+            ),
+            SB_LC AS (
+                SELECT NVL(SUM(T.MYLAJ),0) AS LC_MYLAJ,
+                       MIN(T.SBXH)||'('||COUNT(T.SBXH)||')' AS LC_SBXH
+        FROM HX_CKTS.CKTS_SB_MDT_TSSB_GCB T
+            INNER JOIN HX_CKTS.CKTS_WBSJ_HG_BGD201 S
+        ON S.DJXH=T.DJXH AND S.CKBGDH=T.CKBGDH
+        WHERE T.LCSLID=#{lcslid}
+          AND T.LRRQ>=DATE'2026-04-01'
+          AND T.TSSWJG_DM_1 NOT LIKE '13307%'
+          AND S.SBDWDM LIKE '33189%'
+            )
+        SELECT LC_MYLAJ as lcMylaj,LC_SBXH as lcSbxh,
+        JGB_MYLAJ+GCB_MYLAJ AS mylajAll,JGB_3M+GCB_3M AS mylaj3m
+        FROM SB_LC
+                 INNER JOIN SB_JGB ON 1=1
+                 INNER JOIN SB_GCB ON 1=1
+    </select>
+
+    <select id="selectYwBghWm12001" resultType="com.tl.web.bjts.yj.model.vo.YwbgCkeVo">
+        WITH
+            SB_JGB AS (
+                SELECT NVL(SUM(T.MYLAJ),0) AS JGB_MYLAJ,
+                       NVL(SUM(CASE WHEN T.LRRQ>=ADD_MONTHS(TRUNC(SYSDATE,'MM'),-2) THEN T.MYLAJ ELSE 0 END),0) AS JGB_3M
+                FROM HX_CKTS.CKTS_SB_MTS_TSSB_JGB T
+                         INNER JOIN HX_CKTS.CKTS_WBSJ_HG_BGD201 S
+                                    ON S.DJXH=T.DJXH AND S.CKBGDH=T.CKBGDH
+                         INNER JOIN HX_CKTS.CKTS_TY_YWBLXX R ON R.DJXH=T.DJXH
+                WHERE R.LCSLID=#{lcslid}
+                  AND T.LRRQ>=DATE'2026-04-01'
+                  AND T.TSSWJG_DM_1 NOT LIKE '13307%'
+                  AND S.SBDWDM LIKE '33189%'
+            ),
+            SB_GCB AS (
+                SELECT NVL(SUM(T.MYLAJ),0) AS GCB_MYLAJ,
+                       NVL(SUM(CASE WHEN T.LRRQ>=ADD_MONTHS(TRUNC(SYSDATE,'MM'),-2) THEN T.MYLAJ ELSE 0 END),0) AS GCB_3M
+                FROM HX_CKTS.CKTS_SB_MTS_TSSB_GCB T
+                         INNER JOIN HX_CKTS.CKTS_WBSJ_HG_BGD201 S
+                                    ON S.DJXH=T.DJXH AND S.CKBGDH=T.CKBGDH
+                         INNER JOIN HX_CKTS.CKTS_TY_YWBLXX R ON R.DJXH=T.DJXH
+                WHERE R.LCSLID=#{lcslid}
+                  AND T.LRRQ>=DATE'2026-04-01'
+                  AND T.TSSWJG_DM_1 NOT LIKE '13307%'
+                  AND S.SBDWDM LIKE '33189%'
+            ),
+            SB_LC AS (
+                SELECT NVL(SUM(T.MYLAJ),0) AS LC_MYLAJ,
+                       MIN(T.GLH)||'('||COUNT(T.GLH)||')' AS LC_GLH
+        FROM HX_CKTS.CKTS_SB_MTS_TSSB_GCB T
+            INNER JOIN HX_CKTS.CKTS_WBSJ_HG_BGD201 S
+        ON S.DJXH=T.DJXH AND S.CKBGDH=T.CKBGDH
+        WHERE T.LCSLID=#{lcslid}
+          AND T.LRRQ>=DATE'2026-04-01'
+          AND T.TSSWJG_DM_1 NOT LIKE '13307%'
+          AND S.SBDWDM LIKE '33189%'
+            )
+        SELECT LC_MYLAJ as lcMylaj,LC_GLH as lcGlh,
+        JGB_MYLAJ+GCB_MYLAJ AS mylajAll,JGB_3M+GCB_3M AS mylaj3m
+        FROM SB_LC
+                 INNER JOIN SB_JGB ON 1=1
+                 INNER JOIN SB_GCB ON 1=1
+    </select>
+    <select id="selectCheckTsehj" resultType="java.lang.String">
+        select t.djxh
+        from hx_ckts.ckts_ty_sehzb t
+        where t.djxh=#{djxh} and t.sehzrq>=add_months(sysdate,-12)
+        group by t.djxh having sum(t.sehzzzstse+t.sehzxfstse)>=#{pv1}
+    </select>
+
+    <resultMap id="customsDeclarationResultMap" type="com.tl.web.bjts.yj.model.vo.CustomsDeclarationVo" autoMapping="true">
+        <!-- autoMapping=true 会自动映射同名字段，只需声明下划线转驼峰的字段 -->
+        <result column="ghfnsrsbh_1" property="ghfnsrsbh1"/>
+        <result column="spdl_dm" property="spdlDm"/>
+        <result column="ysfs_dm" property="ysfsDm"/>
+        <result column="zzmdgdqsz_dm" property="zzmdgdqszDm"/>
+        <result column="hggqka_dm" property="hggqkaDm"/>
+    </resultMap>
+
+    <select id="selectDeclarationVos" resultMap="customsDeclarationResultMap">
+        with
+            zygys as (
+                select t.lcslid,t.djxh,t.glh,t.ghfnsrsbh_1,min(t.jhpzh) as jhpzh,sum(t.jsje) as jsje,
+                       row_number() over (partition by t.lcslid,t.djxh,t.glh order by sum(t.jsje) desc) as pm
+                from hx_ckts.ckts_sb_mts_tsjh_gcb t
+                where t.lcslid= #{lcslid}
+                group by t.lcslid,t.djxh,t.glh,t.ghfnsrsbh_1
+            )
+        select zygys.lcslid,zygys.djxh,zygys.glh,zygys.ghfnsrsbh_1,zygys.jhpzh,zygys.jsje,
+               ck.mylaj,substr(ck.cksp_dm,1,2) as spdl_dm,bgd.ysfs_dm,bgd.zzmdgdqsz_dm,
+               case when bgd.qygbz='Y' then substr(bgd.ckbgdh,1,4) else bgd.hggqka_dm end as hggqka_dm,
+              (select sum(tse) from hx_ckts.ckts_sb_mts_tsjh_gcb where djxh=ck.djxh and glh=ck.glh) as tse
+        from zygys
+                 inner join hx_ckts.ckts_sb_mts_tssb_gcb ck on ck.djxh=zygys.djxh and ck.glh=zygys.glh
+                 inner join hx_ckts.ckts_wbsj_hg_bgd201 bgd on bgd.djxh=ck.djxh and bgd.ckbgdh=ck.ckbgdh
+        where pm=1 and ck.ckbgdh is not null
+        union all
+        select zygys.lcslid,zygys.djxh,zygys.glh,zygys.ghfnsrsbh_1,zygys.jhpzh,zygys.jsje,
+               ck.mylaj,substr(ck.cksp_dm,1,2) as spdl_dm,dlzm.ysfs_dm,dlzm.zzmdgdqsz_dm,
+               dlzm.hggqka_dm, (select sum(tse) from hx_ckts.ckts_sb_mts_tsjh_gcb where djxh=ck.djxh and glh=ck.glh) as tse
+        from zygys
+                 inner join hx_ckts.ckts_sb_mts_tssb_gcb ck on ck.djxh=zygys.djxh and ck.glh=zygys.glh
+                 inner join hx_ckts.ckts_wbsj_zj_dlckhwzm dlzm on dlzm.djxh=ck.djxh and dlzm.dlckhwzmhm=ck.dlzmh
+        where pm=1 and ck.ckbgdh is null
+    </select>
+    <select id="selectDmXzqhModels" resultType="com.tl.web.bjts.yj.model.domain.DmXzqhModel">
+        select * from TL_ADMIN.Dm_Xzqh where NVL(qybz,'Y')='Y' order by dm
+    </select>
+    <select id="selectHgcodeXzqhModels" resultType="com.tl.web.bjts.yj.model.domain.HgcodeXzqhModel">
+        select hgcode,hgmc,XZQH_DM as xzqhDm ,XZQH_MC as xzqhMc from TL_ADMIN.Dm_HGCODE where NVL(qybz,'Y')='Y' order by hgcode
+    </select>
+    <select id="selectGysxzdm" resultType="java.lang.String">
+        select substr(t.xsfdsjswjg_dm,2,4) as xzqh_dm
+        from gt4_yyzc_zr_sjtb.dzfp_kpyw_fpjcxxb t
+        where fphm=#{jhpzh}
+    </select>
+    <select id="selectGbcodeXzqhModels" resultType="com.tl.web.bjts.yj.model.domain.DmGbcodeModel">
+        SELECT
+            GB_CODE      AS gbCode,
+            GB_NAME      AS gbName,
+            GB_ENAME     AS gbEname,
+            QYCODE       AS qycode,
+            QYNAME       AS qyname,
+            QYBZ         AS qybz
+        FROM TL_ADMIN.DM_GBCODE where NVL(qybz,'Y')='Y' order by GB_CODE
+    </select>
+
+    <select id="checkRiskLink" resultType="java.lang.Integer">
+        SELECT COUNT(*) as cnt FROM DUAL
+        WHERE  EXISTS (
+          SELECT 1
+          FROM (
+                   SELECT NVL(t.FXDJ_TZ, m.FXDJ_DM) AS FXDJ,
+                          ROW_NUMBER() OVER(ORDER BY t.SWJG_DM DESC) AS RN
+                   FROM TL_TSSH.CKLLFX_CS_WMQYLSLL m
+                            LEFT JOIN TL_TSSH.CKLLFX_CS_SWJGYJTZ t
+                                      ON t.YSFS_DM = m.YSFS_DM
+                                          AND t.SPDL_DM = m.SPDL_DM
+                                          AND t.QYCODE_HYD = m.QYCODE_HYD
+                                          AND t.QYCODE_HG = m.QYCODE_HG
+                                          AND t.QYCODE_MDG = m.QYCODE_MDG
+                                          AND t.SWJG_DM IN (#{swjgdm}, SUBSTR(#{swjgdm}, 1, 5) || '000000')
+                                          AND t.TSJSFF_DM = '2'
+                   WHERE m.YSFS_DM = #{ysfsDm}
+                     AND m.SPDL_DM = #{spdlDm}
+                     AND m.QYCODE_HYD = #{gysQycode}
+                     AND m.QYCODE_HG = #{hgkaQycode}
+                     AND m.QYCODE_MDG = #{mdgQycode}
+               ) tmp
+                   INNER JOIN TL_TSSH.CKLLFX_CS_FXDJSZ f ON f.FXDJ_DM = tmp.FXDJ
+          WHERE tmp.RN = 1
+            AND f.FXDJ_DM NOT IN ('4', '5')
+        )
+    </select>
+
+    <!-- 商品单价畸高指标 - 查询企业近12个月退税额合计 -->
+    <select id="selectCheckTsehj161" resultType="java.lang.String">
+        SELECT TO_CHAR(NVL(SUM(T.SEHZZZSTSE+T.SEHZXFSTSE), 0)) AS Tsehj
+          FROM HX_CKTS.CKTS_TY_SEHZB T
+         WHERE T.DJXH = #{djxh}
+           AND T.SEHZRQ &gt;= ADD_MONTHS(SYSDATE,-12)
+    </select>
+
+    <!-- 商品单价畸高指标 - 生产企业出口商品单价信息 -->
+    <select id="selectScSpdj161" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo">
+        SELECT NVL(T.CKBGDH,T.DLCKHWZMHM) AS bgdno,
+               T.CKSP_DM AS yj_object,
+               T.CKSL,
+               T.MYLAJ AS yj_amt,
+               T.MDTSE AS yj_tax,
+               round(t.mylaj/t.cksl,2) as myspdj,
+               ROUND(T.RMBLAJ/T.CKSL,2) AS spdj,
+               T.SBHGSPMC AS cmname,sbxh as yj_record
+          FROM HX_CKTS.CKTS_SB_MDT_TSSB_GCB T
+         WHERE T.LCSLID = #{lcslid}
+           AND T.CKSL &gt; 0
+    </select>
+
+    <!-- 商品单价畸高指标 - 外贸企业进货单价信息 -->
+    <select id="selectWmSpdj161" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo"
+            parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        SELECT NVL(T.CKBGDH,T.DLZMH) AS bgdno,
+               T.CKSP_DM AS yj_object,
+               T.CKSL,
+               SUM(S.JSJE) AS yj_amt,
+               SUM(S.TSE) AS yj_tax,
+               ROUND(SUM(S.JSJE)/T.CKSL,2) AS spdj,
+               T.SBHGSPMC AS cmname,MAX(T.GLH) as yj_record
+          FROM HX_CKTS.CKTS_SB_MTS_TSSB_GCB T
+         INNER JOIN HX_CKTS.CKTS_SB_MTS_TSJH_GCB S
+            ON S.DJXH = T.DJXH AND S.GLH = T.GLH
+         WHERE T.LCSLID = #{lcslid}
+         GROUP BY NVL(T.CKBGDH,T.DLZMH), T.CKSP_DM, T.CKSL, T.SBHGSPMC
+          HAVING T.CKSL &gt; 0
+    </select>
+
+    <!-- 商品单价畸高指标 - 查询外贸企业全省平均单价 -->
+    <select id="selectQspjDjWm" resultType="java.math.BigDecimal">
+        SELECT NVL(DJ, 0) AS DJ
+          FROM TL_ADMIN.YJ_CS_QSPJDJ_WM
+         WHERE SPDM = #{spdm}
+           AND ROWNUM = 1
+    </select>
+
+    <!-- 商品单价畸高指标 - 查询生产企业全省平均单价 -->
+    <select id="selectQspjDjSc" resultType="java.math.BigDecimal">
+        SELECT NVL(DJ, 0) AS DJ
+          FROM TL_ADMIN.YJ_CS_QSPJDJ_SC
+         WHERE SPDM = #{spdm}
+           AND ROWNUM = 1
+    </select>
+
+    <!-- 出口与开票时间间隔预警 - 查询关联号开票滞后信息 -->
+    <select id="selectCkkpSjjg16201" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo">
+        SELECT NVL(T.CKBGDH,T.DLZMH) AS yj_object,
+               TO_CHAR(T.CKRQ_1, 'YYYY-MM-DD') AS ckrq,
+               MAX(T.GLH) AS yj_record,
+               T.mylaj as yj_amt,
+               SUM(S.TSE) AS yj_tax,
+               TO_CHAR(MAX(S.KPRQ), 'YYYY-MM-DD') AS kprq,
+               TRUNC(MAX(S.KPRQ) - T.CKRQ_1) AS yj_count
+          FROM HX_CKTS.CKTS_SB_MTS_TSSB_GCB T
+         INNER JOIN HX_CKTS.CKTS_SB_MTS_TSJH_GCB S
+            ON S.DJXH = T.DJXH AND S.GLH = T.GLH
+         WHERE T.LCSLID = #{lcslid}
+         GROUP BY NVL(T.CKBGDH,T.DLZMH), T.CKRQ_1,T.mylaj
+    </select>
+
+    <!-- 出口与开票时间间隔预警 - 查询近12个月16201预警次数 -->
+    <select id="selectCkkpSjjgCount16202" resultType="java.lang.Integer">
+        SELECT COUNT(1) AS CNT
+          FROM TL_ADMIN.YJ_DATA_YJXX T
+         WHERE T.NSRDZDAH = #{nsrdzdah}
+           AND T.YJCODE = '162'
+           AND T.ZBCODE = '16201'
+           AND T.CJ_DATE &gt;= ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -#{months})
+    </select>
+
+    <!-- 每美元利润率分析预警 - 查询关联号每美元利润率信息（报关单有数据） -->
+    <select id="selectWmqyMmylrl163" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo">
+        SELECT NVL(T.CKBGDH, T.DLZMH) AS yj_object,
+               T.MYLAJ AS yj_amt,
+               ROUND(T.MYLAJ * BGD.RMBLAJ / BGD.MYLAJ, 2) AS yj_count,
+               T.GLH AS yj_record,
+               SUM(S.TSE) AS yj_tax,
+               ROUND((T.MYLAJ * BGD.RMBLAJ / BGD.MYLAJ - SUM(S.JSJE * (100 + S.ZSSL - S.TSL) / 100)) / T.MYLAJ, 2) AS offset
+          FROM HX_CKTS.CKTS_SB_MTS_TSSB_GCB T
+         INNER JOIN HX_CKTS.CKTS_SB_MTS_TSJH_GCB S
+            ON S.DJXH = T.DJXH AND S.GLH = T.GLH
+         INNER JOIN HX_CKTS.CKTS_WBSJ_HG_BGD201 BGD
+            ON BGD.DJXH = T.DJXH AND BGD.CKBGDH = T.CKBGDH
+         WHERE T.LCSLID = #{lcslid}
+           AND T.CKBGDH IS NOT NULL
+         GROUP BY NVL(T.CKBGDH, T.DLZMH), T.MYLAJ, BGD.MYLAJ, BGD.RMBLAJ,T.GLH
+        UNION ALL
+        SELECT NVL(T.CKBGDH, T.DLZMH) AS yj_object,
+               T.MYLAJ AS yj_amt,
+               ROUND(T.MYLAJ * DLZM.RMBLAJ / DLZM.MYLAJ, 2) AS yj_count,
+               T.GLH AS yj_record,
+               SUM(S.TSE) AS yj_tax,
+               ROUND((T.MYLAJ * DLZM.RMBLAJ / DLZM.MYLAJ - SUM(S.JSJE * (100 + S.ZSSL - S.TSL) / 100)) / T.MYLAJ, 2) AS offset
+          FROM HX_CKTS.CKTS_SB_MTS_TSSB_GCB T
+         INNER JOIN HX_CKTS.CKTS_SB_MTS_TSJH_GCB S
+            ON S.DJXH = T.DJXH AND S.GLH = T.GLH
+         INNER JOIN HX_CKTS.CKTS_WBSJ_ZJ_DLCKHWZM DLZM
+            ON DLZM.DJXH = T.DJXH AND DLZM.DLCKHWZMHM = T.DLZMH
+         WHERE T.LCSLID = #{lcslid}
+           AND T.CKBGDH IS NULL
+         GROUP BY NVL(T.CKBGDH, T.DLZMH), T.MYLAJ, DLZM.MYLAJ, DLZM.RMBLAJ,T.GLH
+    </select>
+
+    <!-- 风险企业调查评估 - 查询三三智检红码等级（SQL8） -->
+    <select id="selectJkmLevel" resultType="java.lang.Integer">
+        SELECT T.JKM_LEVEL
+          FROM TL_TSSH.JKGL_DATA_QYJKM_JGB T
+         WHERE T.DJXH = #{djxh}
+    </select>
+
+    <!-- 风险企业调查评估 - 查询专项监管未核实疑点数量（SQL9） -->
+    <select id="selectZxzbWhsydCount" resultType="java.lang.Integer">
+        SELECT COUNT(1) AS WHSYD
+          FROM TL_TSSH.FXGL_DATA_ZXZB T
+         WHERE T.DJXH = #{djxh}
+           and t.zbid='C02001'
+           AND T.HSJGLX = 0
+    </select>
+
+    <!-- 风险企业调查评估 - 查询16404预警未处理数量 -->
+    <select id="select16404NotProcessedCount" resultType="java.lang.Integer">
+        SELECT COUNT(1) AS WCLYJ
+          FROM TL_ADMIN.YJ_DATA_YJXX T
+         INNER JOIN TL_BJTS.GS_DJ_CKTMSDAB S
+            ON S.NSRDZDAH = T.NSRDZDAH
+         WHERE S.CPCODE = #{cpcode}
+           AND T.ZBCODE = '16404'
+           AND T.CJ_DATE > ADD_MONTHS(SYSDATE, -#{months})
+           AND T.CL_DATE IS NULL
+    </select>
+
+    <!-- 风险企业调查评估 - 查询三新预警涉税金额超阈值数据（SQL11） -->
+    <select id="selectSanxinYjOverThreshold" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo">
+        SELECT T.*,t.yj_msg||',建议转调查评估排除疑点！' as yjMsg
+          FROM TL_ADMIN.YJ_DATA_YJXX T
+         INNER JOIN TL_ADMIN.YJ_SBXX_HZ S
+            ON S.ID = T.SBID
+         WHERE S.LCSLID = #{lcslid}
+           AND T.YJCODE IN ('101', '102')
+           AND T.YJ_TAX >= #{pval}
+    </select>
+
+    <!-- 长期未申报报关单 - 查询未申报报关单份数和金额（SQL12） -->
+    <select id="selectCqwbgdCountAndAmt" resultType="java.util.HashMap">
+        <![CDATA[
+        select to_char(add_months(sysdate,-12),'yyyy') as a_year,
+               sum(case when t.ckrq_1>=trunc(add_months(sysdate,-12),'yy') then 1 else 0 end) as b_num,
+               sum(case when t.ckrq_1>=trunc(add_months(sysdate,-12),'yy') then t.rmblaj else 0 end) as c_rmblaj,
+               sum(case when t.ckrq_1<trunc(add_months(sysdate,-12),'yy') then 1 else 0 end) as d_num,
+               sum(case when t.ckrq_1<trunc(add_months(sysdate,-12),'yy') then t.rmblaj else 0 end) as e_rmblaj
+        from RCGL_CQWSB_DATA t
+        where t.djxh=#{djxh}
+          and t.zmtbz='0'
+          and t.qyqr_zt in ('0','4')
+        ]]>
+    </select>
+
+    <!-- 收汇比例偏低预警 - 查询上年度出口额和收汇额（SQL13） -->
+    <select id="selectShblpd166" resultType="java.util.HashMap">
+        <![CDATA[
+        WITH
+            ck AS (
+                SELECT NVL(SUM(T.MYLAJ), 0) AS CK_MY
+                FROM HX_CKTS.ckts_wbsj_hg_bgd201 T
+                WHERE T.DJXH = #{djxh}
+                  AND T.CKRQ_1 >= ADD_MONTHS(TRUNC(SYSDATE,'YY'),-12)
+                  AND T.CKRQ_1 < TRUNC(SYSDATE,'YY')
+            ),
+            sh AS (
+                SELECT NVL(SUM(CKSHJEMY), 0) AS SH_MY,sum(decode(lx,'WGJ',CKSHJEMY,0)) AS WGJ_SH,sum(decode(lx,'RMB',CKSHJEMY,0)) AS RMB_SH
+                FROM (SELECT SUM(WH.CKSHJEMY) AS CKSHJEMY,'WGJ' AS LX
+                      FROM HX_CKTS.CKTS_WBSJ_WH_HWSHZBSJ WH
+                      WHERE WH.DJXH = #{djxh}
+                        AND WH.CKSHRQ >= ADD_MONTHS(TRUNC(SYSDATE,'YY'),-12)
+                        AND WH.CKSHRQ < LEAST(SYSDATE, ADD_MONTHS(TRUNC(SYSDATE,'YY'),4))
+                      UNION ALL
+                      SELECT NVL(SUM(ROUND(ZJ.SKZJE * 100 / HL.RMBHL, 2)), 0) AS CKSHJEMY,'RMB' AS LX
+                      FROM HX_CKTS.CKTS_WBSJ_ZJ_KJMYSRXX ZJ
+                               INNER JOIN HX_CS_ZDY.CS_CKTS_HL HL ON HL.HBZM_DM = 'USD'
+                          AND HL.HLNY = TO_CHAR(ZJ.SKRQ,'YYYYMM')
+                      WHERE ZJ.DJXH = #{djxh}
+                        AND ZJ.SKRQ >= ADD_MONTHS(TRUNC(SYSDATE,'YY'),-12)
+                        AND ZJ.SKRQ < LEAST(SYSDATE, ADD_MONTHS(TRUNC(SYSDATE,'YY'),4))
+                     )
+            )
+        SELECT CK.CK_MY,
+               SH.SH_MY,SH.WGJ_SH,SH.RMB_SH
+        FROM CK
+                 LEFT JOIN SH ON 1=1
+        ]]>
+    </select>
+
+    <resultMap id="mdtBgxx121ResultMap" type="com.tl.web.bjts.yj.model.vo.MdtBgxx121Vo" autoMapping="true">
+        <!-- autoMapping=true 会自动映射同名字段，只需声明下划线转驼峰的字段 -->
+        <result column="tmsjsff_dm" property="tmsjsffDm"/>
+        <result column="spdl_dm" property="spdlDm"/>
+        <result column="ckrq_1" property="ckrq1"/>
+        <result column="ysfs_dm" property="ysfsDm"/>
+        <result column="hzdwdq_dm" property="hzdwdqDm"/>
+        <result column="hggqka_dm" property="hggqkaDm"/>
+        <result column="zzmdgdqsz_dm" property="zzmdgdqszDm"/>
+    </resultMap>
+
+    <!-- 未申报物流信息 - 免抵退申报提取报关单信息（SQL14） -->
+    <select id="selectMdtBgxx121" resultMap="mdtBgxx121ResultMap">
+        WITH
+            mx AS (
+                SELECT t.djxh, substr(t.ckbgdh,1,18) AS bgdhgbh, t.dlckhwzmhm, '1' AS tmsjsff_dm, t.mylaj,
+                       substr(t.cksp_dm,1,2) AS spdl_dm, t.ckrq_1, t.ckfph,t.bz,
+                       s.ysfs_dm,nvl(s.hzdwdq_dm,SUBSTR(S.HZDWDM,1,5)) AS hzdwdq_dm,
+                       CASE WHEN s.qygbz='Y' THEN substr(s.ckbgdh,1,4) ELSE s.hggqka_dm END AS hggqka_dm,
+                       s.zzmdgdqsz_dm, s.tydh,
+                       ROW_NUMBER() OVER (PARTITION BY substr(t.ckbgdh,1,18) ORDER BY t.ckbgdh ASC) AS pm
+                  FROM hx_ckts.ckts_sb_mdt_tssb_gcb t
+                 INNER JOIN hx_ckts.ckts_wbsj_hg_bgd201 s
+                    ON s.djxh=t.djxh AND s.ckbgdh=t.ckbgdh
+                 WHERE t.lcslid=#{lcslid}
+                   AND t.ckrq_1>=date'2026-04-01'
+                   AND t.cksl>0
+                   AND t.ckbgdh IS NOT NULL
+                 UNION ALL
+                SELECT t.djxh, substr(s.ckbgdh,1,18) AS bgdhgbh, t.dlckhwzmhm, '1' AS tmsjsff_dm, t.mylaj,
+                       substr(t.cksp_dm,1,2) AS spdl_dm, t.ckrq_1, t.ckfph,t.bz,
+                       s.ysfs_dm, nvl(s.jnhyd_dm,substr(s.hzdwdm,1,5)) as hzdwdq_dm, s.hggqka_dm, s.zzmdgdqsz_dm, s.tydh,
+                       ROW_NUMBER() OVER (PARTITION BY substr(s.ckbgdh,1,18) ORDER BY s.ckbgdh ASC) AS pm
+                  FROM hx_ckts.ckts_sb_mdt_tssb_gcb t
+                 INNER JOIN hx_ckts.ckts_wbsj_zj_dlckhwzm s
+                    ON s.djxh=t.djxh AND s.tsswjg_dm_1=t.tsswjg_dm_1 AND s.dlckhwzmhm=t.dlckhwzmhm
+                 WHERE t.lcslid=#{lcslid}
+                   AND t.ckrq_1>=date'2026-04-01'
+                   AND t.cksl>0
+                   AND t.ckbgdh IS NULL
+            ),
+            cke AS (
+                SELECT djxh, bgdhgbh, SUM(mylaj) AS mylaj
+                  FROM mx
+                 GROUP BY djxh, bgdhgbh
+            ),
+            zysp AS (
+                SELECT djxh, bgdhgbh, spdl_dm,
+                       ROW_NUMBER() OVER (PARTITION BY djxh, bgdhgbh ORDER BY SUM(mylaj) DESC) AS pm1
+                  FROM mx
+                 GROUP BY djxh, bgdhgbh, spdl_dm
+            )
+        SELECT mx.djxh, mx.bgdhgbh, mx.dlckhwzmhm, mx.tmsjsff_dm, cke.mylaj, zysp.spdl_dm,
+               TO_CHAR(mx.ckrq_1, 'YYYY-MM-DD') AS ckrq_1, mx.ysfs_dm, mx.hzdwdq_dm, mx.hggqka_dm,
+               mx.zzmdgdqsz_dm, mx.ckfph, mx.tydh,mx.bz
+          FROM mx
+         INNER JOIN cke ON cke.bgdhgbh=mx.bgdhgbh
+         INNER JOIN zysp ON zysp.bgdhgbh=mx.bgdhgbh
+         WHERE pm=1 AND pm1=1
+    </select>
+
+    <resultMap id="mtsBgxx121ResultMap" type="com.tl.web.bjts.yj.model.vo.MtsBgxx121Vo" autoMapping="true">
+        <!-- autoMapping=true 会自动映射同名字段，只需声明下划线转驼峰的字段 -->
+        <result column="tmsjsff_dm" property="tmsjsffDm"/>
+        <result column="spdl_dm" property="spdlDm"/>
+        <result column="ckrq_1" property="ckrq1"/>
+        <result column="ysfs_dm" property="ysfsDm"/>
+        <result column="hzdwdq_dm" property="hzdwdqDm"/>
+        <result column="hggqka_dm" property="hggqkaDm"/>
+        <result column="zzmdgdqsz_dm" property="zzmdgdqszDm"/>
+        <result column="ghfnsrsbh_1" property="ghfnsrsbh1"/>
+    </resultMap>
+
+    <!-- 未申报物流信息 - 免退税申报提取报关单信息（SQL15） -->
+    <select id="selectMtsBgxx121" resultMap="mtsBgxx121ResultMap">
+        WITH
+            mx AS (
+                SELECT t.djxh, t.glh, substr(t.ckbgdh,1,18) AS bgdhgbh, t.dlzmh, '2' AS tmsjsff_dm, t.mylaj,
+                       substr(t.cksp_dm,1,2) AS spdl_dm, t.ckrq_1, t.ckfph,t.bz,
+                       s.ysfs_dm, nvl(s.hzdwdq_dm,SUBSTR(S.HZDWDM,1,5)) AS hzdwdq_dm,
+                       CASE WHEN s.qygbz='Y' THEN substr(s.ckbgdh,1,4) ELSE s.hggqka_dm END AS hggqka_dm,
+                       s.zzmdgdqsz_dm, s.tydh,
+                       ROW_NUMBER() OVER (PARTITION BY substr(t.ckbgdh,1,18) ORDER BY t.ckbgdh ASC) AS pm
+                  FROM hx_ckts.ckts_sb_mts_tssb_gcb t
+                 INNER JOIN hx_ckts.ckts_wbsj_hg_bgd201 s
+                    ON s.djxh=t.djxh AND s.ckbgdh=t.ckbgdh
+                 WHERE t.lcslid=#{lcslid}
+                   AND t.ckrq_1>=date'2026-04-01'
+                   AND t.cksl>0
+                   AND t.ckbgdh IS NOT NULL
+                 UNION ALL
+                SELECT t.djxh, t.glh, substr(s.ckbgdh,1,18) AS bgdhgbh, t.dlzmh, '2' AS tmsjsff_dm, t.mylaj,
+                       substr(t.cksp_dm,1,2) AS spdl_dm, t.ckrq_1, t.ckfph,t.bz,
+                       s.ysfs_dm, nvl(s.jnhyd_dm,substr(s.hzdwdm,1,5)) as hzdwdq_dm, s.hggqka_dm, s.zzmdgdqsz_dm, s.tydh,
+                       ROW_NUMBER() OVER (PARTITION BY substr(s.ckbgdh,1,18) ORDER BY s.ckbgdh ASC) AS pm
+                  FROM hx_ckts.ckts_sb_mts_tssb_gcb t
+                 INNER JOIN hx_ckts.ckts_wbsj_zj_dlckhwzm s
+                    ON s.djxh=t.djxh AND s.tsswjg_dm_1=t.tsswjg_dm_1 AND s.dlckhwzmhm=t.dlzmh
+                 WHERE t.lcslid=#{lcslid}
+                   AND t.ckrq_1>=date'2026-04-01'
+                   AND t.cksl>0
+                   AND t.ckbgdh IS NULL
+            ),
+            cke AS (
+                SELECT djxh, bgdhgbh, SUM(mylaj) AS mylaj
+                  FROM mx
+                 GROUP BY djxh, bgdhgbh
+            ),
+            zysp AS (
+                SELECT djxh, bgdhgbh, spdl_dm,
+                       ROW_NUMBER() OVER (PARTITION BY djxh, bgdhgbh ORDER BY SUM(mylaj) DESC) AS pm1
+                  FROM mx
+                 GROUP BY djxh, bgdhgbh, spdl_dm
+            ),
+            zygys AS (
+                SELECT zysp.djxh, zysp.bgdhgbh, jh.ghfnsrsbh_1, MIN(jh.jhpzh) AS jhpzh,
+                       SUM(jh.jsje) AS ghje,
+                       ROW_NUMBER() OVER (PARTITION BY zysp.djxh, zysp.bgdhgbh ORDER BY SUM(jh.jsje) DESC) AS pm2
+                  FROM zysp
+                 INNER JOIN mx ON mx.djxh=zysp.djxh AND mx.bgdhgbh=zysp.bgdhgbh AND mx.spdl_dm=zysp.spdl_dm
+                 INNER JOIN hx_ckts.ckts_sb_mts_tsjh_gcb jh ON jh.djxh=mx.djxh AND jh.glh=mx.glh
+                 WHERE zysp.pm1=1
+                 GROUP BY zysp.djxh, zysp.bgdhgbh, jh.ghfnsrsbh_1
+            )
+        SELECT mx.djxh, mx.bgdhgbh, mx.dlzmh, mx.tmsjsff_dm, cke.mylaj, zysp.spdl_dm,
+               TO_CHAR(mx.ckrq_1, 'YYYY-MM-DD') AS ckrq_1, mx.ysfs_dm, mx.hzdwdq_dm, mx.hggqka_dm,
+               mx.zzmdgdqsz_dm, zygys.ghfnsrsbh_1, zygys.jhpzh, mx.ckfph, mx.tydh,mx.bz
+          FROM mx
+         INNER JOIN cke ON cke.bgdhgbh=mx.bgdhgbh
+         INNER JOIN zysp ON zysp.bgdhgbh=mx.bgdhgbh AND zysp.pm1=1
+         INNER JOIN zygys ON zygys.bgdhgbh=mx.bgdhgbh AND zygys.pm2=1
+         WHERE pm=1
+    </select>
+
+    <!-- 未申报物流信息 - 查询集装箱号和数量（SQL16） -->
+    <select id="selectJzxh121" resultType="java.util.HashMap">
+        SELECT MIN(t.jzxh) AS jzxh, COUNT(1) AS jzxsl
+          FROM tl_tssh.CKTS_WBSJ_HG_BGD204 t
+         WHERE t.bgdhgbh=#{bgdhgbh}
+    </select>
+
+    <!-- 未申报物流信息 - 查询发货模式（SQL17） -->
+    <select id="selectFhms121" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT s.bgdhgbh) AS fhms
+          FROM tl_tssh.CKTS_WBSJ_HG_BGD204 t
+         INNER JOIN CKTS_WBSJ_HG_BGD204 s ON s.jzxh=t.jzxh AND s.ckrq_1=t.ckrq_1
+         WHERE t.bgdhgbh=#{bgdhgbh}
+    </select>
+
+    <!-- 未申报物流信息 - 查询供应商信息（发票查询SQL3） -->
+    <select id="selectGysxx121" resultType="java.util.HashMap">
+        SELECT t.xsfmc, t.xsfzgswj_dm, SUBSTR(t.xsfdsjswjg_dm,2,4) AS xzqh_dm
+          FROM gt4_yyzc_zr_sjtb.dzfp_kpyw_fpjcxxb t
+         WHERE fphm=#{fphm}
+           AND ROWNUM=1
+    </select>
+
+    <!-- 未申报物流信息 - 查询报关单链路信息 -->
+    <select id="selectBgdwlByBgdh" resultType="java.util.HashMap">
+        SELECT DJXH, BGDHGBH, CPH, QYRQ, QYD, WLXXLY_DM, FXDJ_DM
+          FROM TL_TSSH.CKLLFX_DATA_BGDWL
+         WHERE DJXH=#{djxh} AND BGDHGBH=#{bgdhgbh}
+           AND ROWNUM=1
+    </select>
+
+    <!-- 未申报物流信息 - 批量查询报关单链路信息 -->
+    <select id="selectBgdwlListByBgdhList" resultType="java.util.HashMap">
+        SELECT DJXH, BGDHGBH, CPH, QYRQ, QYD, WLXXLY_DM, FXDJ_DM
+          FROM TL_TSSH.CKLLFX_DATA_BGDWL
+         WHERE DJXH=#{djxh}
+           AND BGDHGBH IN
+           <foreach collection="bgdhgbhList" item="bgdh" open="(" separator="," close=")">
+               #{bgdh}
+           </foreach>
+    </select>
+
+    <!-- 未申报物流信息 - 从申报明细备注提取物流信息 -->
+    <select id="selectSbmxbzWlxx" resultType="java.lang.String">
+        <choose>
+            <when test='tmsjsffDm.toString() == "1"'>
+                SELECT t.bz
+                  FROM hx_ckts.ckts_sb_mdt_tssb_gcb t
+                 WHERE t.djxh=#{djxh}
+                   AND NVL(t.dlckhwzmhm,t.ckbgdh) LIKE #{bgdhLike}||'%'
+                   AND ROWNUM=1
+            </when>
+            <otherwise>
+                SELECT t.bz
+                  FROM hx_ckts.ckts_sb_mts_tssb_gcb t
+                 WHERE t.djxh=#{djxh}
+                   AND NVL(t.dlzmh,t.ckbgdh) LIKE #{bgdhLike}||'%'
+                   AND ROWNUM=1
+            </otherwise>
+        </choose>
+    </select>
+
+    <!-- 未申报物流信息 - 从发票备注提取物流信息 -->
+    <select id="selectFpbzWlxx" resultType="com.tl.web.bjts.yj.model.vo.FphmBzVo">
+        SELECT fphm,bz
+          FROM gt4_yyzc_zr_sjtb.dzfp_kpyw_fpjcxxb t
+         WHERE t.fphm=#{fphm} AND ROWNUM=1
+    </select>
+
+    <!-- 未申报物流信息 - 新增报关单链路信息 -->
+    <insert id="insertBgdwl" parameterType="java.util.Map">
+        INSERT INTO TL_TSSH.CKLLFX_DATA_BGDWL(
+            DJXH, BGDHGBH, DLZMH, TMSJSFF_DM, MYLAJ, SPDL_DM, CKRQ_1,
+            YSFS_DM, HZDWDQ_DM, HGGQKA_DM, ZZMDGDQSZ_DM, JZXH, FHMS_DM,
+            GHFNSRSBH_1, GHFNSRMC, GHFNSRSWJG, QYCODE_HYD, QYCODE_HG, QYCODE_MDG,
+            FXDJ_DM, FXDJ_GXRQ, WLXXLY_DM, CKFPH, CPH, QYRQ, QYD,
+            TYDH, QYD_XZQH, TDLX_DM, GJEWMZT_DM, BZ, SJGXSJ,FXDJ_ZHFXZS,JHPZH,CKFPBZ,CKMXBZ
+        ) VALUES (
+            #{djxh}, #{bgdhgbh}, #{dlzmh}, #{tmsjsffDm}, #{mylaj}, #{spdlDm}, #{ckrq},
+            #{ysfsDm}, #{hzdwdqDm}, #{hggqkaDm}, #{zzmdgdqszDm}, #{jzxh}, #{fhmsDm},
+            #{ghfnsrsbh}, #{ghfnsrmc}, #{ghfnsrswjg}, #{qycodeHyd}, #{qycodeHg}, #{qycodeMdg},
+            #{fxdjDm}, #{fxdjgxrq}, #{wlxxlyDm}, #{ckfph}, #{cph}, #{yqrq}, #{qyd},
+            #{tydh}, #{qydXzqh}, #{tdlxDm}, #{gjewmztDm}, #{bz}, SYSDATE,#{zhfxzs},#{jhpzh},#{ckfpbz},#{ckmxbz}
+        )
+    </insert>
+
+    <!-- 未申报物流信息 - 更新报关单物流信息 -->
+    <update id="updateBgdwlWlxx" parameterType="java.util.Map">
+        UPDATE TL_TSSH.CKLLFX_DATA_BGDWL
+           SET WLXXLY_DM = #{wlxxlyDm},
+               CPH = #{cph},
+               <if test="qyrq != null and qyrq != ''">
+                 QYRQ = TO_DATE(#{qyrq, jdbcType=VARCHAR}, 'YYYY-MM-DD'),
+               </if>
+               QYD = #{qyd},
+               CKFPH=#{ckfph},CKFPBZ=#{ckfpbz},CKMXBZ=#{ckmxbz},
+               SJGXSJ = SYSDATE
+         WHERE DJXH=#{djxh} AND BGDHGBH=#{bgdhgbh}
+    </update>
+
+    <!-- 未申报物流信息 - 查询未申报物流信息的报关单 -->
+    <select id="selectWsbWlxxBgdh" resultType="java.util.HashMap">
+        SELECT BGDHGBH, TO_CHAR(CKRQ_1, 'YYYY-MM-DD') AS CKRQ_1, MYLAJ
+          FROM TL_TSSH.CKLLFX_DATA_BGDWL
+         WHERE DJXH=#{djxh}
+           AND WLXXLY_DM IS NULL
+           AND MYLAJ > #{p1val}
+           AND CKRQ_1 >= TO_DATE('2026-05-01', 'YYYY-MM-DD')
+    </select>
+
+    <select id="getRiskInfo" resultType="java.util.Map">
+        SELECT tmp.*,f.FXDJ_MC as FXDJMC
+        FROM (
+                 SELECT NVL(t.FXDJ_TZ, m.FXDJ_DM) AS FXDJ,m.fxdj_zhfxzs as ZHFXZS,
+                     ROW_NUMBER() OVER(ORDER BY t.SWJG_DM DESC) AS RN
+                 FROM TL_TSSH.CKLLFX_CS_WMQYLSLL m
+                          LEFT JOIN TL_TSSH.CKLLFX_CS_SWJGYJTZ t
+                                    ON t.YSFS_DM = m.YSFS_DM
+                                        AND t.SPDL_DM = m.SPDL_DM
+                                        AND t.QYCODE_HYD = m.QYCODE_HYD
+                                        AND t.QYCODE_HG = m.QYCODE_HG
+                                        AND t.QYCODE_MDG = m.QYCODE_MDG
+                                        AND t.SWJG_DM IN (#{swjgdm}, SUBSTR(#{swjgdm}, 1, 5) || '000000')
+                                        AND t.TSJSFF_DM = '2'
+                 WHERE m.YSFS_DM = #{ysfsDm}
+                   AND m.SPDL_DM = #{spdlDm}
+                   AND m.QYCODE_HYD = #{qycodeHyd}
+                   AND m.QYCODE_HG = #{qycodeHg}
+                   AND m.QYCODE_MDG = #{qycodeMdg}
+             ) tmp
+                 INNER JOIN TL_TSSH.CKLLFX_CS_FXDJSZ f ON f.FXDJ_DM = tmp.FXDJ
+        WHERE tmp.RN = 1
+    </select>
+    <select id="selectXzqhHydDm" resultType="java.lang.String">
+        select xzqh_dm from tl_admin.dm_hghyd t where hghyd_dm= #{hghydDm}
+    </select>
+    <select id="selectHydCkkaYj4Sc" resultType="com.tl.web.bjts.yj.model.vo.YdbgHydCkkaScVo">
+        SELECT
+            t.djxh AS djxh,
+            t.ckbgdh AS ckbgdh,
+            nvl(s.hzdwdq_dm, substr(s.hzdwdm, 1, 5)) AS jnhydDm,
+            hyd.xzqh_dm AS xzqhDm,hyd.xzqh_mc as xzqhMc,
+            CASE WHEN s.qygbz = 'Y' THEN substr(s.ckbgdh, 1, 4) ELSE s.hggqka_dm END AS hggqkaDm,
+            CASE WHEN regexp_like(t.cktmsywlxdmjh, 'STZC') THEN 'Y' ELSE 'N' END AS stzc,
+            t.mylaj AS mylaj,t.mdtse,t.sbxh
+        FROM
+            hx_ckts.ckts_sb_mdt_tssb_gcb t
+                INNER JOIN hx_ckts.ckts_wbsj_hg_bgd201 s ON s.djxh = t.djxh AND s.ckbgdh = t.ckbgdh
+                INNER JOIN zj_bjts.fxgl_dm_hzdwdq hyd ON hyd.hzdwdq_dm = nvl(s.hzdwdq_dm, substr(s.hzdwdm, 1, 5))
+        WHERE
+            t.lcslid = #{lcslid}
+        UNION ALL
+        SELECT DISTINCT
+            t.djxh AS djxh,
+            t.dlckhwzmhm AS ckbgdh,
+            nvl(s.jnhyd_dm, substr(s.hzdwdm, 1, 5)) AS jnhydDm,
+            hyd.xzqh_dm AS xzqhDm,hyd.xzqh_mc as xzqhMc,
+            nvl(s.hggqka_dm, substr(s.ckbgdh, 1, 4)) AS hggqkaDm,
+            CASE WHEN regexp_like(t.cktmsywlxdmjh, 'STZC') THEN 'Y' ELSE 'N' END AS stzc,
+            t.mylaj AS mylaj,t.mdtse,t.sbxh
+        FROM
+            hx_ckts.ckts_sb_mdt_tssb_gcb t
+                INNER JOIN hx_ckts.ckts_wbsj_zj_dlckhwzm s ON s.djxh = t.djxh AND s.dlckhwzmhm = t.dlckhwzmhm
+                INNER JOIN zj_bjts.fxgl_dm_hzdwdq hyd ON hyd.hzdwdq_dm = nvl(s.jnhyd_dm, substr(s.hzdwdm, 1, 5))
+        WHERE
+            t.lcslid = #{lcslid}
+    </select>
+
+    <select id="selectDcbpWjcCnt4ScWm" resultType="java.lang.Integer">
+        <![CDATA[
+        select count(1) as dcpg
+        from hx_ckts.ckts_ty_ywblxx t
+                 inner join zj_mh.mh_rwxx s on s.lcslid=t.lcslid
+        where t.djxh= #{djxh}
+          and t.lcslid<>#{lcslid}
+          and substr(t.lcswsx_dm,1,11) in ('LCSXA081038','LCSXA081039','LCSXA081040','LCSXA081042')
+          and t.ffrq is null
+          and t.zfrq_1 is null
+        ]]>
+    </select>
+    <select id="selectGysHdWhh" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo">
+        <![CDATA[
+        select distinct t.ghfnsrsbh_1 as yj_object
+        from hx_ckts.ckts_sb_mts_tsjh_gcb t
+                 inner join hx_zh.zh_ckts_fhxxb fa
+                            on fa.ghfdjxh=t.djxh and fa.ghqynsrsbh_1=t.ghfnsrsbh_1
+                                and fa.qfrq is not null
+                                and nvl(fa.zfbz_1,'N')='N'
+        where t.lcslid=#{lcslid}
+          and not exists
+            (select 1
+             from hx_zh.zh_ckts_fuhxxb fu
+             where fu.fhxxbuuid=fa.fhxxbuuid
+               and fu.qfrq is not null
+               and nvl(fu.zfbz_1,'N')='N'
+               and nvl(fu.fhlx_dm,'3')<>'3')
+        ]]>
+    </select>
+
+    <select id="selectCkqyZzjc4ScWm" resultType="java.lang.Integer">
+        <![CDATA[
+        select count(1) as jc
+        from hx_jc.jc_ajxx aj
+                 inner join hx_jc.jc_ayxx ay on ay.jcajxxuuid=aj.jcajxxuuid
+                 inner join hx_jc.jc_lasqb sq on sq.jcayxxuuid=ay.jcayxxuuid
+        where aj.djxh=#{djxh}
+          and aj.zfbz_1 = 'N'
+          and aj.ajjczt_dm<='500'
+          and regexp_like(sq.xafxjlayj,'虚开|骗税|骗取')
+          and rownum=1
+        ]]>
+    </select>
+    <select id="selectBgdGzxxList" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo">
+        select s.ckbgdh as yj_object,s.czr_dm as yj_record
+        from hx_ckts.ckts_sb_mts_tssb_gcb t
+                 inner join zj_bjts.YJ_BGDGZXX_GCB s
+                            on s.djxh=t.djxh and s.ckbgdh=nvl(t.ckbgdh,t.dlzmh)
+        where t.lcslid=#{lcslid}
+        union all
+        select s.ckbgdh as yj_object,s.czr_dm as yj_record
+        from hx_ckts.ckts_sb_mdt_tssb_gcb t
+                 inner join zj_bjts.YJ_BGDGZXX_GCB s
+                            on s.djxh=t.djxh and s.ckbgdh=nvl(t.ckbgdh,t.dlckhwzmhm)
+        where t.lcslid=#{lcslid}
+    </select>
+
+    <select id="selectFirstTsck10302ScWm" resultType="java.lang.Integer">
+        <![CDATA[
+        SELECT 1
+        FROM HX_CKTS.CKTS_TY_YWBLXX T
+        WHERE T.LCSLID = #{lcslid}
+          AND EXISTS (
+                SELECT 1
+                FROM HX_CKTS.CKTS_TY_YWBLXX A
+                WHERE A.DJXH = T.DJXH
+                  AND A.LCSWSX_DM = T.LCSWSX_DM
+                  AND A.LCSLID <> T.LCSLID
+                  AND A.QDSJ < ADD_MONTHS(TRUNC(T.QDSJ), #{p1val})
+                  AND A.FFRQ IS NOT NULL
+            )
+          AND NOT EXISTS (
+                SELECT 1
+                FROM HX_CKTS.CKTS_TY_YWBLXX B
+                WHERE B.DJXH = T.DJXH
+                  AND B.LCSWSX_DM = T.LCSWSX_DM
+                  AND B.LCSLID <> T.LCSLID
+                  AND B.QDSJ >= ADD_MONTHS(TRUNC(T.QDSJ), #{p1val})
+                  AND B.QDSJ < T.QDSJ
+                  AND B.FFRQ IS NOT NULL
+            )
+          AND NOT EXISTS (
+                SELECT 1
+                FROM HX_CKTS.CKTS_SDHC_SDHCBG_JGB C
+                WHERE C.DJXH = T.DJXH
+                  AND REGEXP_LIKE(C.HCYYSM, '01|12|17|18|20|21')
+                  AND REGEXP_LIKE(C.HCJGSM, '01|02|03|04')
+                  AND C.HCRQ >= ADD_MONTHS(TRUNC(T.QDSJ), #{p1val})
+                  AND C.HCRQ < T.QDSJ
+            )
+        ]]>
+    </select>
+
+    <select id="selectHisYjHydbyz" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo">
+        select a.djxh, a.glh
+        from tl_tssh.ckts_sb_mts_ckmx a
+        where a.djxh = #{djxh}
+          and a.ckbgdh like  #{ckbgdh} || '%'
+          and a.cksl > 0
+          and not exists ( --不存在货源地不一致预警
+                select 1
+                from tl_admin.yj_sbxx_hz b
+                         inner join tl_admin.yj_data_yjxx c
+                                    on c.sbid = b.id
+                where b.lcslid = a.lcslid_sb
+                  and c.zbcode = '10401'
+                  and c.yj_object = substr(a.ckbgdh, 1, 18)
+            ) and rownum = 1
+    </select>
+
+    <select id="selectDcbpWjcList4Wm" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo">
+        <![CDATA[
+        select distinct t.ghfnsrsbh_1 as yj_object
+        from hx_ckts.ckts_sb_mts_tsjh_gcb t
+        where t.lcslid=#{lcslid}
+          and exists (
+                select 1
+                from hx_ckts.ckts_bl_mts_shydcl_gcb a
+                         inner join hx_ckts.ckts_sb_mts_tsjh_gcb b
+                                    on b.djxh=a.djxh and b.glh=a.glh and b.sbxh=a.sbxh
+                where a.djxh=t.djxh and b.ghfnsrsbh_1=t.ghfnsrsbh_1
+                  and a.lcslid<>t.lcslid)
+        ]]>
+    </select>
+    <select id="selectGysHdWhh4Sc" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo">
+        <![CDATA[
+        select fa.ghqynsrsbh as yj_object
+        from hx_zh.zh_ckts_fhxxb fa
+        where fa.ghfdjxh =#{djxh}
+          and fa.qfrq is not null
+          and nvl(fa.zfbz_1,'N')='N'
+          and not exists
+            (select 1
+             from hx_zh.zh_ckts_fuhxxb fu
+             where fu.fhxxbuuid=fa.fhxxbuuid
+               and fu.qfrq is not null
+               and nvl(fu.zfbz_1,'N')='N'
+               and nvl(fu.fhlx_dm,'3')<>'3')
+        ]]>
+    </select>
+
+
+    <!-- ===== 12301 外贸企业退税率就高申报预警 - SQL BEGIN ===== -->
+    <!-- 12301 - 按批次汇总免退税进货明细（11位商品码+退税率维度），HAVING 退免税额>P1VAL -->
+    <select id="selectYjbmtdtshd12301ByBatch" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo" parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+        select t.lcslid,
+               t.djxh,
+               t.cksp_dm as yj_object,
+               max(t.tsl) as foo,
+               min(t.glh) as yj_record,
+               count(t.sbxh) as yj_count,
+               sum(t.jsje) as yj_amt,
+               sum(t.tse) as yj_tax
+        from HX_CKTS.CKTS_SB_MTS_TSJH_GCB t
+                 join HX_CKTS.CKTS_SB_MTS_TSSB_GCB s
+                      on s.djxh = t.djxh
+                          and s.glh = t.glh
+        where t.lcslid =  #{lcslid}
+          and length(t.cksp_dm) = 11
+          and exists (select 1
+                      from HX_CKTS.CKTS_TY_CKSPTSLWK wk
+                      where wk.cksp_dm like substr(t.cksp_dm, 1, 10) || '%'
+                        and s.ckrq_1 between wk.yxqq and wk.yxqz
+                        and length(wk.cksp_dm) = 11
+                        and wk.tsl < t.tsl)
+        group by t.lcslid,
+                 t.djxh,
+                 t.cksp_dm
+        having sum(t.tse) > #{pval1}
+        ]]>
+    </select>
+
+    <!-- 12301 - 检查历史预警信息表中是否已存在相同企业+商品代码的预警 -->
+    <select id="checkExistYj12301" resultType="java.lang.Integer">
+        select 1
+        from tl_admin.yj_data_yjxx a
+        inner join tl_admin.yj_sbxx_hz b on b.id = a.sbid
+        where a.nsrdzdah = #{nsrdzdah}
+          and a.yj_object = #{spdm}
+          and a.zbcode = '12301'
+          and b.lcslid != #{lcslid}
+          and rownum = 1
+    </select>
+
+
+    <!-- 12302 - 按批次汇总免抵退进货明细（11位商品码+退税率维度） -->
+    <select id="selectYjbmtdtshd12302ByBatch" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo" parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+        select t.lcslid,
+               t.djxh,
+               t.tsl as foo,
+               t.cksp_dm as yj_object,
+               min(t.sbxh) as yj_record,
+               count(t.sbxh) as yj_count,
+               sum(t.rmblaj) as yj_amt,
+               sum(t.mdtse) as yj_tax
+        from HX_CKTS.CKTS_SB_MDT_TSSB_GCB t
+        where t.lcslid = #{lcslid}
+          and length(t.cksp_dm) = 11
+          and exists (select 1
+                      from HX_CKTS.CKTS_TY_CKSPTSLWK wk
+                      where wk.cksp_dm like substr(t.cksp_dm, 1, 10) || '%'
+                        and t.ckrq_1 between wk.yxqq and wk.yxqz
+                        and length(wk.cksp_dm) = 11
+                        and wk.tsl > t.tsl)
+        group by t.lcslid,
+                 t.djxh,
+                 t.cksp_dm,
+                 t.tsl
+        having sum(t.mdtse) > #{pval1}
+        ]]>
+    </select>
+
+    <!-- ===== 12501/12502 外贸企业换汇成本超阈值预警 - SQL BEGIN ===== -->
+    <!--
+        按18位报关单号汇总计算换汇成本：
+        换汇成本 = 人民币出口成本 / 美元出口销售额
+        人民币出口成本 = 进货计税金额 + 征税额 - 退税额
+        征税额 = 进货计税金额(JSJE) * 征税率(ZSSL) / 100
+        
+        参数说明：
+        - P1VAL: 超上限预警退税额阈值A
+        - P2VAL: 换汇成本上限阈值B
+        - P3VAL: 超下限预警退税额阈值C
+        - P4VAL: 换汇成本下限阈值D
+    -->
+    <select id="selectHkbccbByBgdhSx" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo" parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        with jh as (
+        select djxh,glh,
+               sum(jsje) as jsje,
+               sum(tse) as tse,
+               sum(jsje * (100+zssl-tsl)/100) as cgcb
+          from HX_CKTS.CKTS_SB_MTS_TSJH_GCB
+         where lcslid=#{lcslid}
+         group by djxh,glh
+        )
+        select t.lcslid,t.djxh,
+               substr(nvl(t.ckbgdh,t.dlzmh),1,18) as yj_object,
+               sum(t.mylaj) as mylaj,
+               min(t.glh) as yj_record,
+               count(t.glh) as yj_count,
+               sum(jh.jsje) as yj_amt,
+               sum(jh.tse) as yj_tax,
+               round(sum(jh.cgcb)/sum(t.mylaj),2) as offset
+        from HX_CKTS.CKTS_SB_MTS_TSSB_GCB t
+                 inner join jh on jh.djxh=t.djxh and jh.glh=t.glh
+        where t.lcslid=#{lcslid}
+        group by t.lcslid,t.djxh,substr(nvl(t.ckbgdh,t.dlzmh),1,18)
+        having sum(jh.tse)>#{pval1}
+           and round(sum(jh.cgcb)/sum(t.mylaj),2)>#{pval2}
+    </select>
+
+    <select id="selectHkbccbByBgdhXx" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo" parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        <![CDATA[
+        with jh as (
+            select djxh,glh,
+                   sum(jsje) as jsje,
+                   sum(tse) as tse,
+                   sum(jsje * (100+zssl-tsl)/100) as cgcb
+            from HX_CKTS.CKTS_SB_MTS_TSJH_GCB
+            where lcslid=#{lcslid}
+            group by djxh,glh
+        )
+        select t.lcslid,t.djxh,
+               substr(nvl(t.ckbgdh,t.dlzmh),1,18) as yj_object,
+               sum(t.mylaj) as mylaj,
+               min(t.glh) as yj_record,
+               count(t.glh) as yj_count,
+               sum(jh.jsje) as yj_amt,
+               sum(jh.tse) as yj_tax,
+               round(sum(jh.cgcb)/sum(t.mylaj),2) as offset
+        from HX_CKTS.CKTS_SB_MTS_TSSB_GCB t
+                 inner join jh on jh.djxh=t.djxh and jh.glh=t.glh
+        where t.lcslid=#{lcslid}
+        group by t.lcslid,t.djxh,substr(nvl(t.ckbgdh,t.dlzmh),1,18)
+        having sum(jh.tse)>#{pval1}
+           and round(sum(jh.cgcb)/sum(t.mylaj),2)<#{pval2}
+        ]]>
+    </select>
+
+    <!-- 12201 - 生产企业：查询申报明细及报关单电子信息中的申报单位名称（JSXT数据源） -->
+    <select id="selectFxbghSbdw12201Sc" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo" parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        SELECT T.LCSLID,
+               T.DJXH,
+               T.YJ_OBJECT ,
+               T.YJ_RECORD ,
+               T.YJ_COUNT,
+               T.YJ_AMT,
+               T.YJ_TAX,
+               T.SBDWMC AS HGMC
+        FROM (
+                 SELECT A.LCSLID,
+                        A.DJXH,
+                        SUBSTR(A.CKBGDH,1,18) AS YJ_OBJECT,
+                        MIN(A.SBXH) AS YJ_RECORD,
+                        COUNT(1) AS YJ_COUNT,
+                        SUM(A.MYLAJ) AS YJ_AMT,
+                        SUM(A.MDTSE) AS YJ_TAX,
+                        B.SBDWMC
+                 FROM HX_CKTS.CKTS_SB_MDT_TSSB_GCB A
+                          INNER JOIN HX_CKTS.CKTS_WBSJ_HG_BGD201 B ON B.DJXH = A.DJXH AND B.CKBGDH = A.CKBGDH
+                 WHERE A.LCSLID = #{lcslid}
+                   AND A.CKBGDH IS NOT NULL
+                   AND B.SBDWMC IS NOT NULL
+                 GROUP BY A.LCSLID, A.DJXH, SUBSTR(A.CKBGDH,1,18), B.SBDWMC
+                 UNION ALL
+                 SELECT A.LCSLID,
+                        A.DJXH,
+                        SUBSTR(A.DLCKHWZMHM,1,18) AS YJ_OBJECT,
+                        MIN(A.SBXH) AS YJ_RECORD,
+                        COUNT(1) AS YJ_COUNT,
+                        SUM(A.MYLAJ) AS YJ_AMT,
+                        SUM(A.MDTSE) AS YJ_TAX,
+                        B.SBDWMC
+                 FROM HX_CKTS.CKTS_SB_MDT_TSSB_GCB A
+                          INNER JOIN HX_CKTS.CKTS_WBSJ_ZJ_DLCKHWZM B ON B.DJXH = A.DJXH AND B.TSSWJG_DM_1=A.TSSWJG_DM_1 AND B.DLCKHWZMHM=A.DLCKHWZMHM
+                 WHERE A.LCSLID = #{lcslid}
+                   AND A.CKBGDH IS NULL
+                   AND B.SBDWMC IS NOT NULL
+                 GROUP BY A.LCSLID, A.DJXH, SUBSTR(A.DLCKHWZMHM,1,18), B.SBDWMC
+             ) T WHERE T.YJ_TAX>=#{pval1}
+    </select>
+
+    <!-- 12201 - 外贸企业：查询申报明细及报关单电子信息中的申报单位名称（JSXT数据源） -->
+    <select id="selectFxbghSbdw12201Wm" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo" parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        SELECT T.LCSLID,
+               T.DJXH,
+               T.YJ_OBJECT,
+               T.YJ_RECORD,
+               T.YJ_COUNT,
+               T.YJ_AMT,
+               T.YJ_TAX,
+               T.SBDWMC AS HGMC
+        FROM (
+                 SELECT A.LCSLID,
+                        A.DJXH,
+                        SUBSTR(A.CKBGDH,1,18) AS YJ_OBJECT,
+                        MIN(A.GLH) AS YJ_RECORD,
+                        COUNT(1) AS YJ_COUNT,
+                        SUM(A.MYLAJ) AS YJ_AMT,
+                        SUM(C.TSE) AS YJ_TAX,
+                        B.SBDWMC
+                 FROM HX_CKTS.CKTS_SB_MTS_TSSB_GCB A
+                          INNER JOIN HX_CKTS.CKTS_WBSJ_HG_BGD201 B ON B.DJXH = A.DJXH AND B.CKBGDH = A.CKBGDH
+                          INNER JOIN (SELECT S.DJXH,S.GLH,SUM(S.TSE) AS TSE
+                                      FROM HX_CKTS.CKTS_SB_MTS_TSJH_GCB S
+                                      WHERE S.LCSLID = #{lcslid}
+                                      GROUP BY S.DJXH,S.GLH) C ON C.DJXH=A.DJXH AND C.GLH=A.GLH
+                 WHERE A.LCSLID = #{lcslid}
+                   AND A.CKBGDH IS NOT NULL
+                   AND B.SBDWMC IS NOT NULL
+                 GROUP BY A.LCSLID, A.DJXH, SUBSTR(A.CKBGDH,1,18), B.SBDWMC
+                 UNION ALL
+                 SELECT A.LCSLID,
+                        A.DJXH,
+                        SUBSTR(A.DLZMH,1,18) AS YJ_OBJECT,
+                        MIN(A.GLH) AS YJ_RECORD,
+                        COUNT(1) AS YJ_COUNT,
+                        SUM(A.MYLAJ) AS YJ_AMT,
+                        SUM(C.TSE) AS YJ_TAX,
+                        B.SBDWMC
+                 FROM HX_CKTS.CKTS_SB_MTS_TSSB_GCB A
+                          INNER JOIN HX_CKTS.CKTS_WBSJ_ZJ_DLCKHWZM B ON B.DJXH = A.DJXH AND B.TSSWJG_DM_1=A.TSSWJG_DM_1 AND B.DLCKHWZMHM=A.DLZMH
+                          INNER JOIN (SELECT S.DJXH,S.GLH,SUM(S.TSE) AS TSE
+                                      FROM HX_CKTS.CKTS_SB_MTS_TSJH_GCB S
+                                      WHERE S.LCSLID = #{lcslid}
+                                      GROUP BY S.DJXH,S.GLH) C ON C.DJXH=A.DJXH AND C.GLH=A.GLH
+                 WHERE A.LCSLID = #{lcslid}
+                   AND A.CKBGDH IS NULL
+                   AND B.SBDWMC IS NOT NULL
+                 GROUP BY A.LCSLID, A.DJXH, SUBSTR(A.DLZMH,1,18), B.SBDWMC
+             ) T WHERE T.YJ_TAX>=#{pval1}
+    </select>
+
+    <!-- 12201 - 查询风险报关行配置表中的报关行名称列表（TLADMIN数据源） -->
+    <select id="selectFxbghList12201" resultType="java.lang.String">
+        SELECT BGHMC
+        FROM TL_ADMIN.YJ_CS_FXBGH
+        WHERE YXBZ = 'Y'
+    </select>
+    <!-- ===== 12201 END ===== -->
+
+
+    <!-- 12401 - 按批次统计免抵退出口明细申报表中的业务类型为STZC-*的申报序号数量、免抵退税额合计 -->
+    <select id="selectStzc12401" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo" parameterType="com.tl.web.bjts.yj.model.YjPramDTO">
+        select t.lcslid,t.djxh,t.cksp_dm as cmcode,
+               t.cktmsywlxdmjh as foo,
+               t.cksp_dm||t.cktmsywlxdmjh as yj_object,
+               min(t.sbxh) as yj_record,
+               count(t.sbxh) as yj_count,
+               sum(t.rmblaj) as yj_amt,
+               sum(t.mdtse) as yj_tax
+        from hx_ckts.ckts_sb_mdt_tssb_gcb t
+        where t.lcslid=#{lcslid}
+          and t.cktmsywlxdmjh like '%STZC%'
+        group by t.lcslid,t.djxh,t.cksp_dm,t.cktmsywlxdmjh
+        having sum(t.mdtse)>=#{pval1}
+    </select>
+
+    <!-- 12401/12402 - 查询企业已存在的视同自产货物预警（用于防重复预警） -->
+    <select id="selectStzc124Existed" resultType="java.lang.String">
+        SELECT T.NSRDZDAH || T.YJ_OBJECT
+        FROM TL_ADMIN.YJ_DATA_YJXX T
+        WHERE T.NSRDZDAH = #{nsrdzdah}
+          AND T.YJCODE = '124'
+          AND T.ZBCODE = '12401'
+    </select>
+
+    <!-- 12402 - 查询企业开业登记日期 -->
+    <select id="selectKydjDate" resultType="java.lang.String">
+        select least(dj.djrq,nvl(pz.kyslrq,dj.djrq)) as kyrq
+        from hx_dj.dj_nsrxx dj
+                 left join hx_dj.dj_pzjgxx pz on pz.djxh=dj.djxh
+        where dj.djxh=#{djxh}
+    </select>
+
+    <!-- 12402 - 查询企业纳税信用等级 -->
+    <select id="selectNsxydj" resultType="java.lang.String">
+        SELECT XY.PJJB
+        FROM FXNK_JC2B_NSXYPJ XY
+        WHERE XY.DJXH = #{djxh}
+        AND ROWNUM = 1
+    </select>
+
+    <!-- 12402 - 查询企业上一年度增值税申报全部销售额合计 -->
+    <select id="selectLastYearSales" resultType="java.math.BigDecimal">
+        SELECT SUM(ASYSLJSXSE + AJYBFJSXSE + MDTBFCKXSE + MSXSE) AS ALLXSE
+        FROM HX_SB.SB_ZZS_YBNSR
+        WHERE SBUUID IN (
+            SELECT DISTINCT SBUUID
+            FROM HX_SB.SB_SBXX
+            WHERE DJXH = #{djxh}
+              AND SKSSQQ >= ADD_MONTHS(TRUNC(SYSDATE, 'YY'), -12)
+              AND SKSSQZ &lt; TRUNC(SYSDATE, 'YY')
+              AND ZSXM_DM = '10101'
+              AND YZPZZL_DM = 'BDA0610606'
+              AND GZLX_DM_1 IN ('1', '5')
+              AND ZFBZ_1 = 'N'
+        )
+        AND EWBLXH IN (1, 3)
+    </select>
+
+    <select id="selectStzc12402" resultType="com.tl.web.bjts.yj.model.vo.YjxxNewVo">
+        select t.djxh,
+               min(t.sbxh) as yj_record,
+               count(t.sbxh) as yj_count,
+               sum(t.rmblaj) as yj_amt,
+               sum(t.mdtse) as yj_tax
+        from hx_ckts.ckts_sb_mdt_tssb_gcb t
+        where t.lcslid=#{lcslid}
+          and t.cktmsywlxdmjh like 'STZC-01'
+        group by t.lcslid,t.djxh
+    </select>
+    <select id="checkExistYj12302" resultType="java.lang.Integer">
+        select 1
+        from tl_admin.yj_data_yjxx a
+                 inner join tl_admin.yj_sbxx_hz b on b.id = a.sbid
+        where a.nsrdzdah = #{nsrdzdah}
+          and a.yj_object = #{spdm}
+          and a.zbcode = '12302'
+          and b.lcslid != #{lcslid}
+          and rownum = 1
+    </select>
+
+    <!-- 12403 - 查询36个月内出口骗税、虚开发票处罚决定书数量 -->
+    <select id="selectPcfcfsCountForStzc12403" resultType="java.lang.Integer">
+        SELECT count(1)
+        FROM HX_JC.JC_AJXX AJ
+                 INNER JOIN HX_FZ.FZ_SWXZCFJDS CF
+                            ON CF.SSWFXWDJUUID=AJ.JCAJXXUUID AND NVL(CF.ZFBZ_1,'N')='N'
+        WHERE AJ.DJXH=#{djxh}
+          AND NVL(AJ.ZFBZ_1,'N') = 'N'
+          AND CF.WSZZRQ>=ADD_MONTHS(SYSDATE,-36)
+          AND ((CF.WFSS LIKE '%虚开%' AND CF.WFSS LIKE '%专用发票%') OR
+               (CF.WFSS LIKE '%出口%' AND CF.WFSS LIKE '%骗税%'))
+    </select>
+
+    <select id="countStzc12403" resultType="java.lang.Integer">
+        select count(1)
+        from hx_ckts.ckts_sb_mdt_tssb_gcb t
+        where t.lcslid=#{lcslid}
+          and t.cktmsywlxdmjh like '%STZC%' and rownum=1
+    </select>
+
+</mapper>

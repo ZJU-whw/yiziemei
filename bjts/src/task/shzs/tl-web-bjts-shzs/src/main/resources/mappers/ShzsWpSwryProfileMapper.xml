@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.web.bjts.shzs.dao.ShzsWpSwryProfileMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.web.bjts.shzs.model.domain.ShzsWpSwryProfile" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" property="id" jdbcType="DECIMAL" />
+    <result column="SFDM" property="sfdm" jdbcType="VARCHAR" />
+    <result column="SWRYMC" property="swrymc" jdbcType="VARCHAR" />
+    <result column="STATUS" property="status" jdbcType="CHAR" />
+    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+    <result column="CRTIME" property="crtime" jdbcType="DATE" />
+    <result column="UPTIME" property="uptime" jdbcType="DATE" />
+    <result column="GWXH" property="gwxh" jdbcType="VARCHAR" />
+    <result column="SWJGDM" property="swjgdm" jdbcType="VARCHAR" />
+    <result column="GWDM" property="gwdm" jdbcType="VARCHAR" />
+    <result column="SWRYDM" property="swrydm" jdbcType="VARCHAR" />
+    <result column="SFSWJGDM" property="sfswjgdm" jdbcType="VARCHAR" />
+  </resultMap>
+</mapper>

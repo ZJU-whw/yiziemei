@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.web.bjts.shzs.dao.TlJsxtMapper">
+    <!-- 从金三数据库取乡镇街道 取数脚本待定 -->
+    <select id="getXzjdFromJsxt" parameterType="map" resultType="map">
+
+    select a.jdxz_dm jdxzDm,b.jdxzmc
+    from hx_dj.dj_nsrxx a,hx_dm_zdy.dm_gy_jdxz b
+    where (a.nsrsbh=#{nsrsbh} or a.shxydm=#{shxydm})
+    and a.jdxz_dm=b.jdxz_dm
+    and rownum=1
+    </select>
+
+    <!--  从金三数据库中获取用户信息 -->
+    <select id="getUserInfoFromJsxt"  resultType="com.tl.web.bjts.shzs.model.vo.JxUserVO">
+        select * from (
+              select a.swryxm as swryMc,b.rysfmc,b.zsfbz,b.sfswjg_dm as sfswjgDm
+              from hx_dm_zdy.dm_gy_swry a, hx_qx.dm_qx_swrysf b
+              where a.swry_dm = b.swry_dm
+                and b.yxbz='Y'
+                and sysdate between b.sfyxqq and b.sfyxqz
+                and a.swry_dm = #{czryDm,jdbcType=VARCHAR}
+              order by zsfbz desc
+          ) where rownum=1
+    </select>
+
+    <!--  根据流程受理id获取业务办理信息相关数据 -->
+    <select id="getYwblxxFormJsxt"  resultType="com.tl.web.bjts.shzs.model.vo.sbfile.YwblxxVO">
+        <![CDATA[
+        select d.djxh,nvl(d.shxydm,d.nsrsbh) as nsrsbh,lcswsx_dm as lcswsxDm,y.ssq as sssq,y.sbpc
+        from hx_dj.dj_nsrxx d, hx_ckts.ckts_ty_ywblxx y
+        where d.djxh=y.djxh and  y.lcslid = #{lcslid,jdbcType=VARCHAR}
+              and nvl(y.zfbz_1,'N')<>'Y'
+              and rownum=1
+         ]]>
+    </select>
+
+    <!--  从金三系统中获取出口岗位在办的出口退税的流程笔数、即将超期的业务笔数 -->
+    <select id="countCkGwzbFromJsxt" resultType="com.tl.web.bjts.shzs.model.vo.ItemNoticeVO">
+        <![CDATA[
+        SELECT
+            count(1) AS gwzbLcbs,
+            nvl (sum(CASE WHEN trunc (r.rwywcsj) - trunc (sysdate) <= 2 THEN 1 ELSE 0 END ),0) AS gwzbJjcq
+        FROM
+            zj_mh.mh_rwxx r,
+            hx_ckts.ckts_ty_ywblxx t,
+            hx_qx.dm_qx_swrysf s
+        WHERE
+             r.lcslid = t.lcslid
+            AND r.xndbrdm = s.swrysf_dm
+            AND r.yxbz = 'Y'
+            AND s.swry_dm = #{czryDm,jdbcType=VARCHAR}
+        ]]>
+    </select>
+
+    <!-- 从金三系统中,根据20位代理证明号获取21位报关单号  -->
+    <select id="getCkbgdhByDlzmhFromJsxt" resultType="string">
+        select ckbgdh
+        from hx_ckts.ckts_wbsj_zj_dlckhwzm
+        where djxh = #{djxh,jdbcType=VARCHAR} and dlckhwzmhm = #{dlzmh,jdbcType=VARCHAR}
+    </select>
+
+    <select id="querySfswjgDm" resultType="java.lang.String">
+        select sfswjg_dm
+        from hx_qx.dm_qx_swrysf sf
+        where sf.swry_dm=#{swrydm} and sf.swrysf_dm=#{sfdm}
+        and sysdate between sf.sfyxqq and sf.sfyxqz
+        and sf.yxbz='Y'
+    </select>
+
+    <select id="countGwdbsl" resultType="java.lang.Integer">
+        select count(1)
+          from zj_mh.mh_rwxx rw
+         where rw.xndbrdm = #{xndbrdm}
+           and rw.rwstatus = '01'
+           and rw.rwzt not like '%发放-%'
+    </select>
+    <select id="queryGwxh" resultType="java.lang.String">
+        select gwxh
+        from hx_qx.qx_swjg_gw t
+         where t.gw_dm=#{gwdm} and t.swjg_dm=#{swjgdm}
+    </select>
+    <select id="countGrdbsl" resultType="java.lang.Integer">
+        select count(1)
+           from zj_mh.mh_rwxx rw
+          where rw.gwxh = #{gwxh}
+            and rw.rwzt not like '%发放-%'
+            and rw.xndbrdm = #{sfdm} --放税务人员身份代码
+            and rw.rwstatus = '01' --未签收表示待办
+    </select>
+    <select id="countGrzbsl" resultType="java.lang.Integer">
+        select count(1)
+           from zj_mh.mh_rwxx rw
+          where rw.gwxh = #{gwxh}
+            and rw.rwzt not like '%发放-%'
+            and rw.xndbrdm = #{sfdm} --放税务人员身份代码
+            and rw.rwstatus = '02' --已签收表示在办
+    </select>
+
+    <select id="queryGwdbmx" resultType="com.tl.web.bjts.shzs.model.dto.dbwp.DbrwmxVo">
+        select rw.rwfqsj,
+            lc.lcswsx_dm as lcswsxDm,
+            lc.ssq || decode(lc.sbpc,'','','-'||lc.sbpc) as sssq,
+            dj.nsrmc,
+            nvl(dj.shxydm, dj.nsrsbh) as nsrsbh,
+            rw.rwzt as rwmc,
+            lc.ckqygllb_dm as flglcd,
+            rw.gwmc,
+            lc.lcslid,
+            rw.rwfqrmc,
+            rw.gzxid
+            from zj_mh.mh_rwxx rw, hx_ckts.ckts_ty_ywblxx lc, hx_dj.dj_nsrxx dj
+            where rw.lcslid = lc.lcslid
+            and dj.djxh = lc.djxh
+            and rw.xndbrdm = #{xndbrdm}
+            and rw.rwstatus = '01'
+            and rw.rwzt not like '%发放-%'
+            <if test="lcswsxdms != null and lcswsxdms.size>0">
+                and lc.lcswsx_dm in
+                <foreach close=")" collection="lcswsxdms" item="item" open="(" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="qybs!= null and qybs!=''  ">
+                and (nvl(dj.shxydm, dj.nsrsbh) like '%'||#{qybs}||'%' or dj.nsrmc like '%'||#{qybs}||'%')
+            </if>
+            <if test="sbrqQ != null">
+                and rw.rwfqsj>#{sbrqQ}
+            </if>
+            <if test="sbrqZ != null">
+                and #{sbrqZ}>rw.rwfqsj
+            </if>
+    </select>
+
+    <select id="queryGrdbmx" resultType="com.tl.web.bjts.shzs.model.dto.dbwp.DbrwmxVo">
+        select rw.rwfqsj,
+                lc.lcswsx_dm as lcswsxDm,
+                lc.ssq || decode(lc.sbpc,'','','-'||lc.sbpc) as sssq,
+                dj.nsrmc,
+                nvl(dj.shxydm, dj.nsrsbh) as nsrsbh,
+                rw.rwzt as rwmc,
+                lc.ckqygllb_dm as flglcd,
+                rw.gwmc,
+                lc.lcslid,
+                rw.rwfqrmc,
+                rw.gzxid
+           from zj_mh.mh_rwxx rw, hx_ckts.ckts_ty_ywblxx lc, hx_dj.dj_nsrxx dj
+          where rw.lcslid = lc.lcslid
+            and dj.djxh = lc.djxh
+            and rw.gwxh = #{gwxh}
+            and rw.rwzt not like '%发放-%'
+            and rw.xndbrdm = #{sfdm} --放税务人员身份代码
+            and rw.rwstatus = '01' --未签收表示待办
+    </select>
+
+    <select id="queryGrzbmx" resultType="com.tl.web.bjts.shzs.model.dto.dbwp.DbrwmxVo">
+        select rw.rwfqsj,
+                lc.lcswsx_dm as lcswsxDm,
+                lc.ssq || decode(lc.sbpc,'','','-'||lc.sbpc) as sssq,
+                dj.nsrmc,
+                nvl(dj.shxydm, dj.nsrsbh) as nsrsbh,
+                rw.rwzt as rwmc,
+                lc.ckqygllb_dm as flglcd,
+                rw.gwmc,
+                lc.lcslid,
+                rw.rwfqrmc,
+                rw.gzxid
+           from zj_mh.mh_rwxx rw, hx_ckts.ckts_ty_ywblxx lc, hx_dj.dj_nsrxx dj
+          where rw.lcslid = lc.lcslid
+            and dj.djxh = lc.djxh
+            and rw.gwxh = #{gwxh}
+            and rw.rwzt not like '%发放-%'
+            and rw.xndbrdm = #{sfdm} --放税务人员身份代码
+            and rw.rwstatus = '02' --已签收表示在办
+    </select>
+
+    <select id="querySwrys" resultType="com.tl.web.bjts.shzs.model.vo.dbwp.SwryVo">
+        select sf.swrysf_dm as swrysfDm,
+               sf.rysfmc,sf.swry_dm,sf.sfswjg_dm,sf.sfyxqq,sf.sfyxqz,sf.yxbz
+         from
+               hx_qx.qx_jggw_swrysf gs,
+               hx_qx.dm_qx_swrysf sf
+        where gs.gwxh=#{gwxh}
+              and gs.swrysf_dm = sf.swrysf_dm
+        and sysdate between sf.sfyxqq and sf.sfyxqz
+        and sf.yxbz='Y'
+    </select>
+    <select id="querySwrys4Status" resultType="com.tl.web.bjts.shzs.model.vo.dbwp.SwryVo">
+        select sfdm as swrysfDm,swrymc as rysfmc,status from SHZS_WP_SWRY where gwxh = #{gwxh}
+    </select>
+
+    <select id="queryGwdbmxById" resultType="com.tl.web.bjts.shzs.model.dto.dbwp.DbrwmxVo">
+        select rw.rwfqsj,
+                lc.lcswsx_dm as lcswsxDm,
+                lc.ssq || decode(lc.sbpc,'','','-'||lc.sbpc) as sssq,
+                dj.nsrmc,
+                nvl(dj.shxydm, dj.nsrsbh) as nsrsbh,
+                rw.rwzt as rwmc,
+                lc.ckqygllb_dm as flglcd,
+                rw.gwmc,
+                lc.lcslid,
+                rw.rwfqrmc,
+                rw.gzxid
+           from zj_mh.mh_rwxx rw, hx_ckts.ckts_ty_ywblxx lc, hx_dj.dj_nsrxx dj
+          where rw.lcslid = lc.lcslid
+            and dj.djxh = lc.djxh
+            and rw.gzxid=#{id}
+    </select>
+    <select id="selectAutoDbrwwp" resultType="java.util.Map">
+        select s.* from table(func_shzs_rwwp(
+                                #{swjgDm,jdbcType=VARCHAR},
+                                #{zjgwdm,jdbcType=VARCHAR},
+                                #{nsrsbh,jdbcType=VARCHAR},
+                                #{lcswsxDm,jdbcType=VARCHAR}
+                              )) s
+    </select>
+    <select id="queryShzsSwrySfdm" resultType="java.lang.String">
+        select sfdm from SHZS_WP_SWRY where gwdm= #{gwdm} and swrydm=#{swrydm}
+    </select>
+    <select id="querySwrysFromShzs" resultType="com.tl.web.bjts.shzs.model.vo.dbwp.SwryVo">
+         select sfdm as swrysfDm,swrymc as rysfmc,status
+         from SHZS_WP_SWRY where gwxh = #{gwxh} and swjgDm=#{swjgDm}
+    </select>
+
+    <select id="selectLcswsxList" resultType="com.tl.web.bjts.shzs.model.vo.dbwp.LcswsxVo">
+        select dm.lcswsx_dm as lcswsxdm,
+               dm.lcswsxmc as sbywmc,
+               count(1) as cnt
+          from zj_mh.mh_rwxx rw,
+               hx_ckts.ckts_ty_ywblxx lc,
+               hx_dm_qg.dm_gy_lcswsx  dm
+         where rw.lcslid = lc.lcslid
+           and dm.lcswsx_dm = lc.lcswsx_dm
+           and rw.xndbrdm = #{xndbrdm}
+           and rw.rwstatus = '01'
+           and rw.rwzt not like '%发放-%'
+         group by dm.lcswsx_dm, dm.lcswsxmc
+         order by dm.lcswsx_dm
+    </select>
+    <select id="getSbxxDetail" resultType="com.tl.web.bjts.shzs.model.vo.SbxxViewVo">
+        select yw.lcswsx_dm as sbywbDm,yw.djxh,
+               sx.lcswsxmc as sbywbMc,
+               nvl(dj.shxydm, dj.nsrsbh) as nsrsbh,
+               ba.hgqy_dm as qyhgdm,
+               dj.nsrmc,
+               yw.tsswjg_dm_1 as swjgDm,
+               yw.ckqygllb_dm as flglcd,
+               ba.ckhwtmsjsff_dm as tsjsfsDm,
+               jd.jdxzmc,
+               decode(yw.wzhbz, 'Y', '是', 'N', '否') as wzhqy,
+               yw.ssq as sssq,
+               yw.sbpc,
+               trunc(yw.qdsj) as sbrq
+          from hx_ckts.ckts_ty_ywblxx yw
+          left join hx_dj.dj_nsrxx dj on dj.djxh = yw.djxh
+          left join hx_ckts.ckts_ba_baxx_jgb ba on ba.djxh = yw.djxh
+          left join hx_dm_qg.dm_gy_lcswsx sx on sx.lcswsx_dm = yw.lcswsx_dm
+          left join hx_dm_zdy.dm_gy_jdxz jd on jd.jdxz_dm = dj.jdxz_dm
+         where yw.lcslid = #{lcslid}
+    </select>
+    <select id="getYdxxs4Sc" resultType="com.tl.web.bjts.shzs.model.vo.YdxxVo">
+        select rownum as id,
+           shdxmc as errObj,
+           ydjb_dm as errLev,
+           ydbh as ydcode,
+           ktgydbz as passFlag,
+           sbxh as glywz1,
+           '' as glywz2,
+           ydnr as errMsg,
+           shdx_dm as glywb1
+          from hx_ckts.CKTS_BL_MDT_SHYD_GCB
+         where lcslid = #{lcslid}
+    </select>
+    <select id="getYdxxs4Wm" resultType="com.tl.web.bjts.shzs.model.vo.YdxxVo">
+        select rownum as id,
+               shdxmc as errObj,
+               ydjb_dm as errLev,
+               ydbh as ydcode,
+               ktgydbz as passFlag,
+               sbxh as glywz1,
+               glh as glywz2,
+               ydnr as errMsg,
+               shdx_dm as glywb1
+        from hx_ckts.CKTS_BL_MTS_SHYD_GCB
+        where lcslid = #{lcslid}
+    </select>
+    <select id="getYdxxs4Wzf" resultType="com.tl.web.bjts.shzs.model.vo.YdxxVo">
+        select rownum as id,
+               shdxmc as errObj,
+               ydjb_dm as errLev,
+               ydbh as ydcode,
+               ktgydbz as passFlag,
+               sbxh as glywz1,
+               '' as glywz2,
+               ydnr as errMsg,
+               shdx_dm as glywb1
+        from hx_ckts.CKTS_BL_DB_SHYD_GCB
+        where lcslid = #{lcslid}
+    </select>
+    <select id="getYdxxs4Gjzy" resultType="com.tl.web.bjts.shzs.model.vo.YdxxVo">
+        select rownum as id,
+               shdxmc as errObj,
+               ydjb_dm as errLev,
+               ydbh as ydcode,
+               ktgydbz as passFlag,
+               sbxh as glywz1,
+               '' as glywz2,
+               ydnr as errMsg,
+               '' as glywb1
+        from hx_ckts.CKTS_BL_ZB_SHYD_GCB
+         where lcslid = #{lcslid}
+    </select>
+    <select id="countSbcs" resultType="java.lang.Integer">
+      select count(1) as sbcs
+      from hx_ckts.ckts_ty_ywblxx t
+     where (djxh, to_char(qdsj, 'yyyymm'), lcswsx_dm) =
+           (select djxh, to_char(qdsj, 'yyyymm'), lcswsx_dm
+              from hx_ckts.ckts_ty_ywblxx t1
+             where t1.lcslid = #{lcslid})
+       and nvl(t.zfbz_1,'N') = 'N'
+       and t.lcslid = t.zlclcslid
+    </select>
+    <select id="selectAllLcswsxList" resultType="com.tl.web.bjts.shzs.model.vo.dbwp.LcswsxVo">
+        select lcsx_dm as lcswsxdm,
+               sbyw_mc  as sbywmc
+        from tl_bjts.dm_gt3_xml_config order by lcsx_dm
+    </select>
+    <select id="selectScsbWcqk" resultType="java.lang.Integer">
+        <![CDATA[
+        WITH
+        SCSBQK AS (
+        SELECT B.DJXH, B.LCSWSX_DM, B.LCSLID, B.QDSJ, NVL(B.SDHCWCBZ,'0') AS SDHCWCBZ, B.QYZTLX, TRUNC(B.QYZTBGSJ) AS QYZTBGSJ
+          FROM (SELECT T.DJXH, T.LCSWSX_DM, T.LCSLID, T.QDSJ, A.SDHCWCBZ, A.QYZTLX, A.QYZTBGSJ, A.LRRQ
+                  FROM HX_CKTS.CKTS_TY_YWBLXX T
+                 INNER JOIN HX_CKTS.CKTS_TY_SCSBQK A ON A.DJXH=T.DJXH
+                 WHERE T.LCSLID=#{lcslid}
+                 ORDER BY A.LRRQ DESC) B
+         WHERE ROWNUM=1),
+        SDHCBG AS (
+        SELECT D.DJXH, D.HCYYSM, D.HCJGSM
+          FROM (SELECT C.DJXH, C.HCYYSM, C.HCJGSM, C.LRRQ
+                  FROM SCSBQK
+                 INNER JOIN HX_CKTS.CKTS_SDHC_SDHCBG_JGB C ON C.DJXH=SCSBQK.DJXH
+                 WHERE SCSBQK.SDHCWCBZ<>'2'
+                   AND REGEXP_LIKE(C.HCYYSM,
+                                   DECODE(SCSBQK.QYZTLX,
+                                          '1',DECODE(SCSBQK.LCSWSX_DM,
+                                                     'LCSXA081042002','01|15',   --首次申报退税|研发机构采购国产设备退税
+                                                         'LCSXA081040001','01|19',   --首次申报退税|综服企业首次申报代办退税
+                                                         '01|20|21|22'),
+                                          '2',DECODE(SCSBQK.LCSWSX_DM,
+                                                     'LCSXA081038001','17',  -- 免退税转免抵退
+                                                     '18'),   -- 免抵退转免退税
+                                          '3','12') -- 转登记纳税人再次转一般纳税人后首次申报
+                     )
+                   AND C.LRRQ >=SCSBQK.QYZTBGSJ
+                 ORDER BY C.LRRQ DESC) D
+        WHERE ROWNUM=1)
+        SELECT COUNT(1) as cnt
+         FROM DUAL
+        WHERE NOT EXISTS (SELECT 1
+                            FROM SCSBQK
+                           WHERE SCSBQK.SDHCWCBZ='2'
+                           UNION
+                          SELECT 1
+                            FROM SDHCBG
+                           WHERE REGEXP_LIKE(SDHCBG.HCJGSM,'01|02|03|04'))
+          AND EXISTS (SELECT *
+                        FROM SCSBQK
+                       INNER JOIN HX_CKTS.CKTS_TY_YWBLXX E
+                          ON E.DJXH=SCSBQK.DJXH AND E.LCSWSX_DM=SCSBQK.LCSWSX_DM
+                       WHERE E.LCSLID<>SCSBQK.LCSLID
+                         AND E.QDSJ>SCSBQK.QYZTBGSJ AND E.QDSJ<SCSBQK.QDSJ
+                         AND NVL(E.ZFBZ_1,'N')='N')
+        ]]>
+    </select>
+
+    <select id="genJsxtYjTask" resultType="com.tl.web.bjts.shzs.model.vo.FetchTaskVo">
+        SELECT t.djxh, t.lcswsx_dm as lcswsxDm, t.ssq, t.sbpc, TO_CHAR(t.qdsj, 'YYYY-MM-DD HH24:MI:SS') as sbrq,
+               t.ckqygllb_dm as ckqygllbDm, t.lcslid
+        FROM hx_ckts.ckts_ty_ywblxx t
+                 inner join zj_mh.mh_lcxx lc on lc.lcslid=t.lcslid
+        WHERE t.lcswsx_dm in ('LCSXA081039001', 'LCSXA081038001')
+          AND t.zlclcslid = t.lcslid
+          AND nvl(t.zfbz_1, 'N') = 'N'
+          AND nvl(t.FFBZ, 'N') = 'N'
+          AND t.lcslid = #{lcslid} AND ROWNUM = 1
+    </select>
+
+    <update id="updateDbswryStatus">
+        update SHZS_WP_SWRY set status=#{status} where gwxh=#{gwxh} and sfdm=#{sfdm}
+    </update>
+</mapper>

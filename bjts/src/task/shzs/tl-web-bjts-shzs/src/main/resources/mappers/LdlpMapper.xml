@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.web.bjts.shzs.dao.LdlpMapper" >
+
+    <!--开启redis二级缓存-->
+    <cache type="com.tl.web.bjts.shzs.cache.MybatisRedisCache">
+        <property name="eviction" value="LRU" />
+        <property name="flushInterval" value="6000000" />
+        <property name="size" value="1024" />
+        <property name="readOnly" value="false" />
+    </cache>
+
+    <!--获取外贸业务某笔申报id对应的所有关联号-->
+    <select id="getLdlpNos4Wm" resultType="java.lang.String" useCache="false">
+        select distinct t.glh as ldlp_no from tl_bjts.ckts_sb_mts_tssb_lsb t where sbid = #{sbid} order by ldlp_no
+    </select>
+
+    <select id="getLdlpNos4Sc" resultType="java.lang.String" useCache="false">
+        select distinct t.sbxh as sb_no from tl_bjts.ckts_sb_mdt_tssb_lsb t where sbid = #{sbid} order by sb_no
+    </select>
+
+    <select id="getLdlpNos4Wzf" resultType="java.lang.String" useCache="false">
+        select distinct t.sbxh as sb_no from tl_bjts.ckts_sb_db_tssb_lsb t where sbid = #{sbid} order by sb_no
+    </select>
+
+    <select id="getLdlpNos4Zyhw" resultType="java.lang.String" useCache="false">
+        select distinct t.sbxh as sb_no from tl_bjts.ckts_sb_gj_sbmx_lsb t where sbid = #{sbid} order by sb_no
+    </select>
+
+    <!--查询外贸进货明细-->
+    <select id="getTsjhInfo" parameterType="com.tl.web.bjts.shzs.model.vo.ldlp.LdlpParamVo" resultType="com.tl.web.bjts.shzs.model.vo.ldlp.TsjhVo" useCache="true">
+        select t.sz,
+       t.jhpzh as zyfpNo,
+       t.kprq as kpdate,
+       t.cksp_dm as cmcode,
+       t.sbhgspmc as cmname,
+       t.hgjldwmc as cmunit,
+       t.sl as qnt,
+       t.jsje as amt,
+       t.zssl as sl,
+       t.zsse as se,
+       t.tsl as tsl,
+       t.tse  as tsAmt,
+       t.cktmsywlxmcjh as ywlx,
+       t.bz as note
+  			from tl_bjts.ckts_sb_mts_tsjh_lsb t
+ 				where t.sbid = #{sbid}
+   				and t.glh = #{ldlpNo}
+    </select>
+
+    <!--查询外贸进货明细合计项-->
+    <select id="getTsjhAmt" parameterType="com.tl.web.bjts.shzs.model.vo.ldlp.LdlpParamVo" resultType="com.tl.web.bjts.shzs.model.vo.ldlp.TsjhAmtVo" useCache="true">
+				select count(1) as tsjhTotal,
+				       sum(t.jsje) as tsjhAmt,
+				       sum(t.tse) as tsjhTsAmt,
+				       sum(t.zsse) as tsjhSe
+				  from tl_bjts.ckts_sb_mts_tsjh_lsb t
+				 where t.sbid = #{sbid}
+				   and t.glh = #{ldlpNo}
+		</select>
+
+    <!--查询外贸出口明细-->
+    <select id="getTsckInfo" parameterType="com.tl.web.bjts.shzs.model.vo.ldlp.LdlpParamVo" resultType="com.tl.web.bjts.shzs.model.vo.ldlp.TsckVo" useCache="true">
+				select t.ckbgdh     as bgdNo,
+				       t.dlzmh    as dlzmNo,
+				       t.ckrq_1    as ljDate,
+				       t.cksp_dm as cmcode,
+				       t.sbhgspmc as cmname,
+				       t.hgjldwmc as cmunit,
+				       t.cksl as qnt,
+				       t.mylaj    as usdAmt,
+				       t.ckjhje   as ckjhAmt,
+				       t.tsl as tsl,
+				       t.zzstse as zzsTsAmt,
+				       t.xfstse as xfsTsAmt,
+				       t.cktmsywlxmcjh as ywlx,
+				       t.bz as note
+				  from tl_bjts.ckts_sb_mts_tssb_lsb t
+				 where t.sbid = #{sbid}
+				   and t.glh = #{ldlpNo}
+    </select>
+
+    <!--查询外贸出口明细合计项-->
+    <select id="getTsckAmt" parameterType="com.tl.web.bjts.shzs.model.vo.ldlp.LdlpParamVo" resultType="com.tl.web.bjts.shzs.model.vo.ldlp.TsckAmtVo" useCache="true">
+				select count(1) as tsckTotal, sum(t.zzstse + t.xfstse) as tsckTsAmt
+				  from tl_bjts.ckts_sb_mts_tssb_lsb t
+				 where t.sbid = #{sbid}
+				   and t.glh = #{ldlpNo}
+    </select>
+
+
+    <!--查询生产出口明细-->
+    <select id="getMdtsInfo" parameterType="com.tl.web.bjts.shzs.model.vo.ldlp.LdlpParamVo" resultType="com.tl.web.bjts.shzs.model.vo.ldlp.MdtsckVo" useCache="true">
+				select t.sbxh    as sbNo,
+				       t.ckfph   as invNo,
+				       null as jxsDate,
+				       t.ckbgdh   as bgdNo,
+				       t.ckrq_1  as ljDate,
+				       t.cksp_dm as cmcode,
+				       t.sbhgspmc as cmname,
+				       t.hgjldwmc as cmunit,
+				       t.sbsp_dm as sbcmcode,
+				       t.cksl as qnt,
+				       t.mylaj  as usdAmt,
+				       t.rmblaj  as rmbAmt,
+				       t.zssl as zssl,
+				       t.tsl as tsl,
+				       t.mdtsbdmzhdkse as ztsce,
+				       t.mdtse   as tsAmt,
+				       t.jljgszch as hgdjcNo,
+				       t.cktmsywlxmcjh as ywlx
+				  from TL_BJTS.ckts_sb_mdt_tssb_lsb t
+				 where t.sbid = #{sbid}
+				   and t.sbxh = #{ldlpNo}
+    </select>
+
+    <!--查询生产出口税额统计-->
+    <select id="getMdtsckAmt" parameterType="com.tl.web.bjts.shzs.model.vo.ldlp.LdlpParamVo" resultType="com.tl.web.bjts.shzs.model.vo.ldlp.LdlpInfo4ScVo" useCache="true">
+				select count(1) as mdtsckTotal, sum(t.mdtse) as mdtsckTsAmt
+				  from TL_BJTS.ckts_sb_mdt_tssb_lsb t
+				 where t.sbid = #{sbid}
+				   and t.sbxh = #{ldlpNo}
+    </select>
+
+    <!--查询外综服代办退税明细-->
+    <select id="getDbtsInfo" parameterType="com.tl.web.bjts.shzs.model.vo.ldlp.LdlpParamVo" resultType="com.tl.web.bjts.shzs.model.vo.ldlp.DbtsVo" useCache="true">
+        select t.sbxh       as sbNo,
+               t.wtdbtsscqynsrsbh as wtNsrdjNo,
+               t.ckbgdh      as bgdNo,
+               t.ckrq_1     as ljDate,
+               t.cksp_dm    as cmcode,
+               t.sbsp_dm    as sbCmcode,
+               t.hgspmc     as cmname,
+               t.hgjldwmc   as cmunit,
+               t.cksl       as qnt,
+               t.mylaj     as usdAmt,
+               t.dbtswspzhm     as zyfpNo,
+               t.kprq     as kpDate,
+               t.jsje     as rmbAmt,
+               t.zssl,
+               round(t.jsje * t.zssl/100,2) as se,
+               t.tsl,
+               t.tse      as tsAmt,
+               t.cktmsywlxmcjh as ywlx
+          from TL_BJTS.Ckts_Sb_Db_Tssb_Lsb t
+         where t.sbid = #{sbid}
+           and t.sbxh = #{ldlpNo}
+    </select>
+
+    <!--查询外综服代办退税税额统计-->
+    <select id="getDbtsAmt" parameterType="com.tl.web.bjts.shzs.model.vo.ldlp.LdlpParamVo" resultType="com.tl.web.bjts.shzs.model.vo.ldlp.LdlpInfo4WzfVo" useCache="true">
+				select count(1) as dbtsTotal,
+				       sum(tse) as dbtsTsAmt,
+				       sum(round(t.jsje * t.zssl / 100, 2)) as dbtsSe
+				  from TL_BJTS.Ckts_Sb_Db_Tssb_Lsb t
+				 where t.sbid = #{sbid}
+				   and t.sbxh = #{ldlpNo}
+    </select>
+
+    <!--查询购进自用货物退税明细-->
+    <select id="getZyhwInfo" parameterType="com.tl.web.bjts.shzs.model.vo.ldlp.LdlpParamVo" resultType="com.tl.web.bjts.shzs.model.vo.ldlp.ZyhwmxVo" useCache="true">
+        select t.sbxh     as sbNo,
+               t.jhpzh   as zyfpNo,
+               t.gjzyhwmc as zyCmname,
+               t.hgjldwmc as unit,
+               t.sl as qnt,
+               t.dj as pri,
+               t.jsje as amt,
+               t.zssl as zssl,
+               t.se as se,
+               t.tse    as tsAmt,
+               t.cktmsywlxmcjh as ywlx,
+               t.kprq   as kpDate,
+               t.ghfnsrsbh_1  as ghfnsNo
+          from TL_BJTS.Ckts_Sb_Gj_Sbmx_Lsb t
+         where t.sbid = #{sbid}
+           and t.sbxh = #{ldlpNo}
+    </select>
+
+    <!--查询外综服代办退税税额统计-->
+    <select id="getZyhwAmt" parameterType="com.tl.web.bjts.shzs.model.vo.ldlp.LdlpParamVo" resultType="com.tl.web.bjts.shzs.model.vo.ldlp.LdlpInfo4ZyhwVo" useCache="true">
+        select count(1) as dbtsTotal,
+               sum(tse) as zyhwTsAmt,
+               sum(se) as zyhwSe,
+               sum(jsje) as zyhwAmt
+          from TL_BJTS.Ckts_Sb_Gj_Sbmx_Lsb t
+         where t.sbid = #{sbid}
+           and t.sbxh = #{ldlpNo}
+    </select>
+
+</mapper>

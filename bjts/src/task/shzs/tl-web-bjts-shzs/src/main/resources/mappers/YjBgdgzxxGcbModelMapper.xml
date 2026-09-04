@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.web.bjts.shzs.dao.YjBgdgzxxGcbModelMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.web.bjts.shzs.model.domain.YjBgdgzxxGcbModel" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="DJXH" property="djxh" jdbcType="DECIMAL" />
+    <id column="CKBGDH" property="ckbgdh" jdbcType="VARCHAR" />
+    <result column="GZXX" property="gzxx" jdbcType="VARCHAR" />
+    <result column="CZR_DM" property="czrDm" jdbcType="CHAR" />
+    <result column="CZRQ" property="czrq" jdbcType="DATE" />
+  </resultMap>
+</mapper>

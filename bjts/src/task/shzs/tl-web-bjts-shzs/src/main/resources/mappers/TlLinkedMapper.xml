@@ -1,0 +1,757 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.web.bjts.shzs.dao.TlLinkedMapper">
+
+	<!--   将序列值更新为下一个值   -->
+	<update id="updateToNextVal" parameterType="string">
+		update sys_sequence set curvalue = curvalue + 1
+		where tblname = #{tblname,jdbcType=VARCHAR}
+	</update>
+
+	<!--    查询序列值    -->
+	<select id="selectCurvalue" resultType="long" parameterType="string">
+		select curvalue from sys_sequence
+		where tblname = #{tblname,jdbcType=VARCHAR}
+	</select>
+
+	<update id="updateToNextVal4Admin">
+		update tl_admin.sys_sequence set curvalue = curvalue + 1
+		where tblname = #{tblname,jdbcType=VARCHAR}
+	</update>
+
+	<select id="selectCurvalue4Admin" resultType="java.lang.Long">
+		select curvalue from tl_admin.sys_sequence
+		where tblname = #{tblname,jdbcType=VARCHAR}
+	</select>
+
+	<!--    插入同步表    -->
+	<insert id="insert" parameterType="com.tl.web.bjts.shzs.model.domain.TlDtbsj" >
+		insert into tb_dtbsj (id, tblx_dm, mainid,
+		cjsj, tqbz, tqsj,
+		tbcs, sbyy, yxj)
+		values (SEQ_TB_DTBSJ_ID.nextval, #{tblxDm,jdbcType=VARCHAR}, #{mainid,jdbcType=BIGINT},
+		#{cjsj,jdbcType=TIMESTAMP}, #{tqbz,jdbcType=VARCHAR}, #{tqsj,jdbcType=TIMESTAMP},
+		#{tbcs,jdbcType=INTEGER}, #{sbyy,jdbcType=VARCHAR}, #{yxj,jdbcType=INTEGER})
+	</insert>
+
+    <!-- 按操作人代码获取分片管理信息 -->
+    <select id="getFpglXx" resultType="hashmap" parameterType="map">
+			select b.swjg_mc,b.swjg_dm,b.swjg_jc,a.jsmode_set as jsms,a.zgswry_dm_set as zgyDm,
+					a.flgl_set as flgldj,a.zsjg_dm_set as zsswjgDm
+			 from sys_cfg_czry_fpgl a ,dm_swjg b
+			where a.swjg_dm=b.swjg_dm and b.qybz='Y'
+						 and a.czry_dm = #{czryDm,jdbcType=VARCHAR}
+	</select>
+
+    <!-- 按业务种类代码获取分组业务信息 -->
+    <select id="getGroupBySbywxxByType" resultType="hashmap" parameterType="map">
+ 		select count(1) as num,b.dcode as sbywDm,b.dname as sbywMc from sb_sbxx_hz a,sys_dict b
+			where  a.qybj='Y' and a.sbywb_dm=b.dcode and  a.sbzl_dm=#{czryDm,jdbcType=VARCHAR}
+			group by b.dcode,b.dname
+			order by b.dcode
+	</select>
+
+
+    <!-- 获取分组业务种类汇总信息 -->
+    <select id="getGroupBySbywzlxx" resultType="hashmap">
+			select  count(1) as num,b.dcode as ywzlDm,b.dname as ywzlMc from sb_sbxx_hz a,sys_dict b
+			where a.sbzl_dm=b.dcode and a.qybj='Y' and b.dtype='ywzl_dm'
+			group by b.dcode,b.dname
+	</select>
+
+
+    <!-- 获取申报列表分页查询 -->
+    <select id="getSblbxxByPage" resultType="com.tl.web.bjts.shzs.model.domain.TlSbxxProfile" parameterType="map">
+			select s.*
+			from table(func_get_sblist_sort(#{czryDm,jdbcType=VARCHAR},
+											#{sbywDm,jdbcType=VARCHAR},
+											#{orderSql,jdbcType=VARCHAR},
+											#{offset},
+											#{size},#{type})) s
+	</select>
+
+
+    <!-- 获取申报业务查询 -->
+    <select id="getSbywxx" resultType="hashmap" parameterType="string">
+			select s.* from table(func_get_sbhzxx(#{czryDm,jdbcType=VARCHAR})) s
+	</select>
+
+    <!-- 获取申报信息明细查询 -->
+    <select id="getSbxxDetails" resultType="com.tl.web.bjts.shzs.model.domain.TlSbxxProfile" parameterType="long">
+			    select tt.*  from (
+      			  select row_number() OVER(partition by sh.id order by dk.id desc) as RNN,
+			  dj.nsrsbh,dj.qyhgdm,dj.nsrmc,dj.swjg_dm as swjgDm,ds.swjg_mc as swjgMc,coalesce(dk.kzxx,'C') as flglcd,dj.tsjsfs_dm as tsjsfsDm,
+			  sh.id as sbid,sh.sbywb_dm as sbywbDm,sh.sssq,sh.sbpc,sh.sbzt_dm as sbztDm,sh.sbrq,sh.sbzl_dm as sbzlDm
+				from
+				 sb_sbxx_hz sh
+				 left join gs_dj_cktmsdab dj on (sh.nsrdzdah=dj.nsrdzdah)
+				 left join gs_dj_cktmsdab_kz dk on (dj.nsrdzdah=dk.nsrdzdah and dk.kzlx='FLGLCD' and sh.sbrq between dk.st_date and dk.end_date)
+				 left join dm_swjg ds on (ds.swjg_dm=dj.swjg_dm and ds.tsjg_bz='1'),
+				 sys_cfg_sbdr_filemode sc
+				  where
+				SH."ID"=#{sbid} ) tt where 1>=RNN
+		</select>
+
+    <!-- 获取申报信息明细查询2 -->
+    <select id="getSbxxDetails2" resultType="com.tl.web.bjts.shzs.model.vo.SbxxViewVo" parameterType="long">
+				select sd.dname as sbywbmc,dj.nsrsbh,(case when sh.sbywb_dm='A0101001' then dj.nsrsbh else dj.qyhgdm end) as qyhgdm,dj.nsrmc,dj.swjg_dm as swjgDm,dj.bsy1_mc as lxr,dj.bsy1_dh as lxrdh,
+				(case coalesce(dk.kzxx,'C') when 'A' then '一' when 'B' then '二' when 'C' then '三' when 'D' then '四' else '' end) as flglcd,
+				dj.tsjsfs_dm as tsjsfsDm, dj.jdxzmc,(case dk2.kzxx when '1' then '是' when ' ' then '是' else '否' end) as wzhqy,
+				sh.id as sbid,sh.sbywb_dm as sbywbDm,sh.sssq as sssq,sh.sbpc as sbpc,
+				sh.sbcs,sh.sbzt_dm as sbztDm,sh.sbrq,sh.sbzl_dm as sbzlDm,sh.zzsbb as zzsbb,
+				substr(ds.swjg_dm,8,4)||' '||ds.swjg_jc as zsswjgMc,
+				ds2.swjg_jc as swjgMc,dj.tag
+				from sb_sbxx_hz sh
+				left join gs_dj_cktmsdab dj on (sh.nsrdzdah=dj.nsrdzdah)
+				left join gs_dj_cktmsdab_kz dk on (dj.nsrdzdah=dk.nsrdzdah and dk.kzlx='FLGLCD' and sh.sbrq between dk.st_date and dk.end_date and dk.flag='1')
+				left join gs_dj_cktmsdab_kz dk2 on (dj.nsrdzdah=dk2.nsrdzdah and dk2.kzlx='WZHQY' and sh.sbrq between dk2.st_date and dk2.end_date and dk.flag='1')
+				left join sys_dict sd on (sh.sbywb_dm=sd.dcode  and sd.dtype='ywlx_dm')
+				left join dm_swjg ds on (ds.swjg_dm=dj.zs_swjg_dm)
+				left join dm_swjg ds2 on (ds2.swjg_dm=dj.swjg_dm and ds2.tsjg_bz='1')
+				where
+				SH."ID"=#{sbid}  and rownum=1
+	</select>
+
+
+	<!-- 根据操作人员代码获取税企交互任务信息 -->
+	<select id="getRwtxList" resultType="com.tl.web.bjts.shzs.model.vo.RwtxVo" parameterType="map">
+		SELECT * FROM
+		(
+		SELECT A.*, ROWNUM RN
+		FROM (
+		select rw.id,rw.rwbt,rw.rwnr,rw.jzrq,rw.wcrq,rw.cjrq,rw.lxdh,rw.swry_dm as swryDm,rw.swjg_dm as swjgDm,rw.swjg_mc as swjgMc,
+		rw.swry_mc as swryMc,rw.rwzt_dm as rwztDm,rw.thyy,rw.ywqx,rw.rwly,rw.rwlx_dm as rwlxDm,rw.ywgjz,rw.bz,
+		dj.qyhgdm,dj.nsrmc,
+		sb.sbywb_dm as sbywbDm,sb.sssq,sb.sbpc,
+		(select dname from sys_dict y where sb.sbzl_dm=y.dcode and  y.dtype='ywlx_dm') as sbywbMc,
+		(select dname from sys_dict yy where rw.rwzt_dm=yy.dcode and  yy.dtype='rwzt_dm') as rwztMc
+		from RW_RWTXB  rw,SB_SBXX_HZ sb,GS_DJ_CKTMSDAB dj
+		where rw.YWGJZ=sb.ID and SB.NSRDZDAH= dj.NSRDZDAH and sb.qybj='Y'
+		<if test="ywgjz != null and ywgjz!=''">
+			and rw.ywgjz=#{ywgjz}
+		</if>
+		<if test="swjgDm != null and swjgDm!=''">
+			and rw.swjg_dm=#{swjgDm}
+		</if>
+		<if test="rwztDm != null and rwztDm!=''">
+			and rw.rwzt_dm=#{rwztDm}
+		</if>
+		<if test="ywlxDm != null and ywlxDm!=''">
+			and rw.ywlx_dm=#{ywlxDm}
+		</if>
+		<if test="rwlxDm != null and rwlxDm!=''">
+			and rw.rwlx_dm=#{rwlxDm}
+		</if>
+		<if test="rwly != null and rwly!=''">
+			and rw.rwly=#{rwly}
+		</if>
+		<if test="sbztDm != null and sbztDm!=''">
+			and sb.sbzt_dm=#{sbztDm}
+		</if>
+		<if test="czryDm != null and czryDm!=''">
+			and rw.swry_dm=#{czryDm}
+		</if> order by rw.cjrq desc
+		) A
+		)
+		WHERE 1=1
+		<if test="start != null and start!=''">
+			and RN &gt;= #{start}
+		</if>
+		<if test="end != null and end!=''">
+			and RN &lt;= #{end}
+		</if>
+
+	</select>
+
+
+	<select id="getRwtxListCount" resultType="java.lang.Integer" parameterType="map">
+		select count(*)
+		from RW_RWTXB  rw,SB_SBXX_HZ sb,GS_DJ_CKTMSDAB dj
+		where rw.YWGJZ=sb.ID and SB.NSRDZDAH= dj.NSRDZDAH and sb.qybj='Y'
+		<if test="ywgjz != null and ywgjz!=''">
+			and rw.ywgjz=#{ywgjz}
+		</if>
+		<if test="swjgDm != null and swjgDm!=''">
+			and rw.swjg_dm=#{swjgDm}
+		</if>
+		<if test="rwztDm != null and rwztDm!=''">
+			and rw.rwzt_dm=#{rwztDm}
+		</if>
+		<if test="ywlxDm != null and ywlxDm!=''">
+			and rw.ywlx_dm=#{ywlxDm}
+		</if>
+		<if test="rwlxDm != null and rwlxDm!=''">
+			and rw.rwlx_dm=#{rwlxDm}
+		</if>
+		<if test="rwly != null and rwly!=''">
+			and rw.rwly=#{rwly}
+		</if>
+		<if test="sbztDm != null and sbztDm!=''">
+			and sb.sbzt_dm=#{sbztDm}
+		</if>
+		<if test="czryDm != null and czryDm!=''">
+			and rw.swry_dm=#{czryDm}
+		</if>
+	</select>
+
+
+
+
+	<select id="getCompanyInfoBySbid" resultType="com.tl.web.bjts.shzs.model.vo.CompanyInfVO" parameterType="Long">
+
+		SELECT dab.nsrsbh,dab.SHXYNO shxydm FROM gs_dj_cktmsdab dab ,sb_sbxx_hz hz
+		WHERE dab.nsrdzdah=hz.nsrdzdah
+		and hz.id=#{sbid}
+
+
+	</select>
+
+    <!--  更新街道乡镇名称 -->
+	<update id="updateJdxzmc"  parameterType="map">
+		UPDATE  gs_dj_cktmsdab set jdxzmc=#{jdxzmc}
+		WHERE nsrsbh=#{nsrsbh}
+	</update>
+
+	<!--  根据税号查询单证备案登记表记录数 -->
+	<select id="getEdocApplyByNsrsbh" parameterType="string" resultType="map">
+		select nsrsbh,concacts,tel
+		from tl_admin.edoc_apply
+		where nsrsbh = #{nsrsbh,jdbcType=VARCHAR}
+	</select>
+
+	<!--    申报明细表查询过滤条件    -->
+	<sql id="listSbMxbWhere" >
+		<where>
+			pt.lcslid = #{lcslid,jdbcType=BIGINT}
+			<!--  申报序号 -->
+			<if test="sbxh != null and sbxh!=''  ">
+				and pt.sbxh = #{sbxh,jdbcType=VARCHAR}
+			</if>
+
+			<!--  关联号（外贸专用） -->
+			<if test="glh != null and glh!=''  ">
+				<if test="sbywdm != null and sbywdm!='' and sbywdm == 'A0301001'">
+					and pt.glh = #{glh,jdbcType=VARCHAR}
+				</if>
+			</if>
+			<!--  商品代码 -->
+			<if test="spdm != null and spdm!=''  ">
+				and pt.CKSP_DM = #{spdm,jdbcType=VARCHAR}
+			</if>
+			<!--  报关单号 -->
+			<if test="ckbgdh != null and ckbgdh!=''  ">
+				and pt.ckbgdh = #{ckbgdh,jdbcType=VARCHAR}
+			</if>
+			<!--  出口口岸 -->
+			<if test="hgcode != null and hgcode!=''  ">
+				and h.hggqka_dm = #{hgcode,jdbcType=VARCHAR}
+			</if>
+			<!--  供货方税号（外贸专用） -->
+			<if test="ghfnsrsbh != null and ghfnsrsbh!=''  ">
+				<if test="sbywdm != null and sbywdm!='' and sbywdm == 'A0301001'">
+					and jh.ghfnsrsbh_1 = #{ghfnsrsbh,jdbcType=VARCHAR}
+				</if>
+			</if>
+			<!--  委托企业识别号（外综服代办退税专用） -->
+			<if test="wtqynsrsbh != null and wtqynsrsbh!=''  ">
+				<if test="sbywdm != null and sbywdm!='' and sbywdm == 'A0310001'">
+					and (pt.WTDBTSSCQYSHXYDM = #{wtqynsrsbh,jdbcType=VARCHAR} or pt.WTDBTSSCQYNSRSBH = #{wtqynsrsbh,jdbcType=VARCHAR})
+				</if>
+			</if>
+			<!--  进货凭证号（购进自用或物专用） -->
+			<if test="jhpzh != null and jhpzh!=''  ">
+				<if test="sbywdm != null and sbywdm!='' and sbywdm == 'A0304001'">
+					and pt.jhpzh = #{jhpzh,jdbcType=VARCHAR}
+				</if>
+				<if test="sbywdm != null and sbywdm!='' and sbywdm == 'A0301001'">
+					and jh.jhpzh = #{jhpzh}
+				</if>
+			</if>
+			<!--  查询类型 -->
+			<if test="queryType != null and queryType!=''  ">
+				<choose>
+					<!--  从疑点页面进入 -->
+					<when test='queryType == "2" '>
+						<!--  申报序号 -->
+						<if test="sbxhList != null and sbxhList.size>0">
+							AND pt.sbxh IN
+							<foreach collection="sbxhList" item="item" index="index" open="(" separator="," close=")" >
+								#{item}
+							</foreach>
+						</if>
+						<!--   外贸免退税，出口明细和进货明细申报序号根据传递的参数分别处理 -->
+						<if test="sbywdm != null and sbywdm!='' and sbywdm == 'A0301001'">
+							AND (
+							<choose>
+								<!--  只有出口明细疑点信息 -->
+								<when test='sbxhWmckList != null and sbxhWmckList.size>0 and (sbxhWmjhList == null or sbxhWmjhList.size == 0)'>
+									pt.sbxh IN
+									<foreach collection="sbxhWmckList" item="item" index="index" open="(" separator=","
+											 close=")">
+										#{item}
+									</foreach>
+								</when>
+								<!--  只有进货明细疑点信息 -->
+								<when test='sbxhWmjhList != null and sbxhWmjhList.size>0 and (sbxhWmckList == null or sbxhWmckList.size == 0)'>
+									jh.sbxh
+									IN
+									<foreach collection="sbxhWmjhList" item="item" index="index" open="(" separator=","
+											 close=")">
+										#{item}
+									</foreach>
+								</when>
+								<!--  同时有出口明细与进货明细疑点信息 -->
+								<when test='sbxhWmckList != null and sbxhWmckList.size>0 and sbxhWmjhList != null and sbxhWmjhList.size>0'>
+									pt.sbxh IN
+									<foreach collection="sbxhWmckList" item="item" index="index" open="(" separator=","
+											 close=")">
+										#{item}
+									</foreach>
+									or
+									jh.sbxh IN
+									<foreach collection="sbxhWmjhList" item="item" index="index" open="(" separator=","
+											 close=")">
+										#{item}
+									</foreach>
+								</when>
+								<otherwise>
+									1 =1
+								</otherwise>
+							</choose>
+							)
+						</if>
+					</when>
+					<!--  从预警页面进入 -->
+					<when test='queryType == "3" '>
+						<if test="yjxx != null and yjxx.size>0">
+							and
+							<foreach collection="yjxx" item="item" index="index" open="(" separator="or" close=")" >
+								<if test="item.yjType == '120'">
+									pt.LRRQ>=DATE'2026-04-01'
+									AND pt.TSSWJG_DM_1 NOT LIKE '13307%'
+									AND h.SBDWDM LIKE '33189%'
+								</if>
+								<!--  101   新增出口商品（使用做匹配） -->
+								<!--  108	敏感出口商品使用做匹配） -->
+								<!--  113	异常单价 -->
+								<if test="item.yjType == '101' or item.yjType == '108'">
+									pt.CKSP_DM like  #{item.yjObject,jdbcType=VARCHAR} || '%'
+								</if>
+								<if test="item.yjType == '113' ">
+									pt.CKSP_DM = #{item.yjObject,jdbcType=VARCHAR}
+								</if>
+								<if test="item.yjType == '161'">
+									pt.CKSP_DM = #{item.yjRecord} and
+								</if>
+								<!--  104   货源地不一致 -->
+								<!--  112	申报与出口口岸不一致 -->
+								<if test="item.yjType == '104' or item.yjType == '112' ">
+									pt.ckbgdh like #{item.yjObject}|| '%'
+								</if>
+								<if test="item.yjType == '121' or item.yjType == '161' or item.yjType == '162' or item.yjType == '163'">
+									<choose>
+										<when test='sbywdm == "A0301001" '>
+											(pt.ckbgdh like #{item.yjObject}|| '%' or pt.dlzmh like #{item.yjObject}|| '%')
+										</when>
+										<otherwise>
+											(pt.ckbgdh like #{item.yjObject}|| '%' or pt.dlckhwzmhm like #{item.yjObject}|| '%')
+										</otherwise>
+									</choose>
+								</if>
+								<!--  109	敏感口岸(外贸) -->
+								<!--  110	敏感口岸(生产) -->
+								<if test="item.yjType == '109' or item.yjType == '110' ">
+									h.hggqka_dm = #{item.yjObject,jdbcType=VARCHAR}
+								</if>
+								<!--  105	商品名称不一致 -->
+								<if test="item.yjType == '105' ">
+									pt.sbxh = #{item.yjRecord,jdbcType=VARCHAR}
+								</if>
+								<if test="item.yjType == '164'">
+									<choose>
+										<when test='sbywdm == "A0301001" '>
+											(jh.GHFNSRSBH_1 = #{item.yjObject,jdbcType=VARCHAR} or pt.CKSP_DM like  #{item.yjObject,jdbcType=VARCHAR} || '%')
+										</when>
+										<otherwise>
+											 pt.CKSP_DM like  #{item.yjObject,jdbcType=VARCHAR} || '%'
+										</otherwise>
+									</choose>
+								</if>
+								<!--  102	新增供货商 -->
+								<!--  107	异常供货商 -->
+								<!--  111	供货企业异常函调 -->
+								<if test="item.yjType == '102' or item.yjType == '107' or item.yjType == '111'">
+									<choose>
+										<when test='sbywdm == "A0301001" '>
+											jh.GHFNSRSBH_1 = #{item.yjObject,jdbcType=VARCHAR}
+										</when>
+										<otherwise>
+											1 =1
+										</otherwise>
+									</choose>
+								</if>
+							</foreach>
+						</if>
+					</when>
+				</choose>
+			</if>
+		</where>
+	</sql>
+
+	<!--  生产免抵退税申报明细表查询 -->
+	<select id="listScmdtsMxb" parameterType="com.tl.web.bjts.shzs.model.dto.sbxx.SbMxbBaseDTO"
+			resultType="com.tl.web.bjts.shzs.model.vo.sbxx.SbMdtsMxbVO">
+		select main.* from(
+			select 0 as sbid,
+			pt.sbxh,
+			pt.ckfph,
+			pt.ckbgdh,
+			pt.dlckhwzmhm as dlzmh,
+			pt.ckrq_1 as ckrq,
+			pt.cksp_dm as spdm,
+			pt.sbsp_dm as spdmsb,
+			pt.hgjldwmc as jldw,
+			pt.cksl,
+			pt.mylaj,
+			pt.rmblaj,
+			pt.zssl,
+			pt.tsl,
+			pt.jljgszch as jgmysch,
+			pt.jsfpl as fplvJh,
+			pt.mdtsbdmzhdkse as ztsceHw,
+			pt.mdtse as mdtseHw,
+			pt.cktmsywlxmcjh as ywlxmc,
+			pt.ckhth as jckhth,
+			h.hggqka_dm as hgcode,
+			h.hggqka_dm as hgcodeName,
+			h.mygdqsz_dm as gbcode,
+			h.mygdqsz_dm as gbcodeName,
+			pt.bz,
+			nvl(h.hgspmc, pt.sbhgspmc) as spmc,
+			g.gzxx,pt.djxh
+			from hx_ckts.ckts_sb_mdt_tssb_gcb pt
+			left join hx_ckts.ckts_wbsj_hg_bgd201 h on h.djxh = pt.djxh and h.ckbgdh = pt.ckbgdh
+			left join ZJ_BJTS.yj_bgdgzxx_gcb g on g.djxh = pt.djxh and g.ckbgdh = pt.ckbgdh
+		<include refid="listSbMxbWhere" />
+		) main
+		<if test="orderSql != null and orderSql!=''  ">
+			order by main.${orderSql}
+		</if>
+		<if test="orderSql == null or orderSql ==''  ">
+			order by main.sbxh
+		</if>
+	</select>
+
+	<!--  生产免抵退税申报明细表查询（合计） -->
+	<select id="sumScmdtsMxb" parameterType="com.tl.web.bjts.shzs.model.dto.sbxx.SbMxbBaseDTO"
+			resultType="com.tl.web.bjts.shzs.model.vo.sbxx.SbMdtsMxbSumVO">
+		select  sum(pt.mylaj) as mylaj,
+				sum(pt.rmblaj) as rmblaj,
+				sum(pt.mdtse) as mdtseHw,
+				sum(pt.mdtsbdmzhdkse) as ztsceHw
+		from hx_ckts.ckts_sb_mdt_tssb_gcb pt
+		left join hx_ckts.ckts_wbsj_hg_bgd201 h
+		on h.djxh = pt.djxh
+		and h.ckbgdh = pt.ckbgdh
+		<include refid="listSbMxbWhere" />
+	</select>
+
+	<!--  外贸免退税申报明细表查询 -->
+	<select id="listWmmtsMxb" parameterType="com.tl.web.bjts.shzs.model.dto.sbxx.SbMxbBaseDTO"
+			resultType="com.tl.web.bjts.shzs.model.vo.sbxx.SbMtsCkmxVO">
+		select main.* from (
+		select pt.lcslid,pt.ckbgdh,
+		0                as sbid,
+		pt.sbxh,
+		pt.glh,
+		pt.ckfph,
+		pt.dlzmh,
+		pt.ckrq_1        as ckrq,
+		pt.cksp_dm       as spdm,
+		pt.sbhgspmc      as spmc,
+		pt.hgjldwmc      as jldw,
+		pt.cksl,
+		pt.mylaj,
+		round(pt.mylaj * hl.rmbhl / 100,2) as zrmbxse,
+		decode(pt.mylaj,null,0,0,0,
+		    round((pt.mylaj * hl.rmbhl / 100 -
+			(select sum(s.jsje * (100 + zssl - tsl) /100)
+			from hx_ckts.CKTS_SB_MTS_TSJH_GCB s
+			where djxh=pt.djxh
+			and glh=pt.glh)) / pt.mylaj,2)) as mmyllr,
+		pt.cktmsywlxmcjh as ywlxmc,
+		h.ckhth          as jckhth,
+		h.hggqka_dm      as hgcode,
+		h.hggqka_dm      as hgcodeName,
+		h.mygdqsz_dm     as gbcode,
+		h.mygdqsz_dm     as gbcodeName,
+		h.hzdwdq_dm as hzdwdqdm, h.hzdwdq_dm as hzdwdqdmName,
+		pt.bz,
+		decode(jh.sz,'V','增值税','C','消费税') as sz,
+		jh.jhpzh,
+		jh.ghfnsrsbh_1 as ghfnsrsbh,
+		jh.kprq,
+		jh.SBHGSPMC as spmcJh,
+		jh.sl,
+		jh.jsje,
+		jh.zssl,
+		jh.tsl,
+		jh.tse,
+		jh.sbxh as sbxhJh,
+		g.gzxx,pt.djxh
+		from hx_ckts.CKTS_SB_MTS_TSSB_GCB pt
+		inner join hx_ckts.CKTS_SB_MTS_TSJH_GCB jh on (pt.djxh = jh.djxh and pt.glh = jh.glh)
+		left join hx_cs_zdy.cs_ckts_hl hl on hl.hbzm_dm='USD' and hl.hlny=to_char(pt.ckrq_1,'yyyymm')
+		left join hx_ckts.ckts_wbsj_hg_bgd201 h on h.djxh = pt.djxh and h.ckbgdh = pt.ckbgdh
+		left join ZJ_BJTS.yj_bgdgzxx_gcb g on g.djxh = pt.djxh and g.ckbgdh = pt.ckbgdh
+		<include refid="listSbMxbWhere" />
+		) main
+		<if test="orderSql != null and orderSql!=''  ">
+			order by main.${orderSql}
+		</if>
+		<if test="orderSql == null or orderSql ==''  ">
+			order by main.sbxh,main.sbxhJh
+		</if>
+	</select>
+
+	<!--  外贸免退税申报明细表查询（合计）注意:美元离岸价的汇总 -->
+	<select id="sumWmmtsMxb" parameterType="com.tl.web.bjts.shzs.model.dto.sbxx.SbMxbBaseDTO"
+			resultType="com.tl.web.bjts.shzs.model.vo.sbxx.SbMtsMxbSumVO">
+		select nvl(sum(case when RN = 1 then mylaj else 0 end),0) as mylaj,
+			   nvl(sum(jsje),0) as jsje,
+			   nvl(sum(tse),0) as tse
+		from (select pt.mylaj,
+					jh.jsje,
+					jh.tse,
+					ROW_NUMBER() OVER (PARTITION BY PT.GLH ORDER BY JH.SBXH) RN
+		from hx_ckts.CKTS_SB_MTS_TSSB_GCB pt
+		inner join hx_ckts.CKTS_SB_MTS_TSJH_GCB jh
+		on (pt.lcslid = jh.lcslid and pt.glh = jh.glh)
+		left join hx_ckts.ckts_wbsj_hg_bgd201 h
+		on h.djxh = pt.djxh
+		and h.ckbgdh = pt.ckbgdh
+		<include refid="listSbMxbWhere" />
+		 )
+	</select>
+
+	<!--  根据申报id和关联号查询外贸进货明细数据  -->
+	<select id="listWmmtsJhmxBySbidGlh" resultType="com.tl.web.bjts.shzs.model.vo.sbxx.SbMtsJhmxVO">
+		select (case when pt.sz='V' then '增值税' else '消费税' end) as sz,jhpzh,GHFNSRSBH_1 as ghfnsrsbh,
+		       kprq,SBHGSPMC as spmcJh,sl,jsje,zssl,tsl,tse,sbxh
+		from CKTS_SB_MTS_TSJH_LSB pt
+		where sbid = #{sbid,jdbcType=BIGINT}
+		  and glh = #{glh,jdbcType=VARCHAR}
+		  <if test="ghfnsrsbh != null and ghfnsrsbh!=''  ">
+			  and GHFNSRSBH_1 = #{ghfnsrsbh,jdbcType=VARCHAR}
+		  </if>
+		order by sbxh
+	</select>
+
+	<!--  外综服代办退税申报明细数据 -->
+	<select id="listWzfdbts" parameterType="com.tl.web.bjts.shzs.model.dto.sbxx.SbMxbBaseDTO"
+			resultType="com.tl.web.bjts.shzs.model.vo.sbxx.SbWzfdbtsMxbVO">
+		select main.* from(
+			select 0 as sbid,
+			pt.sbxh,
+			nvl(pt.WTDBTSSCQYSHXYDM, pt.WTDBTSSCQYNSRSBH) as wtqynsrsbh,
+			pt.ckbgdh,
+			pt.CKRQ_1 as ckrq,
+			pt.CKSP_DM as spdm,
+			pt.HGSPMC as spmc,
+			pt.SBSP_DM as spdmSb,
+			pt.HGJLDWMC as jldw,
+			pt.cksl,
+			pt.mylaj,
+			pt.DBTSWSPZHM as jhpzh,
+			pt.kprq,
+			pt.jsje,
+			pt.zssl,
+			pt.tsl,
+			pt.tse,
+			pt.CKTMSYWLXMCJH as ywlxmc,
+			pt.DBTSYWLXMC as hwlx,
+			h.hggqka_dm  as hgcode,
+			h.hggqka_dm  as hgcodeName,
+			h.mygdqsz_dm as gbcode,
+			h.mygdqsz_dm as gbcodeName,
+			h.hzdwdq_dm as hzdwdqdm,
+			h.hzdwdq_dm as hzdwdqdmName,
+			pt.bz
+			from hx_ckts.CKTS_SB_DB_TSSB_GCB pt
+			left join hx_ckts.ckts_wbsj_hg_bgd201 h
+			on h.djxh = pt.djxh
+			and h.ckbgdh = pt.ckbgdh
+		<include refid="listSbMxbWhere" />
+		) main
+		<if test="orderSql != null and orderSql!=''  ">
+			order by main.${orderSql}
+		</if>
+		<if test="orderSql == null or orderSql ==''  ">
+			order by main.sbxh
+		</if>
+	</select>
+
+	<!--  外综服代办退税申报明细数据（合计） -->
+	<select id="sumWzfdbtsMxb" parameterType="com.tl.web.bjts.shzs.model.dto.sbxx.SbMxbBaseDTO"
+			resultType="com.tl.web.bjts.shzs.model.vo.sbxx.SbWzfdbtsMxbSumVO">
+		select
+			nvl(sum(pt.mylaj),0) as mylaj,
+			nvl(sum(pt.jsje),0) as jsje,
+			nvl(sum(pt.tse),0) as tse
+		from hx_ckts.CKTS_SB_DB_TSSB_GCB pt
+		left join hx_ckts.ckts_wbsj_hg_bgd201 h
+		on h.djxh = pt.djxh
+		and h.ckbgdh = pt.ckbgdh
+		<include refid="listSbMxbWhere" />
+	</select>
+
+	<!--  购进自用货物申报明细数据 -->
+	<select id="listGjzyhwMxb" parameterType="com.tl.web.bjts.shzs.model.dto.sbxx.SbMxbBaseDTO"
+			resultType="com.tl.web.bjts.shzs.model.vo.sbxx.SbGjzyhwMxbVO">
+		select main.* from(
+			select 0 as sbid,
+			pt.sbxh,
+			pt.gjzyhwmc,
+			(case
+			when pt.JHPZZL_DM = '1' then
+			'增值税专用发票'
+			else
+			'增值税普通发票'
+			end) as pzzldm,
+			pt.jhpzh,
+			pt.kprq,
+			pt.GHFNSRSBH_1 as ghfnsrsbh,
+			pt.HGJLDWMC as jldw,
+			pt.sl,
+			pt.dj,
+			pt.jsje,
+			pt.se,
+			pt.zssl,
+			pt.tse,
+			pt.FKPZHM as fkpzh,
+			pt.CKTMSYWLXMCJH as ywlxmc,
+			pt.bz
+			from hx_ckts.CKTS_SB_GJ_SBMX_GCB pt
+		<include refid="listSbMxbWhere" />
+		) main
+		<if test="orderSql != null and orderSql!=''  ">
+			order by main.${orderSql}
+		</if>
+		<if test="orderSql == null or orderSql ==''  ">
+			order by main.sbxh
+		</if>
+	</select>
+
+	<!--  购进自用货物申报明细数据（合计） -->
+	<select id="sumGjzyhwMxb" parameterType="com.tl.web.bjts.shzs.model.dto.sbxx.SbMxbBaseDTO"
+			resultType="com.tl.web.bjts.shzs.model.vo.sbxx.SbGjzyhwMxbSumVO">
+		select
+			nvl(sum(pt.jsje),0) as jsje,
+			nvl(sum(pt.se),0) as se,
+			nvl(sum(pt.tse),0) as tse
+		from hx_ckts.CKTS_SB_GJ_SBMX_GCB pt
+		<include refid="listSbMxbWhere" />
+	</select>
+
+	<!--  从管理系统用户表中获取操作人联系电话 -->
+	<select id="getLxrdhFromGlxt" resultType="string">
+		select lxrdh
+		from tl_admin.sys_user
+		where czry_dm = #{czryDm,jdbcType=VARCHAR}
+	</select>
+
+	<!-- 查询日常审单核查列表 -->
+	<select id="listInspectDaily" parameterType="com.tl.web.bjts.shzs.model.dto.dzhc.InspectQueryDTO"
+			resultType="com.tl.web.bjts.shzs.model.vo.dzhc.InspectQueryVO">
+		select main.* from (
+			select id,sbnypc,entry_id as entryId,status,release_time as releaseTime,back_count as backCount,
+		    (case when yjsl>0 then '是' else '否' end)  as yjbz
+			from tl_admin.edoc_examine_business pt
+		where   pt.swjgdm like  #{swjgdm,jdbcType=VARCHAR}||'%'
+		        and pt.nsrsbh = #{nsrsbh,jdbcType=VARCHAR}
+		        and pt.sbnypc =  #{sbnypc,jdbcType=VARCHAR}
+		        <![CDATA[
+                 and pt.status <> '0'
+                 ]]>
+                <if test="releaser != null and releaser!=''  ">
+                   and (pt.releaser =  #{releaser,jdbcType=VARCHAR})
+                </if>
+				<!--  已作废标志为"未作废"  -->
+				and nvl(pt.void_flag,'0') = '0'
+		) main
+		<if test="orderSql != null and orderSql!=''  ">
+			order by main.${orderSql}
+		</if>
+		<if test="orderSql == null or orderSql ==''  ">
+			order by main.sbnypc desc
+		</if>
+	</select>
+
+	<!-- 校验操作员是否有日常审单核查权限 -->
+	<select id="countInspectDailyAuth" resultType="int">
+		select count(1)
+		from tl_admin.sys_user_role pt,tl_admin.sys_user u
+		where  pt.czyid = u.id and u.czry_dm = #{czryDm,jdbcType=VARCHAR} and pt.rolecode = 'DZBACZ'
+	</select>
+
+	<!--  审单核查在办任务数量 -->
+	<select id="countInspectWorking" resultType="int">
+		select count(*)
+		from tl_admin.edoc_examine_business pt
+		where   pt.swjgdm like  #{swjgdm,jdbcType=VARCHAR}||'%'
+		    and (pt.releaser =  #{releaser,jdbcType=VARCHAR})
+		   <!--  在办(非已审核的全部状态) -->
+		    <![CDATA[
+             and pt.status != '4'
+             ]]>
+			<!--  已作废标志为"未作废"  -->
+			and nvl(pt.void_flag,'0') = '0'
+	</select>
+	<select id="queryLxrxx" resultType="com.tl.web.bjts.shzs.model.vo.SbxxViewVo">
+		select dj.bsy1_mc as lxr,
+			   dj.bsy1_dh as lxrdh,
+			   substr(ds.swjg_dm, 8, 4) || ' ' || ds.swjg_jc as zsswjgMc,
+			   ds2.swjg_jc as swjgMc,
+			   dj.tag
+		  from tl_bjts.gs_dj_cktmsdab dj
+		  left join tl_bjts.dm_swjg ds
+			on (ds.swjg_dm = dj.zs_swjg_dm)
+		  left join tl_bjts.dm_swjg ds2
+			on (ds2.swjg_dm = dj.swjg_dm and ds2.tsjg_bz = '1')
+		 where dj.nsrsbh = #{nsrsbh}
+	</select>
+
+	<select id="queryLoggerList" resultMap="com.tl.web.bjts.shzs.dao.ShzsWpTaskProfileMapper.BaseResultMap">
+		select * from shzs_wp_task t
+		where swjgdm=#{swjgDm}
+		<if test="dto.qybs != null and dto.qybs!=''  ">
+			and (nsrmc like '%'||#{dto.qybs}||'%' or nsrsbh like '%'||#{dto.qybs}||'%')
+		</if>
+		<if test="dto.wpdx != null and dto.wpdx!=''  ">
+			and (wpdx like '%'||#{dto.wpdx}||'%' or wpsfdm like '%'||#{dto.wpdx}||'%')
+		</if>
+		<if test="dto.swsxdm != null and dto.swsxdm!=''  ">
+			and swsxdm = #{dto.swsxdm}
+		</if>
+		<if test="dto.status != null and dto.status!=''  ">
+			and status = #{dto.status}
+		</if>
+		<if test="dto.status != null and dto.status!=''  ">
+			and status = #{dto.status}
+		</if>
+		<if test="dto.wpsjStart != null">
+			and wpsj>#{dto.wpsjStart}
+		</if>
+		<if test="dto.wpsjEnd != null">
+			and #{dto.wpsjEnd}>wpsj
+		</if>
+		<if test="dto.orderSql != null and dto.orderSql!=''  ">
+			order by ${dto.orderSql}
+		</if>
+	</select>
+    <select id="selectQygzxx" resultType="java.lang.String">
+		select qygzxx from TL_TSSH.glxt_bb_shxt_djxx where djxh_js=#{djxh}
+	</select>
+
+
+</mapper>

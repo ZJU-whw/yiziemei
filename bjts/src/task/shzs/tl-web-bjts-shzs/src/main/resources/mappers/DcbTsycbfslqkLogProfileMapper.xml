@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tl.web.bjts.shzs.dao.DcbTsycbfslqkLogProfileMapper">
+  <resultMap id="BaseResultMap" type="com.tl.web.bjts.shzs.model.domain.DcbTsycbfslqkLogProfile">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" jdbcType="DECIMAL" property="id" />
+    <result column="NSRDZDAH" jdbcType="DECIMAL" property="nsrdzdah" />
+    <result column="NY" jdbcType="CHAR" property="ny" />
+    <result column="YCTSE" jdbcType="DECIMAL" property="yctse" />
+    <result column="SBYWB_DM" jdbcType="VARCHAR" property="sbywbDm" />
+    <result column="SBNYPC" jdbcType="VARCHAR" property="sbnypc" />
+    <result column="SBTSE" jdbcType="DECIMAL" property="sbtse" />
+    <result column="DYLJSBTSE" jdbcType="DECIMAL" property="dyljsbtse" />
+    <result column="CLDZ" jdbcType="CHAR" property="cldz" />
+    <result column="YYSM" jdbcType="VARCHAR" property="yysm" />
+    <result column="CZYMC" jdbcType="VARCHAR" property="czymc" />
+    <result column="CRTIME" jdbcType="DATE" property="crtime" />
+  </resultMap>
+</mapper>

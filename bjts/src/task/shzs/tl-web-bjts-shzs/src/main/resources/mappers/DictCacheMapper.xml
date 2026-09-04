@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.web.bjts.shzs.dao.DictCacheMapper" >
+
+    <!--币种-->
+    <select id="getBicode" resultType="com.tl.web.bjts.shzs.model.Dict">
+       select hghbsz_dm as dcode, hbmc as dname
+       from HX_DM_ZDY.DM_CKTS_HGHBSZ t
+       where yxbz = 'Y'
+    </select>
+
+    <!--计量单位-->
+    <select id="getDwcode" resultType="com.tl.web.bjts.shzs.model.Dict">
+       select t.hgjldw_dm as dcode, t.hgjldwmc as dname
+       from hx_dm_zdy.Dm_Ckts_Hgjldw t
+       where yxbz = 'Y'
+    </select>
+
+    <!--国别-->
+    <select id="getGbcode" resultType="com.tl.web.bjts.shzs.model.Dict">
+       select t.hggjhdqsz_dm as dcode, t.gjhdqjc as dname
+       from hx_dm_zdy.dm_ckts_hggjhdq t
+       where yxbz = 'Y'
+    </select>
+
+    <!--海关-->
+    <select id="getHgcode" resultType="com.tl.web.bjts.shzs.model.Dict">
+      select t.hggqka_dm as dcode, t.hggqkajc as dname
+      from hx_dm_qg.dm_gy_hggqka t
+      where t.yxbz = 'Y'
+    </select>
+
+    <!--海关口岸-->
+    <select id="getKacode" resultType="com.tl.web.bjts.shzs.model.Dict">
+        select t.hggqka_dm as dcode, t.hggqkajc as dname
+        from hx_dm_qg.dm_gy_hggqka t
+        where t.yxbz = 'Y'
+    </select>
+
+    <!--货源地-->
+    <select id="getHydcode" resultType="com.tl.web.bjts.shzs.model.Dict">
+        select t.gndq_dm as dcode, t.gndqmc as dname
+        from hx_dm_zdy.dm_ckts_hggndq t
+        where yxbz = 'Y'
+    </select>
+
+    <!--结汇方式-->
+    <select id="getJhtypeCode" resultType="com.tl.web.bjts.shzs.model.Dict">
+        select t.jhfs_dm as dcode, t.jhfsmc as dname
+        from hx_dm_zdy.dm_ckts_jhfs t
+        where yxbz = 'Y'
+    </select>
+
+    <!--结算方式-->
+    <select id="getJsfsCode" resultType="com.tl.web.bjts.shzs.model.Dict">
+        select t.jsfs_dm as dcode, t.jsfsmc as dname
+        from hx_dm_zdy.dm_ckts_jsfs t
+        where yxbz = 'Y'
+    </select>
+
+    <!--贸易方式-->
+    <select id="getTdcode" resultType="com.tl.web.bjts.shzs.model.Dict">
+        select t.jgfs_dm as dcode, t.jgfsmc as dname
+        from hx_dm_zdy.dm_ckts_hgjgfs t
+        where yxbz = 'Y'
+    </select>
+
+    <!--运输方式-->
+    <select id="getTranstype" resultType="com.tl.web.bjts.shzs.model.Dict">
+        select t.ysfs_dm as dcode, t.ysfsmc as dname
+        from hx_dm_zdy.dm_ckts_hgysfs t
+        where yxbz = 'Y'
+    </select>
+
+    <!--指运港-->
+    <select id="getZygcode" resultType="com.tl.web.bjts.shzs.model.Dict">
+       select t.hggk_dm as dcode, t.hggkmc as dname
+       from hx_dm_zdy.dm_ckts_hggk t
+       where yxbz = 'Y'
+    </select>
+
+    <!--成交方式-->
+    <select id="getCjfscode" resultType="com.tl.web.bjts.shzs.model.Dict">
+       select t.hgcjfs_dm as dcode, t.hgcjfsmc as dname
+       from hx_dm_zdy.dm_ckts_hgcjfs t
+       where yxbz = 'Y'
+    </select>
+
+    <!--征免性质-->
+    <select id="getZmxzcode" resultType="com.tl.web.bjts.shzs.model.Dict">
+        select t.zmxz_dm as dcode, t.zmxzjc as dname
+        from hx_dm_zdy.dm_ckts_hgzmxz t
+        where yxbz = 'Y'
+    </select>
+
+    <!--包装种类-->
+    <select id="getBzzlcode" resultType="com.tl.web.bjts.shzs.model.Dict">
+        select t.hgbzzl_dm as dcode, t.hgbzzlmc as dname
+        from hx_dm_zdy.dm_ckts_hgbzzl t
+        where yxbz = 'Y'
+    </select>
+
+    <!--获取口岸信息列表-->
+    <select id="listKaxxDict" resultType="com.tl.web.bjts.shzs.model.vo.sbxx.KaxxDictVO">
+        select t.hggqka_dm as kaCode, t.hggqkajc as kaName
+        from hx_dm_qg.dm_gy_hggqka t
+        where (hggqka_dm = #{kaxx,jdbcType=VARCHAR} or hggqkajc like '%' ||  #{kaxx,jdbcType=VARCHAR} || '%')
+         and t.yxbz = 'Y'
+          <![CDATA[
+         and rownum <= 10
+            ]]>
+        order by hggqka_dm
+    </select>
+
+</mapper>

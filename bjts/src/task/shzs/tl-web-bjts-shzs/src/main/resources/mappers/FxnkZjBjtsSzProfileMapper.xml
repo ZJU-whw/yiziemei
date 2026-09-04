@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.web.bjts.shzs.dao.FxnkZjBjtsSzProfileMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.web.bjts.shzs.model.domain.FxnkZjBjtsSzProfile" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <result column="UUID" property="uuid" jdbcType="VARCHAR" />
+    <result column="SWJGDM" property="swjgdm" jdbcType="CHAR" />
+    <result column="DJXH" property="djxh" jdbcType="DECIMAL" />
+    <result column="NSRSBH" property="nsrsbh" jdbcType="VARCHAR" />
+    <result column="NSRMC" property="nsrmc" jdbcType="VARCHAR" />
+    <result column="LCSWSX_DM" property="lcswsxDm" jdbcType="VARCHAR" />
+    <result column="LCSLID" property="lcslid" jdbcType="VARCHAR" />
+    <result column="CFRY" property="cfry" jdbcType="CHAR" />
+    <result column="CFSJ" property="cfsj" jdbcType="DATE" />
+    <result column="NKZBBH" property="nkzbbh" jdbcType="VARCHAR" />
+    <result column="NKJE" property="nkje" jdbcType="DECIMAL" />
+    <result column="NKSE" property="nkse" jdbcType="DECIMAL" />
+    <result column="NKYWMS" property="nkywms" jdbcType="VARCHAR" />
+    <result column="HXCZSM" property="hxczsm" jdbcType="VARCHAR" />
+  </resultMap>
+</mapper>

@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.web.bjts.shzs.dao.TlMyMapper">
+
+    <resultMap id="yjxxVO" type="com.tl.web.bjts.shzs.model.vo.YjxxVO">
+        <id column="ID" property="id" jdbcType="DECIMAL"/>
+        <result column="YJ_TYPE" property="yjType" jdbcType="VARCHAR"/>
+        <result column="YJ_RECORD" property="yjRecord" jdbcType="VARCHAR"/>
+        <result column="YJ_MSG" property="yjMsg" jdbcType="VARCHAR"/>
+        <result column="YJ_AMT" property="yjAmt" jdbcType="DECIMAL"/>
+        <result column="YJ_TAX" property="yjTax" jdbcType="DECIMAL"/>
+        <result column="LDLP_QNT" property="ldlpQnt" jdbcType="DECIMAL"/>
+        <result column="CL_DATE"  property="clDate"   jdbcType="TIMESTAMP"/>
+        <result column="CL_MSG"  property="clMsg"   jdbcType="VARCHAR"/>
+        <result column="YJNAME" property="yjTypeName" jdbcType="VARCHAR"/>
+        <result column="SWJG_FW" property="swjgFw" jdbcType="VARCHAR"/>
+        <result column="YJ_OBJECT" property="yjObject" jdbcType="VARCHAR"/>
+        <result column="ZBCODE" property="zbcode" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="yjxxExcelVO" type="com.tl.web.bjts.shzs.model.vo.YjxxExcelVO">
+        <id column="ID" property="id" jdbcType="DECIMAL"/>
+        <result column="YJ_RECORD" property="yjRecord" jdbcType="VARCHAR"/>
+        <result column="YJ_MSG" property="yjMsg" jdbcType="VARCHAR"/>
+        <result column="YJNAME" property="yjTypeName" jdbcType="VARCHAR"/>
+        <result column="YJ_OBJECT" property="yjObject" jdbcType="VARCHAR"/>
+        <result column="YJ_AMT" property="yjAmt" jdbcType="VARCHAR"/>
+        <result column="YJ_TAX" property="yjTax" jdbcType="VARCHAR"/>
+        <result column="QYHGDM" property="qyhgdm" jdbcType="VARCHAR"/>
+        <result column="NSRSBH" property="nsrsbh" jdbcType="VARCHAR"/>
+        <result column="CL_DATE"  property="clDate"   jdbcType="TIMESTAMP"/>
+        <result column="CL_MSG"  property="clMsg"   jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="ydxxVo" type="com.tl.web.bjts.shzs.model.vo.YdxxVo">
+        <result column="ERR_OBJ" property="errObj" jdbcType="VARCHAR"/>
+        <result column="ERR_LEV" property="errLev" jdbcType="VARCHAR"/>
+        <result column="ERR_MSG" property="errMsg" jdbcType="VARCHAR"/>
+        <result column="PASS_FLAG" property="passFlag" jdbcType="VARCHAR"/>
+        <result column="GLYWZ1" property="glywb1" jdbcType="VARCHAR"/>
+        <result column="GLYWZ2" property="glywb2" jdbcType="VARCHAR"/>
+        <result column="GLYWB1" property="glb" jdbcType="VARCHAR"/>
+    </resultMap>
+
+
+
+    <select id="countYjxxs" parameterType="java.lang.Long" resultType="java.lang.Integer" useCache="false">
+        SELECT count(*)
+        from tl_admin.yj_data_yjxx t inner join tl_admin.YJ_SBXX_HZ h
+        on t.sbid=h.id and h.id= #{sbid,jdbcType=DECIMAL}
+    </select>
+
+    <!--查询明细的时候如果需要两个条件来过滤的时候，需要在yj_record返回另外一个条件，否则默认使用yj_object作为前端展示项目-->
+    <select id="getYjxxs" parameterType="java.lang.Long" resultMap="yjxxVO" useCache="false">
+       select t.id,
+               t.yjcode    as yj_type,
+               nvl((case when (t.yjcode='105' or t.yjcode='120' or t.yjcode='161') then t.yj_record else yj_object end ),'') as yj_record,
+               t.zbcode,t.yj_msg,
+               t.yj_amt,
+               t.yj_tax,
+               t.cl_date,
+               t.cl_msg,
+               dy.yjname,
+               dy.swjg_fw,
+               t.yj_count  as ldlp_qnt,
+               t.yj_object
+      from tl_admin.yj_data_yjxx t inner join tl_admin.yj_dic_code dy on t.yjcode = dy.yjcode
+            inner join tl_admin.YJ_SBXX_HZ h on t.sbid = h.id and h.id = #{sbid, jdbcType = DECIMAL}
+       order by t.yjcode
+    </select>
+
+    <select id="getYjxxsForExcel" parameterType="java.lang.Long" resultMap="yjxxExcelVO" useCache="false">
+       select rownum as id,
+               dy.zbname,
+               a.yj_record,
+               a.yj_msg,
+               a.cl_date,
+               a.cl_msg,
+               a.yj_object,
+               a.yj_amt,
+               a.yj_tax,
+               b.qyhgdm,
+               b.nsrmc,
+               b.nsrsbh
+      from tl_admin.yj_data_yjxx  a,
+           tl_bjts.gs_dj_cktmsdab b,
+           tl_admin.yj_sbxx_hz     c,
+           tl_admin.yj_dic_yjzb   dy
+       where a.nsrdzdah = b.nsrdzdah
+           and a.sbid = c.id
+           and dy.zbcode = a.zbcode
+           and a.sbid = #{sbid, jdbcType = DECIMAL}
+    </select>
+
+    <update id="writeBackFeedbackInfo" parameterType="com.tl.web.bjts.shzs.model.vo.FkxxWbVO" flushCache="false">
+        UPDATE SB_SBXX_HZ
+        <trim prefix="set" suffixOverrides=",">
+            <if test="sbztDm != null and sbztDm !=''">
+                SBZT_DM = #{sbztDm,jdbcType=CHAR},
+                SBSJ = SYSDATE,
+            </if>
+
+            FKXX = #{content,jdbcType=VARCHAR},
+
+
+        </trim>
+        where ID = #{sbid,jdbcType=DECIMAL}
+        and SBZT_DM = '2B'
+        <if test="lcslid != null and lcslid!=''">
+            AND LCSLID = #{lcslid,jdbcType=VARCHAR}
+        </if>
+
+    </update>
+
+    <select id="getSbidByLcslid" parameterType="java.lang.String" resultType="java.lang.Long" useCache="false">
+        select id from SB_SBXX_HZ where lcslid = #{lcslid,jdbcType=VARCHAR}
+    </select>
+
+    <insert id="insertTb" parameterType="com.tl.web.bjts.shzs.model.domain.TbDtbsj" flushCache="false">
+        insert into tb_dtbsj (id, tblx_dm, mainid,
+        cjsj, tqbz, tqsj,
+        tbcs, sbyy, yxj)
+        values (SEQ_TB_DTBSJ_ID.nextval, #{tblxDm,jdbcType=VARCHAR}, #{mainid,jdbcType=BIGINT},
+        #{cjsj,jdbcType=TIMESTAMP}, #{tqbz,jdbcType=VARCHAR}, #{tqsj,jdbcType=TIMESTAMP},
+        #{tbcs,jdbcType=INTEGER}, #{sbyy,jdbcType=VARCHAR}, #{yxj,jdbcType=INTEGER})
+    </insert>
+
+    <select id="getJdfwms" parameterType="com.tl.web.bjts.shzs.model.vo.JdfwmsVo" statementType="CALLABLE" useCache="false">
+        { #{result,mode=OUT,jdbcType=VARCHAR} = call Func_Get_Jdfwms(
+        #{czryDm,mode=IN,jdbcType=VARCHAR}
+        )}
+    </select>
+
+    <!--获取是否显示预警信息标志-->
+    <select id="getYjClose" resultType="java.lang.String" useCache="false">
+        select yj_close from sys_cfg_sbdr_filemode where codetype='GS' and code=#{swjgDm}
+    </select>
+
+    <!--获取疑点信息-->
+    <select id="getYdxxs" resultMap="ydxxVo" useCache="false">
+        select rownum as id,err_obj,err_lev,ydcode,pass_flag,glywz1,glywz2,err_msg,glywb1
+        from ckts_xxbd_ydxx
+        WHERE sbid = #{sbid} and err_ly = '1'
+    </select>
+
+
+
+    <!--根据sbid获取企业名称，所属时期，批次-->
+    <select id="getSbxxInfo" parameterType="long" resultType="com.tl.web.bjts.shzs.model.vo.SimpleSbxxVo" useCache="false">
+        select a.nsrmc, b.sssq,a.qyhgdm, b.sbpc
+        from gs_dj_cktmsdab a
+        inner join sb_sbxx_hz b on a.nsrdzdah = b.nsrdzdah
+        and b.id = #{id,jdbcType=DECIMAL}
+
+    </select>
+
+    <!--根据sbid获取业务类型-->
+    <select id="getSbywbDm" parameterType="long" resultType="java.lang.String" useCache="false">
+        select b.sbywb_dm
+        from sb_sbxx_hz b WHERE
+        b.id = #{id,jdbcType=DECIMAL}
+    </select>
+
+
+<update id="updateClMsg" parameterType="map">
+    UPDATE tl_admin.yj_data_yjxx
+    SET
+        cl_user=#{clUser} ,
+        cl_Date=#{clDate},
+        cl_msg=#{clMsg},cl_flag='1'
+    where id=#{id} and sbid=#{sbid}
+</update>
+
+<update id="updateSbztTO2A" parameterType="Long">
+
+  UPDATE sb_sbxx_hz SET
+       sbzt_dm='2A',
+       sbfs = '0'
+  WHERE id=#{sbid} and sbzt_dm='2B'
+
+</update>
+
+    <!--  绑定流程的前置校验 -->
+    <select id="checkBindLcslidBefore" resultType="int">
+        select count(1) as count
+         from gs_dj_cktmsdab t,sb_sbxx_hz s,dm_gt3_xml_config d
+         where t.nsrdzdah=s.nsrdzdah and s.sbywb_dm=d.sbyw_dm
+         and (t.qyhgdm = #{qyhgdm,jdbcType=VARCHAR} or t.nsrsbh = #{qyhgdm,jdbcType=VARCHAR})
+         and d.lcsx_dm = #{lcswsxdm,jdbcType=VARCHAR}
+         and s.id = #{sbid,jdbcType=BIGINT}
+    </select>
+
+    <!--  根据业务办理事项（登记序号、申报业务表代码、所属时期、申报批次）获取sbid  -->
+    <select id="getSbidByYwblxx"  parameterType="com.tl.web.bjts.shzs.model.vo.sbfile.YwblxxVO" resultType="long">
+          select sbid from (
+             select id as sbid
+             from tl_bjts.sb_sbxx_hz t, gs_dj_cktmsdab d
+             where t.nsrdzdah = d.nsrdzdah
+                 and d.cpcode = #{djxh}
+                 and t.sbywb_dm = #{sbywbDm,jdbcType=VARCHAR}
+                 and t.sssq = #{sssq,jdbcType=VARCHAR}
+                 and t.sbpc = #{sbpcI}
+                 order by sbrq desc
+			)
+    </select>
+
+    <!--  根据申报id获取登记序号 -->
+    <select id="getDjxhBySbid" parameterType="long" resultType="string">
+        select to_char(cpcode) as djxh
+        from gs_dj_cktmsdab dab,sb_sbxx_hz hz
+        where dab.nsrdzdah = hz.nsrdzdah and hz.id = #{sbid,jdbcType=BIGINT}
+    </select>
+
+    <select id="yjxxCreate" statementType="CALLABLE"
+            parameterType="com.tl.web.bjts.shzs.model.dto.yjxx.YjxxCreateParam">
+        call ZJ_BJTS.PRO_DEAL_FXNK_NBFXDMX_SZ(
+            #{lcswsxDm,mode=IN,jdbcType=VARCHAR},
+            #{lcslid,mode=IN,jdbcType=VARCHAR},
+            #{swryDm,mode=IN,jdbcType=VARCHAR},
+            #{props,mode=IN,jdbcType=VARCHAR},
+            #{num,mode=OUT,jdbcType=INTEGER})
+    </select>
+
+    <select id="checkZdQy" parameterType="decimal" resultType="boolean">
+        SELECT CASE WHEN
+        EXISTS (SELECT NSRDZDAH FROM TL_ADMIN.DCB_NSR_YSBQC
+        WHERE NSRDZDAH = #{nsrdzdah} AND QXLX = '01' AND QYBJ = 'Y' AND ZDHBZ = 'Y')
+        THEN 1
+        ELSE 0
+        END AS RESULT
+        FROM DUAL
+    </select>
+
+    <select id="queryYcTse" resultType="decimal">
+        SELECT TSE FROM TL_ADMIN.DCB_TSZBCS_DDBDCKXQ
+        WHERE NSRDZDAH = #{nsrdzdah}
+          AND CONCAT(TJND ,TJYF ) =to_char(sysdate,'yyyyMM')
+          AND SBBZ = '1'
+    </select>
+
+    <select id="queryQySbSc" parameterType="string" resultType="decimal">
+        SELECT NVL(SUM(YTSE_1),0)
+        FROM (
+                 SELECT HZ.YTSE_1, HZ.MDSE
+                 FROM HX_CKTS.CKTS_TY_YWBLXX YW, HX_CKTS.CKTS_SB_MDT_SBHZ_JGB HZ
+                 WHERE YW.DJXH = #{djxh}
+                   AND YW.LCSWSX_DM = 'LCSXA081038001'
+                   AND YW.LCSLID = HZ.LCSLID
+                   AND YW.QDSJ BETWEEN TO_DATE(#{firstDay},'YYYY-MM-DD') AND TO_DATE(#{lastDay},'YYYY-MM-DD')
+                   AND YW.ZFBZ_1 IS NULL
+                   AND YW.HTBZ_1 IS NULL
+                 UNION ALL
+                 SELECT HZ.YTSE_1, HZ.MDSE
+                 FROM HX_CKTS.CKTS_TY_YWBLXX YW, HX_CKTS.CKTS_SB_MDT_SBHZ_GCB HZ
+                 WHERE YW.DJXH = #{djxh}
+                   AND YW.LCSWSX_DM = 'LCSXA081038001'
+                   AND YW.LCSLID = HZ.LCSLID
+                   AND YW.QDSJ BETWEEN TO_DATE(#{firstDay},'YYYY-MM-DD') AND TO_DATE(#{lastDay},'YYYY-MM-DD')
+                   AND YW.ssq||YW.sbpc != #{sbnypc}
+                   AND YW.ZFBZ_1 IS NULL
+                   AND YW.HTBZ_1 IS NULL)
+    </select>
+
+    <select id="queryQySbWm" parameterType="string" resultType="decimal">
+        SELECT NVL(SUM(TSE),0)
+        FROM (SELECT HZ.TSE
+              FROM HX_CKTS.CKTS_TY_YWBLXX YW, HX_CKTS.CKTS_SB_MTS_TSJH_JGB HZ
+              WHERE YW.DJXH = #{djxh}
+                AND YW.LCSWSX_DM = 'LCSXA081039001'
+                AND YW.LCSLID = HZ.LCSLID
+                AND YW.QDSJ BETWEEN TO_DATE(#{firstDay},'YYYY-MM-DD') AND TO_DATE(#{lastDay},'YYYY-MM-DD')
+                AND YW.ZFBZ_1 IS NULL
+                AND YW.HTBZ_1 IS NULL
+              UNION ALL
+              SELECT HZ.TSE
+              FROM HX_CKTS.CKTS_TY_YWBLXX YW, HX_CKTS.CKTS_SB_MTS_TSJH_GCB HZ
+              WHERE YW.DJXH = #{djxh}
+                AND YW.LCSWSX_DM = 'LCSXA081039001'
+                AND YW.LCSLID = HZ.LCSLID
+                AND YW.QDSJ BETWEEN TO_DATE(#{firstDay},'YYYY-MM-DD') AND TO_DATE(#{lastDay},'YYYY-MM-DD')
+                AND YW.ssq||YW.sbpc != #{sbnypc}
+                AND YW.ZFBZ_1 IS NULL
+                AND YW.HTBZ_1 IS NULL)
+    </select>
+
+    <select id="queryQyDjxh" parameterType="decimal" resultType="com.tl.web.bjts.shzs.model.vo.TseYcQyInfoVO">
+        SELECT CPCODE djxh,SWJG_DM swjgDm FROM TL_BJTS.GS_DJ_CKTMSDAB WHERE NSRDZDAH = #{nsrdzdah}
+    </select>
+
+    <select id="querySbTseSc" parameterType="string" resultType="decimal">
+        select sum(YTSE_1) from hx_ckts.ckts_sb_mdt_sbhz_gcb t where t.lcslid=#{lcslid}
+    </select>
+
+    <select id="querySbTseWm" parameterType="string" resultType="decimal">
+        select sum(tse) from hx_ckts.ckts_sb_mts_tsjh_gcb t where t.lcslid=#{lcslid}
+    </select>
+
+    <select id="queryNsrdzdahByNsrsbh" resultType="java.lang.Long">
+        select nsrdzdah from gs_dj_cktmsdab where nsrsbh =#{nsrsbh} and rownum=1
+    </select>
+
+    <select id="selectYjxxByLcslid" resultType="com.tl.web.bjts.shzs.model.vo.SbxxViewVo">
+        SELECT
+            id AS sbid,
+            sbzt_dm AS sbztDm,
+            tqbz,sbcs,
+            CASE
+                WHEN (sysdate - tqsj) * 24 * 60 > 5 THEN 1
+                ELSE 0
+                END AS timeoutFlag
+        FROM tl_admin.YJ_SBXX_HZ
+        where lcslid = #{lcslid}
+    </select>
+    <select id="selectYjcodeAll" resultType="com.tl.web.bjts.shzs.model.YjzbcxVo">
+        select YJCODE,YJNAME,t.yjobject,t.yjlx from tl_admin.yj_DIC_CODE t where yxbz='Y' and sysw='1'
+    </select>
+    <select id="getYjzb" resultType="com.tl.web.bjts.shzs.model.ZbnameVo">
+        select zbname, zbcode  from tl_admin.yj_DIC_YJZB
+        where yjcode=#{yjcode} and sysw='1'
+    </select>
+    <select id="selectNsrdzdahByDjxh" resultType="java.math.BigDecimal">
+        Select nsrdzdah from tl_bjts.gs_dj_cktmsdab where cpcode=#{djxh}
+    </select>
+    <select id="selectMainLcslid" resultType="java.lang.String">
+        select b.lcslid
+        from hx_ckts.ckts_ty_ywblxx a
+             inner join hx_ckts.ckts_ty_ywblxx b
+                        on b.djxh=a.djxh and b.ssq=a.ssq and nvl(b.sbpc,'0')=nvl(a.sbpc,'0')
+                            and b.lcswsx_dm=decode(a.lcswsx_dm,'LCSXA081039006','LCSXA081039001',a.lcswsx_dm)
+                            and b.zlclcslid=b.lcslid
+                            and nvl(b.zfbz_1,'N')='N'
+        where a.lcslid=#{lcslid}
+
+    </select>
+
+</mapper>

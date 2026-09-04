@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tl.web.bjts.yj.dao.ShYdxxMapper">
+  <resultMap id="BaseResultMap" type="com.tl.web.bjts.yj.model.domain.ShYdxx">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" jdbcType="DECIMAL" property="id" />
+    <id column="SBID" jdbcType="DECIMAL" property="sbid" />
+    <result column="CPCODE" jdbcType="VARCHAR" property="cpcode" />
+    <result column="SB_YM" jdbcType="VARCHAR" property="sbYm" />
+    <result column="SB_PC" jdbcType="VARCHAR" property="sbPc" />
+    <result column="ERR_LY" jdbcType="CHAR" property="errLy" />
+    <result column="ERR_OBJ" jdbcType="VARCHAR" property="errObj" />
+    <result column="GLYWB1" jdbcType="VARCHAR" property="glywb1" />
+    <result column="GLYWB2" jdbcType="VARCHAR" property="glywb2" />
+    <result column="GLYWB3" jdbcType="VARCHAR" property="glywb3" />
+    <result column="GLYWZ1" jdbcType="VARCHAR" property="glywz1" />
+    <result column="GLYWZ2" jdbcType="VARCHAR" property="glywz2" />
+    <result column="YDCODE" jdbcType="VARCHAR" property="ydcode" />
+    <result column="ERR_LEV" jdbcType="VARCHAR" property="errLev" />
+    <result column="ERR_MSG" jdbcType="VARCHAR" property="errMsg" />
+    <result column="PASS_FLAG" jdbcType="VARCHAR" property="passFlag" />
+    <result column="CRTIME" jdbcType="DATE" property="crtime" />
+    <result column="YDTG_FLAG" jdbcType="VARCHAR" property="ydtgFlag" />
+    <result column="CLYJSM" jdbcType="VARCHAR" property="clyjsm" />
+    <result column="TG_USER" jdbcType="VARCHAR" property="tgUser" />
+    <result column="TG_DATE" jdbcType="DATE" property="tgDate" />
+  </resultMap>
+</mapper>

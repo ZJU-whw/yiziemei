@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.web.bjts.yj.dao.SysSequenceMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.web.bjts.yj.model.domain.SysSequence" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="TBLNAME" property="tblname" jdbcType="VARCHAR" />
+    <result column="CURVALUE" property="curvalue" jdbcType="DECIMAL" />
+  </resultMap>
+</mapper>

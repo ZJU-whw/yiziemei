@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tl.web.bjts.shzs.dao.RulesMainProfileMapper">
+  <resultMap id="BaseResultMap" type="com.tl.web.bjts.shzs.model.domain.RulesMainProfile">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" jdbcType="DECIMAL" property="id" />
+    <result column="BIZ_KEY" jdbcType="VARCHAR" property="bizKey" />
+    <result column="BIZ_DESC" jdbcType="VARCHAR" property="bizDesc" />
+    <result column="BIZ_PATH" jdbcType="VARCHAR" property="bizPath" />
+    <result column="IS_VALID" jdbcType="CHAR" property="isValid" />
+  </resultMap>
+
+</mapper>

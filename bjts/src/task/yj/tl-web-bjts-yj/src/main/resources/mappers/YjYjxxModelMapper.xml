@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.web.bjts.yj.dao.YjYjxxModelMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.web.bjts.yj.model.domain.YjYjxxModel" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" property="id" jdbcType="DECIMAL" />
+    <result column="TBPC" property="tbpc" jdbcType="DECIMAL" />
+    <result column="SBID" property="sbid" jdbcType="DECIMAL" />
+    <result column="NSRDZDAH" property="nsrdzdah" jdbcType="DECIMAL" />
+    <result column="CJ_DATE" property="cjDate" jdbcType="DATE" />
+    <result column="YJCODE" property="yjcode" jdbcType="VARCHAR" />
+    <result column="ZBCODE" property="zbcode" jdbcType="VARCHAR" />
+    <result column="YJ_OBJECT" property="yjObject" jdbcType="VARCHAR" />
+    <result column="YJ_COUNT" property="yjCount" jdbcType="DECIMAL" />
+    <result column="YJ_AMT" property="yjAmt" jdbcType="DECIMAL" />
+    <result column="YJ_TAX" property="yjTax" jdbcType="DECIMAL" />
+    <result column="YJ_RECORD" property="yjRecord" jdbcType="VARCHAR" />
+    <result column="YJ_MSG" property="yjMsg" jdbcType="VARCHAR" />
+    <result column="CL_DATE" property="clDate" jdbcType="DATE" />
+    <result column="CL_FLAG" property="clFlag" jdbcType="CHAR" />
+    <result column="CL_USER" property="clUser" jdbcType="VARCHAR" />
+    <result column="CL_MSG" property="clMsg" jdbcType="VARCHAR" />
+    <result column="BZ" property="bz" jdbcType="VARCHAR" />
+    <result column="SBYM" property="sbym" jdbcType="VARCHAR" />
+    <result column="SCORE" property="score" jdbcType="DECIMAL" />
+    <result column="SWFLAG" property="swflag" jdbcType="CHAR" />
+    <result column="QYFLAG" property="qyflag" jdbcType="CHAR" />
+    <result column="BMDFLAG" property="bmdflag" jdbcType="CHAR" />
+  </resultMap>
+</mapper>

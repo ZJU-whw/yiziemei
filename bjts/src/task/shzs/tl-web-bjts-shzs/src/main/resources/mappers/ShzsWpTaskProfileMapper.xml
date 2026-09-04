@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tl.web.bjts.shzs.dao.ShzsWpTaskProfileMapper">
+  <resultMap id="BaseResultMap" type="com.tl.web.bjts.shzs.model.domain.ShzsWpTaskProfile">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" jdbcType="VARCHAR" property="id" />
+    <result column="NSRSBH" jdbcType="VARCHAR" property="nsrsbh" />
+    <result column="NSRMC" jdbcType="VARCHAR" property="nsrmc" />
+    <result column="SWJGDM" jdbcType="VARCHAR" property="swjgdm" />
+    <result column="SWSXDM" jdbcType="VARCHAR" property="swsxdm" />
+    <result column="SSQPC" jdbcType="VARCHAR" property="ssqpc" />
+    <result column="SBRQ" jdbcType="DATE" property="sbrq" />
+    <result column="WPSJ" jdbcType="DATE" property="wpsj" />
+    <result column="WPSFDM" jdbcType="VARCHAR" property="wpsfdm" />
+    <result column="WPDX" jdbcType="VARCHAR" property="wpdx" />
+    <result column="WPJG" jdbcType="VARCHAR" property="wpjg" />
+    <result column="WPR" jdbcType="VARCHAR" property="wpr" />
+    <result column="WPDXQYFZ" jdbcType="VARCHAR" property="wpdxqyfz" />
+    <result column="LCSLID" jdbcType="VARCHAR" property="lcslid" />
+    <result column="JDMODE" jdbcType="CHAR" property="jdmode" />
+    <result column="STATUS" property="status" jdbcType="CHAR" />
+  </resultMap>
+
+</mapper>

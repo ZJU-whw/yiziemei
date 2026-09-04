@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.web.bjts.shzs.dao.TlTsshMapper">
+    <resultMap id="fpxxResultMap" type="com.tl.web.bjts.shzs.model.vo.ldlp.FpxxVo">
+        <result column="fpdm" property="fpdm" jdbcType="VARCHAR"></result>
+        <result column="fphm" property="fphm" jdbcType="VARCHAR"></result>
+        <result column="kprq" property="kprq" jdbcType="DATE"></result>
+        <result column="fpzt_dm" property="fpzt" jdbcType="VARCHAR"></result>
+        <result column="gfsbh" property="gfsbh" jdbcType="VARCHAR"></result>
+        <result column="xfsbh" property="xfsbh" jdbcType="VARCHAR"></result>
+        <result column="gfmc" property="gfmc" jdbcType="VARCHAR"></result>
+        <result column="xfmc" property="xfmc" jdbcType="VARCHAR"></result>
+        <result column="gfdzdh" property="gfdzdh" jdbcType="VARCHAR"></result>
+        <result column="xfdzdh" property="xfdzdh" jdbcType="VARCHAR"></result>
+        <result column="gfyhzh" property="gfyhzh" jdbcType="VARCHAR"></result>
+        <result column="xfyhzh" property="xfyhzh" jdbcType="VARCHAR"></result>
+        <result column="je" property="je" jdbcType="DECIMAL"></result>
+        <result column="se" property="se" jdbcType="DECIMAL"></result>
+        <result column="jshj" property="jshj" jdbcType="DECIMAL"></result>
+        <result column="bz" property="bz" jdbcType="VARCHAR"></result>
+        <result column="kpr" property="kpr" jdbcType="VARCHAR"></result>
+        <result column="skr" property="skr" jdbcType="VARCHAR"></result>
+        <result column="fhr" property="fhr" jdbcType="VARCHAR"></result>
+        <result column="zfbz" property="zfbz" jdbcType="VARCHAR"></result>
+        <collection property="hwxxs" ofType="com.tl.web.bjts.shzs.model.vo.ldlp.FpHwxxVo">
+            <result column="mxxh" property="mxxh" jdbcType="VARCHAR"></result>
+            <result column="hwmc" property="hwmc" jdbcType="VARCHAR"></result>
+            <result column="ggxh" property="ggxh" jdbcType="VARCHAR"></result>
+            <result column="dw" property="dw" jdbcType="VARCHAR"></result>
+            <result column="sl" property="sl" jdbcType="DECIMAL"></result>
+            <result column="dj" property="dj" jdbcType="DECIMAL"></result>
+            <result column="slv" property="slv" jdbcType="DECIMAL"></result>
+            <result column="hw_je" property="je" jdbcType="DECIMAL"></result>
+            <result column="hw_se" property="se" jdbcType="DECIMAL"></result>
+            <result column="xsyhzcbz" property="xsyhzcbz" jdbcType="VARCHAR"></result>
+        </collection>
+        
+    </resultMap>
+
+    <resultMap id="bgdInfoResultMap" type="com.tl.web.bjts.shzs.model.vo.ldlp.BgdVo">
+        <result column="bgd_no" property="bgdNo" jdbcType="VARCHAR"></result>
+        <result column="hgcode" property="hgcode" jdbcType="VARCHAR"></result>
+        <result column="ba_no" property="baNo" jdbcType="VARCHAR"></result>
+        <result column="lj_date" property="ljDate" jdbcType="DATE"></result>
+        <result column="sb_date" property="sbDate" jdbcType="DATE"></result>
+        <result column="qydm" property="qydm" jdbcType="VARCHAR"></result>
+        <result column="jydwmc" property="jydwmc" jdbcType="VARCHAR"></result>
+        <result column="ysfs" property="ysfs" jdbcType="VARCHAR"></result>
+        <result column="tydh" property="tydh" jdbcType="VARCHAR"></result>
+        <result column="hzdw_dm" property="hzdwDm" jdbcType="VARCHAR"></result>
+        <result column="hzdwmc" property="hzdwmc" jdbcType="VARCHAR"></result>
+        <result column="tdcode" property="tdcode" jdbcType="VARCHAR"></result>
+        <result column="zmxz" property="zmxz" jdbcType="VARCHAR"></result>
+        <result column="cjfs" property="cjfs" jdbcType="VARCHAR"></result>
+        <result column="yf_flag" property="yfFlag" jdbcType="VARCHAR"></result>
+        <result column="yfbz" property="yfbz" jdbcType="VARCHAR"></result>
+        <result column="yfl" property="yfl" jdbcType="DECIMAL"></result>
+        <result column="bf_flag" property="bfFlag" jdbcType="VARCHAR"></result>
+        <result column="bfbz" property="bfbz" jdbcType="VARCHAR"></result>
+        <result column="bfl" property="bfl" jdbcType="DECIMAL"></result>
+        <result column="zf_flag" property="zfFlag" jdbcType="VARCHAR"></result>
+        <result column="zfbz" property="zfbz" jdbcType="VARCHAR"></result>
+        <result column="zfl" property="zfl" jdbcType="DECIMAL"></result>
+        <result column="gbcode" property="gbcode" jdbcType="VARCHAR"></result>
+        <result column="zyg" property="zyg" jdbcType="VARCHAR"></result>
+        <result column="hzdwdqdm" property="hzdwdqdm" jdbcType="VARCHAR"></result>
+        <result column="htxy_no" property="htxyNo" jdbcType="VARCHAR"></result>
+        <result column="jhfs" property="jhfs" jdbcType="VARCHAR"></result>
+        <result column="xkzh" property="xkzh" jdbcType="VARCHAR"></result>
+        <result column="ysgjmc" property="ysgjmc" jdbcType="VARCHAR"></result>
+        <collection property="bgdItems" ofType="com.tl.web.bjts.shzs.model.vo.ldlp.BgdItemVo">
+            <result column="cmcode" property="cmcode" jdbcType="VARCHAR"></result>
+            <result column="hgcmname" property="hgcmname" jdbcType="VARCHAR"></result>
+            <result column="bg_qnt" property="bgQnt" jdbcType="DECIMAL"></result>
+            <result column="dwcode" property="dwcode" jdbcType="VARCHAR"></result>
+            <result column="bg_qnt2" property="bgQnt2" jdbcType="DECIMAL"></result>
+            <result column="dwcode2" property="dwcode2" jdbcType="VARCHAR"></result>
+            <result column="zzmdg" property="zzmdg" jdbcType="VARCHAR"></result>
+            <result column="usd_amt" property="usdAmt" jdbcType="DECIMAL"></result>
+            <result column="cjbz" property="cjbz" jdbcType="VARCHAR"></result>
+        </collection>
+
+    </resultMap>
+
+    <!--开启redis二级缓存-->
+    <cache type="com.tl.web.bjts.shzs.cache.MybatisRedisCache">
+        <property name="eviction" value="LRU" />
+        <property name="flushInterval" value="6000000" />
+        <property name="size" value="1024" />
+        <property name="readOnly" value="false" />
+    </cache>
+
+    <!--查询发票的货物信息-->
+    <select id="getHwxx" resultType="com.tl.web.bjts.shzs.model.vo.ldlp.FpHwxxVo">
+        select hwmc,ggxh,dw,sl,dj,je,slv,se from dzdz.dzdz_hwxx_zzsfp t where fpdm = substr(#{zyfpNo},1,10) and fphm = substr(#{zyfpNo},11,8)
+    </select>
+
+    <!--根据发票号码查询相应发票的详细信息-->
+    <select id="getFpxx" resultMap="fpxxResultMap" useCache="true">
+				select hw.mxxh,fp.fpdm,fp.fphm,fp.kprq,fp.fpzt_dm,fp.gfsbh,fp.xfsbh,fp.gfmc,fp.xfmc,'' as gfdzdh,'' as xfdzdh,
+				'' as gfyhzh,'' as xfyhzh,fp.je,fp.se,fp.jshj,fp.bz,'' as kpr,'' as skr,'' as fhr,fp.fpzt_dm as zfbz,hw.mc as hwmc,hw.ggxh, hw.jldw as dw,hw.sl,
+				hw.dj,hw.je as hw_je,hw.slv,hw.se as hw_se, '1' as fplx,hw.jldw as dw
+				from dzdz.dzdz_fpxx_zzsfp fp
+				inner join dzdz.dzdz_hwxx_zzsfp hw on fp.fpdm = hw.fpdm
+				and fp.fphm = hw.fphm
+				and fp.fpdm = substr(#{zyfpNo},1,10) and fp.fphm = substr(#{zyfpNo},11,8)
+				union
+				select hw2.mxxh,fp2.fpdm,fp2.fphm,fp2.kprq,fp2.fpzt_dm,fp2.gfsbh,fp2.xfsbh,fp2.gfmc,fp2.xfmc,'' as gfdzdh,'' as xfdzdh,
+				'' as gfyhzh,'' as xfyhzh,fp2.je,fp2.se,fp2.jshj,fp2.bz,'' as kpr,'' as skr,'' as fhr,fp2.fpzt_dm as zfbz,hw2.mc as hwmc,hw2.ggxh, hw2.jldw as dw,hw2.sl,
+				hw2.dj,hw2.je as hw_je,hw2.slv,hw2.se as hw_se, '2' as fplx,hw.jldw as dw
+				from dzdz.dzdz_fpxx_zzsfp_yd fp2
+				inner join dzdz.dzdz_hwxx_zzsfp_yd hw2 on fp2.fpdm = hw2.fpdm
+				and fp2.fphm = hw2.fphm
+				and fp2.fpdm = substr(#{zyfpNo},1,10) and fp2.fphm = substr(#{zyfpNo},11,8)
+				union
+				select hw3.mxxh,fp3.fpdm,fp3.fphm,fp3.kprq,fp3.fpzt_dm,fp3.gmfsbh as gfsbh,fp3.xsfsbh as xfsbh,fp3.gmfmc as gfmc,fp3.xsfmc as xfmc,'' as gfdzdh,'' as xfdzdh,
+				'' as gfyhzh,'' as xfyhzh,fp3.je,fp3.se,fp3.jshj,fp3.bz,'' as kpr,'' as skr,'' as fhr,fp3.fpzt_dm as zfbz,hw3.mc as hwmc,hw3.ggxh, hw3.jldw as dw,hw3.sl,
+				hw3.dj,hw3.je as hw_je,hw3.slv,hw3.se as hw_se, '3' as fplx,hw.jldw as dw
+				from dzdz.dzdz_fpxx_dzzp fp3
+				inner join dzdz.dzdz_hwxx_dzzp hw3 on fp3.fpdm = hw3.fpdm
+				and fp3.fphm = hw3.fphm
+				and fp3.fpdm = substr(#{zyfpNo},1,12) and fp3.fphm = substr(#{zyfpNo},13,8)
+				union
+				select hw4.mxxh,fp4.fpdm,fp4.fphm,fp4.kprq,fp4.fpzt_dm,fp4.gmfsbh as gfsbh,fp4.xsfsbh as xfsbh,fp4.gmfmc as gfmc,fp4.xsfmc as xfmc,'' as gfdzdh,'' as xfdzdh,
+				'' as gfyhzh,'' as xfyhzh,fp4.je,fp4.se,fp4.jshj,fp4.bz,'' as kpr,'' as skr,'' as fhr,fp4.fpzt_dm as zfbz,hw4.mc as hwmc,hw4.ggxh, hw4.jldw as dw,hw4.sl,
+				hw4.dj,hw4.je as hw_je,hw4.slv,hw4.se as hw_se, '4' as fplx,hw.jldw as dw
+				from dzdz.dzdz_fpxx_dzzp_yd fp4
+				inner join dzdz.dzdz_hwxx_dzzp_yd hw4 on fp4.fpdm = hw4.fpdm
+				and fp4.fphm = hw4.fphm
+				and fp4.fpdm = substr(#{zyfpNo},1,12) and fp4.fphm = substr(#{zyfpNo},13,8)
+    </select>
+
+    <select id="getFpxx4Sdfp" resultMap="fpxxResultMap" useCache="true">
+        select hw.xh as mxxh,fp.fphm,fp.kprq,
+               fp.xsfnsrsbh as xfsbh,fp.xsfmc as xfmc,fp.xhfdz||' '||fp.xhflxdh as xfdzdh,fp.xf_nsryh||' '||fp.xf_nsryhzh as xfyhzh,
+               fp.gmfnsrsbh as gfsbh,fp.gmfmc as gfmc,fp.gmfdz||' '||fp.gmflxdh as gfdzdh,fp.gf_nsryh||' '||fp.gf_nsryhzh as gfyhzh,
+               fp.hjje as je,fp.hjse as se,fp.jshj,fp.bz,fp.kpr,fp.skrxm as skr,fp.fhrxm as fhr,fp.fppz_dm,fp.sflzfp,
+               hw.sphfwssflhbbm,hw.hwhyslwfwmc as hwmc,hw.ggxh,hw.dw,
+               hw.fpspsl as sl,hw.fpspdj as dj,hw.je as hw_je,hw.sl_1 as slv,hw.se as hw_se,
+               null as fpzt_dm,'数电发票' as fplx,xsyhzcbz
+        from gt4_yyzc_zr_sjtb.dzfp_kpyw_fpjcxxb fp
+                 inner join gt4_yyzc_zr_sjtb.dzfp_kpyw_fpmxxxb hw
+                            on hw.fphm=fp.fphm
+        where fp.fphm=#{zyfpNo} order by hw.xh
+    </select>
+
+    <!--根据18位报关单查询报关单信息-->
+    <select id="getBgdInfo" resultMap="bgdInfoResultMap" useCache="true">
+          select substr(ckbgdh, 1, 18) as bgd_no,
+               t.hggqka_dm as hgcode,
+               t.bah as ba_no,
+               t.ckrq_1 as lj_date,
+               t.hgckhwbgdsbrq as sb_date,
+               t.hgqy_dm as qydm,
+               t.jydwmc as jydwmc,
+               t.ysfs_dm as  ysfs,
+               t.tydh as  tydh,
+               t.hzdwdm as  hzdw_dm,
+               t.hzdwmc as  hzdwmc,
+               t.jgfs_dm as tdcode,
+               t.zmxz_dm as zmxz,
+               t.hgcjfs_dm as cjfs,
+               t.yfjsfs_dm as yf_flag,
+               t.yfhghbsz_dm yfbz,
+               t.yfhl as yfl,
+               t.bfjsfs_dm as bf_flag,
+               t.bfhghbsz_dm as bfbz,
+               t.bfhl as bfl,
+               t.zfjsfs_dm as zf_flag,
+               t.zfhghbsz_dm as zfbz,
+               t.zfhl as zfl,
+               t.mygdqsz_dm as gbcode,
+               t.zyg_dm as zyg,
+               t.hzdwdq_dm as hzdwdqdm,
+               t.ckhth as htxy_no,
+               t.jhfs_dm as jhfs,
+               t.cksp_dm as cmcode,
+               t.hgspmc as hgcmname,
+               t.cksl as bg_qnt,
+               t.dyjldw_dm as dwcode,
+               t.decksl as bg_qnt2,
+               t.dejldw_dm as dwcode2,
+               t.zzmdgdqsz_dm as zzmdg,
+               t.cjhghbsz_dm as cjbz,
+               t.cjzj as usd_amt,
+               t.xkzh,
+               t.ysgjmc
+       from hx_ckts.ckts_wbsj_hg_bgd201 t
+       where djxh = #{djxh} and  ckbgdh like #{bgdNo} || '%'
+
+    </select>
+
+    <!--获取报关单主表数据-->
+    <select id="getBgdMain" resultType="com.tl.web.bjts.shzs.model.vo.ldlp.BgdMainVO">
+        select substr(ckbgdh, 1, 18) as entryId,
+            hgqy_dm as cnsnTradeScc,
+            jydwmc as consignorCname,
+            HGGQKA_DM as iEPort,
+            HGGQKA_DM as iEPortName,
+            CKRQ_1 as iEDate,
+            HGCKHWBGDSBRQ as dDate,
+            BAH as manualNo,
+            '' as consigneeEname,
+            YSFS_DM as cusTrafMode,
+            YSFS_DM as cusTrafModeName,
+            (YSGJMC || ' ' ||  HCH) as trafName,
+             TYDH as billNo,
+             HZDWDM as ownerScc,
+             HZDWMC as ownerName,
+             JGFS_DM as supvModeCdde,
+             JGFS_DM as supvModeCddeName,
+             ZMXZ_DM as cutMode,
+             ZMXZ_DM as cutModeName,
+             XKZH as licenseNo,
+             CKHTH as contrNo,
+             MYGDQSZ_DM as cusTradeNationCode,
+             MYGDQSZ_DM as cusTradeNationCodeName,
+             ZZMDGDQSZ_DM as cusTradeCountry,
+             ZZMDGDQSZ_DM as cusTradeCountryName,
+             ZYG_DM as distinatePort,
+             ZYG_DM as distinatePortName,
+             HGGQKA_DM as despPortCode,
+             HGGQKA_DM as despPortCodeName,
+             HGBZZL_DM as wrapType,
+             HGBZZL_DM as wrapTypeName,
+             JS_1 as packNo,
+             MZ_2 as grossWt,
+             JZ as netWt,
+             HGCJFS_DM as transMode,
+             HGCJFS_DM as transModeName,
+             (YFHGHBSZ_DM || ' '  || YFHL) as yfZh,
+            (BFHGHBSZ_DM || ' '  || BFHL) as bfZh,
+             (ZFHGHBSZ_DM || ' '  || ZFHL) as zfZh,
+             '' as attaDocuCdstr,
+             BSM as markNo,
+             LXBZ as noteS
+        from hx_ckts.ckts_wbsj_hg_bgd201 t
+        where djxh = #{djxh} and  ckbgdh like #{bgdNo,jdbcType=VARCHAR} || '%' and rownum = 1
+    </select>
+
+    <!--获取报关单明细列表数据-->
+    <select id="listBgdMx" resultType="com.tl.web.bjts.shzs.model.vo.ldlp.BgdMxVO" useCache="false">
+        select substr(t.ckbgdh, 19, 21) as gNo,
+            CKSP_DM as codeTs,
+            nvl(HGSPMC,CKSPMC)  as gName,
+            GGXH as gModel,
+            CKSL as qty1,
+            DYJLDW_DM as unit1Name,
+            DECKSL as qty2,
+            DEJLDW_DM as unit2Name,
+            SBSL_1 as gQty,
+            SBJLDW_DM as gUnitName,
+            SBDJ as declPrice,
+            CJZJ as declTotal,
+            CJHGHBSZ_DM as tradeCurrName,
+            MYGDQSZ_DM as cusOriginCountryName,
+            ZZMDGDQSZ_DM as destinationCountryName,
+            HZDWDQ_DM as districtCodeName,
+            ZMXZ_DM as dutyModeName,t.ckbgdh,t.djxh,g.gzxx
+        from hx_ckts.ckts_wbsj_hg_bgd201 t
+        left join ZJ_BJTS.yj_bgdgzxx_gcb g on t.ckbgdh = g.ckbgdh and t.djxh=g.djxh
+        where t.djxh = #{djxh} and  t.ckbgdh like #{bgdNo,jdbcType=VARCHAR} || '%'
+    </select>
+
+
+</mapper>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tl.web.bjts.shzs.dao.RulesMxProfileMapper">
+  <resultMap id="BaseResultMap" type="com.tl.web.bjts.shzs.model.domain.RulesMxProfile">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" jdbcType="DECIMAL" property="id" />
+    <result column="BIZ_KEY" jdbcType="VARCHAR" property="bizKey" />
+    <result column="PROP_PATH" jdbcType="VARCHAR" property="propPath" />
+    <result column="PROP_NAME" jdbcType="VARCHAR" property="propName" />
+    <result column="VALUE_PATH" jdbcType="VARCHAR" property="valuePath" />
+    <result column="PARAM_ALIAS" jdbcType="VARCHAR" property="paramAlias" />
+    <result column="IS_VALID" jdbcType="CHAR" property="isValid" />
+    <result column="CRTIME" jdbcType="DATE" property="crtime" />
+    <result column="UPTIME" jdbcType="DATE" property="uptime" />
+  </resultMap>
+</mapper>

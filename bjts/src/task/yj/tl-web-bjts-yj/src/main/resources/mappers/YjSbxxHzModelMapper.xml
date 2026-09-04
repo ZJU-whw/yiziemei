@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.web.bjts.yj.dao.YjSbxxHzModelMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.web.bjts.yj.model.domain.YjSbxxHzModel" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" property="id" jdbcType="DECIMAL" />
+    <result column="NSRDZDAH" property="nsrdzdah" jdbcType="DECIMAL" />
+    <result column="SBYWB_DM" property="sbywbDm" jdbcType="VARCHAR" />
+    <result column="SSSQ" property="sssq" jdbcType="CHAR" />
+    <result column="SBPC" property="sbpc" jdbcType="DECIMAL" />
+    <result column="SBRQ" property="sbrq" jdbcType="DATE" />
+    <result column="SBZT_DM" property="sbztDm" jdbcType="CHAR" />
+    <result column="LZHJ" property="lzhj" jdbcType="VARCHAR" />
+    <result column="FKRQ" property="fkrq" jdbcType="DATE" />
+    <result column="FKXX" property="fkxx" jdbcType="VARCHAR" />
+    <result column="BZ" property="bz" jdbcType="VARCHAR" />
+    <result column="CJRQ" property="cjrq" jdbcType="DATE" />
+    <result column="XGRQ" property="xgrq" jdbcType="DATE" />
+    <result column="TQBZ" property="tqbz" jdbcType="VARCHAR" />
+    <result column="TQSJ" property="tqsj" jdbcType="DATE" />
+    <result column="TQCS" property="tqcs" jdbcType="DECIMAL" />
+    <result column="SBYY" property="sbyy" jdbcType="VARCHAR" />
+    <result column="YXJ" property="yxj" jdbcType="DECIMAL" />
+    <result column="SBSJ" property="sbsj" jdbcType="DATE" />
+    <result column="TBSJ" property="tbsj" jdbcType="DATE" />
+    <result column="LCSLID" property="lcslid" jdbcType="VARCHAR" />
+    <result column="TBCS" property="tbcs" jdbcType="DECIMAL" />
+    <result column="SBZL_DM" property="sbzlDm" jdbcType="VARCHAR" />
+    <result column="SBTYPE" property="sbtype" jdbcType="VARCHAR" />
+    <result column="YSBZ" property="ysbz" jdbcType="VARCHAR" />
+    <result column="YSTQSJ" property="ystqsj" jdbcType="DATE" />
+    <result column="YSWCSJ" property="yswcsj" jdbcType="DATE" />
+    <result column="YSTQCS" property="ystqcs" jdbcType="DECIMAL" />
+    <result column="BWZY" property="bwzy" jdbcType="VARCHAR" />
+    <result column="YSJG" property="ysjg" jdbcType="CHAR" />
+    <result column="SBR" property="sbr" jdbcType="VARCHAR" />
+    <result column="SBFS" property="sbfs" jdbcType="CHAR" />
+    <result column="SBCS" property="sbcs" jdbcType="DECIMAL" />
+    <result column="ZZSBB" property="zzsbb" jdbcType="CHAR" />
+    <result column="UUID" property="uuid" jdbcType="VARCHAR" />
+  </resultMap>
+</mapper>

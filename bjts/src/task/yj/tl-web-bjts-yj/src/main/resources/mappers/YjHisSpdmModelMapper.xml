@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tl.web.bjts.yj.dao.YjHisSpdmModelMapper" >
+  <resultMap id="BaseResultMap" type="com.tl.web.bjts.yj.model.domain.YjHisSpdmModel" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="NSRDZDAH" property="nsrdzdah" jdbcType="DECIMAL" />
+    <id column="SBYMPC" property="sbympc" jdbcType="VARCHAR" />
+    <id column="OBJECT" property="object" jdbcType="VARCHAR" />
+    <result column="NY" property="ny" jdbcType="VARCHAR" />
+    <result column="AMT" property="amt" jdbcType="DECIMAL" />
+    <result column="TSE" property="tse" jdbcType="DECIMAL" />
+  </resultMap>
+</mapper>

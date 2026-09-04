@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tl.web.bjts.shzs.dao.children.DocFileinfoChildMapper">
+
+  <!-- 查询附件列表 -->
+  <select id="view" resultType="hashmap" parameterType="long">
+     select pt.id,pt.fmcode,pt.title,pt.filesize,nvl(kz.clbz,'0') as clbz,kz.rootpath,kz.filepath
+     from doc_fileinfo pt left outer join doc_fileinfo_kz kz on (pt.id = kz.id)
+     where pt.busitype = 'sbxx' and  pt.busikey = #{sbid}
+  </select>
+
+  <!-- 查询文件基本信息 -->
+  <select id="fileJbxx" resultType="hashmap" parameterType="long">
+      select hz.id as sbid,hz.sbywb_dm,pt.id as fileid,pt.fmcode,pt.title,pt.filesize,pt.note,pt.rootpath,pt.filepath,dab.nsrsbh
+      from doc_fileinfo pt,sb_sbxx_hz hz left join gs_dj_cktmsdab dab on (hz.nsrdzdah = dab.nsrdzdah)
+      where pt.id = #{fileId} and pt.busikey = hz.id
+  </select>
+
+  <!-- 扩展表中新增  -->
+  <insert id="insertKz" parameterType="map">
+    insert into DOC_FILEINFO_KZ(id,clbz,rootpath,filepath,filehash,crtime,uptime,downloadnum)
+    values(#{id},#{clbz},#{rootpath},#{filepath},#{filehash},#{crtime},#{uptime},#{downloadnum})
+  </insert>
+
+    <!-- 扩展表中新增  -->
+    <insert id="updateKz" parameterType="map">
+        update DOC_FILEINFO_KZ
+        set clbz = #{clbz},
+            rootpath = #{rootpath},
+            filepath = #{filepath},
+            filehash = #{filehash},
+            crtime = #{crtime},
+            downloadnum = #{downloadnum}
+        where id = #{id}
+    </insert>
+
+    <!-- 获取申报文件基本信息 -->
+    <select id="sbfileJbxx" resultType="hashmap" parameterType="long">
+        <![CDATA[
+       select h.id,h.nsrdzdah,h.sbywb_dm,to_char(h.sbpc)as sbpc,to_char(sbrq,'yyyy-MM-dd') as sbrq,sssq as sbym,s.sbbw,c.nsrsbh,
+       c.nsrdjno,c.qyhgdm as cpcode,c.swjg_dm as swcode,c.qylx_dm,c.nsrmc as cpname,c.shxyno,kz.kzxx
+       from sb_sbxx_hz h inner join sb_sbxx_sbsj s on (h.id = s.id) left join gs_dj_cktmsdab c on (c.nsrdzdah = h.nsrdzdah)
+            left join gs_dj_cktmsdab_kz kz on (c.nsrdzdah = kz.nsrdzdah and kz.kzlx = 'WZHQY' and kz.flag = '1' and sysdate between kz.st_date and kz.end_date)
+   		where h.id = #{id} and rownum = 1
+       ]]>
+    </select>
+
+    <!-- 根据文件id查询扩展表 -->
+    <select id="selectKz" resultType="hashmap" parameterType="long">
+        select id,clbz
+        from DOC_FILEINFO_KZ
+        where id = #{fileId}
+    </select>
+
+    <!--  获取申报文件需要的汇总表信息  -->
+    <select id="getSbfileHz" parameterType="long" resultType="com.tl.web.bjts.shzs.model.vo.sbfile.SbfileHzVO">
+          select h.id,h.sbywb_dm as sbywbDm,to_char(h.sbpc)as sbpc,sssq,c.qyhgdm
+          from sb_sbxx_hz h  left join gs_dj_cktmsdab c on (c.nsrdzdah = h.nsrdzdah)
+          where h.id = #{id} and rownum = 1
+    </select>
+
+</mapper>

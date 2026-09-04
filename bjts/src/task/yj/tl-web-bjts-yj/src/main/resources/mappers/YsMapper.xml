@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.tl.web.bjts.yj.dao.YsMapper">
+
+    <insert id="insertDbsj" parameterType="com.tl.web.bjts.yj.model.TbsjVo">
+        insert into tl_bjts.tb_dtbsj (id, tblx_dm, mainid,
+        cjsj, tqbz, tqsj,
+        tbcs, sbyy, yxj)
+        values (tl_bjts.SEQ_TB_DTBSJ_ID.nextval, #{tblxDm,jdbcType=VARCHAR}, #{mainid,jdbcType=BIGINT},
+        #{cjsj,jdbcType=TIMESTAMP}, #{tqbz,jdbcType=VARCHAR}, #{tqsj,jdbcType=TIMESTAMP},
+        #{tbcs,jdbcType=INTEGER}, #{sbyy,jdbcType=VARCHAR}, #{yxj,jdbcType=INTEGER})
+    </insert>
+
+
+    <insert id="insertCzlog" parameterType="map" >
+        insert into cz_log (id, lcslid, code, sbyy)
+        values (#{id,jdbcType=BIGINT}, #{lcslid,jdbcType=VARCHAR}, #{code,jdbcType=VARCHAR}, #{sbyy,jdbcType=INTEGER})
+    </insert>
+
+    <delete id="deleteSbpc">
+        delete from yj_data_yjxx where sbid in (
+            select id from yj_sbxx_hz  a  where
+                exists (
+                    select 1 from yj_sbxx_hz  b
+                        where a.nsrdzdah =b.nsrdzdah
+                          and a.sbywb_dm=b.sbywb_dm
+                          and a.sssq=b.sssq
+                          and a.sbpc=b.sbpc
+                          and b.id=#{sbid}
+                    )
+            )
+    </delete>
+
+    <!-- 获取同步批次的序列值 -->
+    <select id="selectTbpcNextVal" resultType="long">
+        select tl_bjts.SEQ_TB_TBPC.NEXTVAL FROM DUAL
+    </select>
+
+
+
+    <select id="gainSbhzxx4Yj"
+            resultType="com.tl.web.bjts.yj.model.TaskVo"
+            parameterType="com.tl.web.bjts.yj.model.vo.GainDataVo">
+        SELECT * FROM
+        (
+        SELECT A.*, ROWNUM RN
+        FROM (
+        select a.id,tqbz,nsrdzdah,tqsj,b.sbbw from tl_admin.yj_sbxx_hz  a,tl_bjts.sb_sbxx_sbsj b
+        where a.sbzt_dm= #{sbztDm} and (tqbz is null or sysdate-tqsj > #{delay}) and a.id=b.id(+)
+        and 10>a.tqcs
+        and  not exists (select 1 from tl_admin.yj_sbxx_hz C
+        where a.nsrdzdah=C.nsrdzdah and (C.tqbz is not null and #{delay} > sysdate-tqsj ))
+        <if test="less == 3">
+            and length(b.sbbw) >= #{size}
+        </if>
+        <if test="less == 4">
+            and  #{size} > length(b.sbbw)
+        </if>
+        ) A where 1=1
+        <if test="end != null and end!=''">
+            and ROWNUM &lt;= #{end}
+        </if>
+        )
+        WHERE 1=1
+        <if test="start != null and start!=''">
+            and RN &gt;= #{start}
+        </if>
+        <if test="orderByCaluse != null and orderByCaluse !=''">
+            ORDER BY #{orderByCaluse}
+        </if>
+
+    </select>
+
+
+
+    <!-- 锁定预审20状态数据-->
+    <update id="updateLockSbxx4Yj" parameterType="map">
+        <![CDATA[
+			UPDATE tl_admin.yj_sbxx_hz a
+						   	SET a.tqbz = #{tqbz,jdbcType=VARCHAR},
+						        a.tqsj = sysdate,
+						        a.tqcs = tqcs+1
+						 	WHERE id=#{id} and sbzt_dm ='20' and not exists
+						 	(select 1 from tl_admin.yj_sbxx_hz C
+                                     where a.nsrdzdah=C.nsrdzdah and a.id<>C.id and C.tqbz is not null and 10>C.tqcs
+                                      and C.sbzt_dm ='20')
+
+
+        ]]>
+        <if test="lastTqbz != null and lastTqbz!=''">
+            and a.tqbz = #{lastTqbz}
+        </if>
+        <if test="lastTqbz==null or lastTqbz==''">
+            and a.tqbz is null
+        </if>
+    </update>
+
+
+    <!--  获取状态20数据   -->
+    <select id="queryYsSbxx4Yj" resultType="com.tl.web.bjts.yj.model.TaskVo" parameterType="com.tl.web.bjts.yj.model.vo.LockSbxxVo">
+        <![CDATA[
+
+			select h.yswcsj,h.tqsj,h.id,h.nsrdzdah,h.sbzt_dm as sbztDm,h.sbywb_dm as lcId,to_char(h.sbpc)as sbpc,h.tqcs, nvl(h.sbtype,'ZSSB') as sbType,
+							sssq as sbym,h.bwzy,h.ysjg,h.lcslid,h.zzsbb,h.sbzl_dm as sbzlDm,h.sbcs,s.sbbw,s.bwgs,s.bwqm,s.mwzy,
+		               c.nsrsbh as nsrdjno,c.qyhgdm,c.swjg_dm as swcode,c.qylx_dm as qylxDm,c.cpcode
+		    from  tl_admin.yj_sbxx_hz h left join tl_bjts.sb_sbxx_sbsj s on h.id = s.id left join tl_bjts.gs_dj_cktmsdab c on c.nsrdzdah = h.nsrdzdah
+		    where h.tqbz = #{tqbz,jdbcType=VARCHAR}  and h.id=#{sbid,jdbcType=DECIMAL}
+
+        ]]>
+    </select>
+
+
+    <update id="updateLockYsbz4Yj" parameterType="map">
+        <![CDATA[
+			UPDATE tl_admin.yj_sbxx_hz a
+						   	SET a.tqbz = null
+						 	WHERE id=#{id}
+
+        ]]>
+    </update>
+
+
+    <update id="updateYjComplete" parameterType="map">
+        <![CDATA[
+			UPDATE tl_admin.yj_sbxx_hz a
+						   	SET a.tqbz = null,
+						   	a.sbzt_dm=#{yjdm},
+						   	a.xgrq=sysdate
+						 	WHERE id=#{id}
+
+        ]]>
+    </update>
+</mapper>
