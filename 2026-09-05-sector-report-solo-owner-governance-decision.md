@@ -35,8 +35,8 @@
 
 1. 目标交易日的行业逐日采集运行达到 `READY_FOR_REPORT`，行业集合 90/90，价格子状态 `VERIFIED`。
 2. 报告只读该 `job_run_id`，不联网取数，不回退到最近成功日。
-3. 资金维度在没有可验证业务日的逐日事实之前固定为 `UNKNOWN`，不参与四维投票。
-4. 组合分和排名按 D-06 置空，只输出 `partial_research_rank`。
+3. 资金维度在有可信逐日事实（含供应商业务日证据、同一指标版本）时参与评分，否则逐项 `UNKNOWN`。
+4. 只有评分所需四维均为 `VALID` 时才生成完整组合分和排名；维度不完整时按 D-06 置空，只输出 `partial_research_rank`。
 5. 报告顶部标记 `RESEARCH_ONLY / WAIT`，并链接勘误。
 6. 四份形态输入 release 身份闭合，与现有校验一致。
 7. 所有者签署的 recovery manifest 绑定以上 artifact 的路径、大小和 SHA-256。
