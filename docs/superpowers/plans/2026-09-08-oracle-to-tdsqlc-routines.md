@@ -157,7 +157,7 @@ git commit -m "feat: generate baseline MySQL routines"
 - Consumes: every distinct executable `.NEXTVAL` reference and exported Oracle `START WITH` value.
 - Produces: `SEQ_NEXTVAL(p_seq_name VARCHAR(100)) RETURNS BIGINT`, a `sys_sequence(SEQ_NAME, SEQ_VALUE)` table with a primary key, seed rows representing the value immediately before the exported next value, and a sorted function-to-procedure name list.
 
-- [ ] **Step 1: Write failing sequence-contract tests**
+- [x] **Step 1: Write failing sequence-contract tests**
 
 ```python
 def test_every_converted_sequence_call_has_a_seed(self):
@@ -168,29 +168,29 @@ def test_output_function_list_is_sorted_and_unique(self):
     self.assertEqual(sorted(set(names), key=str.upper), names)
 ```
 
-- [ ] **Step 2: Run the tests and confirm missing-object failures**
+- [x] **Step 2: Run the tests and confirm missing-object failures**
 
 Run: `python3 -m unittest tools.bjts_sql_migration.tests.test_extra_objects -v`
 
 Expected: failure because `mysql_extra.sql` and `SetOutputFuncList.txt` do not exist.
 
-- [ ] **Step 3: Create the atomic sequence table and function**
+- [x] **Step 3: Create the atomic sequence table and function**
 
 Use a primary key on `SEQ_NAME` and an `INSERT ... ON DUPLICATE KEY UPDATE` expression with `LAST_INSERT_ID` to allocate one value atomically. Declare `MODIFIES SQL DATA` and document that TDSQL-C may require `log_bin_trust_function_creators` or equivalent routine-creation privilege.
 
-- [ ] **Step 4: Seed all used sequence names from checked-in exports**
+- [x] **Step 4: Seed all used sequence names from checked-in exports**
 
 For each used name, seed `START WITH - 1` so the first call returns the exported next value. Resolve the merged-schema duplicate `SEQ_TB_TBPC` with the applicable higher exported position `34395505`.
 
-- [ ] **Step 5: Convert and retain `F_SEQ_NEXTVAL_ADMIN`**
+- [x] **Step 5: Convert and retain `F_SEQ_NEXTVAL_ADMIN`**
 
 Replace its old `TBLNAME/CURVALUE` table access and autonomous transaction with a scalar compatibility wrapper calling `SEQ_NEXTVAL(UPPER(p_table_name))`. Do not issue `COMMIT` inside the function.
 
-- [ ] **Step 6: Populate the function-to-procedure list from conversion metadata**
+- [x] **Step 6: Populate the function-to-procedure list from conversion metadata**
 
 Write only uppercase object names, one per line, sorted and unique. Verify every listed file defines a procedure and every source function converted to a procedure is listed.
 
-- [ ] **Step 7: Run extra-object tests and commit**
+- [x] **Step 7: Run extra-object tests and commit**
 
 Run: `python3 -m unittest tools.bjts_sql_migration.tests.test_extra_objects -v`
 

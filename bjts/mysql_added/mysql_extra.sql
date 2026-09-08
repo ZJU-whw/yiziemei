@@ -1,0 +1,57 @@
+-- TDSQL-C MySQL 8.0 shared objects for the BJTS Oracle routine migration.
+-- Run this file before installing routines from the three mysql_tl_* folders.
+-- The seed values below reflect the checked-in Oracle export snapshots.
+-- Refresh them from the final Oracle sequence positions before cutover.
+
+CREATE TABLE IF NOT EXISTS sys_sequence (
+    SEQ_NAME VARCHAR(100) NOT NULL,
+    SEQ_VALUE BIGINT NOT NULL,
+    PRIMARY KEY (SEQ_NAME)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+INSERT INTO sys_sequence (SEQ_NAME, SEQ_VALUE) VALUES
+    ('SEQ_DEAL_TKGZ', 11959),
+    ('SEQ_FXGL_DATA_ZXZB', 96139),
+    ('SEQ_FXGL_SZ_SPFXJH', 489082),
+    ('SEQ_GS_TB_NSRDZDAH', 219970),
+    ('SEQ_JKGL_DATA_TJ_ZBU_CKGB', 18094660),
+    ('SEQ_JKGL_DATA_TJ_ZBU_CKKA', 9491620),
+    ('SEQ_JKGL_DATA_TJ_ZBU_CKSP', 17759240),
+    ('SEQ_JKGL_DATA_TJ_ZBU_DZGF', 3728720),
+    ('SEQ_JKGL_DATA_TJ_ZBU_DZSPJX', 115360),
+    ('SEQ_JKGL_DATA_TJ_ZBU_DZSPXX', 32180),
+    ('SEQ_JKGL_DATA_TJ_ZBU_DZXF', 4828980),
+    ('SEQ_JKGL_DATA_TJ_ZBU_TSGH', 17807380),
+    ('SEQ_JKGL_DATA_TJ_ZBU_TSSP', 15818820),
+    ('SEQ_JKGL_QSPJ_CKSP', 448980),
+    ('SEQ_MSG_PUSH_DATA', 157819),
+    ('SEQ_MSG_PUSH_PLAN', 166080),
+    ('SEQ_TB_DTBSJ_ID', 23893952),
+    ('SEQ_TB_TBPC', 34395504),
+    ('SEQ_TJBB_SB_JYXX', 16940),
+    ('SEQ_XXBD_SHQ_YDID', 16085620),
+    ('SEQ_YJ_DATA_YJXX', 406200)
+ON DUPLICATE KEY UPDATE
+    SEQ_VALUE = GREATEST(SEQ_VALUE, VALUES(SEQ_VALUE));
+
+DELIMITER $$
+
+DROP FUNCTION IF EXISTS SEQ_NEXTVAL$$
+
+CREATE FUNCTION SEQ_NEXTVAL(P_SEQ_NAME VARCHAR(100))
+RETURNS BIGINT
+NOT DETERMINISTIC
+MODIFIES SQL DATA
+BEGIN
+    INSERT INTO sys_sequence (SEQ_NAME, SEQ_VALUE)
+    VALUES (UPPER(P_SEQ_NAME), LAST_INSERT_ID(1))
+    ON DUPLICATE KEY UPDATE
+        SEQ_VALUE = LAST_INSERT_ID(SEQ_VALUE + 1);
+
+    RETURN LAST_INSERT_ID();
+END$$
+
+DELIMITER ;
+
+-- Creating a data-modifying function can require the TDSQL-C account setting
+-- equivalent to MySQL log_bin_trust_function_creators = ON.

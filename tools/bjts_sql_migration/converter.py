@@ -614,11 +614,36 @@ def _wrap_routine(
     )
 
 
+def _legacy_sequence_wrapper() -> str:
+    return """DELIMITER $$
+
+DROP FUNCTION IF EXISTS F_SEQ_NEXTVAL_ADMIN$$
+
+CREATE FUNCTION F_SEQ_NEXTVAL_ADMIN(P_TABLENAME VARCHAR(4000))
+RETURNS BIGINT
+NOT DETERMINISTIC
+MODIFIES SQL DATA
+BEGIN
+    RETURN SEQ_NEXTVAL(UPPER(P_TABLENAME));
+END$$
+
+DELIMITER ;
+"""
+
+
 def convert_source(relative_path: str, source_bytes: bytes) -> ConversionResult:
     """Convert one source file and return its text plus conversion metadata."""
 
     source_text = source_bytes.decode("gb18030").replace("\r\n", "\n").replace("\r", "\n")
     source_object_type, object_name = _routine_metadata(source_text)
+    if object_name == "F_SEQ_NEXTVAL_ADMIN":
+        return ConversionResult(
+            sql=_legacy_sequence_wrapper(),
+            source_object_type=source_object_type,
+            target_object_type="FUNCTION",
+            object_name=object_name,
+            warnings=[],
+        )
     target_object_type = source_object_type
     warnings: list[str] = []
     if source_object_type == "FUNCTION" and _must_be_procedure(source_text, object_name):

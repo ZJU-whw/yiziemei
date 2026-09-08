@@ -1,9 +1,14 @@
+from pathlib import Path
 import unittest
 
 from tools.bjts_sql_migration.converter import (
     convert_fragment,
     convert_source,
 )
+from tools.bjts_sql_migration.verifier import load_manifest
+
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 class FragmentConversionTests(unittest.TestCase):
@@ -80,6 +85,20 @@ class FragmentConversionTests(unittest.TestCase):
 
 
 class SourceConversionTests(unittest.TestCase):
+    def test_every_manifest_source_returns_nonempty_sql_text(self):
+        manifest = load_manifest(REPO_ROOT)
+
+        for source_name, filenames in manifest.items():
+            for filename in filenames:
+                source_path = REPO_ROOT / "bjts" / source_name / filename
+                with self.subTest(source=f"{source_name}/{filename}"):
+                    result = convert_source(
+                        f"{source_name}/{filename}",
+                        source_path.read_bytes(),
+                    )
+                    self.assertIsInstance(result.sql, str)
+                    self.assertTrue(result.sql.strip())
+
     def test_procedure_gets_mysql_client_wrapper(self):
         source = b"""CREATE OR REPLACE PROCEDURE P_TEST(P_ID IN NUMBER(20)) AS
 BEGIN
