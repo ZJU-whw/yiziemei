@@ -2,7 +2,7 @@ DELIMITER $$
 
 DROP PROCEDURE IF EXISTS PRO_FXGL_SZYJ_CKSPDJ_PERM$$
 
-CREATE PROCEDURE PRO_FXGL_SZYJ_CKSPDJ_PERM
+CREATE PROCEDURE PRO_FXGL_SZYJ_CKSPDJ_PERM()
 /*
  * 风险管理——事中预警——出口商品平均单价模型刷新（每月）
  */
@@ -18,7 +18,7 @@ routine_body: BEGIN
          sum(case when a.sz='V' then a.sl else 0 end) as qnt,
          sum(a.jsje) as amt,
          count(distinct a.djxh) as qyhs,
-         count(distinct a.djxh||a.glh) as ywbs
+         count(distinct ORA_CONCAT(a.djxh, a.glh)) as ywbs
     from ckts_sb_mts_jhmx a
    where a.sbrq>=DATE_ADD(CAST(DATE_FORMAT(CURRENT_TIMESTAMP, '%Y-%m-01') AS DATETIME), INTERVAL -12 MONTH) and a.sbrq<CAST(DATE_FORMAT(CURRENT_TIMESTAMP, '%Y-%m-01') AS DATETIME)
      and a.sl>0

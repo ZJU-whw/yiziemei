@@ -7,8 +7,8 @@ CREATE PROCEDURE PRO_FXGL_SZYJ_XBLQY
  * 风险管理——事中预警——新办类企业
  */
 (
-  IN P_SWJGDM VARCHAR(4000), --非空，通审核助手获取当前流程的退税机关代码并传入
-  IN P_DJXH VARCHAR(4000), --非空，通审核助手获取当前流程的企业登记序号并传入
+  IN P_SWJGDM VARCHAR(4000), -- 非空，通审核助手获取当前流程的退税机关代码并传入
+  IN P_DJXH VARCHAR(4000), -- 非空，通审核助手获取当前流程的企业登记序号并传入
   OUT P_OUTMSG VARCHAR(4000)
 )
 routine_body: BEGIN
@@ -18,14 +18,14 @@ routine_body: BEGIN
   DECLARE LD_NOW_MINRQ     DATETIME;
   DECLARE LD_BG_TSJWRQ     DATETIME;
 
-  --预警参数：新办类企业首次申报以后有效期
+  -- 预警参数：新办类企业首次申报以后有效期
   SELECT IFNULL(S.VAL_DEF, T.VAL_DEF) / (CASE T.CSTYPE WHEN '百分比' THEN 100 ELSE 1 END)
     INTO LN_MONTHS_SCSB
     FROM FXGL_PZ_ZB_CS T
     LEFT JOIN FXGL_PZ_ZB_CS_SWJG S
       ON S.CSBM=T.CSBM AND S.SWJG_DM=P_SWJGDM AND S.YXBZ='Y'
    WHERE T.CSBM='C01001_MONTHS_SCSB';
-  --预警参数：中断出口后复出口的企业中断期
+  -- 预警参数：中断出口后复出口的企业中断期
   SELECT IFNULL(S.VAL_DEF, T.VAL_DEF) / (CASE T.CSTYPE WHEN '百分比' THEN 100 ELSE 1 END)
     INTO LN_MONTHS_ZDCK
     FROM FXGL_PZ_ZB_CS T
@@ -33,21 +33,21 @@ routine_body: BEGIN
       ON S.CSBM=T.CSBM AND S.SWJG_DM=P_SWJGDM AND S.YXBZ='Y'
    WHERE T.CSBM='C01001_MONTHS_ZDCK';
   -- LN_MONTHS_SCSB个月前最后一次申报时间
-  SELECT TRUNCATE(MAX(T.QDSJ), 0)
+  SELECT DATE(MAX(T.QDSJ))
     INTO LD_PRE_MAXRQ
     FROM CKTS_LC_SBXX T
    WHERE T.DJXH = P_DJXH
      AND IFNULL(T.ZFBZ, 'N') = 'N'
      AND T.QDSJ <= DATE_ADD(CURRENT_TIMESTAMP, INTERVAL (-1) * LN_MONTHS_SCSB MONTH);
   -- LN_MONTHS_SCSB个月内最早一次申报时间
-  SELECT TRUNCATE(MIN(T.QDSJ), 0)
+  SELECT DATE(MIN(T.QDSJ))
     INTO LD_NOW_MINRQ
     FROM CKTS_LC_SBXX T
    WHERE T.DJXH = P_DJXH
      AND IFNULL(T.ZFBZ, 'N') = 'N'
      AND T.QDSJ > DATE_ADD(CURRENT_TIMESTAMP, INTERVAL (-1) * LN_MONTHS_SCSB MONTH);
   -- 外贸企业LN_MONTHS_SCSB个月内最后一次迁移
-  SELECT TRUNCATE(MAX(T.LRRQ), 0)
+  SELECT DATE(MAX(T.LRRQ))
     INTO LD_BG_TSJWRQ
     FROM CKTS_BA_BABGQK_JGB T
    INNER JOIN GLXT_BB_SHXT_DJXX S
@@ -57,19 +57,19 @@ routine_body: BEGIN
      AND BABGZD_DM='TSSWJG_DM_1'
      AND T.LRRQ > DATE_ADD(CURRENT_TIMESTAMP, INTERVAL (-1) * LN_MONTHS_SCSB MONTH);
   IF LD_PRE_MAXRQ IS NULL THEN
-    SET P_OUTMSG = '01-新办类企业，出口企业首次申报不足'||LN_MONTHS_SCSB||'个月，请加强审核！';
+    SET P_OUTMSG = ORA_CONCAT(ORA_CONCAT('01-新办类企业，出口企业首次申报不足', LN_MONTHS_SCSB), '个月，请加强审核！');
     LEAVE routine_body;
   END IF;
   IF IFNULL(LD_NOW_MINRQ, CURRENT_TIMESTAMP) >= DATE_ADD(LD_PRE_MAXRQ, INTERVAL LN_MONTHS_ZDCK MONTH) THEN
-    SET P_OUTMSG = '02-新办类企业，出口企业中断申报'||LN_MONTHS_ZDCK||'个月后复出口申报不足'||LN_MONTHS_SCSB||'个月，请加强审核！';
+    SET P_OUTMSG = ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('02-新办类企业，出口企业中断申报', LN_MONTHS_ZDCK), '个月后复出口申报不足'), LN_MONTHS_SCSB), '个月，请加强审核！');
     LEAVE routine_body;
   END IF;
   IF LD_BG_TSJWRQ IS NOT NULL THEN
-    SET P_OUTMSG = '03-新办类企业，外贸企业于'||DATE_FORMAT(LD_BG_TSJWRQ, '%Y-%m-%d')||'迁移后首次申报不足'||LN_MONTHS_SCSB||'个月，请加强审核！';
+    SET P_OUTMSG = ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('03-新办类企业，外贸企业于', DATE_FORMAT(LD_BG_TSJWRQ, '%Y-%m-%d')), '迁移后首次申报不足'), LN_MONTHS_SCSB), '个月，请加强审核！');
     LEAVE routine_body;
   END IF;
   SET P_OUTMSG = '00';
-  
+
   LEAVE routine_body;
 END$$
 

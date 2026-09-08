@@ -2,28 +2,46 @@ DELIMITER $$
 
 DROP PROCEDURE IF EXISTS P_ETL_GS_HBZL_HLV$$
 
-CREATE PROCEDURE P_ETL_GS_HBZL_HLV
+CREATE PROCEDURE P_ETL_GS_HBZL_HLV()
 routine_body: BEGIN
+  DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
   DECLARE pv_tbpc DECIMAL(20,0);
   DECLARE pv_cnt integer;
 
-  --已取消
-  --货币种类，汇率表，按月更新
-  --初始化
-  UPDATE TB_CKTS_BICODE_SUB SET TBPC = 6 WHERE TBPC = 0;
+  -- 已取消
+  -- 货币种类，汇率表，按月更新
+  -- 初始化
+
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
+    rollback;
+    -- 记录日志，同步失败
+    SET @BJTS_DYNAMIC_SQL_001 = 'INSERT INTO TB_GS_TBSB_RZ(tblx_dm,sbyy) VALUES(?,?)';
+PREPARE BJTS_DYNAMIC_STMT_001 FROM @BJTS_DYNAMIC_SQL_001;
+SET @BJTS_BIND_001_001 = 'GS_HBZL_HLVToYun';
+SET @BJTS_BIND_001_002 = ORA_CONCAT('失败:', BJTS_SQLERRM_001);
+EXECUTE BJTS_DYNAMIC_STMT_001 USING @BJTS_BIND_001_001, @BJTS_BIND_001_002;
+DEALLOCATE PREPARE BJTS_DYNAMIC_STMT_001;
+    DO ORA_CONCAT('货币种类，汇率表同步失败:', BJTS_SQLERRM_001);
+    commit;
+
+  END;
+UPDATE TB_CKTS_BICODE_SUB SET TBPC = 6 WHERE TBPC = 0;
   COMMIT;
-  --同步汇率表,增量更新
-  --提醒服务信息表
+  -- 同步汇率表,增量更新
+  -- 提醒服务信息表
   DELETE FROM GS_HBZL_HLV WHERE tbpc not in (SELECT mainid FROM tb_dtbsj WHERE tblx_dm = 'GS_HBZL_HLVToYun');
   COMMIT;
-  DBMS_OUTPUT.put_line('提醒汇率表历史数据清理成功');
+  DO '提醒汇率表历史数据清理成功';
 
   SELECT count(*) INTO pv_cnt FROM TB_CKTS_BICODE_SUB WHERE tbpc = 6;
   IF pv_cnt > 0 THEN
-    --获取同步批次
+    -- 获取同步批次
     SET pv_tbpc = SEQ_NEXTVAL('SEQ_TB_TBPC');
 
-    --开始同步,全表刷新
+    -- 开始同步,全表刷新
     INSERT INTO GS_HBZL_HLV
     (
       TBPC,
@@ -43,7 +61,7 @@ routine_body: BEGIN
     FROM TB_CKTS_BICODE_SUB
     WHERE TBPC = 6;
 
-    --插入待同步数据
+    -- 插入待同步数据
     INSERT INTO tb_dtbsj(id,tblx_dm,mainid,cjsj,tbcs,yxj)
     VALUES(SEQ_NEXTVAL('SEQ_TB_DTBSJ_ID'),'GS_HBZL_HLVToYun',pv_tbpc,CURRENT_TIMESTAMP,0,1);
   END IF;
@@ -51,15 +69,7 @@ routine_body: BEGIN
   DELETE FROM TB_CKTS_BICODE_SUB WHERE TBPC = 1;
   UPDATE TB_CKTS_BICODE_SUB SET TBPC = 1 WHERE TBPC = 6;
   COMMIT;
-  DBMS_OUTPUT.put_line('货币种类，汇率表同步成功');
-  EXCEPTION
-    WHEN others THEN
-    rollback;
-    --记录日志，同步失败
-    execute immediate 'INSERT INTO TB_GS_TBSB_RZ(tblx_dm,sbyy) VALUES(:1,:2)'
-      using 'GS_HBZL_HLVToYun','失败:' || sqlerrm;
-    DBMS_OUTPUT.put_line('货币种类，汇率表同步失败:' || sqlerrm);
-    commit;
-END$$
+  DO '货币种类，汇率表同步成功';
+  END$$
 
 DELIMITER ;

@@ -9,9 +9,9 @@ routine_body: BEGIN
  */
   DECLARE v_swjg   VARCHAR(11);
   DECLARE v_tsjsfs char(1);
-  
-  --定义变量
-  --指标分转健康码分的折算比例
+
+  -- 定义变量
+  -- 指标分转健康码分的折算比例
   DECLARE zsblv1 DECIMAL(18,2);
   DECLARE zsblv2 DECIMAL(18,2);
   DECLARE zsblv3 DECIMAL(18,2);
@@ -19,14 +19,14 @@ routine_body: BEGIN
   DECLARE zsblv5 DECIMAL(18,2);
   DECLARE zsblv6 DECIMAL(18,2);
 
-  --六个分类的红线
+  -- 六个分类的红线
   DECLARE lineRed1 int;
   DECLARE lineRed2 int;
   DECLARE lineRed3 int;
   DECLARE lineRed4 int;
   DECLARE lineRed5 int;
   DECLARE lineRed6 int;
-  --六个分类的黄线
+  -- 六个分类的黄线
   DECLARE lineYellow1 int;
   DECLARE lineYellow2 int;
   DECLARE lineYellow3 int;
@@ -34,10 +34,10 @@ routine_body: BEGIN
   DECLARE lineYellow5 int;
   DECLARE lineYellow6 int;
 
-  DECLARE lineRed_Zh integer;          --综合红线
-  DECLARE lineYellow_Zh integer;       --综合黄线
+  DECLARE lineRed_Zh integer;          -- 综合红线
+  DECLARE lineYellow_Zh integer;       -- 综合黄线
 
-  --实际指标赋分
+  -- 实际指标赋分
   DECLARE zb_SCORE1 int;
   DECLARE zb_SCORE2 int;
   DECLARE zb_SCORE3 int;
@@ -45,24 +45,35 @@ routine_body: BEGIN
   DECLARE zb_SCORE5 int;
   DECLARE zb_SCORE6 int;
 
-  --折算后的分数
+  -- 折算后的分数
   DECLARE jk_SCORE1 int;
   DECLARE jk_SCORE2 int;
   DECLARE jk_SCORE3 int;
   DECLARE jk_SCORE4 int;
   DECLARE jk_SCORE5 int;
   DECLARE jk_SCORE6 int;
-  DECLARE jk_SCORE_ZH integer;          ---折算后健康码综合赋分
+  DECLARE jk_SCORE_ZH integer;          -- -折算后健康码综合赋分
 
-  --健康码结果  1绿  2黄 3红
+  -- 健康码结果  1绿  2黄 3红
   DECLARE V_level char(1);
 
   SET V_level ='0';
 
   BEGIN
+  DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
 
-    select swjgdm,(CASE jsmode WHEN '1' THEN '1' ELSE '2' END) into v_swjg,v_tsjsfs from glxt_bb_shxt_djxx d where d.cpcode=p_djxh;
-    --从健康码配置表，计算折算比率
+
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
+      DO ORA_CONCAT('【健康码】等级评定：', BJTS_SQLERRM_001);
+      ROLLBACK;
+      CALL ORA_RAISE_APPLICATION_ERROR(-20001,ORA_CONCAT('【健康码】等级评定：', P_djxh));
+
+  END;
+select swjgdm,(CASE jsmode WHEN '1' THEN '1' ELSE '2' END) into v_swjg,v_tsjsfs from glxt_bb_shxt_djxx d where d.cpcode=p_djxh;
+    -- 从健康码配置表，计算折算比率
     /*
     select
       sum(decode (ywfl_dm,'10',case when ZB_TOTAL=0 then 0 else JKM_TOTAL/ZB_TOTAL end,0)),
@@ -94,21 +105,21 @@ routine_body: BEGIN
     with TT as (
     select zb.ywfl_dm, sum(score) as zbScore
     from
-      jkgl_pz_zb zb left join 
+      jkgl_pz_zb zb left join
       (
       select t.zb_id,max(IFNULL(s.score, t.score)) as score
-      from 
+      from
       jkgl_pz_zb_ycff t
-      left join jkgl_pz_zb_ycff_swjg s 
-           on s.swjg_dm =v_swjg  
-           and s.zb_id=t.zb_id and s.xh=t.xh and s.yxbz='Y' 
+      left join jkgl_pz_zb_ycff_swjg s
+           on s.swjg_dm =v_swjg
+           and s.zb_id=t.zb_id and s.xh=t.xh and s.yxbz='Y'
       where t.yxbz='Y'
       group by t.zb_id
       ) pt on pt.zb_id=zb.zb_id
-    where 
-      zb.yxbz='Y' and 
+    where
+      zb.yxbz='Y' and
       zb.apply_qy=v_tsjsfs
-      group by zb.ywfl_dm 
+      group by zb.ywfl_dm
     )
     select
      sum((CASE jkm.ywfl_dm WHEN '10' THEN case when IFNULL(TT.zbScore, 0)=0 then 0 else JKM_TOTAL/IFNULL(TT.zbScore, 0) end ELSE 0 END)),
@@ -137,9 +148,9 @@ routine_body: BEGIN
     from jkgl_pz_jkm jkm
     left join TT on TT.ywfl_dm=jkm.ywfl_dm
     where jkm.tsjsfs=v_tsjsfs ;
-    
-    
-    
+
+
+
     -- 获取该纳税人的指标赋分
     select
         IFNULL(sum((CASE ywfl_dm WHEN '10' THEN score ELSE 0 END)), 0),
@@ -150,11 +161,11 @@ routine_body: BEGIN
         IFNULL(sum((CASE ywfl_dm WHEN '60' THEN score ELSE 0 END)), 0)
     into zb_SCORE1,zb_SCORE2,zb_SCORE3,zb_SCORE4,zb_SCORE5,zb_SCORE6
     from (
-    select s.ywfl_dm, 
+    select s.ywfl_dm,
       --   sum(t.score) as score
-        sum(case when (p_yxq is null OR p_yxq>=TRUNCATE(CURRENT_TIMESTAMP, 0)) and IFNULL(t.hcjg, '2')='1' then 0 else t.score end) as score
+        sum(case when (p_yxq is null OR p_yxq>=DATE(CURRENT_TIMESTAMP)) and IFNULL(t.hcjg, '2')='1' then 0 else t.score end) as score
         from
- --       tl_tssh.jkgl_data_qyjkm_jgb k 
+ --       tl_tssh.jkgl_data_qyjkm_jgb k
  --       inner join tl_tssh.jkgl_data_zb_jgb t on t.djxh=k.djxh
         jkgl_data_zb_jgb t
         inner join jkgl_pz_zb s on t.zb_id=s.zb_id and s.yxbz='Y'
@@ -162,7 +173,7 @@ routine_body: BEGIN
         group by s.ywfl_dm
     );
 
-    --计算健康码折算赋分
+    -- 计算健康码折算赋分
     SET jk_SCORE1 = zb_SCORE1 * zsblv1;
     SET jk_SCORE2 = zb_SCORE2 * zsblv2;
     SET jk_SCORE3 = zb_SCORE3 * zsblv3;
@@ -170,7 +181,7 @@ routine_body: BEGIN
     SET jk_SCORE5 = zb_SCORE5 * zsblv5;
     SET jk_SCORE6 = zb_SCORE6 * zsblv6;
     SET jk_SCORE_ZH = jk_SCORE1+jk_SCORE2+jk_SCORE3+jk_SCORE4+jk_SCORE5+jk_SCORE6;
-   
+
     if (lineRed_Zh<>0 and jk_SCORE_ZH >= lineRed_Zh)
       OR (lineRed1<>0 and jk_SCORE1 >= lineRed1)
       OR (lineRed2<>0 and jk_SCORE2 >= lineRed2)
@@ -195,13 +206,8 @@ routine_body: BEGIN
       end if;
     end if;
 
-  EXCEPTION
-    WHEN OTHERS THEN
-      dbms_output.put_line('【健康码】等级评定：'||sqlerrm);
-      ROLLBACK;
-      RAISE_APPLICATION_ERROR(-20001,'【健康码】等级评定：'||P_djxh);
   END;
-  
+
   SET P_RESULT = (V_level); LEAVE routine_body;
 END$$
 

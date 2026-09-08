@@ -212,31 +212,31 @@ git commit -m "feat: add MySQL sequence compatibility layer"
 - Consumes: the 96 `tl_admin` Oracle sources and common compatibility objects.
 - Produces: 96 statically clean MySQL routines, including an equivalent result-set procedure for `FUNC_GET_XJ_SWJG` and rewritten internal callers.
 
-- [ ] **Step 1: Add failing regression fixtures for admin-specific constructs**
+- [x] **Step 1: Add failing regression fixtures for admin-specific constructs**
 
 Cover `TABLE(FUNC_GET_XJ_SWJG(...))`, cursor declaration order, scoped handlers, report-period date calculations, schema removal, DML functions, and `ROWNUM` ordering.
 
-- [ ] **Step 2: Run focused tests and save the expected failures**
+- [x] **Step 2: Run focused tests and save the expected failures**
 
 Run: `python3 -m unittest tools.bjts_sql_migration.tests.test_converter.AdminRoutineTests -v`
 
 Expected: failures identify each still-unhandled construct rather than a generic text mismatch.
 
-- [ ] **Step 3: Convert `FUNC_GET_XJ_SWJG` and every SQL caller**
+- [x] **Step 3: Convert `FUNC_GET_XJ_SWJG` and every SQL caller**
 
 Make the target object a procedure returning the correct one-column result set. Replace internal Oracle table-function predicates with the direct `DM_SWJG_VIRTUAL`/`DM_SWJG` union logic selected by the parent-code rule, without introducing a temporary table.
 
-- [ ] **Step 4: Convert procedural and SQL differences across the remaining files**
+- [x] **Step 4: Convert procedural and SQL differences across the remaining files**
 
 Correct declaration order, loops, handlers, date formatting/arithmetic, null-preserving concatenation, DML target aliases, `ROWNUM`, aggregate selects, and transaction statements. Convert admin scalar DML functions to procedures only when MySQL function restrictions require it and update the inventory.
 
-- [ ] **Step 5: Run admin residual and structure verification**
+- [x] **Step 5: Run admin residual and structure verification**
 
 Run: `python3 -m tools.bjts_sql_migration.verifier --repo-root . --schema tl_admin`
 
 Expected: exact 96-file manifest, UTF-8, wrappers, object names, and executable-residue checks all pass.
 
-- [ ] **Step 6: Commit the completed admin batch**
+- [x] **Step 6: Commit the completed admin batch**
 
 ```bash
 git add bjts/mysql_tl_admin bjts/mysql_added/SetOutputFuncList.txt tools/bjts_sql_migration/tests/test_converter.py
@@ -254,29 +254,29 @@ git commit -m "feat: convert tl_admin routines to MySQL 8.0"
 - Consumes: the 114 `tl_bjts` Oracle sources, the sequence layer, and the approved collection-function policy.
 - Produces: 114 statically clean MySQL routines; list-returning functions become result-set procedures and `FUNC_STRSPLIT` consumers use a recursive CTE or `JSON_TABLE` equivalent.
 
-- [ ] **Step 1: Add failing bjts-specific regression fixtures**
+- [x] **Step 1: Add failing bjts-specific regression fixtures**
 
 Cover collection constructors, pipelined `FUNC_STRSPLIT`, parameterized cursors, ref cursors, dynamic SQL, `EXECUTE IMMEDIATE ... INTO`, DML functions with commits, exception return paths, and repeated sequence allocation in `INSERT ... SELECT`.
 
-- [ ] **Step 2: Convert collection and pipelined functions**
+- [x] **Step 2: Convert collection and pipelined functions**
 
 Convert `FUNC_GET_SBHZXX*`, `FUNC_GET_SBLIST*`, `FUNC_GET_WJDR_SBLIST*`, `FUNC_SHZS_RWWP*`, and `FUNC_STRSPLIT` to result-set procedures or direct internal CTE logic. Preserve output column order and aliases from the Oracle object types.
 
-- [ ] **Step 3: Convert forbidden scalar-function behavior**
+- [x] **Step 3: Convert forbidden scalar-function behavior**
 
 Convert functions containing forbidden dynamic SQL, output parameters, result sets, or transaction control to procedures. Add a final OUT parameter when needed to carry the original scalar return value, and record each renamed object type in the inventory without changing its object name.
 
-- [ ] **Step 4: Convert all remaining procedures**
+- [x] **Step 4: Convert all remaining procedures**
 
 Handle dynamic statements, cursor loops, handlers, `MERGE`, date math, null semantics, row limiting, sequence calls, and MySQL DML alias rules across all `PROC_XXBD_*`, ETL, daily, and temporary routines.
 
-- [ ] **Step 5: Run bjts residual and structure verification**
+- [x] **Step 5: Run bjts residual and structure verification**
 
 Run: `python3 -m tools.bjts_sql_migration.verifier --repo-root . --schema tl_bjts`
 
 Expected: exact 114-file manifest, UTF-8, wrappers, object names, inventory, sequence coverage, and executable-residue checks all pass.
 
-- [ ] **Step 6: Commit the completed bjts batch**
+- [x] **Step 6: Commit the completed bjts batch**
 
 ```bash
 git add bjts/mysql_tl_bjts bjts/mysql_added tools/bjts_sql_migration/tests/test_converter.py
@@ -294,29 +294,29 @@ git commit -m "feat: convert tl_bjts routines to MySQL 8.0"
 - Consumes: the 146 `tl_tssh` Oracle sources and the shared sequence layer.
 - Produces: 146 statically clean MySQL routines, retaining window functions and properly scoped nested cursors in large ETL and indicator procedures.
 
-- [ ] **Step 1: Add failing tssh-specific regression fixtures**
+- [x] **Step 1: Add failing tssh-specific regression fixtures**
 
 Cover nested cursors, large scoped exception blocks, Oracle date literals, interval arithmetic, regex extraction, dynamic DDL, `MERGE`, analytic functions, sequence calls in select lists, and multi-level `CASE/DECODE` expressions.
 
-- [ ] **Step 2: Convert scalar extraction and indicator functions**
+- [x] **Step 2: Convert scalar extraction and indicator functions**
 
 Keep legal scalar routines as functions with explicit MySQL characteristics. Convert `F_MY_STDAVG_TMPTB` to a result/OUT procedure because MySQL functions cannot use its dynamic DDL and prepared statements; record it in the inventory.
 
-- [ ] **Step 3: Convert the small indicator procedure family**
+- [x] **Step 3: Convert the small indicator procedure family**
 
 Convert all `PRO_JKGL_COMPUTE_S*` and `PRO_JKGL_COMPUTE_W*` files with consistent date, row-limit, handler, upsert, and transaction rules while preserving existing window functions.
 
-- [ ] **Step 4: Convert the large and nested-cursor procedures**
+- [x] **Step 4: Convert the large and nested-cursor procedures**
 
 Work through `PRO_DEAL_AFTER_ETL`, `ORIGINAL_JKGL_DATA_TJ_ZBU`, `PRO_JKGL_COMPUTE_ZB*`, `PRO_JKGL_JKM_*`, risk-analysis routines, and `TEMP_*` scripts block by block. Give each cursor nesting level a local completion flag and handler.
 
-- [ ] **Step 5: Run tssh residual and structure verification**
+- [x] **Step 5: Run tssh residual and structure verification**
 
 Run: `python3 -m tools.bjts_sql_migration.verifier --repo-root . --schema tl_tssh`
 
 Expected: exact 146-file manifest, UTF-8, wrappers, object names, inventory, sequence coverage, and executable-residue checks all pass.
 
-- [ ] **Step 6: Commit the completed tssh batch**
+- [x] **Step 6: Commit the completed tssh batch**
 
 ```bash
 git add bjts/mysql_tl_tssh bjts/mysql_added tools/bjts_sql_migration/tests/test_converter.py
@@ -334,19 +334,19 @@ git commit -m "feat: convert tl_tssh routines to MySQL 8.0"
 - Consumes: all 356 converted scripts, `mysql_extra.sql`, and `SetOutputFuncList.txt`.
 - Produces: a zero-exit full verifier run with every residual finding reviewed as executable SQL or safely masked comment/literal text.
 
-- [ ] **Step 1: Run the complete unit suite**
+- [x] **Step 1: Run the complete unit suite**
 
 Run: `python3 -m unittest discover -s tools/bjts_sql_migration/tests -v`
 
 Expected: all tests pass.
 
-- [ ] **Step 2: Run the full static verifier**
+- [x] **Step 2: Run the full static verifier**
 
 Run: `python3 -m tools.bjts_sql_migration.verifier --repo-root .`
 
 Expected: `356/356 output files verified; 0 executable Oracle residue findings` and exit status 0.
 
-- [ ] **Step 3: Run independent shell checks**
+- [x] **Step 3: Run independent shell checks**
 
 ```bash
 find bjts/mysql_tl_admin -maxdepth 1 -type f -name '*.sql' | wc -l
@@ -357,17 +357,17 @@ git diff --check
 
 Expected counts: `96`, `114`, `146`; `git diff --check` emits no output.
 
-- [ ] **Step 4: Review representative high-risk diffs against Oracle sources**
+- [x] **Step 4: Review representative high-risk diffs against Oracle sources**
 
 Review at least one nested-cursor routine, one dynamic-SQL routine, one `MERGE` routine, one analytic-query routine, one list-returning function converted to a procedure, and one sequence-heavy insert. Confirm parameter order, output-column order, transaction boundaries, and condition precedence.
 
-- [ ] **Step 5: Confirm unrelated files remain untouched**
+- [x] **Step 5: Confirm unrelated files remain untouched**
 
 Run: `git status --short`
 
 Expected: the three pre-existing HAR files remain untracked and are not staged; only migration-related tracked changes appear.
 
-- [ ] **Step 6: Commit audit fixes**
+- [x] **Step 6: Commit audit fixes**
 
 ```bash
 git add bjts/mysql_tl_admin bjts/mysql_tl_bjts bjts/mysql_tl_tssh bjts/mysql_added tools/bjts_sql_migration
@@ -385,13 +385,13 @@ If there are no audit fixes, do not create an empty commit.
 - Consumes: the passing static audit and local commits.
 - Produces: the same commits on `origin/main`, without force-pushing or staging unrelated files.
 
-- [ ] **Step 1: Fetch and inspect remote divergence**
+- [x] **Step 1: Fetch and inspect remote divergence**
 
 Run: `git fetch origin` followed by `git status --short --branch` and `git log --oneline --left-right HEAD...origin/main`.
 
 Expected: either no remote-only commits or a clearly reviewable set to rebase onto before pushing.
 
-- [ ] **Step 2: Re-run verification after synchronization**
+- [x] **Step 2: Re-run verification after synchronization**
 
 Run: `python3 -m unittest discover -s tools/bjts_sql_migration/tests -v` and `python3 -m tools.bjts_sql_migration.verifier --repo-root .`.
 

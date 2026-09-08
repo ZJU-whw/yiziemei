@@ -10,13 +10,13 @@ CREATE PROCEDURE PRO_FXGL_COMPUTE_C02003
  * 20260327，自动扫描条件改为不存在6个月以内已人工核实的数据，因税务人员调整参数自动核实的数据不算
  */
 (
-  IN P_SWJGDM VARCHAR(4000), --可空，空默认全省，前台手工刷新需传入
-  IN P_DJXH VARCHAR(4000), --可空，空默认税务机关下所有有申报企业，前台当个企业刷新需传入
-  IN P_SMLX VARCHAR(4000) --可空，空默认自动扫描，前台人工扫描输入1
+  IN P_SWJGDM VARCHAR(4000), -- 可空，空默认全省，前台手工刷新需传入
+  IN P_DJXH VARCHAR(4000), -- 可空，空默认税务机关下所有有申报企业，前台当个企业刷新需传入
+  IN P_SMLX VARCHAR(4000) -- 可空，空默认自动扫描，前台人工扫描输入1
 )
 routine_body: BEGIN
-  DECLARE V_MONTHS_YJJG   DECIMAL(18,2);    --预警参数：预警间隔周期
-  DECLARE V_MONTHS_YCFUH  DECIMAL(18,2);    --预警参数：异常复函情形起监控周期
+  DECLARE V_MONTHS_YJJG   DECIMAL(18,2);    -- 预警参数：预警间隔周期
+  DECLARE V_MONTHS_YCFUH  DECIMAL(18,2);    -- 预警参数：异常复函情形起监控周期
   DECLARE V_PARAMS        VARCHAR(4000);
   DECLARE V_SWJGDM        VARCHAR(11);
 
@@ -31,21 +31,23 @@ routine_body: BEGIN
     FROM FXGL_PZ_ZB_CS T
     LEFT JOIN FXGL_PZ_ZB_CS_SWJG S ON S.CSBM=T.CSBM AND S.SWJG_DM=P_SWJGDM AND S.YXBZ='Y'
    WHERE T.CSBM='C02003_MONTHS_YCFUH';
-  SET V_PARAMS ='[d]预警间隔周期='||V_MONTHS_YJJG||
-            '|异常复函情形起监控周期=' || V_MONTHS_YCFUH;
+  SET V_PARAMS =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('[d]预警间隔周期=', V_MONTHS_YJJG), '|异常复函情形起监控周期='), V_MONTHS_YCFUH);
 
-  --取本次风险扫描的税务机关范围
+  -- 取本次风险扫描的税务机关范围
   IF IFNULL(P_SWJGDM, '13300000000')='13300000000' THEN
     SET V_SWJGDM ='133%';
   ELSEIF SUBSTR(P_SWJGDM,6)='000000' THEN
-    SET V_SWJGDM =SUBSTR(P_SWJGDM,1,5)||'%';
+    SET V_SWJGDM =ORA_CONCAT(SUBSTR(P_SWJGDM,1,5), '%');
   ELSE
-    SET V_SWJGDM =SUBSTR(P_SWJGDM,1,7)||'%';
+    SET V_SWJGDM =ORA_CONCAT(SUBSTR(P_SWJGDM,1,7), '%');
   END IF;
-  
+
   IF P_SMLX=1 THEN
-    UPDATE FXGL_DATA_ZXZB T
-       SET T.HSJGLX='1', T.HSRQ=CURRENT_TIMESTAMP, T.HSRY='SYSTEM', T.HSCLQK='税务人员调整预警参数，重新刷新本次风险指标。'
+    UPDATE FXGL_DATA_ZXZB AS T
+       SET HSJGLX='1',
+    HSRQ=CURRENT_TIMESTAMP,
+    HSRY='SYSTEM',
+    HSCLQK='税务人员调整预警参数，重新刷新本次风险指标。'
      WHERE T.ZBID='C02003'
        AND T.TSSWJG_DM LIKE V_SWJGDM
        AND (P_DJXH IS NULL OR T.DJXH=P_DJXH)
@@ -54,42 +56,59 @@ routine_body: BEGIN
     COMMIT;
   END IF;
 
-  --上月以来有申报的外贸企业
-  FOR CUR_CKQY IN (SELECT T.DJXH,T.LCSLID_SB,T.QDSJ
+  -- 上月以来有申报的外贸企业
+  BEGIN
+  DECLARE BJTS_CURSOR_DONE_001 BOOLEAN DEFAULT FALSE;
+  DECLARE BJTS_CUR_CKQY_DJXH_001 LONGTEXT;
+  DECLARE BJTS_CUR_CKQY_LCSLID_SB_001 LONGTEXT;
+  DECLARE BJTS_CUR_CKQY_QDSJ_001 LONGTEXT;
+  DECLARE BJTS_CURSOR_001 CURSOR FOR
+SELECT T.DJXH,T.LCSLID_SB,T.QDSJ
                      FROM CKTS_LC_SBXX T
-                    WHERE T.TSSWJG_DM LIKE V_SWJGDM --税务机关范围扫描
-                      AND (P_DJXH IS NULL OR T.DJXH=P_DJXH) --是否单个企业扫描
+                    WHERE T.TSSWJG_DM LIKE V_SWJGDM -- 税务机关范围扫描
+                      AND (P_DJXH IS NULL OR T.DJXH=P_DJXH) -- 是否单个企业扫描
                       AND IFNULL(T.ZFBZ, 'N') = 'N'
                       AND T.QDSJ >= DATE_ADD(CAST(DATE_FORMAT(CURRENT_TIMESTAMP, '%Y-%m-01') AS DATETIME), INTERVAL -1 MONTH)
                       AND T.SBYWB_DM='A0301001'
                       AND (  (IFNULL(P_SMLX, '0')='1')
                           OR (IFNULL(P_SMLX, '0')='0'
-                         AND NOT EXISTS (SELECT 1 --预警间隔期不自动扫描同一企业信息
+                         AND NOT EXISTS (SELECT 1 -- 预警间隔期不自动扫描同一企业信息
                                            FROM FXGL_DATA_ZXZB B
                                           WHERE B.DJXH=T.DJXH
                                             AND B.ZBID='C02003'
                                             AND B.HSRQ>DATE_ADD(CURRENT_TIMESTAMP, INTERVAL (-1) * V_MONTHS_YJJG MONTH)
-                                            AND B.HSRY!='SYSTEM'))))
-  LOOP
+                                            AND B.HSRY!='SYSTEM')));
+  OPEN BJTS_CURSOR_001;
+  BJTS_CURSOR_LOOP_001: LOOP
+    SET BJTS_CURSOR_DONE_001 = FALSE;
+    BEGIN
+      DECLARE CONTINUE HANDLER FOR NOT FOUND SET BJTS_CURSOR_DONE_001 = TRUE;
+      FETCH BJTS_CURSOR_001 INTO BJTS_CUR_CKQY_DJXH_001, BJTS_CUR_CKQY_LCSLID_SB_001, BJTS_CUR_CKQY_QDSJ_001;
+    END;
+    IF BJTS_CURSOR_DONE_001 THEN
+      LEAVE BJTS_CURSOR_LOOP_001;
+    END IF;
     BEGIN
       INSERT INTO FXGL_DATA_ZXZB(ID,TSSWJG_DM,DJXH,NSRSBH,NSRMC,SMLX,SMRQ,ZBID,ZBCS,SMJG)
            SELECT SEQ_NEXTVAL('SEQ_FXGL_DATA_ZXZB'),DJ.SWJGDM,DJ.DJXH_JS,IFNULL(DJ.SHXYNO, DJ.NSRDJNO),DJ.NSRMC,IFNULL(P_SMLX, '0'),CURRENT_TIMESTAMP,'C02003',
-                  V_PARAMS,'[d]所属期批次=' || YC.SSQPC || '|供货方纳税人=' ||YC.GHFNSRSBH_1||
-                  '|退税额合计=' ||YC.TSE||'|风险情况=供货企业存在复函异常情形'
-             FROM (SELECT SB.DJXH,SB.SSQ||SB.SBPC AS SSQPC,SB.GHFNSRSBH_1,SUM(TSE) AS TSE
+                  V_PARAMS,ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('[d]所属期批次=', YC.SSQPC), '|供货方纳税人='), YC.GHFNSRSBH_1), '|退税额合计='), YC.TSE), '|风险情况=供货企业存在复函异常情形')
+             FROM (SELECT SB.DJXH,ORA_CONCAT(SB.SSQ, SB.SBPC) AS SSQPC,SB.GHFNSRSBH_1,SUM(TSE) AS TSE
                      FROM CKTS_SB_MTS_JHMX SB
-                    WHERE LCSLID_SB=CUR_CKQY.LCSLID_SB
+                    WHERE LCSLID_SB=BJTS_CUR_CKQY_LCSLID_SB_001
                       AND EXISTS (SELECT 1
                                     FROM YJ_CS_YCHD_JS HD
                                    WHERE HD.GHQYNSRSBH_1=SB.GHFNSRSBH_1
                                      AND HD.FUHLX_DM='2'
-                                     AND DATE_ADD(HD.FUHQFRQ, INTERVAL V_MONTHS_YCFUH MONTH)>CUR_CKQY.QDSJ)
+                                     AND DATE_ADD(HD.FUHQFRQ, INTERVAL V_MONTHS_YCFUH MONTH)>BJTS_CUR_CKQY_QDSJ_001)
                     GROUP BY SB.DJXH,SB.SSQ,SB.SBPC,SB.GHFNSRSBH_1
                    HAVING SUM(SB.TSE)>0) YC
             INNER JOIN GLXT_BB_SHXT_DJXX DJ ON DJ.DJXH_JS=YC.DJXH;
       COMMIT;
     END;
-  END LOOP;
+
+  END LOOP BJTS_CURSOR_LOOP_001;
+  CLOSE BJTS_CURSOR_001;
+END;
 
   LEAVE routine_body;
 END$$

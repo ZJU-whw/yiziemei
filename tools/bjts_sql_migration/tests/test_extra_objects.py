@@ -89,6 +89,66 @@ class ExtraObjectTests(unittest.TestCase):
         self.assertRegex(sql, r"(?is)ON DUPLICATE KEY UPDATE")
         self.assertRegex(sql, r"(?is)LAST_INSERT_ID\s*\(SEQ_VALUE\s*\+\s*1\)")
 
+    def test_oracle_concat_helper_preserves_null_as_empty_semantics(self):
+        sql = EXTRA_SQL.read_text(encoding="utf-8")
+
+        self.assertRegex(sql, r"(?is)CREATE FUNCTION ORA_CONCAT\s*\(")
+        self.assertRegex(sql, r"(?is)NULLIF\s*\(\s*CONCAT\s*\(")
+        self.assertRegex(sql, r"(?is)IFNULL\s*\(\s*P_LEFT\s*,\s*''\s*\)")
+        self.assertRegex(sql, r"(?is)IFNULL\s*\(\s*P_RIGHT\s*,\s*''\s*\)")
+
+    def test_split_json_helper_supports_internal_table_function_rewrites(self):
+        sql = EXTRA_SQL.read_text(encoding="utf-8")
+
+        self.assertRegex(sql, r"(?is)CREATE FUNCTION ORA_SPLIT_JSON\s*\(")
+        self.assertRegex(sql, r"(?is)RETURNS\s+JSON")
+        self.assertRegex(sql, r"(?is)JSON_ARRAY_APPEND\s*\(")
+        self.assertRegex(sql, r"(?is)LOCATE\s*\(\s*P_DELIMITER")
+
+    def test_next_day_helper_returns_the_strictly_following_named_weekday(self):
+        sql = EXTRA_SQL.read_text(encoding="utf-8")
+
+        self.assertRegex(sql, r"(?is)CREATE FUNCTION ORA_NEXT_DAY\s*\(")
+        self.assertRegex(sql, r"(?is)DAYOFWEEK\s*\(\s*P_VALUE\s*\)")
+        self.assertRegex(sql, r"(?is)MOD\s*\(.+?\+\s*6\s*,\s*7\s*\)\s*\+\s*1")
+
+    def test_regexp_substr_helper_preserves_oracle_capture_group_selection(self):
+        sql = EXTRA_SQL.read_text(encoding="utf-8")
+
+        self.assertRegex(sql, r"(?is)CREATE FUNCTION ORA_REGEXP_SUBSTR\s*\(")
+        self.assertRegex(sql, r"(?is)SET\s+V_FULL_MATCH\s*=\s*REGEXP_SUBSTR\s*\(")
+        self.assertRegex(
+            sql,
+            r"(?is)REGEXP_REPLACE\s*\(\s*V_FULL_MATCH.+?CONCAT\s*\(\s*'\$'",
+        )
+
+    def test_median_helper_handles_odd_even_and_null_inputs_with_windows(self):
+        sql = EXTRA_SQL.read_text(encoding="utf-8")
+
+        self.assertRegex(sql, r"(?is)CREATE FUNCTION ORA_MEDIAN\s*\(")
+        self.assertRegex(sql, r"(?is)JSON_TABLE\s*\(")
+        self.assertRegex(sql, r"(?is)ROW_NUMBER\s*\(\s*\)\s*OVER\s*\(")
+        self.assertRegex(sql, r"(?is)COUNT\s*\(\s*\*\s*\)\s*OVER\s*\(")
+        self.assertRegex(sql, r"(?is)WHERE\s+V_VALUE\s+IS\s+NOT\s+NULL")
+        self.assertRegex(sql, r"(?is)SELECT\s+AVG\s*\(\s*V_VALUE\s*\)")
+
+    def test_raise_application_error_helper_signals_a_mysql_user_exception(self):
+        sql = EXTRA_SQL.read_text(encoding="utf-8")
+
+        self.assertRegex(sql, r"(?is)CREATE PROCEDURE ORA_RAISE_APPLICATION_ERROR\s*\(")
+        self.assertRegex(sql, r"(?is)SIGNAL\s+SQLSTATE\s+'45000'")
+        self.assertRegex(sql, r"(?is)SET\s+MESSAGE_TEXT\s*=\s*V_MESSAGE")
+
+    def test_date_helpers_preserve_oracle_fractional_day_arithmetic(self):
+        sql = EXTRA_SQL.read_text(encoding="utf-8")
+
+        self.assertRegex(sql, r"(?is)CREATE FUNCTION ORA_DATE_ADD\s*\(")
+        self.assertRegex(sql, r"(?is)TIMESTAMPADD\s*\(\s*MICROSECOND")
+        self.assertRegex(sql, r"(?is)P_DAYS\s*\*\s*86400000000")
+        self.assertRegex(sql, r"(?is)CREATE FUNCTION ORA_DATE_DIFF\s*\(")
+        self.assertRegex(sql, r"(?is)TIMESTAMPDIFF\s*\(\s*MICROSECOND")
+        self.assertRegex(sql, r"(?is)/\s*86400000000")
+
     def test_seed_values_are_one_before_exported_next_values(self):
         sql = EXTRA_SQL.read_text(encoding="utf-8")
 

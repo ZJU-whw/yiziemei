@@ -2,32 +2,50 @@ DELIMITER $$
 
 DROP PROCEDURE IF EXISTS TMP_PRO_EDOC_TRIGGER_LCSLID$$
 
-CREATE procedure TMP_PRO_EDOC_TRIGGER_LCSLID
+CREATE procedure TMP_PRO_EDOC_TRIGGER_LCSLID()
 routine_body: BEGIN
   DECLARE LN_CNT           DECIMAL(38,10);
-  
+
 
     SET LN_CNT =0;
-    FOR CUR_LCXX IN (
-        select IFNULL(dj.shxyno, dj.nsrdjno) as NSRSBH,lc.sbywb_dm,lc.sb_ym,IFNULL(lc.sb_pc, '001') as sb_pc,lc.lcslid
+    BEGIN
+  DECLARE BJTS_CURSOR_DONE_001 BOOLEAN DEFAULT FALSE;
+  DECLARE BJTS_CUR_LCXX_NSRSBH_001 LONGTEXT;
+  DECLARE BJTS_CUR_LCXX_SBYWB_DM_001 LONGTEXT;
+  DECLARE BJTS_CUR_LCXX_SB_YM_001 LONGTEXT;
+  DECLARE BJTS_CUR_LCXX_SB_PC_001 LONGTEXT;
+  DECLARE BJTS_CUR_LCXX_LCSLID_001 LONGTEXT;
+  DECLARE BJTS_CURSOR_001 CURSOR FOR
+select IFNULL(dj.shxyno, dj.nsrdjno) as NSRSBH,lc.sbywb_dm,lc.sb_ym,IFNULL(lc.sb_pc, '001') as sb_pc,lc.lcslid
                from glxt_bb_shxt_lcxx lc,glxt_bb_shxt_djxx dj
-             where lc.djxh=dj.djxh_js and lc.sbywb_dm in ('A0301001','A0305001')  
-                   and lc.sb_date >=date'2022-04-01'      
-        )
-    LOOP
+             where lc.djxh=dj.djxh_js and lc.sbywb_dm in ('A0301001','A0305001')
+                   and lc.sb_date >=CAST('2022-04-01' AS DATE);
+  OPEN BJTS_CURSOR_001;
+  BJTS_CURSOR_LOOP_001: LOOP
+    SET BJTS_CURSOR_DONE_001 = FALSE;
+    BEGIN
+      DECLARE CONTINUE HANDLER FOR NOT FOUND SET BJTS_CURSOR_DONE_001 = TRUE;
+      FETCH BJTS_CURSOR_001 INTO BJTS_CUR_LCXX_NSRSBH_001, BJTS_CUR_LCXX_SBYWB_DM_001, BJTS_CUR_LCXX_SB_YM_001, BJTS_CUR_LCXX_SB_PC_001, BJTS_CUR_LCXX_LCSLID_001;
+    END;
+    IF BJTS_CURSOR_DONE_001 THEN
+      LEAVE BJTS_CURSOR_LOOP_001;
+    END IF;
       SET LN_CNT =LN_CNT+1;
-      update edoc_record_trigger_result r set r.lcslid=CUR_LCXX.Lcslid
+      update edoc_record_trigger_result AS r set lcslid=BJTS_CUR_LCXX_LCSLID_001
              where r.busikey=
-             CUR_LCXX.NSRSBH || '|' || CUR_LCXX.SBYWB_DM || '|' || CUR_LCXX.SB_YM || '|' || CUR_LCXX.SB_PC;
-      
+             ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(BJTS_CUR_LCXX_NSRSBH_001, '|'), BJTS_CUR_LCXX_SBYWB_DM_001), '|'), BJTS_CUR_LCXX_SB_YM_001), '|'), BJTS_CUR_LCXX_SB_PC_001);
+
       IF LN_CNT=100 THEN
-            commit;  
-            SET LN_CNT =0; 
-            Exit;    
+            commit;
+            SET LN_CNT =0;
+            LEAVE BJTS_CURSOR_LOOP_001;
       END IF;
-    END LOOP;
-    commit;  
-  
+
+  END LOOP BJTS_CURSOR_LOOP_001;
+  CLOSE BJTS_CURSOR_001;
+END;
+    commit;
+
 END$$
 
 DELIMITER ;

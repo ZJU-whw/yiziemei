@@ -2,7 +2,7 @@ DELIMITER $$
 
 DROP PROCEDURE IF EXISTS PRO_FXGL_SZYJ_MMYLRL_PERM$$
 
-CREATE PROCEDURE PRO_FXGL_SZYJ_MMYLRL_PERM
+CREATE PROCEDURE PRO_FXGL_SZYJ_MMYLRL_PERM()
 /*
  * 风险管理——事中预警——外贸企业每美元利润率刷新（每月）
  */
@@ -41,28 +41,28 @@ routine_body: BEGIN
   )
   select tsswjg_dm,djxh,
          count(distinct ckbgdh) as sbywbs,max(mmylrl) as mmylrl_max,min(mmylrl) as mmylrl_min,
-         median(mmylrl) as mmylrl_mid,avg(mmylrl) as mmylrl_avg,stddev(mmylrl) as mmylrl_std,
+         ORA_MEDIAN(JSON_ARRAYAGG(mmylrl)) as mmylrl_mid,avg(mmylrl) as mmylrl_avg,stddev(mmylrl) as mmylrl_std,
          sum(mylaj) as mylaj,sum(rmblaj) as rmblaj,sum(jhcb) as jhcb,
          round((sum(rmblaj)-sum(jhcb))/sum(mylaj),2) as mmylrl_yjx
     from mx
    group by tsswjg_dm,djxh
   ;
   commit;
-    
+
   insert into yj_cs_wmqymmylrl(swjg_dm,sbqyhs,sbywbs,mmylrl_max,mmylrl_min,mmylrl_mid,mmylrl_avg,mmylrl_std,mylaj,rmblaj,jhcb,mmylrl_yjx)
   select swjg_dm,
          count(distinct djxh) as sbqyhs,sum(sbywbs) as sbywbs,
          max(mmylrl_yjx) as mmylrl_max,min(mmylrl_yjx) as mmylrl_min,
-         median(mmylrl_yjx) as mmylrl_mid,avg(mmylrl_yjx) as mmylrl_avg,stddev(mmylrl_yjx) as mmylrl_std,
+         ORA_MEDIAN(JSON_ARRAYAGG(mmylrl_yjx)) as mmylrl_mid,avg(mmylrl_yjx) as mmylrl_avg,stddev(mmylrl_yjx) as mmylrl_std,
          sum(mylaj) as mylaj,sum(rmblaj) as rmblaj,sum(jhcb) as jhcb,
          round((sum(rmblaj)-sum(jhcb))/sum(mylaj),2) as mmylrl_yjx
     from yj_cs_wmqymmylrl_fqy
    group by swjg_dm
    union all
-  select substr(swjg_dm,1,5)||'000000',
+  select ORA_CONCAT(substr(swjg_dm,1,5), '000000'),
          count(distinct djxh) as sbqyhs,sum(sbywbs) as sbywbs,
          max(mmylrl_yjx) as mmylrl_max,min(mmylrl_yjx) as mmylrl_min,
-         median(mmylrl_yjx) as mmylrl_mid,avg(mmylrl_yjx) as mmylrl_avg,stddev(mmylrl_yjx) as mmylrl_std,
+         ORA_MEDIAN(JSON_ARRAYAGG(mmylrl_yjx)) as mmylrl_mid,avg(mmylrl_yjx) as mmylrl_avg,stddev(mmylrl_yjx) as mmylrl_std,
          sum(mylaj) as mylaj,sum(rmblaj) as rmblaj,sum(jhcb) as jhcb,
          round((sum(rmblaj)-sum(jhcb))/sum(mylaj),2) as mmylrl_yjx
     from yj_cs_wmqymmylrl_fqy
@@ -71,7 +71,7 @@ routine_body: BEGIN
   select '13300000000',
          count(distinct djxh) as sbqyhs,sum(sbywbs) as sbywbs,
          max(mmylrl_yjx) as mmylrl_max,min(mmylrl_yjx) as mmylrl_min,
-         median(mmylrl_yjx) as mmylrl_mid,avg(mmylrl_yjx) as mmylrl_avg,stddev(mmylrl_yjx) as mmylrl_std,
+         ORA_MEDIAN(JSON_ARRAYAGG(mmylrl_yjx)) as mmylrl_mid,avg(mmylrl_yjx) as mmylrl_avg,stddev(mmylrl_yjx) as mmylrl_std,
          sum(mylaj) as mylaj,sum(rmblaj) as rmblaj,sum(jhcb) as jhcb,
          round((sum(rmblaj)-sum(jhcb))/sum(mylaj),2) as mmylrl_yjx
     from yj_cs_wmqymmylrl_fqy

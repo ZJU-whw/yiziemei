@@ -6,8 +6,6 @@ CREATE PROCEDURE func_get_sblist_Sort(p_czryDm VARCHAR(4000),p_sbywbDm VARCHAR(4
        p_sort VARCHAR(4000),p_offset DECIMAL(38,10),p_rows DECIMAL(38,10),p_filter VARCHAR(4000))
 routine_body: BEGIN
   -- Oracle REF CURSOR type removed; target uses a result set;
-  DECLARE my_cursor Type_Cursor;
-  DECLARE o_tb type_tb_sblist DEFAULT type_tb_sblist();
   DECLARE dyn_select VARCHAR(1500);
   DECLARE sorting VARCHAR(200);
   DECLARE startRow DECIMAL(38,10);
@@ -29,19 +27,25 @@ routine_body: BEGIN
   DECLARE v_cqbz BIGINT;
   DECLARE v_czry_qxswjg VARCHAR(11);
   DECLARE v_czry_swjg VARCHAR(11);
-  
 
-  --提取操作员的退税税务机关代码，并计算权限机关代码
+
+  -- 提取操作员的退税税务机关代码，并计算权限机关代码
   begin
-    select IFNULL(qx_swjg, swjg_dm) into v_czry_swjg
+  DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
+
+  DECLARE EXIT HANDLER FOR NOT FOUND
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
+       DO '操作员不存在';
+       SELECT NULL AS SBID, NULL AS SSSQ, NULL AS SBRQ, NULL AS QYHGDM, NULL AS NSRMC, NULL AS SBYWBDM, NULL AS FLGLCD, NULL AS ZZSBB, NULL AS ZS_SWJG_MC, NULL AS TS_SWJG_MC, NULL AS TSJSFS, NULL AS SBYWBMC, NULL AS SBTMSE, NULL AS YDCNT, NULL AS YJCNT, NULL AS CQBZ WHERE 1 = 0; LEAVE routine_body;
+
+  END;
+select IFNULL(qx_swjg, swjg_dm) into v_czry_swjg
       from dm_czry where czry_dm =p_czryDm;
-  EXCEPTION
-  WHEN no_data_found THEN
-       DBMS_OUTPUT.put_line('操作员不存在');
-       LEAVE routine_body;
   end;
   SET v_czry_qxswjg =func_get_qxswjg(v_czry_swjg) ;
-  
+
   if p_offset <= 0 then
     SET startRow =1;
   else
@@ -60,48 +64,34 @@ routine_body: BEGIN
   if (IFNULL(p_filter, ' ') = ' ')  then
      SET v_filter ='';
   else
-     SET v_filter =' and ' || p_filter || ' ';
+     SET v_filter =ORA_CONCAT(ORA_CONCAT(' and ', p_filter), ' ');
   end if;
   SET dyn_select =
-      'select ZZ.*,'
-      || ' (select count(*) from CKTS_XXBD_YDXX YD where ZZ.sbid=YD.Sbid) AS ydcnt, '
-      || ' (select count(*) from tl_admin.yj_data_yjxx YJ where ZZ.sbid=YJ.Sbid) AS yjcnt'
-      || '  from ('
-      || '  select sbid,sssq,sbpc,sbrq,qyhgdm,nsrmc,sbywb_dm,flglcd,zzsbb,swjg_jc,cqbz from '
-      || '(select vs.sbid, vs.sssq, vs.sbpc, vs.sbrq, vs.qyhgdm, vs.nsrmc, vs.sbywb_dm,vs.flglcd,vs.zzsbb,vs.swjg_jc,vs.sbzl_dm,'
-      || ' case when flglcd in (''A'',''B'') then case when sbzl_dm in (''TSSB'') and (sysdate - sbrq)>5 then 1 else 0 end else case when sbzl_dm in (''TSSB'') and  (sysdate - sbrq)>10 then 1 else 0 end end as cqbz,'
-      || '     row_number() over(ORDER BY ' ||  sorting ||  ') rn '
-      || 'from v_sbxx_sbdr_filemode vs '
-      || ' where vs.swjg_dm like ''' || v_czry_qxswjg || ''' and '
-      || 'vs.sbywb_dm=''' || p_sbywbDm || ''' '
-      || v_filter
-      || 'and ( '
-      || ' (vs.sbr is not null and vs.sbr=''' || p_czryDm || ''') or '
-      || ' (vs.sbr is null and ( '
-      || 'exists (select 1 from sys_cfg_czry_fpgl sc2 '
-      || 'where sc2.czry_dm=''' || p_czryDm || ''' and sc2.swjg_dm like ''%'' || vs.swjg_dm || ''%'' and sc2.qybz=''Y'' '
-      || ' and (vs.sbywb_dm=''A0101001'' or '
-      || '( (coalesce(sc2.zsjg_dm_set,'' '')='' '' or vs.zs_swjg_dm is null or sc2.zsjg_dm_set like ''%'' || vs.zs_swjg_dm || ''%'') '
-      || 'and (coalesce(sc2.zgswry_dm_set,'' '')='' '') '
-      || 'and (coalesce(sc2.flgl_set,'' '')='' '' or sc2.flgl_set like ''%'' || vs.flglcd || ''%'') '
-      || 'and (vs.sbzl_dm<>''TSSB'' OR (coalesce(sc2.jsmode_set,'' '')='' '' or sc2.jsmode_set like ''%'' || vs.tsjsfs_dm || ''%''))))))) '
-      || ')) TT where rn between ' || startRow || ' and ' || endRow || ' order by rn'
-      || ')ZZ';
+      ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('select ZZ.*,', ' (select count(*) from CKTS_XXBD_YDXX YD where ZZ.sbid=YD.Sbid) AS ydcnt, '), ' (select count(*) from yj_data_yjxx YJ where ZZ.sbid=YJ.Sbid) AS yjcnt'), '  from ('), '  select sbid,sssq,sbpc,sbrq,qyhgdm,nsrmc,sbywb_dm,flglcd,zzsbb,swjg_jc,cqbz from '), '(select vs.sbid, vs.sssq, vs.sbpc, vs.sbrq, vs.qyhgdm, vs.nsrmc, vs.sbywb_dm,vs.flglcd,vs.zzsbb,vs.swjg_jc,vs.sbzl_dm,'), ' case when flglcd in (''A'',''B'') then case when sbzl_dm in (''TSSB'') and (ORA_DATE_DIFF(CURRENT_TIMESTAMP, sbrq))>5 then 1 else 0 end else case when sbzl_dm in (''TSSB'') and  (ORA_DATE_DIFF(CURRENT_TIMESTAMP, sbrq))>10 then 1 else 0 end end as cqbz,'), '     row_number() over(ORDER BY '), sorting), ') rn '), 'from v_sbxx_sbdr_filemode vs '), ' where vs.swjg_dm like '''), v_czry_qxswjg), ''' and '), 'vs.sbywb_dm='''), p_sbywbDm), ''' '), v_filter), 'and ( '), ' (vs.sbr is not null and vs.sbr='''), p_czryDm), ''') or '), ' (vs.sbr is null and ( '), 'exists (select 1 from sys_cfg_czry_fpgl sc2 '), 'where sc2.czry_dm='''), p_czryDm), ''' and sc2.swjg_dm like ORA_CONCAT(ORA_CONCAT(''%'', vs.swjg_dm), ''%'') and sc2.qybz=''Y'' '), ' and (vs.sbywb_dm=''A0101001'' or '), '( (coalesce(sc2.zsjg_dm_set,'' '')='' '' or vs.zs_swjg_dm is null or sc2.zsjg_dm_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.zs_swjg_dm), ''%'')) '), 'and (coalesce(sc2.zgswry_dm_set,'' '')='' '') '), 'and (coalesce(sc2.flgl_set,'' '')='' '' or sc2.flgl_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.flglcd), ''%'')) '), 'and (vs.sbzl_dm<>''TSSB'' OR (coalesce(sc2.jsmode_set,'' '')='' '' or sc2.jsmode_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.tsjsfs_dm), ''%'')))))))) '), ')) TT where rn between '), startRow), ' and '), endRow), ' order by rn'), ')ZZ');
 
-     
-  OPEN my_cursor FOR dyn_select;
-  LOOP 
-    FETCH my_cursor INTO v_sbid,v_sssq,v_sbpc,v_sbrq,v_qyhgdm,v_nsrmc,v_sbywbdm,v_flglcd,v_zzsbb,v_swjg_jc,v_cqbz,v_ydcnt,v_yjcnt;
-    EXIT WHEN my_cursor%NOTFOUND;
-    o_tb.extend;
-    SET i = i + 1;
-    o_tb(i) := type_rec_sblist (v_sbid,
-            case when v_sbywbdm='A0301001' then v_sssq || DATE_FORMAT(v_sbpc, '00') else v_sssq end,
-            v_sbrq, v_qyhgdm,v_nsrmc,v_sbywbdm,v_flglcd,v_zzsbb,v_swjg_jc,'','','',0,v_ydcnt,v_yjcnt,v_cqbz);
-  END LOOP;
-  CLOSE my_cursor;
 
-  LEAVE routine_body;
+  SET dyn_select = CONCAT('WITH BJTS_RESULT_SOURCE (v_sbid, v_sssq, v_sbpc, v_sbrq, v_qyhgdm, v_nsrmc, v_sbywbdm, v_flglcd, v_zzsbb, v_swjg_jc, v_cqbz, v_ydcnt, v_yjcnt) AS (', dyn_select, ') SELECT v_sbid AS SBID,
+       case when v_sbywbdm=''A0301001'' then ORA_CONCAT(v_sssq, LPAD(CAST(v_sbpc AS CHAR), 2, ''0'')) else v_sssq end AS SSSQ,
+       v_sbrq AS SBRQ,
+       v_qyhgdm AS QYHGDM,
+       v_nsrmc AS NSRMC,
+       v_sbywbdm AS SBYWBDM,
+       v_flglcd AS FLGLCD,
+       v_zzsbb AS ZZSBB,
+       v_swjg_jc AS ZS_SWJG_MC,
+       '''' AS TS_SWJG_MC,
+       '''' AS TSJSFS,
+       '''' AS SBYWBMC,
+       0 AS SBTMSE,
+       v_ydcnt AS YDCNT,
+       v_yjcnt AS YJCNT,
+       v_cqbz AS CQBZ FROM BJTS_RESULT_SOURCE');
+  SET @BJTS_RESULT_SQL_001 = dyn_select;
+  PREPARE BJTS_RESULT_STMT_001 FROM @BJTS_RESULT_SQL_001;
+  EXECUTE BJTS_RESULT_STMT_001;
+  DEALLOCATE PREPARE BJTS_RESULT_STMT_001;
+
+
 END$$
 
 DELIMITER ;

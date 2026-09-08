@@ -15,29 +15,40 @@ routine_body: BEGIN
   DECLARE V_ZB_ID      VARCHAR(30);
   DECLARE V_ZB_VAL     DECIMAL(18,2);
   DECLARE V_BADPOINT   CHAR(1);
-  DECLARE VAL1         DECIMAL(18,2);    --参数1
-  DECLARE VAL2         DECIMAL(18,2);    --参数2
-  DECLARE VAL3         DECIMAL(18,2);    --参数3
-  DECLARE VALPJ        DECIMAL(18,2);    --参数平均值
+  DECLARE VAL1         DECIMAL(18,2);    -- 参数1
+  DECLARE VAL2         DECIMAL(18,2);    -- 参数2
+  DECLARE VAL3         DECIMAL(18,2);    -- 参数3
+  DECLARE VALPJ        DECIMAL(18,2);    -- 参数平均值
 --  VTYPE        VARCHAR2(10);  --参数类型，区分百分比
-  DECLARE V_YC         INTEGER;         --异常判断规则XH
-  DECLARE V_SCORE      INTEGER;         --赋分
-  DECLARE V_SUCCESS    INTEGER;         --存储过程执行结果 1成功 0发生异常
---全省平均
+  DECLARE V_YC         INTEGER;         -- 异常判断规则XH
+  DECLARE V_SCORE      INTEGER;         -- 赋分
+  DECLARE V_SUCCESS    INTEGER;         -- 存储过程执行结果 1成功 0发生异常
+-- 全省平均
   DECLARE V_MLL        DECIMAL(18,2);
   DECLARE V_HYSFL      DECIMAL(18,2);
   DECLARE V_FYSRB      DECIMAL(18,2);
   DECLARE V_DWGDZCXSE    DECIMAL(18,2);
   DECLARE V_DWJYMJXSE    DECIMAL(18,2);
 
-  DECLARE CUR_ZB(A_DJXH DECIMAL(38,10)) CURSOR FOR
-      SELECT T.ZB_ID,T.ZB_VAL,T.BADPOINT FROM JKGL_DATA_ZB_JGB T
-        WHERE T.DJXH=A_DJXH;
+
+
+
 
   SET V_SUCCESS =1;
 
   BEGIN
-    SELECT MLL,HYSFL,FYSRB,DWGDZCXSE,DWJYMJXSE
+  DECLARE BJTS_SQLCODE_003 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_003 TEXT DEFAULT '';
+
+  DECLARE EXIT HANDLER FOR NOT FOUND
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_003 = MYSQL_ERRNO, BJTS_SQLERRM_003 = MESSAGE_TEXT;
+      SELECT NULL,NULL,NULL,NULL,NULL
+        INTO V_MLL,V_HYSFL,V_FYSRB,V_DWGDZCXSE,V_DWJYMJXSE
+;
+
+  END;
+SELECT MLL,HYSFL,FYSRB,DWGDZCXSE,DWJYMJXSE
       INTO  V_MLL,V_HYSFL,V_FYSRB,V_DWGDZCXSE,V_DWJYMJXSE
       FROM (
       SELECT T.MLL,T.HYSFL,T.FYSRB,T.DWGDZCXSE,T.DWJYMJXSE
@@ -45,27 +56,44 @@ routine_body: BEGIN
       INNER JOIN JKGL_DATA_BGQ_QSPJ S ON S.BGQID=T.BGQID AND S.QYBJ='Y'
       WHERE S.QYLX=P_TSJSFS
       ORDER BY S.BGQ_Z DESC
-      ) WHERE ROWNUM=1;
-  EXCEPTION
-    WHEN NO_DATA_FOUND THEN
-      SELECT NULL,NULL,NULL,NULL,NULL
-        INTO V_MLL,V_HYSFL,V_FYSRB,V_DWGDZCXSE,V_DWJYMJXSE
-;
+      ) WHERE 1=1
+LIMIT 1;
   END;
 
   BEGIN
-    OPEN CUR_ZB(P_DJXH);
-    LOOP
+  DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
+
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
+        SET V_SUCCESS =0;
+        DO ORA_CONCAT(ORA_CONCAT('Exception!', BJTS_SQLCODE_001), BJTS_SQLERRM_001);
+
+  END;
+BEGIN
+  DECLARE BJTS_FETCH_DONE_001 BOOLEAN DEFAULT FALSE;
+  DECLARE BJTS_FETCH_CURSOR_001 CURSOR FOR
+SELECT T.ZB_ID,T.ZB_VAL,T.BADPOINT FROM JKGL_DATA_ZB_JGB T
+        WHERE T.DJXH=(P_DJXH);
+  OPEN BJTS_FETCH_CURSOR_001;
+  BJTS_FETCH_LOOP_001: LOOP
       -- 取一条指标
-      FETCH CUR_ZB INTO V_ZB_ID,V_ZB_VAL,V_BADPOINT;
-      EXIT WHEN CUR_ZB%NOTFOUND;
+      BEGIN
+      DECLARE CONTINUE HANDLER FOR NOT FOUND SET BJTS_FETCH_DONE_001 = TRUE;
+      FETCH BJTS_FETCH_CURSOR_001 INTO V_ZB_ID, V_ZB_VAL, V_BADPOINT;
+    END;
+    IF BJTS_FETCH_DONE_001 THEN
+      LEAVE BJTS_FETCH_LOOP_001;
+    END IF;
+
 
       IF IFNULL(V_BADPOINT, 'Y')<>'N' OR V_ZB_VAL IS NULL THEN
-        CONTINUE;
+        ITERATE BJTS_FETCH_LOOP_001;
       END IF;
 
       IF P_TSJSFS='1' THEN
-        --生产L
+        -- 生产L
       CASE V_ZB_ID
           WHEN 'S10101'  THEN    -- 企业经营稳定性
             SELECT IFNULL(S.VAL_DEF, T.VAL_DEF) INTO VAL1
@@ -119,7 +147,7 @@ routine_body: BEGIN
               ELSE SET V_YC =0;
             END CASE;
           WHEN 'S10201'  THEN    -- 平均固定资产销售额
-            --取全省平均
+            -- 取全省平均
             SET VALPJ =V_DWGDZCXSE;
 
             SELECT IFNULL(S.VAL_DEF, T.VAL_DEF) INTO VAL1
@@ -140,7 +168,7 @@ routine_body: BEGIN
             END CASE;
 
           WHEN 'S10202'  THEN    -- 平均生产面积销售额
-            --取全省平均
+            -- 取全省平均
             SET VALPJ =V_DWJYMJXSE;
 
             SELECT IFNULL(S.VAL_DEF, T.VAL_DEF) INTO VAL1
@@ -416,7 +444,7 @@ routine_body: BEGIN
               ELSE SET V_YC =0;
             END CASE;
           WHEN 'S50301'  THEN    -- 还原税负率
-            --取全省平均
+            -- 取全省平均
             SET VALPJ =V_HYSFL;
 
             IF VALPJ IS NULL OR VALPJ=0 THEN
@@ -445,10 +473,10 @@ routine_body: BEGIN
             END CASE;
 
           ELSE
-            CONTINUE;
+            ITERATE BJTS_FETCH_LOOP_001;
         END CASE;
       ELSE
-        --外贸W类指标
+        -- 外贸W类指标
         CASE V_ZB_ID
             WHEN 'W10101'  THEN    -- 企业存续时间是否较短
               SELECT IFNULL(S.VAL_DEF, T.VAL_DEF) INTO VAL1
@@ -819,7 +847,7 @@ routine_body: BEGIN
               END CASE;
 
             WHEN 'W50102'  THEN    -- 总体毛利率与全省平均相比偏离较大
-              --取全省平均
+              -- 取全省平均
               SET VALPJ =V_MLL;
 
               IF VALPJ IS NULL OR VALPJ=0 THEN
@@ -838,7 +866,7 @@ routine_body: BEGIN
       --      WHEN 'W50201'  THEN    -- 出口企业税负率与全省平均值相比偏离是否较大
       --        CONTINUE;
             WHEN 'W50202'  THEN    -- 企业还原税负率异常
-              --取全省平均
+              -- 取全省平均
               SET VALPJ =V_HYSFL;
 
               IF VALPJ IS NULL OR VALPJ=0 THEN
@@ -867,7 +895,7 @@ routine_body: BEGIN
                 WHEN V_ZB_VAL>=VAL1 THEN SET V_YC =1;
                 ELSE SET V_YC =0;
               END CASE;
-              
+
     --        WHEN 'W50303'  THEN    -- 应付账款周转率
     --          CONTINUE;
             WHEN 'W50304'  THEN    -- 应付账款占营业成本额比重
@@ -881,14 +909,14 @@ routine_body: BEGIN
                 WHEN V_ZB_VAL>=VAL1 THEN SET V_YC =1;
                 ELSE SET V_YC =0;
               END CASE;
-              
+
       --      WHEN 'W50401'  THEN    -- 企业是否按规定缴纳社保
       --        CONTINUE;
             WHEN 'W50402'  THEN    -- 企业缴纳社保的人员与企业实际人员是否匹配
               CASE WHEN V_ZB_VAL=1 THEN SET V_YC =1; ELSE SET V_YC =0; END CASE;
 
             WHEN 'W50501'  THEN    -- 企业销售费用与企业营业收入的比值是否异常
-              --取全省平均
+              -- 取全省平均
               SET VALPJ =V_FYSRB;
 
               IF VALPJ IS NULL OR VALPJ=0 THEN
@@ -932,10 +960,19 @@ routine_body: BEGIN
           END CASE;
       END IF;
 
-      --提取异常XH的赋分
+      -- 提取异常XH的赋分
       IF V_YC>0 THEN
         BEGIN
-          SELECT IFNULL(IFNULL(S.SCORE, T.SCORE), 0) INTO V_SCORE
+  DECLARE BJTS_SQLCODE_002 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_002 TEXT DEFAULT '';
+
+  DECLARE EXIT HANDLER FOR NOT FOUND
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_002 = MYSQL_ERRNO, BJTS_SQLERRM_002 = MESSAGE_TEXT;
+             SET V_SCORE =0;
+
+  END;
+SELECT IFNULL(IFNULL(S.SCORE, T.SCORE), 0) INTO V_SCORE
             FROM JKGL_PZ_ZB_YCFF T
             LEFT JOIN JKGL_PZ_ZB_YCFF_SWJG S
               ON S.ZB_ID = T.ZB_ID
@@ -944,30 +981,29 @@ routine_body: BEGIN
              AND S.YXBZ = 'Y'
            WHERE T.ZB_ID = V_ZB_ID AND T.XH=V_YC
              AND T.YXBZ = 'Y';
-         EXCEPTION
-           WHEN NO_DATA_FOUND THEN
-             SET V_SCORE =0;
          END;
        ELSE
          SET V_SCORE =0;
        END IF;
 
-       --更新健康码指标赋分表
-       UPDATE JKGL_DATA_ZB_JGB T SET T.YC_RESULT=V_YC, T.SCORE=V_SCORE, T.FF_STATUS='1',T.UPTIME=CURRENT_TIMESTAMP
+       -- 更新健康码指标赋分表
+       UPDATE JKGL_DATA_ZB_JGB AS T SET YC_RESULT=V_YC,
+    SCORE=V_SCORE,
+    FF_STATUS='1',
+    UPTIME=CURRENT_TIMESTAMP
          WHERE T.DJXH=P_DJXH AND T.ZB_ID=V_ZB_ID;
 
-    END LOOP;
-  EXCEPTION
-    WHEN OTHERS THEN
-        SET V_SUCCESS =0;
-        DBMS_OUTPUT.PUT_LINE('Exception!'||SQLCODE || SQLERRM);
+
+  END LOOP BJTS_FETCH_LOOP_001;
+  CLOSE BJTS_FETCH_CURSOR_001;
+END;
   END;
 
   IF V_SUCCESS=1 THEN
      COMMIT;
   ELSE
      ROLLBACK;
-     RAISE_APPLICATION_ERROR(-20001,'【健康码】指标判定：'||P_DJXH);
+     CALL ORA_RAISE_APPLICATION_ERROR(-20001,ORA_CONCAT('【健康码】指标判定：', P_DJXH));
   END IF;
 
   LEAVE routine_body;

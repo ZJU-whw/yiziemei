@@ -52,6 +52,67 @@ ORACLE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("oracle_execute_immediate", re.compile(r"\bEXECUTE\s+IMMEDIATE\b", re.I)),
     ("oracle_dbms", re.compile(r"\bDBMS_[A-Z0-9_$#]+", re.I)),
     ("oracle_sql_attribute", re.compile(r"\bSQL\s*%\s*(?:ROWCOUNT|FOUND|NOTFOUND)\b", re.I)),
+    ("oracle_next_day", re.compile(r"\bNEXT_DAY\s*\(", re.I)),
+    ("oracle_sys_guid", re.compile(r"\bSYS_GUID\s*\(", re.I)),
+    ("oracle_wm_concat", re.compile(r"\bWM_CONCAT\s*\(", re.I)),
+    ("oracle_trunc", re.compile(r"\bTRUNC\s*\(", re.I)),
+    (
+        "oracle_raise_application_error",
+        re.compile(r"\bRAISE_APPLICATION_ERROR\s*\(", re.I),
+    ),
+    ("oracle_pragma", re.compile(r"\bPRAGMA\b", re.I)),
+    ("oracle_exit_when", re.compile(r"\bEXIT\s+WHEN\b", re.I)),
+    ("oracle_exit", re.compile(r"\bEXIT\s*;", re.I)),
+    ("oracle_continue", re.compile(r"\bCONTINUE\s*;", re.I)),
+    ("oracle_tuple_update", re.compile(r"\bSET\s*\(", re.I)),
+    ("oracle_rowid", re.compile(r"\bROWID\b", re.I)),
+    ("oracle_pipe_row", re.compile(r"\bPIPE\s+ROW\s*\(", re.I)),
+    ("oracle_pipelined", re.compile(r"\bPIPELINED\b", re.I)),
+    ("oracle_bulk_collect", re.compile(r"\bBULK\s+COLLECT\b", re.I)),
+    ("oracle_forall", re.compile(r"\bFORALL\b", re.I)),
+    ("oracle_type_reference", re.compile(r"%\s*TYPE\b", re.I)),
+    ("oracle_connect_by", re.compile(r"\bCONNECT\s+BY\b", re.I)),
+    ("oracle_start_with", re.compile(r"\bSTART\s+WITH\b", re.I)),
+    ("oracle_outer_join", re.compile(r"\(\s*\+\s*\)", re.I)),
+    ("oracle_concat_operator", re.compile(r"\|\|")),
+    ("oracle_to_number", re.compile(r"\bTO_NUMBER\s*\(", re.I)),
+    ("oracle_median", re.compile(r"\bMEDIAN\s*\(", re.I)),
+    ("oracle_to_timestamp", re.compile(r"\bTO_TIMESTAMP(?:_TZ)?\s*\(", re.I)),
+    ("oracle_chr", re.compile(r"\bCHR\s*\(", re.I)),
+    ("oracle_byte_string_function", re.compile(r"\b(?:LENGTHB|INSTRB|SUBSTRB)\s*\(", re.I)),
+    ("oracle_bitand", re.compile(r"\bBITAND\s*\(", re.I)),
+    ("oracle_sys_context", re.compile(r"\bSYS_CONTEXT\s*\(", re.I)),
+    ("oracle_hash", re.compile(r"\b(?:ORA_HASH|STANDARD_HASH)\s*\(", re.I)),
+    ("oracle_nlssort", re.compile(r"\bNLSSORT\s*\(", re.I)),
+    ("oracle_empty_lob", re.compile(r"\bEMPTY_[CB]LOB\s*\(", re.I)),
+    ("oracle_interval_function", re.compile(r"\bNUMTO(?:DS|YM)INTERVAL\s*\(", re.I)),
+    ("oracle_minus", re.compile(r"\bMINUS\b", re.I)),
+    ("oracle_null_order", re.compile(r"\bNULLS\s+(?:FIRST|LAST)\b", re.I)),
+    ("oracle_fetch_first", re.compile(r"\bFETCH\s+FIRST\b", re.I)),
+    ("oracle_insert_all", re.compile(r"\bINSERT\s+ALL\b", re.I)),
+    ("oracle_returning_into", re.compile(r"\bRETURNING\b[^;]*\bINTO\b", re.I)),
+    ("oracle_named_argument", re.compile(r"=>")),
+    ("oracle_ref_cursor", re.compile(r"\bREF\s+CURSOR\b", re.I)),
+    ("oracle_open_for", re.compile(r"\bOPEN\s+[A-Z_$#][\w$#]*\s+FOR\b", re.I)),
+    ("oracle_for_loop", re.compile(r"\bFOR\s+[A-Z_$#][\w$#]*\s+IN\b", re.I)),
+    ("oracle_table_function", re.compile(r"\bTABLE\s*\(", re.I)),
+    ("oracle_goto", re.compile(r"\bGOTO\b", re.I)),
+    ("oracle_raise", re.compile(r"\bRAISE\b", re.I)),
+    (
+        "oracle_global_temporary",
+        re.compile(r"\bGLOBAL\s+TEMPORARY\b", re.I),
+    ),
+    (
+        "oracle_on_commit_rows",
+        re.compile(r"\bON\s+COMMIT\s+(?:DELETE|PRESERVE)\s+ROWS\b", re.I),
+    ),
+    (
+        "oracle_user_metadata",
+        re.compile(r"\b(?:USER|ALL|DBA)_(?:TABLES|OBJECTS|SOURCE|SEQUENCES)\b", re.I),
+    ),
+    ("oracle_date_literal", re.compile(r"\bDATE\s*'", re.I)),
+    ("oracle_pls_integer", re.compile(r"\b(?:PLS_INTEGER|BINARY_INTEGER)\b", re.I)),
+    ("oracle_collection_extend", re.compile(r"\.\s*EXTEND\b", re.I)),
 )
 
 
@@ -148,6 +209,52 @@ def _line_number(text: str, offset: int) -> int:
     return text.count("\n", 0, offset) + 1
 
 
+def _invalid_mysql_dash_comment_lines(sql: str) -> list[int]:
+    """Return executable ``--text`` lines, ignoring literals and block comments."""
+
+    lines: list[int] = []
+    index = 0
+    line = 1
+    state = "code"
+    while index < len(sql):
+        char = sql[index]
+        following = sql[index + 1] if index + 1 < len(sql) else ""
+
+        if char == "\n":
+            line += 1
+            if state == "line_comment":
+                state = "code"
+            index += 1
+            continue
+
+        if state == "code":
+            if char == "'":
+                state = "string"
+            elif char == "/" and following == "*":
+                state = "block_comment"
+                index += 1
+            elif char == "-" and following == "-":
+                comment_text = sql[index + 2] if index + 2 < len(sql) else ""
+                if comment_text and not comment_text.isspace():
+                    lines.append(line)
+                state = "line_comment"
+                index += 1
+        elif state == "string":
+            if char == "\\" and following:
+                index += 1
+            elif char == "'":
+                if following == "'":
+                    index += 1
+                else:
+                    state = "code"
+        elif state == "block_comment" and char == "*" and following == "/":
+            state = "code"
+            index += 1
+
+        index += 1
+    return lines
+
+
 def scan_output_file(path: Path) -> list[Finding]:
     """Find known Oracle-only constructs in executable SQL segments."""
 
@@ -160,6 +267,73 @@ def scan_output_file(path: Path) -> list[Finding]:
             source_line = text.splitlines()[line - 1].strip()
             findings.append(Finding(code=code, line=line, excerpt=source_line[:240]))
     return findings
+
+
+_ROUTINE_IDENTIFIER = r"`?([A-Z_](?:[A-Z0-9_]|\$(?!\$))*)`?"
+_CREATE_ROUTINE = re.compile(
+    rf"\bCREATE\s+(PROCEDURE|FUNCTION)\s+{_ROUTINE_IDENTIFIER}", re.I
+)
+_DROP_ROUTINE = re.compile(
+    rf"\bDROP\s+(PROCEDURE|FUNCTION)\s+IF\s+EXISTS\s+{_ROUTINE_IDENTIFIER}",
+    re.I,
+)
+
+
+def validate_output_structure(path: Path) -> list[str]:
+    """Check one generated script's routine wrapper and object identity."""
+
+    text = path.read_text(encoding="utf-8")
+    executable = mask_non_executable(text)
+    errors: list[str] = []
+    expected_name = path.stem.upper()
+
+    create_matches = list(_CREATE_ROUTINE.finditer(executable))
+    if len(create_matches) != 1:
+        errors.append(f"expected exactly one CREATE routine, found {len(create_matches)}")
+        return errors
+
+    create_match = create_matches[0]
+    create_type = create_match.group(1).upper()
+    create_name = create_match.group(2).upper()
+    if create_name != expected_name:
+        errors.append(
+            f"expected object {expected_name} from filename, found {create_name}"
+        )
+
+    after_name = executable[create_match.end() :]
+    if not re.match(r"\s*\(", after_name):
+        errors.append(f"{create_name}: missing parameter parentheses after routine name")
+
+    drop_matches = list(_DROP_ROUTINE.finditer(executable))
+    if len(drop_matches) != 1:
+        errors.append(f"expected exactly one DROP routine, found {len(drop_matches)}")
+    else:
+        drop_type = drop_matches[0].group(1).upper()
+        drop_name = drop_matches[0].group(2).upper()
+        if (drop_type, drop_name) != (create_type, create_name):
+            errors.append(
+                "DROP/CREATE mismatch: "
+                f"DROP {drop_type} {drop_name}, CREATE {create_type} {create_name}"
+            )
+
+    body = executable[create_match.end() :]
+    if create_type == "FUNCTION":
+        if not re.search(r"\bRETURNS\b", body, re.I):
+            errors.append(f"{create_name}: FUNCTION is missing RETURNS")
+        if not re.search(r"\bRETURN(?=\s|\()[ \t\r\n]*(?!;)[^;]+;", body, re.I):
+            errors.append(f"{create_name}: FUNCTION is missing a value RETURN")
+    elif re.search(r"\bRETURN\b", body, re.I):
+        errors.append(f"{create_name}: PROCEDURE contains executable RETURN")
+
+    invalid_comment_lines = _invalid_mysql_dash_comment_lines(text)
+    if invalid_comment_lines:
+        rendered_lines = ", ".join(str(line) for line in invalid_comment_lines)
+        errors.append(
+            "MySQL -- comments must be followed by whitespace "
+            f"(line(s): {rendered_lines})"
+        )
+
+    return errors
 
 
 def _iter_output_files(repo_root: Path, schema: str | None) -> Iterable[Path]:
@@ -186,6 +360,8 @@ def verify(repo_root: Path, schema: str | None = None) -> list[str]:
         upper = text.upper()
         if "DELIMITER $$" not in upper or "DELIMITER ;" not in upper:
             errors.append(f"{path}: missing MySQL delimiter wrapper")
+        for structure_error in validate_output_structure(path):
+            errors.append(f"{path}: {structure_error}")
         for finding in scan_output_file(path):
             errors.append(f"{path}:{finding.line}: {finding.code}: {finding.excerpt}")
     return errors

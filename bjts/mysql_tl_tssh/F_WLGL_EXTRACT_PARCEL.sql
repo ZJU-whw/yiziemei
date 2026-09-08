@@ -29,47 +29,47 @@ BEGIN
 
   -- 1.2、DHL(10位数字)
   IF REGEXP_INSTR(UPPER(p_text),'DHL|WAYBILL') > 0 THEN
-    SET v_pattern = '(DHL|DHL NO.|WAYBILL|快递|快递号|快递单|快递单号|国际快件|提单|[^(报关|报关单|报送|报送单)]单号)[#:：_[:space:]-]{0,3}(\d{2}[[:space:]]?\d{4}[[:space:]]?\d{4})';
-    SET v_result = REGEXP_REPLACE(REGEXP_SUBSTR(p_text, v_pattern, 1, 1, 'i', 2),'[[:space:]]','');
-  END IF; 
+    SET v_pattern = '(DHL|DHL NO.|WAYBILL|快递|快递号|快递单|快递单号|国际快件|提单|[^(报关|报关单|报送|报送单)]单号)[#:：_[:space:]-]{0,3}(\\d{2}[[:space:]]?\\d{4}[[:space:]]?\\d{4})';
+    SET v_result = REGEXP_REPLACE(ORA_REGEXP_SUBSTR(p_text, v_pattern, 1, 1, 'i', 2),'[[:space:]]','');
+  END IF;
   IF v_result IS NOT NULL THEN
-    RETURN 'DHL' || UPPER(v_result);
+    RETURN ORA_CONCAT('DHL', UPPER(v_result));
   END IF;
 
   -- 1.3、FEDEX(10-12位数字)
   IF REGEXP_INSTR(UPPER(p_text),'联邦|FEDEX|TRK') > 0 THEN
-    SET v_pattern = '(FEDEX|FEDEX NO.|联邦|TRK|快递|快递号|快递单|快递单号|国际快件|提单|[^(报关|报关单|报送|报送单)]单号)[#:：_[:space:]-]{0,3}(\d{4}[[:space:]]?\d{4}[[:space:]]?\d{2,4})';
-    SET v_result = REGEXP_REPLACE(REGEXP_SUBSTR(p_text, v_pattern, 1, 1, 'i', 2),'[[:space:]]','');
-  END IF; 
+    SET v_pattern = '(FEDEX|FEDEX NO.|联邦|TRK|快递|快递号|快递单|快递单号|国际快件|提单|[^(报关|报关单|报送|报送单)]单号)[#:：_[:space:]-]{0,3}(\\d{4}[[:space:]]?\\d{4}[[:space:]]?\\d{2,4})';
+    SET v_result = REGEXP_REPLACE(ORA_REGEXP_SUBSTR(p_text, v_pattern, 1, 1, 'i', 2),'[[:space:]]','');
+  END IF;
   IF v_result IS NOT NULL THEN
-    RETURN 'FEDEX' || UPPER(v_result);
+    RETURN ORA_CONCAT('FEDEX', UPPER(v_result));
   END IF;
 
   -- 1.4、顺丰(SF+12,13位数字）
   IF REGEXP_INSTR(UPPER(p_text),'顺丰|SF') > 0 THEN
-    SET v_pattern = '(顺丰|SF|快递|快递号|快递单|快递单号|国际快件|提单|[^(报关|报关单|报送|报送单)]单号)[#:：_[:space:]-]{0,3}(\d{3}[[:space:]]?\d{3}[[:space:]]?\d{3}[[:space:]]?\d{3,4})';
-    SET v_result = REGEXP_REPLACE(REGEXP_SUBSTR(p_text, v_pattern, 1, 1, 'i', 2),'[[:space:]]','');
-  END IF; 
+    SET v_pattern = '(顺丰|SF|快递|快递号|快递单|快递单号|国际快件|提单|[^(报关|报关单|报送|报送单)]单号)[#:：_[:space:]-]{0,3}(\\d{3}[[:space:]]?\\d{3}[[:space:]]?\\d{3}[[:space:]]?\\d{3,4})';
+    SET v_result = REGEXP_REPLACE(ORA_REGEXP_SUBSTR(p_text, v_pattern, 1, 1, 'i', 2),'[[:space:]]','');
+  END IF;
   IF v_result IS NOT NULL THEN
-    RETURN 'SF' || UPPER(v_result);
+    RETURN ORA_CONCAT('SF', UPPER(v_result));
   END IF;
 
   -- 1.5、德邦(DPK|DPL+12位数字）
-  SET v_pattern = '(DPK|DPL)\d{12}';
+  SET v_pattern = '(DPK|DPL)\\d{12}';
   SET v_result = REGEXP_SUBSTR(p_text, v_pattern, 1, 1, 'i');
   IF v_result IS NOT NULL THEN
     RETURN UPPER(v_result);
   END IF;
 
   -- 1.6、跨越(KY+13位数字 or KYE+12位数字）
-  SET v_pattern = '(KY)(\d{13}|E\d{12})';
+  SET v_pattern = '(KY)(\\d{13}|E\\d{12})';
   SET v_result = REGEXP_SUBSTR(p_text, v_pattern, 1, 1, 'i');
   IF v_result IS NOT NULL THEN
     RETURN UPPER(v_result);
   END IF;
 
   -- 1.7、中通快运（ZY+12位数字）
-  SET v_pattern = '(ZY)\d{12}';
+  SET v_pattern = '(ZY)\\d{12}';
   SET v_result = REGEXP_SUBSTR(p_text, v_pattern, 1, 1, 'i');
   IF v_result IS NOT NULL THEN
     RETURN UPPER(v_result);
@@ -96,18 +96,18 @@ BEGIN
     RETURN UPPER(v_result);
   END IF;
 
-  --2.1、其他快递
-  SET v_pattern = '(快递|快递单|快递号|快递单号|快递运单|快递运单号)[:：[:space:]]{0,3}([A-Z0-9]{6,20}|\d{2,4}[[:space:]-]?\d{3,4}[[:space:]]?\d{4}|\d{2}[[:space:]-]?\d{3}[[:space:]-]?\d{3}[[:space:]-]?\d{3})';
-  SET v_result = UPPER(REGEXP_REPLACE(REGEXP_SUBSTR(p_text, v_pattern, 1, 1, 'i', 2),'[[:space:]-]',''));
+  -- 2.1、其他快递
+  SET v_pattern = '(快递|快递单|快递号|快递单号|快递运单|快递运单号)[:：[:space:]]{0,3}([A-Z0-9]{6,20}|\\d{2,4}[[:space:]-]?\\d{3,4}[[:space:]]?\\d{4}|\\d{2}[[:space:]-]?\\d{3}[[:space:]-]?\\d{3}[[:space:]-]?\\d{3})';
+  SET v_result = UPPER(REGEXP_REPLACE(ORA_REGEXP_SUBSTR(p_text, v_pattern, 1, 1, 'i', 2),'[[:space:]-]',''));
   IF v_result IS NOT NULL THEN
-    RETURN '(快递)' || UPPER(v_result);
+    RETURN ORA_CONCAT('(快递)', UPPER(v_result));
   END IF;
 
-  --2.2、其他物流
-  SET v_pattern = '(物流|物流单|物流号|物流单号)[:：[:space:]]{0,3}([A-Z0-9]{6,20}|\d{2,4}[[:space:]-]?\d{3,4}[[:space:]]?\d{4}|\d{2}[[:space:]-]?\d{3}[[:space:]-]?\d{3}[[:space:]-]?\d{3})';
-  SET v_result = UPPER(REGEXP_REPLACE(REGEXP_SUBSTR(p_text, v_pattern, 1, 1, 'i', 2),'[[:space:]-]',''));
+  -- 2.2、其他物流
+  SET v_pattern = '(物流|物流单|物流号|物流单号)[:：[:space:]]{0,3}([A-Z0-9]{6,20}|\\d{2,4}[[:space:]-]?\\d{3,4}[[:space:]]?\\d{4}|\\d{2}[[:space:]-]?\\d{3}[[:space:]-]?\\d{3}[[:space:]-]?\\d{3})';
+  SET v_result = UPPER(REGEXP_REPLACE(ORA_REGEXP_SUBSTR(p_text, v_pattern, 1, 1, 'i', 2),'[[:space:]-]',''));
   IF v_result IS NOT NULL THEN
-    RETURN '(物流)' || UPPER(v_result);
+    RETURN ORA_CONCAT('(物流)', UPPER(v_result));
   END IF;
 
   RETURN UPPER(v_result);

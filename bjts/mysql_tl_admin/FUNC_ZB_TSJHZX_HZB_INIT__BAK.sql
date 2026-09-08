@@ -15,8 +15,8 @@ BEGIN
   DECLARE v_bnljxdjhe DECIMAL(16,2);
   DECLARE v_bnljjhwcl DECIMAL(6,2);
   DECLARE v_nd varchar(4);
-  DECLARE mycursor CURSOR FOR select zbjg_dm from dm_zbjg
-         where yxbz='Y' and (p_zbjg_dm is null or zbjg_dm=p_zbjg_dm);
+
+
   DECLARE v_zbjg VARCHAR(11);
 
   -- 退税指标计划执行汇总表，记录创建
@@ -24,48 +24,74 @@ BEGIN
     return -1;
   end if;
 
-  open mycursor;
-  loop
-      fetch mycursor into v_zbjg;
-      exit when mycursor%notfound;
+  BEGIN
+  DECLARE BJTS_FETCH_DONE_001 BOOLEAN DEFAULT FALSE;
+  DECLARE BJTS_FETCH_CURSOR_001 CURSOR FOR
+select zbjg_dm from dm_zbjg
+         where yxbz='Y' and (p_zbjg_dm is null or zbjg_dm=p_zbjg_dm);
+  OPEN BJTS_FETCH_CURSOR_001;
+  BJTS_FETCH_LOOP_001: LOOP
+      BEGIN
+      DECLARE CONTINUE HANDLER FOR NOT FOUND SET BJTS_FETCH_DONE_001 = TRUE;
+      FETCH BJTS_FETCH_CURSOR_001 INTO v_zbjg;
+    END;
+    IF BJTS_FETCH_DONE_001 THEN
+      LEAVE BJTS_FETCH_LOOP_001;
+    END IF;
+
 
       begin
-        select count(*) into zbHzbCnt from zb_tsjhzx_hzb
-          where zbjg_dm=v_zbjg and tszb_yn=p_tszb_ny ;
-        EXCEPTION
-        WHEN no_data_found THEN
+  DECLARE BJTS_SQLCODE_002 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_002 TEXT DEFAULT '';
+
+  DECLARE EXIT HANDLER FOR NOT FOUND
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_002 = MYSQL_ERRNO, BJTS_SQLERRM_002 = MESSAGE_TEXT;
           SET zbHzbCnt =0;
-      end;
+
+  END;
+select count(*) into zbHzbCnt from zb_tsjhzx_hzb
+          where zbjg_dm=v_zbjg and tszb_yn=p_tszb_ny ;
+        end;
 
       if  zbHzbCnt=0 then
         SET v_nd = substr(p_tszb_ny,1,4);
-        --取上月结转
+        -- 取上月结转
         begin
-          select IFNULL(byjhye, 0) into v_syjzjhe from
-          (select byjhye from zb_tsjhzx_hzb
-                 where zbjg_dm=v_zbjg and tszb_yn like v_nd || '%' order by tszb_yn desc
-          )pt where rownum=1;
-          EXCEPTION
-          WHEN no_data_found THEN
-            SET v_syjzjhe =0;
-        end;
+  DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
 
-        --取截止上月的累计
+  DECLARE EXIT HANDLER FOR NOT FOUND
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
+            SET v_syjzjhe =0;
+
+  END;
+select IFNULL(byjhye, 0) into v_syjzjhe from
+          (select byjhye from zb_tsjhzx_hzb
+                 where zbjg_dm=v_zbjg and tszb_yn like ORA_CONCAT(v_nd, '%') order by tszb_yn desc
+          )pt where 1=1
+LIMIT 1;
+          end;
+
+        -- 取截止上月的累计
         select IFNULL(sum(byybltse), 0),IFNULL(sum(byzhtse), 0),IFNULL(sum(byxdjhe), 0) into v_bnljbltse,v_bnljzhtse,v_bnljxdjhe
         from zb_tsjhzx_hzb
-                 where zbjg_dm=v_zbjg and tszb_yn like v_nd || '%';
+                 where zbjg_dm=v_zbjg and tszb_yn like ORA_CONCAT(v_nd, '%');
 
-    --本年累计计划完成率
+    -- 本年累计计划完成率
     SET v_bnljjhwcl = case when v_bnljxdjhe+v_bnljzhtse=0 then 0
       else round((v_bnljbltse)/(v_bnljxdjhe+v_bnljzhtse)*100,2) end;
 
-        --插入本月记录
+        -- 插入本月记录
         insert into zb_tsjhzx_hzb(zbjg_dm,tszb_yn,syjzjhe,byjhze,byjhye,bnljbltse,bnljzhtse,bnljxdjhe,bnljjhwcl)
                values(v_zbjg,p_tszb_ny,v_syjzjhe,v_syjzjhe,v_syjzjhe,v_bnljbltse,v_bnljzhtse,v_bnljxdjhe,v_bnljjhwcl);
       end if;
 
-  end loop;
-  close mycursor;
+
+  END LOOP BJTS_FETCH_LOOP_001;
+  CLOSE BJTS_FETCH_CURSOR_001;
+END;
 
   return 1;
 END$$

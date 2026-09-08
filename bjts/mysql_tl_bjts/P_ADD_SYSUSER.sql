@@ -2,7 +2,7 @@ DELIMITER $$
 
 DROP PROCEDURE IF EXISTS P_ADD_SYSUSER$$
 
-CREATE procedure P_ADD_SYSUSER
+CREATE procedure P_ADD_SYSUSER()
 routine_body: BEGIN
   DECLARE cnt integer;
   DECLARE swjc integer;
@@ -11,28 +11,48 @@ routine_body: BEGIN
   DECLARE v_czry_mc VARCHAR(20);
   DECLARE v_swjg_dm VARCHAR(11);
   DECLARE v_password VARCHAR(50);
-  DECLARE cur_czy CURSOR FOR
-      select czry_dm,czry_mc,swjg_dm
-         from tmp_sszj t
-         where not exists(select 1 from sys_user s
-         where s.czry_dm=t.czry_dm) ;
-  
+
+
 
   -- default pwd: a1234567
   SET v_password ='a55a3975f293712e641eb838e4585c03';
-  
-  FOR cur IN cur_czy
-  LOOP
-      SET V_CZRY_DM =cur.czry_dm;
-      SET V_CZRY_MC =cur.czry_mc;
-      SET V_SWJG_DM =cur.swjg_dm;
+
+  BEGIN
+  DECLARE BJTS_NAMED_CURSOR_DONE_001 BOOLEAN DEFAULT FALSE;
+  DECLARE BJTS_CUR_CZRY_DM_001 LONGTEXT;
+  DECLARE BJTS_CUR_CZRY_MC_001 LONGTEXT;
+  DECLARE BJTS_CUR_SWJG_DM_001 LONGTEXT;
+  DECLARE BJTS_NAMED_CURSOR_001 CURSOR FOR
+select czry_dm,czry_mc,swjg_dm
+         from tmp_sszj t
+         where not exists(select 1 from sys_user s
+         where s.czry_dm=t.czry_dm);
+  OPEN BJTS_NAMED_CURSOR_001;
+  BJTS_NAMED_CURSOR_LOOP_001: LOOP
+    SET BJTS_NAMED_CURSOR_DONE_001 = FALSE;
+    BEGIN
+      DECLARE CONTINUE HANDLER FOR NOT FOUND SET BJTS_NAMED_CURSOR_DONE_001 = TRUE;
+      FETCH BJTS_NAMED_CURSOR_001 INTO BJTS_CUR_CZRY_DM_001, BJTS_CUR_CZRY_MC_001, BJTS_CUR_SWJG_DM_001;
+    END;
+    IF BJTS_NAMED_CURSOR_DONE_001 THEN
+      LEAVE BJTS_NAMED_CURSOR_LOOP_001;
+    END IF;
+      SET V_CZRY_DM =BJTS_CUR_CZRY_DM_001;
+      SET V_CZRY_MC =BJTS_CUR_CZRY_MC_001;
+      SET V_SWJG_DM =BJTS_CUR_SWJG_DM_001;
 
     BEGIN
-     select id into pid from sys_user t
-      where t.czry_dm=v_CZRY_DM;
-     EXCEPTION
-      WHEN OTHERS THEN
+  DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
+
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
         SET pid =0;
+
+  END;
+select id into pid from sys_user t
+      where t.czry_dm=v_CZRY_DM;
      END;
 
     -- 检查操作员
@@ -45,8 +65,8 @@ routine_body: BEGIN
         CURRENT_TIMESTAMP,'admin',CURRENT_TIMESTAMP,'admin','1','0');
 
     end if;
-    
-      --检查角色
+
+      -- 检查角色
       if (pid>0) then
         select count(1) into cnt from sys_user_role r where r.czyid=pid;
         if cnt = 0 then
@@ -56,13 +76,13 @@ routine_body: BEGIN
                    else 0 end ;
 
             if swjc='1' then
-              --省局专责
+              -- 省局专责
               insert into sys_user_role values(pid,'SHJZZ');
             else if swjc='2' then
-              --市局专责
+              -- 市局专责
               insert into sys_user_role values(pid,'SJZZ');
             else if swjc='3' then
-              --县局专责
+              -- 县局专责
               insert into sys_user_role values(pid,'XJZZ');
             end if;
             end if;
@@ -76,7 +96,10 @@ routine_body: BEGIN
 
         end if;
       end if;
-  END LOOP  
+
+  END LOOP BJTS_NAMED_CURSOR_LOOP_001;
+  CLOSE BJTS_NAMED_CURSOR_001;
+END;
 
   LEAVE routine_body;
 

@@ -25,7 +25,7 @@ routine_body: BEGIN
   SET V_OUT_STATUS ='00';
   SET V_OUT_MESSAGE =' ';
 
-  --视同自产明细表记录为空，不需要比对
+  -- 视同自产明细表记录为空，不需要比对
   BEGIN
     SELECT COUNT(1)
       INTO LN_MXROW

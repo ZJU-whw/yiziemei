@@ -2,9 +2,11 @@ DELIMITER $$
 
 DROP PROCEDURE IF EXISTS P_ETL_GS_DJ_CKTMSDAB$$
 
-CREATE PROCEDURE P_ETL_GS_DJ_CKTMSDAB
+CREATE PROCEDURE P_ETL_GS_DJ_CKTMSDAB()
 routine_body: BEGIN
-  --pv_tbpc NUMBER(20);
+  DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
+  -- pv_tbpc NUMBER(20);
   DECLARE pv_cpcode VARCHAR(40);
   DECLARE pv_cpcodetssh VARCHAR(40);
 
@@ -21,82 +23,167 @@ routine_body: BEGIN
   DECLARE pv_zxflag VARCHAR(1);
   DECLARE pv_tag VARCHAR(30);
 
-  --先处理新增加
-  DECLARE pc_nsr CURSOR FOR SELECT CPCODE, NSRMC, QYHGDM, NSRSBH, SWJG_DM, IFNULL(ZX_FLAG, 'N') AS ZX_FLAG
+  -- 先处理新增加
+
+
+
+
+  -- 同步出口退税纳税人档案表
+
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
+    rollback;
+    -- 记录日志，同步失败
+    SET @BJTS_DYNAMIC_SQL_001 = 'INSERT INTO TB_GS_TBSB_RZ(tblx_dm,sbyy) VALUES(?,?)';
+PREPARE BJTS_DYNAMIC_STMT_001 FROM @BJTS_DYNAMIC_SQL_001;
+SET @BJTS_BIND_001_001 = 'GS_DJ_CKTMSDAB';
+SET @BJTS_BIND_001_002 = ORA_CONCAT('失败:', BJTS_SQLERRM_001);
+EXECUTE BJTS_DYNAMIC_STMT_001 USING @BJTS_BIND_001_001, @BJTS_BIND_001_002;
+DEALLOCATE PREPARE BJTS_DYNAMIC_STMT_001;
+    DO ORA_CONCAT('出口退税企业同步失败:', BJTS_SQLERRM_001);
+    COMMIT;
+
+  END;
+SET pv_dqinit = 3300000000;
+
+  BEGIN
+  DECLARE BJTS_FETCH_DONE_001 BOOLEAN DEFAULT FALSE;
+  DECLARE BJTS_RS_NSR_CPCODE_001 LONGTEXT;
+  DECLARE BJTS_RS_NSR_NSRMC_001 LONGTEXT;
+  DECLARE BJTS_RS_NSR_QYHGDM_001 LONGTEXT;
+  DECLARE BJTS_RS_NSR_NSRSBH_001 LONGTEXT;
+  DECLARE BJTS_RS_NSR_SWJG_DM_001 LONGTEXT;
+  DECLARE BJTS_RS_NSR_ZX_FLAG_001 LONGTEXT;
+  DECLARE BJTS_FETCH_CURSOR_001 CURSOR FOR
+SELECT CPCODE, NSRMC, QYHGDM, NSRSBH, SWJG_DM, IFNULL(ZX_FLAG, 'N') AS ZX_FLAG
   FROM GS_DJ_CKTMSDAB_TB WHERE CPCODE NOT IN (SELECT CPCODE FROM TB_GS_NSRXX t WHERE YXBZ = 'N') ORDER BY IFNULL(ZX_FLAG, 'N') DESC;
-  DECLARE rs_nsr pc_nsr%ROWTYPE;
+  OPEN BJTS_FETCH_CURSOR_001;
+  BJTS_FETCH_LOOP_001: LOOP
+    BEGIN
+      DECLARE CONTINUE HANDLER FOR NOT FOUND SET BJTS_FETCH_DONE_001 = TRUE;
+      FETCH BJTS_FETCH_CURSOR_001 INTO BJTS_RS_NSR_CPCODE_001, BJTS_RS_NSR_NSRMC_001, BJTS_RS_NSR_QYHGDM_001, BJTS_RS_NSR_NSRSBH_001, BJTS_RS_NSR_SWJG_DM_001, BJTS_RS_NSR_ZX_FLAG_001;
+    END;
+    IF BJTS_FETCH_DONE_001 THEN
+      LEAVE BJTS_FETCH_LOOP_001;
+    END IF;
 
-  --同步出口退税纳税人档案表
-  SET pv_dqinit = 3300000000;
+    SET pv_cpcode = BJTS_RS_NSR_CPCODE_001;
+    SET pv_name = BJTS_RS_NSR_NSRMC_001;
+    SET pv_qydm = BJTS_RS_NSR_QYHGDM_001;
+    SET pv_nsrsbh = BJTS_RS_NSR_NSRSBH_001;
+    SET pv_swcode = BJTS_RS_NSR_SWJG_DM_001;
+    SET pv_zxflag = BJTS_RS_NSR_ZX_FLAG_001;
 
-  OPEN pc_nsr;
-  LOOP
-    FETCH pc_nsr INTO rs_nsr;
-    EXIT WHEN pc_nsr%NOTFOUND;
-    SET pv_cpcode = rs_nsr.cpcode;
-    SET pv_name = rs_nsr.nsrmc;
-    SET pv_qydm = rs_nsr.qyhgdm;
-    SET pv_nsrsbh = rs_nsr.nsrsbh;
-    SET pv_swcode = rs_nsr.swjg_dm;
-    SET pv_zxflag = rs_nsr.zx_flag;
+    -- DBMS_OUTPUT.put_line(pv_cpcode || pv_name);
 
-    --DBMS_OUTPUT.put_line(pv_cpcode || pv_name);
-
-    --初始化参数
+    -- 初始化参数
     SET pv_cntnsr_new = 0;
     SET pv_nsrdzdah = 0;
     SET pv_cpcodetssh = '';
     SET pv_swjg_dm = '';
     SET pv_zs_swjg_dm = '';
-    --获取NSRDZDAH
+    -- 获取NSRDZDAH
     BEGIN
-      --CPCODE
-      SELECT NSRDZDAH, SWJG_DM, ZS_SWJG_DM, CPCODETSSH, TAG INTO pv_nsrdzdah, pv_swjg_dm, pv_zs_swjg_dm, pv_cpcodetssh, pv_tag FROM GS_DJ_CKTMSDAB
-      WHERE CPCODE = pv_cpcode AND NSRDZDAH > 0 AND rownum = 1 ORDER BY IFNULL(ZX_FLAG, 'N');
-      --DBMS_OUTPUT.put_line('CPCODE');
-      EXCEPTION
-      WHEN NO_DATA_FOUND THEN
+  DECLARE BJTS_SQLCODE_005 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_005 TEXT DEFAULT '';
+      -- CPCODE
+
+  DECLARE EXIT HANDLER FOR NOT FOUND
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_005 = MYSQL_ERRNO, BJTS_SQLERRM_005 = MESSAGE_TEXT;
         BEGIN
-          --五证合一检查,NSRSBH
-          SELECT NSRDZDAH, SWJG_DM, ZS_SWJG_DM, CPCODETSSH, TAG INTO pv_nsrdzdah, pv_swjg_dm, pv_zs_swjg_dm, pv_cpcodetssh, pv_tag FROM GS_DJ_CKTMSDAB
-          WHERE NSRSBH = pv_nsrsbh AND NSRDZDAH > 0 AND rownum = 1 ORDER BY IFNULL(ZX_FLAG, 'N');
-          --DBMS_OUTPUT.put_line('NSRSBH');
-          EXCEPTION
-          WHEN NO_DATA_FOUND THEN
-              --新增企业
+  DECLARE BJTS_SQLCODE_004 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_004 TEXT DEFAULT '';
+          -- 五证合一检查,NSRSBH
+
+  DECLARE EXIT HANDLER FOR NOT FOUND
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_004 = MYSQL_ERRNO, BJTS_SQLERRM_004 = MESSAGE_TEXT;
+              -- 新增企业
               SET pv_cntnsr_new = 1;
               BEGIN
-                SELECT NSRDZDAH, '', '', NULL INTO pv_nsrdzdah, pv_swjg_dm, pv_zs_swjg_dm, pv_tag FROM TB_GS_NSRXX WHERE CPCODE = pv_cpcode;
-                --DELETE FROM TB_GS_NSRXX WHERE QYHGDM = pv_qydm;
-                EXCEPTION
-                WHEN NO_DATA_FOUND THEN
-                  --IF pv_zxflag = 'Y' THEN
+  DECLARE BJTS_SQLCODE_003 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_003 TEXT DEFAULT '';
+
+  DECLARE EXIT HANDLER FOR NOT FOUND
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_003 = MYSQL_ERRNO, BJTS_SQLERRM_003 = MESSAGE_TEXT;
+                  -- IF pv_zxflag = 'Y' THEN
                   --  CONTINUE;
-                  --END IF;
+                  -- END IF;
                   SET pv_nsrdzdah = pv_dqinit + SEQ_NEXTVAL('SEQ_GS_TB_NSRDZDAH');
                   INSERT INTO TB_GS_NSRXX(QYHGDM, NSRMC, TBRQ, YXBZ, NSRDZDAH, CPCODE)
                   VALUES(pv_qydm, pv_name, CURRENT_TIMESTAMP, 'Y', pv_nsrdzdah, pv_cpcode);
-                WHEN OTHERS THEN
-                  --记录日志，同步失败
-                  DBMS_OUTPUT.put_line('出口退税企业初始化失败4:' || pv_cpcode || sqlerrm);
-              END;
-          WHEN OTHERS THEN
-            --记录日志，同步失败
-            DBMS_OUTPUT.put_line('出口退税企业初始化失败2:' || pv_cpcode || sqlerrm);
+
+  END;
+
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_003 = MYSQL_ERRNO, BJTS_SQLERRM_003 = MESSAGE_TEXT;
+                  -- 记录日志，同步失败
+                  DO ORA_CONCAT(ORA_CONCAT('出口退税企业初始化失败4:', pv_cpcode), BJTS_SQLERRM_003);
+
+  END;
+SELECT NSRDZDAH, '', '', NULL INTO pv_nsrdzdah, pv_swjg_dm, pv_zs_swjg_dm, pv_tag FROM TB_GS_NSRXX WHERE CPCODE = pv_cpcode;
+                -- DELETE FROM TB_GS_NSRXX WHERE QYHGDM = pv_qydm;
+                END;
+
+  END;
+
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_004 = MYSQL_ERRNO, BJTS_SQLERRM_004 = MESSAGE_TEXT;
+            -- 记录日志，同步失败
+            DO ORA_CONCAT(ORA_CONCAT('出口退税企业初始化失败2:', pv_cpcode), BJTS_SQLERRM_004);
             COMMIT;
-        END;
-      WHEN OTHERS THEN
-        --记录日志，同步失败
-        DBMS_OUTPUT.put_line('出口退税企业初始化失败1:' || pv_cpcode || sqlerrm);
+
+  END;
+SELECT NSRDZDAH, SWJG_DM, ZS_SWJG_DM, CPCODETSSH, TAG INTO pv_nsrdzdah, pv_swjg_dm, pv_zs_swjg_dm, pv_cpcodetssh, pv_tag FROM GS_DJ_CKTMSDAB
+          WHERE NSRSBH = pv_nsrsbh AND NSRDZDAH > 0 AND 1=1 ORDER BY IFNULL(ZX_FLAG, 'N')
+LIMIT 1;
+          -- DBMS_OUTPUT.put_line('NSRSBH');
+          END;
+
+  END;
+
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_005 = MYSQL_ERRNO, BJTS_SQLERRM_005 = MESSAGE_TEXT;
+        -- 记录日志，同步失败
+        DO ORA_CONCAT(ORA_CONCAT('出口退税企业初始化失败1:', pv_cpcode), BJTS_SQLERRM_005);
         COMMIT;
-    END;
+
+  END;
+SELECT NSRDZDAH, SWJG_DM, ZS_SWJG_DM, CPCODETSSH, TAG INTO pv_nsrdzdah, pv_swjg_dm, pv_zs_swjg_dm, pv_cpcodetssh, pv_tag FROM GS_DJ_CKTMSDAB
+      WHERE CPCODE = pv_cpcode AND NSRDZDAH > 0 AND 1=1 ORDER BY IFNULL(ZX_FLAG, 'N')
+LIMIT 1;
+      -- DBMS_OUTPUT.put_line('CPCODE');
+      END;
 
     IF pv_nsrdzdah > 0 THEN
       BEGIN
-        --获取同步批次, 取消
-        --pv_tbpc := SEQ_TB_TBPC.NEXTVAL;
+  DECLARE BJTS_SQLCODE_002 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_002 TEXT DEFAULT '';
+        -- 获取同步批次, 取消
+        -- pv_tbpc := SEQ_TB_TBPC.NEXTVAL;
 
-        IF pv_cntnsr_new = 0 THEN
+
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_002 = MYSQL_ERRNO, BJTS_SQLERRM_002 = MESSAGE_TEXT;
+          ROLLBACK;
+          -- 记录日志，同步失败
+          SET @BJTS_DYNAMIC_SQL_002 = 'INSERT INTO TB_GS_TBSB_RZ(tblx_dm,sbyy) VALUES(?,?)';
+PREPARE BJTS_DYNAMIC_STMT_002 FROM @BJTS_DYNAMIC_SQL_002;
+SET @BJTS_BIND_002_001 = 'GS_DJ_CKTMSDAB';
+SET @BJTS_BIND_002_002 = ORA_CONCAT(ORA_CONCAT('失败2:', pv_cpcode), BJTS_SQLERRM_002);
+EXECUTE BJTS_DYNAMIC_STMT_002 USING @BJTS_BIND_002_001, @BJTS_BIND_002_002;
+DEALLOCATE PREPARE BJTS_DYNAMIC_STMT_002;
+          DO ORA_CONCAT(ORA_CONCAT('出口退税企业同步失败2:', pv_cpcode), BJTS_SQLERRM_002);
+
+  END;
+IF pv_cntnsr_new = 0 THEN
           IF (pv_swjg_dm <> pv_swcode) THEN
             SET pv_zs_swjg_dm = null;
           END IF;
@@ -104,15 +191,15 @@ routine_body: BEGIN
           SET pv_zs_swjg_dm = null;
         END IF;
 
-        --开始同步,增量同步
-        --单户
-        --删除同海关代码、档案号
-        --DBMS_OUTPUT.put_line(pv_nsrsbh);
-        --删除同税号，只保留1条最新
+        -- 开始同步,增量同步
+        -- 单户
+        -- 删除同海关代码、档案号
+        -- DBMS_OUTPUT.put_line(pv_nsrsbh);
+        -- 删除同税号，只保留1条最新
         DELETE FROM GS_DJ_CKTMSDAB WHERE NSRDZDAH = pv_nsrdzdah;
         DELETE FROM GS_DJ_CKTMSDAB WHERE CPCODE = pv_cpcode;
         DELETE FROM GS_DJ_CKTMSDAB WHERE NSRSBH = pv_nsrsbh;
-        --DELETE FROM GS_DJ_CKTMSDAB WHERE QYHGDM = pv_qydm;
+        -- DELETE FROM GS_DJ_CKTMSDAB WHERE QYHGDM = pv_qydm;
 
         INSERT INTO GS_DJ_CKTMSDAB
         (
@@ -291,44 +378,31 @@ routine_body: BEGIN
         FROM GS_DJ_CKTMSDAB_TB
         WHERE CPCODE = pv_cpcode AND IFNULL(ZX_FLAG, 'N') = pv_zxflag;
 
-        --20260623新增
-        --FDDBRSFZJLX_DM  N CHAR(3) Y     法人证件类型-NEW
-        --YBNSRRDSJQ  N DATE  Y     一般纳税人认定日期-NEW
-        --FIRST_SB_YM N VARCHAR2(6) Y     首次申报年月-NEW
-        --NSRZT_DM  N CHAR(2) Y     纳税人状态-NEW
-        --ZX_DATE N DATE  Y     备案撤回日期-NEW
-        --ZGSWJ_DM  N CHAR(11)  Y     征管税务机关代码-NEW
+        -- 20260623新增
+        -- FDDBRSFZJLX_DM  N CHAR(3) Y     法人证件类型-NEW
+        -- YBNSRRDSJQ  N DATE  Y     一般纳税人认定日期-NEW
+        -- FIRST_SB_YM N VARCHAR2(6) Y     首次申报年月-NEW
+        -- NSRZT_DM  N CHAR(2) Y     纳税人状态-NEW
+        -- ZX_DATE N DATE  Y     备案撤回日期-NEW
+        -- ZGSWJ_DM  N CHAR(11)  Y     征管税务机关代码-NEW
 
-        --插入待同步数据,取消
-        --INSERT INTO tb_dtbsj(id,tblx_dm,mainid,cjsj,tbcs,yxj)
-        --VALUES(SEQ_TB_DTBSJ_ID.NEXTVAL,'GS_DJ_CKTMSDABToYun',pv_tbpc,sysdate,0,1);
+        -- 插入待同步数据,取消
+        -- INSERT INTO tb_dtbsj(id,tblx_dm,mainid,cjsj,tbcs,yxj)
+        -- VALUES(SEQ_TB_DTBSJ_ID.NEXTVAL,'GS_DJ_CKTMSDABToYun',pv_tbpc,sysdate,0,1);
 
-        --记录日志，同步成功
-        --DBMS_OUTPUT.put_line(pv_cpcode || nvl(pv_zxflag,'null') || '同步成功' || pv_qydm);
+        -- 记录日志，同步成功
+        -- DBMS_OUTPUT.put_line(pv_cpcode || nvl(pv_zxflag,'null') || '同步成功' || pv_qydm);
         COMMIT;
 
-        EXCEPTION
-        WHEN OTHERS THEN
-          ROLLBACK;
-          --记录日志，同步失败
-          execute immediate 'INSERT INTO TB_GS_TBSB_RZ(tblx_dm,sbyy) VALUES(:1,:2)'
-          using 'GS_DJ_CKTMSDAB','失败2:'|| pv_cpcode ||  sqlerrm;
-          DBMS_OUTPUT.put_line('出口退税企业同步失败2:' || pv_cpcode || sqlerrm);
-      END;
+        END;
     END IF;
-  END LOOP;
-  CLOSE pc_nsr;
+
+  END LOOP BJTS_FETCH_LOOP_001;
+  CLOSE BJTS_FETCH_CURSOR_001;
+END;
 
   COMMIT;
-  DBMS_OUTPUT.put_line('出口退税企业同步成功');
-  EXCEPTION
-    WHEN others THEN
-    rollback;
-    --记录日志，同步失败
-    execute immediate 'INSERT INTO TB_GS_TBSB_RZ(tblx_dm,sbyy) VALUES(:1,:2)'
-    using 'GS_DJ_CKTMSDAB','失败:' ||  sqlerrm;
-    DBMS_OUTPUT.put_line('出口退税企业同步失败:' || sqlerrm);
-    COMMIT;
-END$$
+  DO '出口退税企业同步成功';
+  END$$
 
 DELIMITER ;

@@ -12,9 +12,9 @@ routine_body: BEGIN
  * 单户企业健康码结果计算
  */
 
-  --定义变量
+  -- 定义变量
 
-  --指标分转健康码分的折算比例
+  -- 指标分转健康码分的折算比例
   DECLARE zsblv1 DECIMAL(18,2);
   DECLARE zsblv2 DECIMAL(18,2);
   DECLARE zsblv3 DECIMAL(18,2);
@@ -22,14 +22,14 @@ routine_body: BEGIN
   DECLARE zsblv5 DECIMAL(18,2);
   DECLARE zsblv6 DECIMAL(18,2);
 
-  --六个分类的红线
+  -- 六个分类的红线
   DECLARE lineRed1 int;
   DECLARE lineRed2 int;
   DECLARE lineRed3 int;
   DECLARE lineRed4 int;
   DECLARE lineRed5 int;
   DECLARE lineRed6 int;
-  --六个分类的黄线
+  -- 六个分类的黄线
   DECLARE lineYellow1 int;
   DECLARE lineYellow2 int;
   DECLARE lineYellow3 int;
@@ -37,10 +37,10 @@ routine_body: BEGIN
   DECLARE lineYellow5 int;
   DECLARE lineYellow6 int;
 
-  DECLARE lineRed_Zh integer;          --综合红线
-  DECLARE lineYellow_Zh integer;       --综合黄线
+  DECLARE lineRed_Zh integer;          -- 综合红线
+  DECLARE lineYellow_Zh integer;       -- 综合黄线
 
-  --实际指标赋分
+  -- 实际指标赋分
   DECLARE zb_SCORE1 int;
   DECLARE zb_SCORE2 int;
   DECLARE zb_SCORE3 int;
@@ -48,16 +48,16 @@ routine_body: BEGIN
   DECLARE zb_SCORE5 int;
   DECLARE zb_SCORE6 int;
 
-  --折算后的分数
+  -- 折算后的分数
   DECLARE jk_SCORE1 int;
   DECLARE jk_SCORE2 int;
   DECLARE jk_SCORE3 int;
   DECLARE jk_SCORE4 int;
   DECLARE jk_SCORE5 int;
   DECLARE jk_SCORE6 int;
-  DECLARE jk_SCORE_ZH integer;          ---折算后健康码综合赋分
+  DECLARE jk_SCORE_ZH integer;          -- -折算后健康码综合赋分
 
-  --健康码结果  1绿  2黄 3红
+  -- 健康码结果  1绿  2黄 3红
   DECLARE V_level char(1);
   DECLARE V_note VARCHAR(200);
 
@@ -73,8 +73,10 @@ routine_body: BEGIN
   SET V_note ='';
 
   BEGIN
+  DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
 
-    --从健康码配置表，计算折算比率
+    -- 从健康码配置表，计算折算比率
     /*
     select
       sum(decode (ywfl_dm,'10',case when ZB_TOTAL=0 then 0 else JKM_TOTAL/ZB_TOTAL end,0)),
@@ -104,7 +106,16 @@ routine_body: BEGIN
     where t.tsjsfs=p_tsjsfs ;
     */
 
-    with TT as (
+
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
+      DO ORA_CONCAT('【健康码】等级评定：', BJTS_SQLERRM_001);
+      ROLLBACK;
+      CALL ORA_RAISE_APPLICATION_ERROR(-20001,ORA_CONCAT('【健康码】等级评定：', P_djxh));
+
+  END;
+with TT as (
     select zb.ywfl_dm, sum(score) as zbScore
     from
       jkgl_pz_zb zb left join
@@ -164,7 +175,7 @@ routine_body: BEGIN
     from (
     select s.ywfl_dm,
       --   sum(t.score) as score
-        sum(case when (k.fmyxq is null OR k.fmyxq>=TRUNCATE(CURRENT_TIMESTAMP, 0)) and IFNULL(t.hcjg, '2')='1' then 0 else t.score end) as score
+        sum(case when (k.fmyxq is null OR k.fmyxq>=DATE(CURRENT_TIMESTAMP)) and IFNULL(t.hcjg, '2')='1' then 0 else t.score end) as score
         from
         jkgl_data_qyjkm_jgb k
         inner join jkgl_data_zb_jgb t on t.djxh=k.djxh
@@ -173,7 +184,7 @@ routine_body: BEGIN
         group by s.ywfl_dm
     );
 
-    --计算健康码折算赋分
+    -- 计算健康码折算赋分
     SET jk_SCORE1 = zb_SCORE1 * zsblv1;
     SET jk_SCORE2 = zb_SCORE2 * zsblv2;
     SET jk_SCORE3 = zb_SCORE3 * zsblv3;
@@ -193,25 +204,25 @@ routine_body: BEGIN
       SET V_level = '3';
 
       if (lineRed_Zh<>0 and jk_SCORE_ZH >= lineRed_Zh) then
-        SET V_note =V_note||'综合,';
+        SET V_note =ORA_CONCAT(V_note, '综合,');
       end if;
       if (lineRed1<>0 and jk_SCORE1 >= lineRed1) then
-        SET V_note =V_note||'信用,';
+        SET V_note =ORA_CONCAT(V_note, '信用,');
       end if;
       if (lineRed2<>0 and jk_SCORE2 >= lineRed2) then
-        SET V_note =V_note||'退税,';
+        SET V_note =ORA_CONCAT(V_note, '退税,');
       end if;
       if (lineRed3<>0 and jk_SCORE3 >= lineRed3) then
-        SET V_note =V_note||'出口,';
+        SET V_note =ORA_CONCAT(V_note, '出口,');
       end if;
       if (lineRed4<>0 and jk_SCORE4 >= lineRed4) then
-        SET V_note =V_note||'发票,';
+        SET V_note =ORA_CONCAT(V_note, '发票,');
       end if;
       if (lineRed5<>0 and jk_SCORE5 >= lineRed5) then
-        SET V_note =V_note||'财务,';
+        SET V_note =ORA_CONCAT(V_note, '财务,');
       end if;
       if (lineRed6<>0 and jk_SCORE6 >= lineRed6) then
-        SET V_note =V_note||'其他,';
+        SET V_note =ORA_CONCAT(V_note, '其他,');
       end if;
 
     else
@@ -225,25 +236,25 @@ routine_body: BEGIN
       then
         SET V_level = '2';
         if (lineYellow_Zh<>0 and jk_SCORE_ZH >= lineYellow_Zh) then
-          SET V_note =V_note||'综合,';
+          SET V_note =ORA_CONCAT(V_note, '综合,');
         end if;
         if (lineYellow1<>0 and jk_SCORE1 >= lineYellow1) then
-          SET V_note =V_note||'信用,';
+          SET V_note =ORA_CONCAT(V_note, '信用,');
         end if;
         if (lineYellow2<>0 and jk_SCORE2 >= lineYellow2) then
-          SET V_note =V_note||'退税,';
+          SET V_note =ORA_CONCAT(V_note, '退税,');
         end if;
         if (lineYellow3<>0 and jk_SCORE3 >= lineYellow3) then
-          SET V_note =V_note||'出口,';
+          SET V_note =ORA_CONCAT(V_note, '出口,');
         end if;
         if (lineYellow4<>0 and jk_SCORE4 >= lineYellow4) then
-          SET V_note =V_note||'发票,';
+          SET V_note =ORA_CONCAT(V_note, '发票,');
         end if;
         if (lineYellow5<>0 and jk_SCORE5 >= lineYellow5) then
-          SET V_note =V_note||'财务,';
+          SET V_note =ORA_CONCAT(V_note, '财务,');
         end if;
         if (lineYellow6<>0 and jk_SCORE6 >= lineYellow6) then
-          SET V_note =V_note||'其他,';
+          SET V_note =ORA_CONCAT(V_note, '其他,');
         end if;
       else
         SET V_level ='1';
@@ -253,22 +264,17 @@ routine_body: BEGIN
     -- 保存健康码计算结果
     update jkgl_data_qyjkm_jgb
       set jkm_level=V_level,
-      score_10 = jk_SCORE1,
-      score_20 = jk_SCORE2,
-      score_30 = jk_SCORE3,
-      score_40 = jk_SCORE4,
-      score_50 = jk_SCORE5,
-      score_60 = jk_SCORE6,
-      score_ZH = jk_SCORE_ZH,
-      uptime = CURRENT_TIMESTAMP,
-      note = V_note
+    score_10 = jk_SCORE1,
+    score_20 = jk_SCORE2,
+    score_30 = jk_SCORE3,
+    score_40 = jk_SCORE4,
+    score_50 = jk_SCORE5,
+    score_60 = jk_SCORE6,
+    score_ZH = jk_SCORE_ZH,
+    uptime = CURRENT_TIMESTAMP,
+    note = V_note
       where djxh = p_djxh;
     COMMIT;
-  EXCEPTION
-    WHEN OTHERS THEN
-      dbms_output.put_line('【健康码】等级评定：'||sqlerrm);
-      ROLLBACK;
-      RAISE_APPLICATION_ERROR(-20001,'【健康码】等级评定：'||P_djxh);
   END;
 
   LEAVE routine_body;

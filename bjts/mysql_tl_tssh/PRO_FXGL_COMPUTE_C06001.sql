@@ -10,15 +10,15 @@ CREATE PROCEDURE PRO_FXGL_COMPUTE_C06001
  * 20260327，自动扫描条件改为不存在6个月以内已人工核实的数据，因税务人员调整参数自动核实的数据不算
  */
 (
-  IN P_SWJGDM VARCHAR(4000), --可空，空默认全省，前台手工刷新需传入
-  IN P_DJXH VARCHAR(4000), --可空，空默认税务机关下所有有申报企业，前台当个企业刷新需传入
-  IN P_SMLX VARCHAR(4000) --可空，空默认自动扫描，前台人工扫描输入1
+  IN P_SWJGDM VARCHAR(4000), -- 可空，空默认全省，前台手工刷新需传入
+  IN P_DJXH VARCHAR(4000), -- 可空，空默认税务机关下所有有申报企业，前台当个企业刷新需传入
+  IN P_SMLX VARCHAR(4000) -- 可空，空默认自动扫描，前台人工扫描输入1
 )
 routine_body: BEGIN
-  DECLARE V_MONTHS_YJJG   DECIMAL(18,2);    --预警参数：预警间隔周期
-  DECLARE V_MYLAJ_LX3M    DECIMAL(18,2);    --预警参数：连续3个月内美元出口额
-  DECLARE V_HBZCL_MYLAJ   DECIMAL(18,2);    --预警参数：连续3个月出口额环比增长率
-  DECLARE V_HBZCL_DIANFEI DECIMAL(18,2);    --预警参数：连续3个月电费环比增长率
+  DECLARE V_MONTHS_YJJG   DECIMAL(18,2);    -- 预警参数：预警间隔周期
+  DECLARE V_MYLAJ_LX3M    DECIMAL(18,2);    -- 预警参数：连续3个月内美元出口额
+  DECLARE V_HBZCL_MYLAJ   DECIMAL(18,2);    -- 预警参数：连续3个月出口额环比增长率
+  DECLARE V_HBZCL_DIANFEI DECIMAL(18,2);    -- 预警参数：连续3个月电费环比增长率
   DECLARE V_PARAMS        VARCHAR(4000);
   DECLARE V_SWJGDM        VARCHAR(11);
   DECLARE V_MYLAJ_PRE     DECIMAL(18,2); --  前3个月美元
@@ -52,26 +52,26 @@ routine_body: BEGIN
     LEFT JOIN FXGL_PZ_ZB_CS_SWJG S ON S.CSBM=T.CSBM AND S.SWJG_DM=P_SWJGDM AND S.YXBZ='Y'
    WHERE T.CSBM='C06001_HBZCL_DIANFEI';
   -- 取上季度起止日期
-  SELECT DATE_ADD(TRUNCATE(CURRENT_TIMESTAMP, 'Q'), INTERVAL -3 MONTH),TRUNCATE(CURRENT_TIMESTAMP, 'Q')-1
+  SELECT DATE_ADD(DATE_ADD(MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1), INTERVAL ((QUARTER(CURRENT_TIMESTAMP) - 1) * 3) MONTH), INTERVAL -3 MONTH),ORA_DATE_ADD(DATE_ADD(MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1), INTERVAL ((QUARTER(CURRENT_TIMESTAMP) - 1) * 3) MONTH), -(1))
     INTO V_BGQ_Q,V_BGQ_Z
 ;
-  SET V_PARAMS ='[d]预警间隔周期='||V_MONTHS_YJJG||
-            '|连续3个月出口额阈值=' || v_MYLAJ_LX3M||
-            '|连续3个月出口额环比增长率阈值=' || V_HBZCL_MYLAJ||
-            '|连续3个月电费环比增长率阈值=' || V_HBZCL_DIANFEI;
-  
-  --取本次风险扫描的税务机关范围
+  SET V_PARAMS =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('[d]预警间隔周期=', V_MONTHS_YJJG), '|连续3个月出口额阈值='), v_MYLAJ_LX3M), '|连续3个月出口额环比增长率阈值='), V_HBZCL_MYLAJ), '|连续3个月电费环比增长率阈值='), V_HBZCL_DIANFEI);
+
+  -- 取本次风险扫描的税务机关范围
   IF IFNULL(P_SWJGDM, '13300000000')='13300000000' THEN
     SET V_SWJGDM ='133%';
   ELSEIF SUBSTR(P_SWJGDM,6)='000000' THEN
-    SET V_SWJGDM =SUBSTR(P_SWJGDM,1,5)||'%';
+    SET V_SWJGDM =ORA_CONCAT(SUBSTR(P_SWJGDM,1,5), '%');
   ELSE
-    SET V_SWJGDM =SUBSTR(P_SWJGDM,1,7)||'%';
+    SET V_SWJGDM =ORA_CONCAT(SUBSTR(P_SWJGDM,1,7), '%');
   END IF;
-  
+
   IF P_SMLX=1 THEN
-    UPDATE FXGL_DATA_ZXZB T
-       SET T.HSJGLX='1', T.HSRQ=CURRENT_TIMESTAMP, T.HSRY='SYSTEM', T.HSCLQK='税务人员调整预警参数，重新刷新本次风险指标。'
+    UPDATE FXGL_DATA_ZXZB AS T
+       SET HSJGLX='1',
+    HSRQ=CURRENT_TIMESTAMP,
+    HSRY='SYSTEM',
+    HSCLQK='税务人员调整预警参数，重新刷新本次风险指标。'
      WHERE T.ZBID='C06001'
        AND T.TSSWJG_DM LIKE V_SWJGDM
        AND (P_DJXH IS NULL OR T.DJXH=P_DJXH)
@@ -79,18 +79,22 @@ routine_body: BEGIN
        AND T.HSJGLX='0';
     COMMIT;
   END IF;
-  
-  --上月以来有申报的生产企业
-  FOR CUR_CKQY IN (SELECT DISTINCT T.DJXH
+
+  -- 上月以来有申报的生产企业
+  BEGIN
+  DECLARE BJTS_CURSOR_DONE_001 BOOLEAN DEFAULT FALSE;
+  DECLARE BJTS_CUR_CKQY_DJXH_001 LONGTEXT;
+  DECLARE BJTS_CURSOR_001 CURSOR FOR
+SELECT DISTINCT T.DJXH
                      FROM CKTS_LC_SBXX T
-                    WHERE T.TSSWJG_DM LIKE V_SWJGDM --税务机关范围扫描
-                      AND (P_DJXH IS NULL OR T.DJXH=P_DJXH) --是否单个企业扫描
+                    WHERE T.TSSWJG_DM LIKE V_SWJGDM -- 税务机关范围扫描
+                      AND (P_DJXH IS NULL OR T.DJXH=P_DJXH) -- 是否单个企业扫描
                       AND IFNULL(T.ZFBZ, 'N') = 'N'
                       AND T.QDSJ >= DATE_ADD(CAST(DATE_FORMAT(CURRENT_TIMESTAMP, '%Y-%m-01') AS DATETIME), INTERVAL -1 MONTH)
                       AND T.SBYWB_DM='A0305001'
                       AND (  (IFNULL(P_SMLX, '0')='1')
                           OR (IFNULL(P_SMLX, '0')='0'
-                         AND NOT EXISTS (SELECT 1 --预警间隔期不自动扫描同一企业信息
+                         AND NOT EXISTS (SELECT 1 -- 预警间隔期不自动扫描同一企业信息
                                            FROM FXGL_DATA_ZXZB B
                                           WHERE B.DJXH=T.DJXH
                                             AND B.ZBID='C06001'
@@ -100,38 +104,49 @@ routine_body: BEGIN
                                     FROM JKGL_DATA_BGQ A
                                    WHERE A.DJXH=T.DJXH
                                      AND A.BGQ_Q=V_BGQ_Q AND A.BGQ_Z=V_BGQ_Z
-                                     AND A.DZDZ_ZT='Y'))
-  LOOP
+                                     AND A.DZDZ_ZT='Y');
+  OPEN BJTS_CURSOR_001;
+  BJTS_CURSOR_LOOP_001: LOOP
+    SET BJTS_CURSOR_DONE_001 = FALSE;
     BEGIN
-      --取上季度出口额
+      DECLARE CONTINUE HANDLER FOR NOT FOUND SET BJTS_CURSOR_DONE_001 = TRUE;
+      FETCH BJTS_CURSOR_001 INTO BJTS_CUR_CKQY_DJXH_001;
+    END;
+    IF BJTS_CURSOR_DONE_001 THEN
+      LEAVE BJTS_CURSOR_LOOP_001;
+    END IF;
+    BEGIN
+      -- 取上季度出口额
       SELECT IFNULL(SUM(MYLAJ), 0)
         INTO V_MYLAJ_NOW
         FROM CKTS_WBSJ_HG_BGD
-       WHERE DJXH=CUR_CKQY.DJXH
+       WHERE DJXH=BJTS_CUR_CKQY_DJXH_001
          AND CKRQ_1>=V_BGQ_Q AND CKRQ_1<=V_BGQ_Z;
-      --取上季度电费
+      -- 取上季度电费
       SELECT IFNULL(SUM(DZ_DFJE_ZC-DZ_DFJE_SR), 0)
         INTO V_DIANF_NOW
         FROM JKGL_DATA_BGQ BGQ
        INNER JOIN JKGL_DATA_TJ_ZBU ZBU ON ZBU.BGQID=BGQ.BGQID
-       WHERE BGQ.DJXH=CUR_CKQY.DJXH
+       WHERE BGQ.DJXH=BJTS_CUR_CKQY_DJXH_001
          AND BGQ.BGQ_Q=V_BGQ_Q AND BGQ.BGQ_Z=V_BGQ_Z
-         AND ROWNUM=1;
-      
-      --取上上季度出口额
+         AND 1=1
+LIMIT 1;
+
+      -- 取上上季度出口额
       SELECT IFNULL(SUM(MYLAJ), 0)
         INTO V_MYLAJ_PRE
         FROM CKTS_WBSJ_HG_BGD
-       WHERE DJXH=CUR_CKQY.DJXH
-         AND CKRQ_1>=DATE_ADD(V_BGQ_Q, INTERVAL -3 MONTH) AND CKRQ_1<=V_BGQ_Q -1;
-      --取上上季度电费
+       WHERE DJXH=BJTS_CUR_CKQY_DJXH_001
+         AND CKRQ_1>=DATE_ADD(V_BGQ_Q, INTERVAL -3 MONTH) AND CKRQ_1<=ORA_DATE_ADD(V_BGQ_Q, -(1));
+      -- 取上上季度电费
       SELECT IFNULL(SUM(DZ_DFJE_ZC-DZ_DFJE_SR), 0)
         INTO V_DIANF_PRE
         FROM JKGL_DATA_BGQ BGQ
        INNER JOIN JKGL_DATA_TJ_ZBU ZBU ON ZBU.BGQID=BGQ.BGQID
-       WHERE BGQ.DJXH=CUR_CKQY.DJXH
-         AND BGQ.BGQ_Q=DATE_ADD(V_BGQ_Q, INTERVAL -3 MONTH) AND BGQ.BGQ_Z=V_BGQ_Q -1
-         AND ROWNUM=1;
+       WHERE BGQ.DJXH=BJTS_CUR_CKQY_DJXH_001
+         AND BGQ.BGQ_Q=DATE_ADD(V_BGQ_Q, INTERVAL -3 MONTH) AND BGQ.BGQ_Z=ORA_DATE_ADD(V_BGQ_Q, -(1))
+         AND 1=1
+LIMIT 1;
 
       SET V_MYLAJ_HB = V_MYLAJ_NOW-V_MYLAJ_PRE;
       SET V_DIANF_HB = V_DIANF_NOW-V_DIANF_PRE;
@@ -140,16 +155,17 @@ routine_body: BEGIN
          (V_DIANF_HB<V_HBZCL_DIANFEI * V_DIANF_PRE)) THEN
         INSERT INTO FXGL_DATA_ZXZB(ID,TSSWJG_DM,DJXH,NSRSBH,NSRMC,SMLX,SMRQ,ZBID,ZBCS,SMJG)
              SELECT SEQ_NEXTVAL('SEQ_FXGL_DATA_ZXZB'),DJ.SWJGDM,DJ.DJXH_JS,IFNULL(DJ.SHXYNO, DJ.NSRDJNO),DJ.NSRMC,IFNULL(P_SMLX, '0'),CURRENT_TIMESTAMP,'C06001',
-                    V_PARAMS,'[d]上季度('||DATE_FORMAT(V_BGQ_Q, '%Y%m%d') || '-' || DATE_FORMAT(V_BGQ_Z, '%Y%m%d')||
-                    ')出口额=' || V_MYLAJ_NOW || '|环比3个月出口额=' ||V_MYLAJ_PRE || '|出口环比增长额=' ||V_MYLAJ_HB||
-                    '|上季度电费=' || V_DIANF_NOW || '|环比3个月电费=' ||V_DIANF_PRE || '|电费环比增长额=' ||V_DIANF_HB
+                    V_PARAMS,ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('[d]上季度(', DATE_FORMAT(V_BGQ_Q, '%Y%m%d')), '-'), DATE_FORMAT(V_BGQ_Z, '%Y%m%d')), ')出口额='), V_MYLAJ_NOW), '|环比3个月出口额='), V_MYLAJ_PRE), '|出口环比增长额='), V_MYLAJ_HB), '|上季度电费='), V_DIANF_NOW), '|环比3个月电费='), V_DIANF_PRE), '|电费环比增长额='), V_DIANF_HB)
              FROM GLXT_BB_SHXT_DJXX DJ
-            WHERE DJ.DJXH_JS=CUR_CKQY.DJXH;
+            WHERE DJ.DJXH_JS=BJTS_CUR_CKQY_DJXH_001;
         COMMIT;
       END IF;
     END;
-  END LOOP;
-  
+
+  END LOOP BJTS_CURSOR_LOOP_001;
+  CLOSE BJTS_CURSOR_001;
+END;
+
   LEAVE routine_body;
 END$$
 

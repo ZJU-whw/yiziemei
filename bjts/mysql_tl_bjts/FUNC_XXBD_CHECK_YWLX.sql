@@ -8,16 +8,16 @@ NOT DETERMINISTIC
 READS SQL DATA
 BEGIN
 
-  --ZB  中标机电
-  --JGW 海洋结构物
-  --WL  外轮货物
-  --HKSP  航空食品
-  --XTHH-XH 先退后核
-  --XTHH-CJ 先退后核
-  --XLXP 修理修配
-  --HXWH 航线维护
-  --HCWX 航次维修
-  --WLMSP 未列明商品
+  -- ZB  中标机电
+  -- JGW 海洋结构物
+  -- WL  外轮货物
+  -- HKSP  航空食品
+  -- XTHH-XH 先退后核
+  -- XTHH-CJ 先退后核
+  -- XLXP 修理修配
+  -- HXWH 航线维护
+  -- HCWX 航次维修
+  -- WLMSP 未列明商品
   IF V_CONT LIKE '%,ZB,%' OR
      V_CONT LIKE '%,JGW,%' OR
      V_CONT LIKE '%,WL,%' OR

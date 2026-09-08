@@ -19,12 +19,12 @@ BEGIN
   SELECT COUNT(*)
     INTO V_NUMBER
     FROM CKTS_DM_HGJLDW T
-   WHERE T.HGJLDW_DM IN (SELECT S.HGJLDW_DM 
-                           FROM CKTS_DM_HGJLDW S 
-                          WHERE '.'||S.HGJLDWQC||'.' LIKE '%.'||UPPER(V_JLDWMC)||'.%')
-     AND T.HGJLDW_DM IN (SELECT S.HGJLDW_DM 
-                           FROM CKTS_DM_HGJLDW S 
-                          WHERE '.'||S.HGJLDWQC||'.' LIKE '%.'||(SELECT R.HGJLDWQC FROM CKTS_DM_HGJLDW R WHERE R.HGJLDW_DM=V_JLDWDM)||'.%');
+   WHERE T.HGJLDW_DM IN (SELECT S.HGJLDW_DM
+                           FROM CKTS_DM_HGJLDW S
+                          WHERE ORA_CONCAT(ORA_CONCAT('.', S.HGJLDWQC), '.') LIKE ORA_CONCAT(ORA_CONCAT('%.', UPPER(V_JLDWMC)), '.%'))
+     AND T.HGJLDW_DM IN (SELECT S.HGJLDW_DM
+                           FROM CKTS_DM_HGJLDW S
+                          WHERE ORA_CONCAT(ORA_CONCAT('.', S.HGJLDWQC), '.') LIKE ORA_CONCAT(ORA_CONCAT('%.', (SELECT R.HGJLDWQC FROM CKTS_DM_HGJLDW R WHERE R.HGJLDW_DM=V_JLDWDM)), '.%'));
 
   RETURN V_NUMBER;
 END$$

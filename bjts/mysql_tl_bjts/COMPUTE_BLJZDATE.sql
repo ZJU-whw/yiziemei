@@ -26,7 +26,7 @@ BEGIN
   IF V_IN_SL_DATE IS NULL THEN
     RETURN NULL;
   END IF;
-  
+
   IF V_IN_CKQYGLLB_DM = 'A' OR V_IN_CKQYGLLB_DM = 'a' THEN
     SET v_adddays = 5;
   ELSEIF V_IN_CKQYGLLB_DM = 'B' OR V_IN_CKQYGLLB_DM = 'b' THEN
@@ -38,19 +38,26 @@ BEGIN
   ELSE
     SET v_adddays = 20;
   END IF;
-  
-  --节假日
+
+  -- 节假日
   SET v_zz_date = V_IN_SL_DATE;
-  FOR i IN 1 .. v_adddays LOOP
-    SET v_zz_date = v_zz_date + 1;
+  BEGIN
+  DECLARE BJTS_FOR_I_001 DECIMAL(65,30) DEFAULT 1;
+  DECLARE BJTS_FOR_END_001 DECIMAL(65,30) DEFAULT v_adddays;
+  WHILE BJTS_FOR_I_001 <= BJTS_FOR_END_001 DO
+    SET v_zz_date = ORA_DATE_ADD(v_zz_date, 1);
     SET v_jjrdays = 1;
-    WHILE v_jjrdays = 1 LOOP
+    BJTS_WHILE_001: WHILE v_jjrdays = 1 DO
       select count(*) into v_jjrdays from PUB_JJR where jjr_date = DATE(v_zz_date);
       IF v_jjrdays > 0 THEN
-        SET v_zz_date = v_zz_date + 1;
+        SET v_zz_date = ORA_DATE_ADD(v_zz_date, 1);
       END IF;
-    END LOOP;
-  END LOOP;
+
+END WHILE BJTS_WHILE_001;
+
+    SET BJTS_FOR_I_001 = BJTS_FOR_I_001 + 1;
+  END WHILE;
+END;
 
   return(v_zz_date);
 END$$

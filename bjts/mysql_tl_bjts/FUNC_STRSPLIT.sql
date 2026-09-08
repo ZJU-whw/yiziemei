@@ -2,24 +2,37 @@ DELIMITER $$
 
 DROP PROCEDURE IF EXISTS FUNC_STRSPLIT$$
 
-CREATE PROCEDURE FunC_StrSplit(p_value VARCHAR(4000),p_split VARCHAR(4000) := ',')
+CREATE PROCEDURE FunC_StrSplit(
+    IN P_VALUE VARCHAR(4000),
+    IN P_SPLIT VARCHAR(4000)
+)
 routine_body: BEGIN
-  DECLARE v_idx       integer;
-  DECLARE v_str       VARCHAR(500);
-  DECLARE v_strs_last VARCHAR(4000) DEFAULT p_value;
+    SET P_SPLIT = COALESCE(NULLIF(P_SPLIT, ''), ',');
 
-  loop
-    if v_strs_last is null then exit; end if;
-    SET v_idx = instr(v_strs_last, p_split);
-    exit when v_idx = 0;
-    SET v_str = substr(v_strs_last, 1, v_idx - 1);
-    SET v_strs_last = substr(v_strs_last, v_idx + 1);
-    if v_str is not null then
-      pipe row(v_str);
-    end if;
-  end loop;
-  if v_strs_last is not null then pipe row(v_strs_last); end if;
-  LEAVE routine_body;
+    WITH RECURSIVE BJTS_SPLIT (TOKEN, REST_VALUE, DEPTH_NO) AS (
+        SELECT CAST(NULL AS CHAR(4000)), P_VALUE, 0
+        UNION ALL
+        SELECT CASE
+                   WHEN LOCATE(P_SPLIT, REST_VALUE) = 0 THEN REST_VALUE
+                   ELSE LEFT(REST_VALUE, LOCATE(P_SPLIT, REST_VALUE) - 1)
+               END,
+               CASE
+                   WHEN LOCATE(P_SPLIT, REST_VALUE) = 0 THEN NULL
+                   ELSE SUBSTRING(
+                       REST_VALUE,
+                       LOCATE(P_SPLIT, REST_VALUE) + CHAR_LENGTH(P_SPLIT)
+                   )
+               END,
+               DEPTH_NO + 1
+          FROM BJTS_SPLIT
+         WHERE REST_VALUE IS NOT NULL
+           AND REST_VALUE <> ''
+    )
+    SELECT TOKEN AS COLUMN_VALUE
+      FROM BJTS_SPLIT
+     WHERE DEPTH_NO > 0
+       AND TOKEN IS NOT NULL
+       AND TOKEN <> '';
 END$$
 
 DELIMITER ;

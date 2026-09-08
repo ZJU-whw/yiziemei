@@ -2,13 +2,13 @@ DELIMITER $$
 
 DROP PROCEDURE IF EXISTS PRO_FXGL_SZYJ_WMQYCKLL_DQ_PERY$$
 
-CREATE PROCEDURE PRO_FXGL_SZYJ_WMQYCKLL_DQ_PERY
+CREATE PROCEDURE PRO_FXGL_SZYJ_WMQYCKLL_DQ_PERY()
 /*
  * 风险管理——事中预警——外贸企业出口链路统计（每年）
  */
 routine_body: BEGIN
 
-  delete from ckllfx_cs_wmqylsll_dq t;
+  delete from ckllfx_cs_wmqylsll_dq AS t;
   commit;
 
   insert into ckllfx_cs_wmqylsll_dq(
@@ -17,24 +17,24 @@ routine_body: BEGIN
          qyhs_sx,qyzb_sx,bgdfs_sx,bgdzb_sx,mylaj_sx,myzb_sx)
   with
   zygys as (
-  --按关联号统计主要供应地区（供货金额最大）
+  -- 按关联号统计主要供应地区（供货金额最大）
   select a.djxh,a.glh,
          case
-           --进口缴款书货源地按口岸提取2位行政区划
+           -- 进口缴款书货源地按口岸提取2位行政区划
            when a.cktmspzlx_dm='04'
              then substr(ka.xzqh_dm,1,2)
-           --未提取到销售方地市税务机关代码的，从供货方税号提取2位行政区划
+           -- 未提取到销售方地市税务机关代码的，从供货方税号提取2位行政区划
            when length(a.xsfdsswjgdm)=4
              then substr(a.xsfdsswjgdm,1,2)
-           --提取到销售方地市税务机关代码的，从地市税务机关代码提取2位行政区划
+           -- 提取到销售方地市税务机关代码的，从地市税务机关代码提取2位行政区划
            when length(a.xsfdsswjgdm)=5
              then substr(a.xsfdsswjgdm,2,2)
          end as ghdz,
          row_number() over (partition by a.djxh,a.glh order by sum(a.jsje) desc) as pm
     from ckts_sb_mts_jhmx a
-    --对进口缴款书，关联口岸代码表提取关区对应行政区划（省级）
-    left join dm_hgcode ka on ka.hgcode=substr(a.jhpzh,1,2)||'00'
-   where a.sbrq>=DATE_ADD(TRUNCATE(CURRENT_TIMESTAMP, 'yy'), INTERVAL -24 MONTH) and a.sbrq<TRUNCATE(CURRENT_TIMESTAMP, 'yy')
+    -- 对进口缴款书，关联口岸代码表提取关区对应行政区划（省级）
+    left join dm_hgcode ka on ka.hgcode=ORA_CONCAT(substr(a.jhpzh,1,2), '00')
+   where a.sbrq>=DATE_ADD(MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1), INTERVAL -24 MONTH) and a.sbrq<MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1)
    group by a.djxh,a.glh,
          case
            when a.cktmspzlx_dm='04'
@@ -46,7 +46,7 @@ routine_body: BEGIN
          end
   ),
   mx as (
-  --按关联号提取出口链路明细
+  -- 按关联号提取出口链路明细
   select s.djxh,
          s.ckbgdh,
          s.mylaj,
@@ -59,11 +59,11 @@ routine_body: BEGIN
    inner join zygys on zygys.djxh=t.djxh and zygys.glh=t.glh and pm=1
    inner join ckts_wbsj_hg_bgd s on s.ckbgdh=t.ckbgdh and s.djxh=t.djxh
     left join dm_xzqh_dq hyd on hyd.dm=zygys.ghdz
-    --启运港报关单从报关单号提取报关关区，否则取离境关区
-    left join dm_hgcode ka on ka.hgcode=(case when s.qygbz='Y' then substr(s.ckbgdh,1,2) else substr(s.hggqka_dm,1,2) end)||'00'
+    -- 启运港报关单从报关单号提取报关关区，否则取离境关区
+    left join dm_hgcode ka on ka.hgcode=ORA_CONCAT((case when s.qygbz='Y' then substr(s.ckbgdh,1,2) else substr(s.hggqka_dm,1,2) end), '00')
     left join dm_xzqh_dq hg on hg.dm=ka.xzqh_dm
     left join dm_gbcode mdg on mdg.gb_code=s.zzmdgdqsz_dm
-   where t.sbrq>=DATE_ADD(TRUNCATE(CURRENT_TIMESTAMP, 'yy'), INTERVAL -24 MONTH) and t.sbrq<TRUNCATE(CURRENT_TIMESTAMP, 'yy')
+   where t.sbrq>=DATE_ADD(MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1), INTERVAL -24 MONTH) and t.sbrq<MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1)
      and t.ckbgdh is not null
    union all
   select s.djxh,
@@ -78,10 +78,10 @@ routine_body: BEGIN
    inner join zygys on zygys.djxh=t.djxh and zygys.glh=t.glh and pm=1
    inner join ckts_wbsj_zj_dlckhwzm s on s.dlckhwzmhm=t.dlckhwzmhm and s.djxh=t.djxh
     left join dm_xzqh_dq hyd on hyd.dm=zygys.ghdz
-    left join dm_hgcode ka on ka.hgcode=substr(s.hggqka_dm,1,2)||'00'
+    left join dm_hgcode ka on ka.hgcode=ORA_CONCAT(substr(s.hggqka_dm,1,2), '00')
     left join dm_xzqh_dq hg on hg.dm=ka.xzqh_dm
     left join dm_gbcode mdg on mdg.gb_code=s.zzmdgdqsz_dm
-   where t.sbrq>=DATE_ADD(TRUNCATE(CURRENT_TIMESTAMP, 'yy'), INTERVAL -24 MONTH) and t.sbrq<TRUNCATE(CURRENT_TIMESTAMP, 'yy')
+   where t.sbrq>=DATE_ADD(MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1), INTERVAL -24 MONTH) and t.sbrq<MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1)
      and t.ckbgdh is null
   ),
   tj1 as (
@@ -136,13 +136,13 @@ routine_body: BEGIN
   ;
   commit;
 
-  update ckllfx_cs_wmqylsll_dq t
-     set t.fxdj_zhfxzs= t.qyzb_all * 0.1 + t.bgdzb_all * 0.2 + t.myzb_all * 0.2
+  update ckllfx_cs_wmqylsll_dq AS t
+     set fxdj_zhfxzs= t.qyzb_all * 0.1 + t.bgdzb_all * 0.2 + t.myzb_all * 0.2
                       + t.qyzb_sx  * 0.1 + t.bgdzb_sx  * 0.2 + t.myzb_sx  * 0.2;
   commit;
   -- 根据风险指数设置风险等级，对浙沪出口或货源地与出口地区域一致的降一级风险等级
-  update ckllfx_cs_wmqylsll_dq t
-     set t.fxdj_dm= case when t.fxdj_zhfxzs<=5
+  update ckllfx_cs_wmqylsll_dq AS t
+     set fxdj_dm= case when t.fxdj_zhfxzs<=5
                          then (case when t.qycode_hg='08' or t.qycode_hyd=t.qycode_hg then '3' else '4' end)
                          when t.fxdj_zhfxzs<=10
                          then (case when t.qycode_hg='08' or t.qycode_hyd=t.qycode_hg then '2' else '3' end)
