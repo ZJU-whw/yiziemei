@@ -1,0 +1,74 @@
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS PROC_XXBD_ZG_CKTMSBABG$$
+
+CREATE PROCEDURE PROC_XXBD_ZG_CKTMSBABG
+/*
+  编制人:严国平
+  编制日期:202209
+  功能:信息比对（备案变更），针对退税贷用户变更银行信息加以控制
+ */
+(
+  IN V_IN_NSRDZDAH DECIMAL(38,10), /*纳税人电子档案号*/
+  IN V_IN_DJXH DECIMAL(38,10), /*登记序号*/
+  IN V_IN_SBYWBDM VARCHAR(4000), /*申报业务表代码*/
+  IN V_IN_SSSQ VARCHAR(4000), /*申报年月*/
+  IN V_IN_SBPC DECIMAL(38,10), /*申报批次*/
+  IN V_IN_SBID DECIMAL(38,10), /*申报ID*/
+  OUT V_OUT_STATUS VARCHAR(4000), /*00:成功; 其他:执行失败*/
+  OUT V_OUT_MESSAGE VARCHAR(4000)
+)
+routine_body: BEGIN
+  DECLARE LN_ROWNUM_CKMX  BIGINT;
+
+  SET V_OUT_STATUS ='00';
+  SET V_OUT_MESSAGE =' ';
+
+  --取各申报明细表数据记录
+  BEGIN
+    SELECT COUNT(1)
+      INTO LN_ROWNUM_CKMX
+      FROM CKTS_BA_BABGQK_LSB
+     WHERE SBID=V_IN_SBID;
+  EXCEPTION
+    WHEN OTHERS THEN
+      SET V_OUT_STATUS ='06';
+      SET V_OUT_MESSAGE ='查询申报记录数据失败！';
+      LEAVE routine_body;
+  END;
+  IF LN_ROWNUM_CKMX=0 THEN
+    BEGIN
+      SET V_OUT_STATUS ='07';
+      SET V_OUT_MESSAGE ='申报数据为空！';
+      LEAVE routine_body;
+    END;
+  END IF;
+
+  SELECT COUNT(1)
+    INTO LN_ROWNUM_CKMX
+    FROM CKTS_BA_BABGQK_LSB
+   WHERE SBID=V_IN_SBID
+     AND BABGZD_DM='TSKHYHZH';
+  IF LN_ROWNUM_CKMX=0 THEN
+    LEAVE routine_body;
+  END IF;
+
+  SELECT COUNT(1)
+    INTO LN_ROWNUM_CKMX
+    FROM GS_DJ_CKTMSDAB T
+   INNER JOIN FG_TSDQY_JGB S ON T.NSRSBH=S.NSRSBH OR T.SHXYNO=S.NSRSBH
+   WHERE T.NSRDZDAH=V_IN_NSRDZDAH
+     AND S.JGBZ='1';
+
+  IF LN_ROWNUM_CKMX>0 THEN
+    BEGIN
+      SET V_OUT_STATUS ='17';
+      SET V_OUT_MESSAGE ='企业尚未解除退税贷业务监管，暂不允许变更退税银行账号！';
+      LEAVE routine_body;
+    END;
+  END IF;
+
+  LEAVE routine_body;
+END$$
+
+DELIMITER ;

@@ -1,0 +1,43 @@
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS PROC_XXBD_MDT_GJYS_THLY$$
+
+CREATE PROCEDURE PROC_XXBD_MDT_GJYS_THLY
+/*
+  编制人:严国平
+  编制日期:202009
+  功能:信息比对（生产企业免抵退税）
+ */
+(
+  IN V_IN_NSRDZDAH DECIMAL(38,10), /*纳税人电子档案号*/
+  IN V_IN_DJXH DECIMAL(38,10), /*登记序号*/
+  IN V_IN_SBYWBDM VARCHAR(4000), /*申报业务表代码*/
+  IN V_IN_SSSQ VARCHAR(4000), /*申报年月*/
+  IN V_IN_SBPC DECIMAL(38,10), /*申报批次*/
+  IN V_IN_SBID DECIMAL(38,10), /*申报ID*/
+  OUT V_OUT_STATUS VARCHAR(4000), /*00:成功; 其他:执行失败*/
+  OUT V_OUT_MESSAGE VARCHAR(4000)
+)
+routine_body: BEGIN
+  DECLARE LN_MXROW        BIGINT;
+  DECLARE LC_YDOBJECT     VARCHAR(20);
+  DECLARE LC_MSG          VARCHAR(200) DEFAULT ' ';
+
+  SET V_OUT_STATUS ='00';
+  SET V_OUT_MESSAGE =' ';
+
+  --国际运输明细表记录为空，不需要比对
+  BEGIN
+    SELECT COUNT(1)
+      INTO LN_MXROW
+      FROM CKTS_SB_MDT_TLHY_LSB T
+     WHERE T.SBID=V_IN_SBID;
+    IF LN_MXROW=0 THEN
+      LEAVE routine_body;
+    END IF;
+  END;
+  SET LC_YDOBJECT ='中铁货运';
+
+END$$
+
+DELIMITER ;

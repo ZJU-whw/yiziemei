@@ -1,0 +1,83 @@
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS PRO_TJBB_DT_B02110_CSH_NEW$$
+
+CREATE PROCEDURE PRO_TJBB_DT_B02110_CSH_NEW
+/**************************************************************
+ * 海关特殊监管区域企业增值税一般纳税人资格试点情况统计表
+ **************************************************************/
+(
+  IN V_SWCODE VARCHAR(4000),
+  IN V_SSNY VARCHAR(4000),
+  OUT V_ERROR DECIMAL(38,10),
+  OUT V_MSG VARCHAR(4000)
+)
+routine_body: BEGIN
+  DECLARE LD_SYSDATE       DATETIME;
+  DECLARE LC_THISMONTH     VARCHAR(6);
+  DECLARE LC_PREVMONTH     VARCHAR(6);
+  DECLARE V_TEMP           BIGINT DEFAULT 0;
+  DECLARE LN_I             BIGINT;
+
+  SET V_ERROR =0;
+  SET V_MSG = ' ';
+
+  IF V_SSNY IS NOT NULL THEN
+    SET LD_SYSDATE =STR_TO_DATE(V_SSNY||'01', '%Y%m%d');
+  ELSE
+    SET LD_SYSDATE =CURRENT_TIMESTAMP;
+  END IF;
+
+  SET LC_THISMONTH =DATE_FORMAT(LD_SYSDATE, '%Y%m');
+  SET LC_PREVMONTH =DATE_FORMAT(DATE_ADD(LD_SYSDATE, INTERVAL -1 MONTH), '%Y%m');
+  
+  --0、清除原有制表数据，准备重新制表
+  BEGIN
+    DELETE FROM TJBB_DT_B02110 WHERE SWJGDM=V_SWCODE AND SSNY=LC_THISMONTH;
+    COMMIT;
+  EXCEPTION
+    WHEN OTHERS THEN
+      SET V_ERROR = SQLCODE;
+      SET V_MSG = SQLERRM;
+      LEAVE routine_body;
+  END;
+
+  --1、统计
+  BEGIN
+    --检查是否第一次使用该报表
+    SELECT COUNT(1)
+      INTO V_TEMP
+      FROM TJBB_DT_B02110
+     WHERE SWJGDM=V_SWCODE AND SSNY=LC_PREVMONTH AND ROWNUM=1;
+    IF (V_TEMP = 0) OR (SUBSTR(LC_THISMONTH,5)='01') THEN
+      --首次使用该报表，或每年****01所属期，插入20行空行数据
+      BEGIN
+        FOR LN_I IN 1 .. 20 LOOP
+          BEGIN
+            INSERT INTO TJBB_DT_B02110 (SSNY,BBLC,SWJGDM,BYS,BYS_HZ,SYLJS,SYLJS_HZ,LJS,LJS_HZ)
+            SELECT LC_THISMONTH, CASE WHEN LN_I<10 THEN '0'||CAST(LN_I AS CHAR) ELSE ''||CAST(LN_I AS CHAR) END, V_SWCODE, 0, 0, 0, 0, 0, 0
+;
+          END;
+        END LOOP;
+      END;
+    ELSE
+      --其他情况，将上月报表拷贝本年累计数复制到本月的上月累计数及本月累计数
+      BEGIN
+        INSERT INTO TJBB_DT_B02110 (SSNY,BBLC,SWJGDM,BYS,BYS_HZ,SYLJS,SYLJS_HZ,LJS,LJS_HZ)
+        SELECT LC_THISMONTH, BBLC, SWJGDM, 0, 0, LJS, LJS_HZ, LJS, LJS_HZ
+          FROM TJBB_DT_B02110
+         WHERE SWJGDM=V_SWCODE AND SSNY=LC_PREVMONTH;
+      END;
+    END IF;
+    COMMIT;
+  EXCEPTION
+    WHEN OTHERS THEN
+      SET V_ERROR = SQLCODE;
+      SET V_MSG = SQLERRM;
+      LEAVE routine_body;
+  END;
+
+  LEAVE routine_body;
+END$$
+
+DELIMITER ;

@@ -1,0 +1,111 @@
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS PRO_TJBB_DT_B05102_CSH_NEW$$
+
+CREATE PROCEDURE PRO_TJBB_DT_B05102_CSH_NEW
+/**************************************************************
+ * 跨境电商统计表——无票免税情况表
+ **************************************************************/
+(
+  IN V_SWCODE VARCHAR(4000),
+  IN V_SSNY VARCHAR(4000),
+  OUT V_ERROR DECIMAL(38,10),
+  OUT V_MSG VARCHAR(4000)
+)
+routine_body: BEGIN
+  DECLARE LD_SYSDATE       DATETIME;
+  DECLARE LC_THISMONTH     VARCHAR(6);
+  DECLARE LC_PREVMONTH     VARCHAR(6);
+  DECLARE V_TEMP           BIGINT DEFAULT 0;
+  DECLARE LD_INITDATE      DATETIME;
+  DECLARE LC_INITMONTH     VARCHAR(6);
+
+  SET V_ERROR =0;
+  SET V_MSG = ' ';
+
+  IF V_SSNY IS NOT NULL THEN
+    SET LD_SYSDATE =STR_TO_DATE(V_SSNY||'01', '%Y%m%d');
+  ELSE
+    SET LD_SYSDATE =CURRENT_TIMESTAMP;
+  END IF;
+
+  SET LC_THISMONTH =DATE_FORMAT(LD_SYSDATE, '%Y%m');
+  SET LC_PREVMONTH =DATE_FORMAT(DATE_ADD(LD_SYSDATE, INTERVAL -1 MONTH), '%Y%m');
+  
+  --0、清除原有制表数据，准备重新制表
+  BEGIN
+    DELETE FROM TJBB_DT_B05102 WHERE SWJGDM=V_SWCODE AND SSNY=LC_THISMONTH;
+    COMMIT;
+  EXCEPTION
+    WHEN OTHERS THEN
+      SET V_ERROR = SQLCODE;
+      SET V_MSG = SQLERRM;
+      LEAVE routine_body;
+  END;
+
+  --1、统计
+  BEGIN
+    --检查是否第一次使用该报表
+    SELECT COUNT(1)
+      INTO V_TEMP
+      FROM TJBB_DT_B05102
+     WHERE SWJGDM=V_SWCODE AND SSNY=LC_PREVMONTH AND ROWNUM=1;
+    IF V_TEMP = 0 THEN
+      BEGIN
+        --首次使用该报表，从201901开始每月一行记录初始化
+        SET LD_INITDATE = STR_TO_DATE('2019-01-01', '%Y-%m-%d');
+        LOOP
+          EXIT WHEN LD_INITDATE >LD_SYSDATE;
+          SET LC_INITMONTH =DATE_FORMAT(LD_INITDATE, '%Y%m');
+          INSERT INTO TJBB_DT_B05102 (
+                 SSNY,BBLC,SWJGDM,QJNY,
+                 KJLS_CKE_HS, KJLS_CKE_HS_HZ, KJLS_CKE_JE, KJLS_CKE_JE_HZ, 
+                 KJLS_TMS_HS, KJLS_TMS_HS_HZ, KJLS_TMS_JE, KJLS_TMS_JE_HZ, 
+                 WPMS_CKE_HS, WPMS_CKE_HS_HZ, WPMS_CKE_JE, WPMS_CKE_JE_HZ)
+          SELECT LC_THISMONTH, LC_INITMONTH,V_SWCODE,LC_INITMONTH,
+                 0,0,0,0,
+                 0,0,0,0,
+                 0,0,0,0
+;
+          SET LD_INITDATE = DATE_ADD(LD_INITDATE, INTERVAL 1 MONTH);
+        END LOOP;
+      END;
+    ELSE
+      BEGIN
+        --非首次使用该报表，从上月报表拷贝相同数据到本月
+        INSERT INTO TJBB_DT_B05102 (
+               SSNY,BBLC,SWJGDM,QJNY,
+               KJLS_CKE_HS, KJLS_CKE_HS_HZ, KJLS_CKE_JE, KJLS_CKE_JE_HZ, 
+               KJLS_TMS_HS, KJLS_TMS_HS_HZ, KJLS_TMS_JE, KJLS_TMS_JE_HZ, 
+               WPMS_CKE_HS, WPMS_CKE_HS_HZ, WPMS_CKE_JE, WPMS_CKE_JE_HZ)
+        SELECT LC_THISMONTH,BBLC,SWJGDM,QJNY,
+               KJLS_CKE_HS, KJLS_CKE_HS_HZ, KJLS_CKE_JE, KJLS_CKE_JE_HZ, 
+               KJLS_TMS_HS, KJLS_TMS_HS_HZ, KJLS_TMS_JE, KJLS_TMS_JE_HZ, 
+               WPMS_CKE_HS, WPMS_CKE_HS_HZ, WPMS_CKE_JE, WPMS_CKE_JE_HZ
+          FROM TJBB_DT_B05102
+         WHERE SWJGDM=V_SWCODE AND SSNY=LC_PREVMONTH;
+        --增加本月数据
+        INSERT INTO TJBB_DT_B05102 (
+               SSNY,BBLC,SWJGDM,QJNY,
+               KJLS_CKE_HS, KJLS_CKE_HS_HZ, KJLS_CKE_JE, KJLS_CKE_JE_HZ, 
+               KJLS_TMS_HS, KJLS_TMS_HS_HZ, KJLS_TMS_JE, KJLS_TMS_JE_HZ, 
+               WPMS_CKE_HS, WPMS_CKE_HS_HZ, WPMS_CKE_JE, WPMS_CKE_JE_HZ)
+        SELECT LC_THISMONTH, LC_THISMONTH,V_SWCODE,LC_THISMONTH,
+               0,0,0,0,
+               0,0,0,0,
+               0,0,0,0
+;
+      END;
+    END IF;
+    COMMIT;
+  EXCEPTION
+    WHEN OTHERS THEN
+      SET V_ERROR = SQLCODE;
+      SET V_MSG = SQLERRM;
+      LEAVE routine_body;
+  END;
+
+  LEAVE routine_body;
+END$$
+
+DELIMITER ;

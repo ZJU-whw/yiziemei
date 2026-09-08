@@ -1,0 +1,147 @@
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS PROC_XXBD_GJ$$
+
+CREATE PROCEDURE PROC_XXBD_GJ
+/*
+  编制人:严国平
+  编制日期:202010
+  功能:信息比对（购进自用货物免退税）
+  调整日期：20201221，1、根据宁波加工区内退水电气大部分为小规模以及研发中心退国产设备政策第十三条，非增值税一般纳税人允许申报购进自用货物退税，对涉及一般纳税人资格的疑点进行调整
+ */
+(
+  IN V_IN_NSRDZDAH DECIMAL(38,10), /*纳税人电子档案号*/
+  IN V_IN_DJXH DECIMAL(38,10), /*登记序号*/
+  IN V_IN_SBYWBDM VARCHAR(4000), /*申报业务表代码*/
+  IN V_IN_SSSQ VARCHAR(4000), /*申报年月*/
+  IN V_IN_SBPC DECIMAL(38,10), /*申报批次*/
+  IN V_IN_SBID DECIMAL(38,10), /*申报ID*/
+  OUT V_OUT_STATUS VARCHAR(4000), /*00:成功; 其他:执行失败*/
+  OUT V_OUT_MESSAGE VARCHAR(4000)
+)
+routine_body: BEGIN
+  DECLARE LDT_TODAY       DATETIME;
+
+  DECLARE LC_QYHGDM       VARCHAR(20);
+  DECLARE LC_QYLXDM       VARCHAR(20);
+  DECLARE LC_TSJSFSDM     VARCHAR(20);
+  DECLARE LC_WMZHFWQYBZ   VARCHAR(20);
+  DECLARE LC_SFYSFW       VARCHAR(20);
+  DECLARE LC_YSFW         VARCHAR(50);
+  DECLARE LC_YSFS         VARCHAR(50);
+  DECLARE LC_YFSJ         VARCHAR(50);
+  DECLARE LC_ZXFLAG       VARCHAR(20);
+
+  DECLARE LN_CPCODEKZ     BIGINT;
+  DECLARE LN_SDQ          BIGINT;
+  DECLARE LC_KZXX         VARCHAR(20);
+  DECLARE LC_FLGLCD       VARCHAR(20);
+  DECLARE LN_ROWNUM_TSSB  BIGINT;
+
+  SET V_OUT_STATUS ='00';
+  SET V_OUT_MESSAGE =' ';
+  SET LDT_TODAY =DATE(CURRENT_TIMESTAMP);
+
+  IF V_IN_SSSQ>DATE_FORMAT(CURRENT_TIMESTAMP, '%Y%m') THEN
+    BEGIN
+      SET V_OUT_STATUS ='05';
+      SET V_OUT_MESSAGE ='申报所属时期超出合理范围！';
+      LEAVE routine_body;
+    END;
+  END IF;
+
+  --取各申报明细表数据记录
+  BEGIN
+    SELECT COUNT(1)
+      INTO LN_ROWNUM_TSSB
+      FROM CKTS_SB_GJ_SBMX_LSB
+     WHERE SBID=V_IN_SBID;
+  EXCEPTION
+    WHEN OTHERS THEN
+      SET V_OUT_STATUS ='06';
+      SET V_OUT_MESSAGE ='查询申报记录数据失败！';
+      LEAVE routine_body;
+  END;
+  IF LN_ROWNUM_TSSB=0 THEN
+    BEGIN
+      SET V_OUT_STATUS ='07';
+      SET V_OUT_MESSAGE ='申报数据为空！';
+      LEAVE routine_body;
+    END;
+  END IF;
+
+  --查询企业基本信息
+  BEGIN
+    SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS, T.YFSJ, T.ZX_FLAG
+      INTO LC_QYHGDM, LC_QYLXDM, LC_TSJSFSDM, LC_WMZHFWQYBZ, LC_SFYSFW, LC_YSFW, LC_YSFS, LC_YFSJ, LC_ZXFLAG
+      FROM GS_DJ_CKTMSDAB T
+     WHERE T.NSRDZDAH=V_IN_NSRDZDAH;
+  EXCEPTION
+    WHEN OTHERS THEN
+      SET V_OUT_STATUS ='08';
+      SET V_OUT_MESSAGE ='企业当前未进行出口退（免）税备案，不允许申报除出口退（免）税备案以外的其他业务！';
+      LEAVE routine_body;
+  END;
+  IF LC_ZXFLAG='R' THEN
+    BEGIN
+      SET V_OUT_STATUS ='09';
+      SET V_OUT_MESSAGE ='企业当前已出口退（免）税备案撤回，不允许申报除出口退（免）税备案以外的其他业务！';
+      LEAVE routine_body;
+    END;
+  END IF;
+
+  --取企业的FLGLCD信息, TGSHZL信息，判断是否需要申报收汇
+  SET LN_CPCODEKZ =FUNC_XXBD_QUERY_CPCODEKZ(V_IN_NSRDZDAH,'FLGLCD',LDT_TODAY,LC_FLGLCD);
+  IF LN_CPCODEKZ=0 THEN
+    BEGIN
+      SET V_OUT_STATUS ='10';
+      SET V_OUT_MESSAGE ='查询出口企业分类管理类型出错！';
+      LEAVE routine_body;
+    END;
+  END IF;
+
+  SET LN_CPCODEKZ =FUNC_XXBD_QUERY_CPCODEKZ(V_IN_NSRDZDAH,'TQQY',LDT_TODAY,LC_KZXX);
+  IF LN_CPCODEKZ=1 THEN
+    BEGIN
+      SET V_OUT_STATUS ='13';
+      SET V_OUT_MESSAGE ='企业当前处于出口退税停权期间，不允许申报出口退（免）税业务！';
+      LEAVE routine_body;
+    END;
+  END IF;
+  SET LN_CPCODEKZ =FUNC_XXBD_QUERY_CPCODEKZ(V_IN_NSRDZDAH,'FQTSSXMS',LDT_TODAY,LC_KZXX);
+  IF LN_CPCODEKZ=1 AND LN_ROWNUM_TSSB>0 THEN
+    BEGIN
+      SET V_OUT_STATUS ='14';
+      SET V_OUT_MESSAGE ='企业当前处于放弃退（免）税权选择免税期间，不允许申报出口货物劳务免退税业务！';
+      LEAVE routine_body;
+    END;
+  END IF;
+  SET LN_CPCODEKZ =FUNC_XXBD_QUERY_CPCODEKZ(V_IN_NSRDZDAH,'FQTSSXZS',LDT_TODAY,LC_KZXX);
+  IF LN_CPCODEKZ=1 AND LN_ROWNUM_TSSB>0 THEN
+    BEGIN
+      SET V_OUT_STATUS ='15';
+      SET V_OUT_MESSAGE ='企业当前处于放弃退（免）税权选择征税期间，不允许申报出口货物劳务免退税业务！';
+      LEAVE routine_body;
+    END;
+  END IF;
+  SET LN_CPCODEKZ =FUNC_XXBD_QUERY_CPCODEKZ(V_IN_NSRDZDAH,'FQTMS',LDT_TODAY,LC_KZXX);
+  IF LN_CPCODEKZ=1 AND LN_ROWNUM_TSSB>0 THEN
+    BEGIN
+      SET V_OUT_STATUS ='16';
+      SET V_OUT_MESSAGE ='企业当前处于放弃退（免）税权期间，不允许申报出口货物劳务免退税业务！';
+      LEAVE routine_body;
+    END;
+  END IF;
+
+  BEGIN
+    PROC_XXBD_GJ_ZZSFP(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
+  EXCEPTION
+    WHEN OTHERS THEN
+      SET V_OUT_STATUS ='52';
+      SET V_OUT_MESSAGE ='增值税发票自检出错：'||SQLCODE||' - '||SQLERRM;
+      LEAVE routine_body;
+  END;
+
+END$$
+
+DELIMITER ;

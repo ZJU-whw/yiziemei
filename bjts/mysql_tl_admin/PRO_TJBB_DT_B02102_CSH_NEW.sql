@@ -1,0 +1,67 @@
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS PRO_TJBB_DT_B02102_CSH_NEW$$
+
+CREATE PROCEDURE PRO_TJBB_DT_B02102_CSH_NEW
+/*************************************************
+ * 离境退税政策执行情况表
+ ************************************************/
+(
+  IN V_SWCODE VARCHAR(4000),
+  IN V_SSNY VARCHAR(4000),
+  OUT V_ERROR DECIMAL(38,10),
+  OUT V_MSG VARCHAR(4000)
+)
+routine_body: BEGIN
+  DECLARE LD_SYSDATE       DATETIME;
+  DECLARE LC_THISMONTH     VARCHAR(6);
+
+  SET V_ERROR =0;
+  SET V_MSG = ' ';
+  
+  IF V_SSNY IS NOT NULL THEN
+    SET LD_SYSDATE =STR_TO_DATE(V_SSNY||'01', '%Y%m%d');
+  ELSE
+    SET LD_SYSDATE =CAST(DATE_FORMAT(CURRENT_TIMESTAMP, '%Y-%m-01') AS DATETIME);
+  END IF;
+  SET LC_THISMONTH =DATE_FORMAT(LD_SYSDATE, '%Y%m');
+
+  --0、清除原有制表数据，准备重新制表
+  BEGIN
+    DELETE FROM TJBB_DT_B02102 WHERE SWJGDM=V_SWCODE AND SSNY=LC_THISMONTH;
+    COMMIT;
+  EXCEPTION
+    WHEN OTHERS THEN
+      SET V_ERROR = SQLCODE;
+      SET V_MSG = SQLERRM;
+  END;
+  IF V_ERROR <> 0 THEN
+    LEAVE routine_body;
+  END IF;
+
+  --1、插入两行空行
+  BEGIN
+    INSERT INTO TJBB_DT_B02102 (SSNY, BBLC, SWJGDM,
+           TSSD_SL, TSSD_SL_HZ, SQRS, SQRS_HZ, SQDFS, SQDFS_HZ, SQJE, SQJE_HZ, BLRS, BLRS_HZ, BLJE, BLJE_HZ,
+           ZYTSSP)
+    SELECT LC_THISMONTH, '01', V_SWCODE,
+           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+           ''
+
+     UNION ALL
+    SELECT LC_THISMONTH, '02', V_SWCODE,
+           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+           ''
+
+      ;
+    COMMIT;
+  EXCEPTION
+    WHEN OTHERS THEN
+      SET V_ERROR = SQLCODE;
+      SET V_MSG = SQLERRM;
+  END;
+
+  LEAVE routine_body;
+END$$
+
+DELIMITER ;

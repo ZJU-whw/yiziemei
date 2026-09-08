@@ -91,7 +91,7 @@ git commit -m "test: define bjts SQL migration manifest"
 - Consumes: `convert_source(relative_path: str, source_bytes: bytes) -> ConversionResult` where input text is GB18030-compatible Oracle PL/SQL.
 - Produces: `ConversionResult(sql: str, source_object_type: str, target_object_type: str, object_name: str, warnings: list[str])` and UTF-8 same-named baseline files.
 
-- [ ] **Step 1: Write failing focused conversion tests**
+- [x] **Step 1: Write failing focused conversion tests**
 
 Cover exact examples for GB18030-to-UTF-8 decoding, comment/string preservation, schema-prefix removal in executable identifiers, `NUMBER(18)` versus `NUMBER(20)`, `VARCHAR2`, sequence calls, `SQL%ROWCOUNT`, and routine wrappers:
 
@@ -108,37 +108,37 @@ def test_schema_names_inside_literals_are_preserved(self):
     self.assertIn("'TL_ADMIN.T3'", converted)
 ```
 
-- [ ] **Step 2: Verify converter tests fail before implementation**
+- [x] **Step 2: Verify converter tests fail before implementation**
 
 Run: `python3 -m unittest tools.bjts_sql_migration.tests.test_converter -v`
 
 Expected: failure because `converter.py` and its public functions do not yet exist.
 
-- [ ] **Step 3: Implement protected-segment tokenization and encoding conversion**
+- [x] **Step 3: Implement protected-segment tokenization and encoding conversion**
 
 Decode source bytes as GB18030, normalize CRLF to LF, preserve comments and quoted literals as protected segments, and apply identifier/keyword rewrites only to executable segments unless a later dynamic-SQL conversion explicitly opts into string-content rewriting.
 
-- [ ] **Step 4: Implement common routine and datatype conversion**
+- [x] **Step 4: Implement common routine and datatype conversion**
 
 Recognize the single top-level Oracle function or procedure, build a MySQL `DROP ... IF EXISTS` plus `DELIMITER $$` wrapper, convert parameter modes and declaration syntax, apply the exact numeric mapping from the global constraints, and convert common assignments and row-count expressions.
 
-- [ ] **Step 5: Implement common SQL expression conversion**
+- [x] **Step 5: Implement common SQL expression conversion**
 
 Convert sequences to `SEQ_NEXTVAL('NAME')`, schema identifiers to unqualified names, simple `NVL/NVL2/DECODE`, `SYSDATE`, `DUAL`, and unambiguous `ROWNUM = 1` patterns. Emit a warning rather than guessing when nesting or Oracle evaluation order makes a mechanical conversion unsafe.
 
-- [ ] **Step 6: Generate all baseline output files**
+- [x] **Step 6: Generate all baseline output files**
 
 Run: `python3 -m tools.bjts_sql_migration.converter --repo-root . --write`
 
 Expected: exactly 356 UTF-8 SQL files are written into the three requested output directories; source hashes remain unchanged.
 
-- [ ] **Step 7: Run unit and manifest tests**
+- [x] **Step 7: Run unit and manifest tests**
 
 Run: `python3 -m unittest discover -s tools/bjts_sql_migration/tests -v`
 
 Expected: all converter tests and exact filename/count checks pass; residual scans may still fail and drive Tasks 4–6.
 
-- [ ] **Step 8: Commit the baseline converter and generated files**
+- [x] **Step 8: Commit the baseline converter and generated files**
 
 ```bash
 git add tools/bjts_sql_migration/converter.py tools/bjts_sql_migration/tests/test_converter.py bjts/mysql_tl_admin bjts/mysql_tl_bjts bjts/mysql_tl_tssh
