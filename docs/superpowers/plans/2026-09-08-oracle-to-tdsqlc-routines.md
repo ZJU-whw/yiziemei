@@ -39,7 +39,7 @@
 - Consumes: the three immutable Oracle source directories and the output mapping in the spec.
 - Produces: `load_manifest() -> dict[str, list[str]]`, `compare_manifest(repo_root: Path) -> list[str]`, `scan_output_file(path: Path) -> list[Finding]`, and a command-line verifier returning exit status 0 only when every static contract passes.
 
-- [ ] **Step 1: Write failing manifest tests**
+- [x] **Step 1: Write failing manifest tests**
 
 ```python
 class ManifestTests(unittest.TestCase):
@@ -53,27 +53,27 @@ class ManifestTests(unittest.TestCase):
         self.assertEqual([], compare_manifest(REPO_ROOT))
 ```
 
-- [ ] **Step 2: Run tests and confirm the output test fails**
+- [x] **Step 2: Run tests and confirm the output test fails**
 
 Run: `python3 -m unittest tools.bjts_sql_migration.tests.test_verifier -v`
 
 Expected: source-count test passes; output-manifest test fails because the three MySQL directories do not yet exist.
 
-- [ ] **Step 3: Record every exact source basename in the manifest**
+- [x] **Step 3: Record every exact source basename in the manifest**
 
 Generate `source_manifest.json` from sorted `*.sql` basenames and review that it contains only the keys `tl_admin`, `tl_bjts`, and `tl_tssh`, with no duplicate basename inside a source directory.
 
-- [ ] **Step 4: Implement lexical masking and manifest checks**
+- [x] **Step 4: Implement lexical masking and manifest checks**
 
 `scan_output_file` must mask `--` comments, `/* ... */` comments, and quoted string literals before searching executable text. It must report line-numbered findings for Oracle routine headers, `VARCHAR2`, `NUMBER(...)`, `%ROWTYPE`, `%NOTFOUND`, `EXCEPTION`, `.NEXTVAL`, `.CURRVAL`, schema prefixes, standalone `/`, and known Oracle-only functions.
 
-- [ ] **Step 5: Run the verifier unit tests**
+- [x] **Step 5: Run the verifier unit tests**
 
 Run: `python3 -m unittest discover -s tools/bjts_sql_migration/tests -v`
 
 Expected: all lexical-scanner tests pass; the integration output-manifest assertion remains an expected failure until generated outputs exist.
 
-- [ ] **Step 6: Commit the verification contract**
+- [x] **Step 6: Commit the verification contract**
 
 ```bash
 git add tools/bjts_sql_migration
