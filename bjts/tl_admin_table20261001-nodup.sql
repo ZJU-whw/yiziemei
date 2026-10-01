@@ -1,3 +1,4 @@
+
 prompt
 prompt Creating table CS_SH_FZTSGWRY
 prompt =============================

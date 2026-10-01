@@ -1,5 +1,3 @@
-set define off
-
 prompt
 prompt Creating table ATFX_CK_JG_ACJFSTJ
 prompt =================================

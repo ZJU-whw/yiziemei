@@ -1,4 +1,4 @@
-set define off
+
 
 prompt
 prompt Creating table BJTS_TASK
