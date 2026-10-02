@@ -2,7 +2,7 @@ DELIMITER $$
 
 DROP PROCEDURE IF EXISTS F_WLGL_EXTRACT_PLATE$$
 
-CREATE PROCEDURE f_wlgl_extract_plate
+CREATE PROCEDURE F_WLGL_EXTRACT_PLATE
 -- ============================================
 -- 函数：提取车牌号、物流单号（仅取第一个）
 -- ============================================

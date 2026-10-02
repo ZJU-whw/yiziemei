@@ -27,7 +27,7 @@ BEGIN
   BEGIN
   DECLARE BJTS_FETCH_DONE_001 BOOLEAN DEFAULT FALSE;
   DECLARE BJTS_FETCH_CURSOR_001 CURSOR FOR
-select zbjg_dm from dm_zbjg
+select zbjg_dm from DM_ZBJG
          where yxbz='Y' and (p_zbjg_dm is null or zbjg_dm=p_zbjg_dm);
   OPEN BJTS_FETCH_CURSOR_001;
   BJTS_FETCH_LOOP_001: LOOP
@@ -50,7 +50,7 @@ select zbjg_dm from dm_zbjg
           SET zbHzbCnt =0;
 
   END;
-select count(*) into zbHzbCnt from zb_tsjhzx_hzb
+select count(*) into zbHzbCnt from ZB_TSJHZX_HZB
           where zbjg_dm=v_zbjg and tszb_yn=p_tszb_ny ;
         end;
 
@@ -75,7 +75,7 @@ select IFNULL(byjhye, 0),
                  IFNULL(byzhtse, 0)+IFNULL(bnljzhtse, 0),
                  IFNULL(byxdjhe, 0)+IFNULL(bnljxdjhe, 0)
           into v_syjzjhe,v_bnljbltse,v_bnljzhtse,v_bnljxdjhe from
-          (select byjhye,byybltse,byzhtse,byxdjhe,bnljbltse,bnljzhtse,bnljxdjhe from zb_tsjhzx_hzb
+          (select byjhye,byybltse,byzhtse,byxdjhe,bnljbltse,bnljzhtse,bnljxdjhe from ZB_TSJHZX_HZB
                  where zbjg_dm=v_zbjg and tszb_yn like ORA_CONCAT(v_nd, '%') order by tszb_yn desc
           )pt where 1=1
 LIMIT 1;
@@ -83,7 +83,7 @@ LIMIT 1;
 
         -- 取截止上月的累计
 /*        select nvl(sum(byybltse),0),nvl(sum(byzhtse),0),nvl(sum(byxdjhe),0) into v_bnljbltse,v_bnljzhtse,v_bnljxdjhe
-        from zb_tsjhzx_hzb
+        from ZB_TSJHZX_HZB
                  where zbjg_dm=v_zbjg and tszb_yn like v_nd || '%';
 */
         -- 本年累计计划完成率
@@ -91,7 +91,7 @@ LIMIT 1;
                        else round((v_bnljbltse)/(v_bnljxdjhe+v_bnljzhtse)*100,2) end;
 
         -- 插入本月记录
-        insert into zb_tsjhzx_hzb(zbjg_dm,tszb_yn,syjzjhe,byjhze,byjhye,bnljbltse,bnljzhtse,bnljxdjhe,bnljjhwcl)
+        insert into ZB_TSJHZX_HZB(zbjg_dm,tszb_yn,syjzjhe,byjhze,byjhye,bnljbltse,bnljzhtse,bnljxdjhe,bnljjhwcl)
                values(v_zbjg,p_tszb_ny,v_syjzjhe,v_syjzjhe,v_syjzjhe,v_bnljbltse,v_bnljzhtse,v_bnljxdjhe,v_bnljjhwcl);
       end if;
 

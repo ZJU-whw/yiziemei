@@ -24,8 +24,8 @@ routine_body: BEGIN
   DECLARE BJTS_CUR_SWJG_DM_001 LONGTEXT;
   DECLARE BJTS_NAMED_CURSOR_001 CURSOR FOR
 select czry_dm,czry_mc,swjg_dm
-         from tmp_sszj t
-         where not exists(select 1 from sys_user s
+         from TMP_SSZJ t
+         where not exists(select 1 from SYS_USER s
          where s.czry_dm=t.czry_dm);
   OPEN BJTS_NAMED_CURSOR_001;
   BJTS_NAMED_CURSOR_LOOP_001: LOOP
@@ -51,14 +51,14 @@ select czry_dm,czry_mc,swjg_dm
         SET pid =0;
 
   END;
-select id into pid from sys_user t
+select id into pid from SYS_USER t
       where t.czry_dm=v_CZRY_DM;
      END;
 
     -- 检查操作员
     if (pid=0) then
-      SET pid = f_seq_nextval_admin('SYS_USER');
-      insert into sys_user(id,czry_dm,czry_mc,password,swjg_dm,usrstate
+      SET pid = F_SEQ_NEXTVAL_ADMIN('SYS_USER');
+      insert into SYS_USER(id,czry_dm,czry_mc,password,swjg_dm,usrstate
              ,crtime,crname,uptime,upname,qybz,yhly)
         values(pid,
         v_czry_dm,v_czry_mc,v_password,v_swjg_dm,'3',
@@ -68,7 +68,7 @@ select id into pid from sys_user t
 
       -- 检查角色
       if (pid>0) then
-        select count(1) into cnt from sys_user_role r where r.czyid=pid;
+        select count(1) into cnt from SYS_USER_ROLE r where r.czyid=pid;
         if cnt = 0 then
             SET swjc =case when substr(v_swjg_dm,-8)='00000000' then 1
                  when substr(v_swjg_dm,-6)='000000' then 2
@@ -77,21 +77,21 @@ select id into pid from sys_user t
 
             if swjc='1' then
               -- 省局专责
-              insert into sys_user_role values(pid,'SHJZZ');
+              insert into SYS_USER_ROLE values(pid,'SHJZZ');
             else if swjc='2' then
               -- 市局专责
-              insert into sys_user_role values(pid,'SJZZ');
+              insert into SYS_USER_ROLE values(pid,'SJZZ');
             else if swjc='3' then
               -- 县局专责
-              insert into sys_user_role values(pid,'XJZZ');
+              insert into SYS_USER_ROLE values(pid,'XJZZ');
             end if;
             end if;
             end if;
 
             -- 单证备案, 2.0 ,1.0
-            insert into sys_user_role values(pid,'DZBACZ');
+            insert into SYS_USER_ROLE values(pid,'DZBACZ');
             -- sszj
-            insert into sys_group_user values('SSZJ',pid);
+            insert into SYS_GROUP_USER values('SSZJ',pid);
 
 
         end if;

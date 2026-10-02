@@ -23,7 +23,7 @@ routine_body: BEGIN
     LEAVE routine_body;
 
   END;
-update sys_cfg_czry_fpgl set cnt_sc=0, cnt_wm=0, cnt_qt=0;
+update SYS_CFG_CZRY_FPGL set cnt_sc=0, cnt_wm=0, cnt_qt=0;
     commit;
     DO '随机分单月初清0';
 --  end if;

@@ -387,7 +387,7 @@ IF pv_cntnsr_new = 0 THEN
         -- ZGSWJ_DM  N CHAR(11)  Y     征管税务机关代码-NEW
 
         -- 插入待同步数据,取消
-        -- INSERT INTO tb_dtbsj(id,tblx_dm,mainid,cjsj,tbcs,yxj)
+        -- INSERT INTO TB_DTBSJ(id,tblx_dm,mainid,cjsj,tbcs,yxj)
         -- VALUES(SEQ_TB_DTBSJ_ID.NEXTVAL,'GS_DJ_CKTMSDABToYun',pv_tbpc,sysdate,0,1);
 
         -- 记录日志，同步成功

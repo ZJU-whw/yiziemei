@@ -35,7 +35,7 @@ UPDATE GS_DJ_TXFWSQXX SET TBPC = 6 WHERE TBPC = 0;
   COMMIT;
   -- 同步提醒服务信息表,增量更新
   -- 提醒服务信息表
-  -- DELETE FROM GS_DJ_TXFWSQXX WHERE tbpc not in (SELECT mainid FROM tb_dtbsj WHERE tblx_dm = 'GS_DJ_TXFWSQXXToYun');
+  -- DELETE FROM GS_DJ_TXFWSQXX WHERE tbpc not in (SELECT mainid FROM TB_DTBSJ WHERE tblx_dm = 'GS_DJ_TXFWSQXXToYun');
   -- COMMIT;
   -- DBMS_OUTPUT.put_line('提醒服务信息表历史数据清理成功');
 
@@ -101,7 +101,7 @@ SET pv_tbpc = SEQ_NEXTVAL('SEQ_TB_TBPC');
       UPDATE GS_DJ_TXFWSQXX SET NSRDZDAH = pv_nsrdzdah WHERE CPCODE = pv_qyhgdm AND TBPC = 6;
 
       -- 插入待同步数据
-      -- INSERT INTO tb_dtbsj(id,tblx_dm,mainid,cjsj,tbcs,yxj)
+      -- INSERT INTO TB_DTBSJ(id,tblx_dm,mainid,cjsj,tbcs,yxj)
       -- VALUES(SEQ_TB_DTBSJ_ID.NEXTVAL,'GS_DJ_TXFWSQXXToYun',pv_tbpc,sysdate,0,1);
       -- DBMS_OUTPUT.put_line(pv_qyhgdm || '同步成功');
 

@@ -17,7 +17,7 @@ routine_body: BEGIN
   DECLARE BJTS_CUR_LCXX_LCSLID_001 LONGTEXT;
   DECLARE BJTS_CURSOR_001 CURSOR FOR
 select IFNULL(dj.shxyno, dj.nsrdjno) as NSRSBH,lc.sbywb_dm,lc.sb_ym,IFNULL(lc.sb_pc, '001') as sb_pc,lc.lcslid
-               from glxt_bb_shxt_lcxx lc,glxt_bb_shxt_djxx dj
+               from GLXT_BB_SHXT_LCXX lc,GLXT_BB_SHXT_DJXX dj
              where lc.djxh=dj.djxh_js and lc.sbywb_dm in ('A0301001','A0305001')
                    and lc.sb_date >=CAST('2022-04-01' AS DATE);
   OPEN BJTS_CURSOR_001;
@@ -31,7 +31,7 @@ select IFNULL(dj.shxyno, dj.nsrdjno) as NSRSBH,lc.sbywb_dm,lc.sb_ym,IFNULL(lc.sb
       LEAVE BJTS_CURSOR_LOOP_001;
     END IF;
       SET LN_CNT =LN_CNT+1;
-      update edoc_record_trigger_result AS r set lcslid=BJTS_CUR_LCXX_LCSLID_001
+      update EDOC_RECORD_TRIGGER_RESULT AS r set lcslid=BJTS_CUR_LCXX_LCSLID_001
              where r.busikey=
              ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(BJTS_CUR_LCXX_NSRSBH_001, '|'), BJTS_CUR_LCXX_SBYWB_DM_001), '|'), BJTS_CUR_LCXX_SB_YM_001), '|'), BJTS_CUR_LCXX_SB_PC_001);
 

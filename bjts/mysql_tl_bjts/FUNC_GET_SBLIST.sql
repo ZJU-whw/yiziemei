@@ -2,7 +2,7 @@ DELIMITER $$
 
 DROP PROCEDURE IF EXISTS FUNC_GET_SBLIST$$
 
-CREATE PROCEDURE func_get_sblist(p_czryDm VARCHAR(4000),p_sbywbDm VARCHAR(4000),p_offset DECIMAL(38,10),p_rows DECIMAL(38,10))
+CREATE PROCEDURE FUNC_GET_SBLIST(p_czryDm VARCHAR(4000),p_sbywbDm VARCHAR(4000),p_offset DECIMAL(38,10),p_rows DECIMAL(38,10))
 routine_body: BEGIN
   DECLARE i DECIMAL(38,10) DEFAULT 0;
   DECLARE startRow DECIMAL(38,10);
@@ -40,16 +40,16 @@ routine_body: BEGIN
 select TT.* from
     (select vs.sbid, vs.sssq, vs.sbpc, vs.sbrq, vs.qyhgdm, vs.nsrmc, vs.sbywb_dm,vs.flglcd,vs.zzsbb,vs.swjg_jc,
            row_number() over(ORDER BY vs.sbrq asc) rn
-      from v_sbxx_sbdr_filemode vs
-      inner join dm_czry dc on dc.czry_dm=p_czryDm and vs.swjg_dm =dc.swjg_dm
+      from V_SBXX_SBDR_FILEMODE vs
+      inner join DM_CZRY dc on dc.czry_dm=p_czryDm and vs.swjg_dm =dc.swjg_dm
       where
       vs.sbywb_dm=p_sbywbDm
       and (
       (vs.sbr is not null and vs.sbr=p_czryDm) or
       (vs.sbr is null and (
-      not exists (select 1 from sys_cfg_czry_fpgl sc1
+      not exists (select 1 from SYS_CFG_CZRY_FPGL sc1
       where sc1.czry_dm=dc.czry_dm and sc1.swjg_dm=dc.swjg_dm and sc1.qybz='Y') or
-      exists (select 1 from sys_cfg_czry_fpgl sc2
+      exists (select 1 from SYS_CFG_CZRY_FPGL sc2
       where sc2.czry_dm=dc.czry_dm and sc2.swjg_dm=dc.swjg_dm and sc2.qybz='Y'
       and (coalesce(sc2.zsjg_dm_set,' ')=' ' or vs.zs_swjg_dm is null or sc2.zsjg_dm_set like ORA_CONCAT(ORA_CONCAT('%', vs.zs_swjg_dm), '%'))
       and (coalesce(sc2.zgswry_dm_set,' ')=' ')

@@ -32,7 +32,7 @@ UPDATE TB_CKTS_BICODE_SUB SET TBPC = 6 WHERE TBPC = 0;
   COMMIT;
   -- 同步汇率表,增量更新
   -- 提醒服务信息表
-  DELETE FROM GS_HBZL_HLV WHERE tbpc not in (SELECT mainid FROM tb_dtbsj WHERE tblx_dm = 'GS_HBZL_HLVToYun');
+  DELETE FROM GS_HBZL_HLV WHERE tbpc not in (SELECT mainid FROM TB_DTBSJ WHERE tblx_dm = 'GS_HBZL_HLVToYun');
   COMMIT;
   DO '提醒汇率表历史数据清理成功';
 
@@ -62,7 +62,7 @@ UPDATE TB_CKTS_BICODE_SUB SET TBPC = 6 WHERE TBPC = 0;
     WHERE TBPC = 6;
 
     -- 插入待同步数据
-    INSERT INTO tb_dtbsj(id,tblx_dm,mainid,cjsj,tbcs,yxj)
+    INSERT INTO TB_DTBSJ(id,tblx_dm,mainid,cjsj,tbcs,yxj)
     VALUES(SEQ_NEXTVAL('SEQ_TB_DTBSJ_ID'),'GS_HBZL_HLVToYun',pv_tbpc,CURRENT_TIMESTAMP,0,1);
   END IF;
 

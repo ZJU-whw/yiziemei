@@ -2,7 +2,7 @@ DELIMITER $$
 
 DROP FUNCTION IF EXISTS F_WLGL_EXTRACT_DATE$$
 
-CREATE FUNCTION f_wlgl_extract_date
+CREATE FUNCTION F_WLGL_EXTRACT_DATE
 -- ============================================
 -- 函数：提取并标准化起运日
 -- ============================================

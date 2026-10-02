@@ -2,7 +2,7 @@ DELIMITER $$
 
 DROP FUNCTION IF EXISTS FUNC_GET_JDFWMS$$
 
-CREATE function Func_Get_Jdfwms(pv_czry_dm VARCHAR(4000))
+CREATE function FUNC_GET_JDFWMS(pv_czry_dm VARCHAR(4000))
 RETURNS VARCHAR(4000)
 NOT DETERMINISTIC
 READS SQL DATA
@@ -38,7 +38,7 @@ BEGIN
   END;
 select swjg_dm
      into v_swjgSet
-     from dm_czry
+     from DM_CZRY
      where czry_dm=pv_czry_dm;
   end;
 
@@ -76,7 +76,7 @@ SELECT BJTS_SPLIT_ITEM.COLUMN_VALUE
         SET v_TmpVal =v_val;
 
   END;
-select swjg_jc into v_TmpVal from dm_swjg where swjg_dm=v_val;
+select swjg_jc into v_TmpVal from DM_SWJG where swjg_dm=v_val;
       end;
       if v_TmpStr is null then
         SET v_TmpStr =v_TmpVal;
@@ -106,7 +106,7 @@ END;
   END;
 select zsjg_dm_set,flgl_set,jsmode_set
      into v_zsjgSet,v_flglSet,v_jsModeSet
-     from sys_cfg_czry_fpgl
+     from SYS_CFG_CZRY_FPGL
      where czry_dm=pv_czry_dm and qybz='Y';
 
      SET v_ISJDR ='1';
@@ -125,7 +125,7 @@ select zsjg_dm_set,flgl_set,jsmode_set
             SET v_Result =ORA_CONCAT(v_Result, ' 接单方式【未设置】');
 
   END;
-select jd_mode into v_JDMode from sys_cfg_sbdr_filemode where code=v_zsjgSet and qybz='Y';
+select jd_mode into v_JDMode from SYS_CFG_SBDR_FILEMODE where code=v_zsjgSet and qybz='Y';
         if v_JDMode = '1' then
             SET v_Result =ORA_CONCAT(v_Result, ' 接单方式【随机分配】');
         else
@@ -165,7 +165,7 @@ SELECT BJTS_SPLIT_ITEM.COLUMN_VALUE
           SET v_TmpVal =v_val;
 
   END;
-select swjg_jc into v_TmpVal from dm_swjg where swjg_dm=v_val;
+select swjg_jc into v_TmpVal from DM_SWJG where swjg_dm=v_val;
         end;
         if v_TmpStr is null then
           SET v_TmpStr =v_TmpVal;

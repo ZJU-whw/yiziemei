@@ -2,7 +2,7 @@ DELIMITER $$
 
 DROP PROCEDURE IF EXISTS P_INPUT_JJR$$
 
-CREATE procedure p_input_jjr()
+CREATE procedure P_INPUT_JJR()
 routine_body: BEGIN
   DECLARE date_tjrq DATETIME;
 

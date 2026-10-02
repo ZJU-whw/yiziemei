@@ -72,7 +72,7 @@ routine_body: BEGIN
       CALL ORA_RAISE_APPLICATION_ERROR(-20001,ORA_CONCAT('【健康码】等级评定：', P_djxh));
 
   END;
-select swjgdm,(CASE jsmode WHEN '1' THEN '1' ELSE '2' END) into v_swjg,v_tsjsfs from glxt_bb_shxt_djxx d where d.cpcode=p_djxh;
+select swjgdm,(CASE jsmode WHEN '1' THEN '1' ELSE '2' END) into v_swjg,v_tsjsfs from GLXT_BB_SHXT_DJXX d where d.cpcode=p_djxh;
     -- 从健康码配置表，计算折算比率
     /*
     select
@@ -99,18 +99,18 @@ select swjgdm,(CASE jsmode WHEN '1' THEN '1' ELSE '2' END) into v_swjg,v_tsjsfs 
     into zsblv1,zsblv2,zsblv3,zsblv4,zsblv5,zsblv6,
          lineRed1,lineRed2,lineRed3,lineRed4,lineRed5,lineRed6,lineRed_Zh,
          lineYellow1,lineYellow2,lineYellow3,lineYellow4,lineYellow5,lineYellow6,lineYellow_Zh
-    from tl_tssh.jkgl_pz_jkm t
+    from tl_tssh.JKGL_PZ_JKM t
     where t.tsjsfs=v_tsjsfs ;
     */
     with TT as (
     select zb.ywfl_dm, sum(score) as zbScore
     from
-      jkgl_pz_zb zb left join
+      JKGL_PZ_ZB zb left join
       (
       select t.zb_id,max(IFNULL(s.score, t.score)) as score
       from
-      jkgl_pz_zb_ycff t
-      left join jkgl_pz_zb_ycff_swjg s
+      JKGL_PZ_ZB_YCFF t
+      left join JKGL_PZ_ZB_YCFF_SWJG s
            on s.swjg_dm =v_swjg
            and s.zb_id=t.zb_id and s.xh=t.xh and s.yxbz='Y'
       where t.yxbz='Y'
@@ -145,7 +145,7 @@ select swjgdm,(CASE jsmode WHEN '1' THEN '1' ELSE '2' END) into v_swjg,v_tsjsfs 
     into zsblv1,zsblv2,zsblv3,zsblv4,zsblv5,zsblv6,
          lineRed1,lineRed2,lineRed3,lineRed4,lineRed5,lineRed6,lineRed_Zh,
          lineYellow1,lineYellow2,lineYellow3,lineYellow4,lineYellow5,lineYellow6,lineYellow_Zh
-    from jkgl_pz_jkm jkm
+    from JKGL_PZ_JKM jkm
     left join TT on TT.ywfl_dm=jkm.ywfl_dm
     where jkm.tsjsfs=v_tsjsfs ;
 
@@ -165,10 +165,10 @@ select swjgdm,(CASE jsmode WHEN '1' THEN '1' ELSE '2' END) into v_swjg,v_tsjsfs 
       --   sum(t.score) as score
         sum(case when (p_yxq is null OR p_yxq>=DATE(CURRENT_TIMESTAMP)) and IFNULL(t.hcjg, '2')='1' then 0 else t.score end) as score
         from
- --       tl_tssh.jkgl_data_qyjkm_jgb k
- --       inner join tl_tssh.jkgl_data_zb_jgb t on t.djxh=k.djxh
-        jkgl_data_zb_jgb t
-        inner join jkgl_pz_zb s on t.zb_id=s.zb_id and s.yxbz='Y'
+ --       tl_tssh.JKGL_DATA_QYJKM_JGB k
+ --       inner join tl_tssh.JKGL_DATA_ZB_JGB t on t.djxh=k.djxh
+        JKGL_DATA_ZB_JGB t
+        inner join JKGL_PZ_ZB s on t.zb_id=s.zb_id and s.yxbz='Y'
         where t.djxh=p_djxh
         group by s.ywfl_dm
     );

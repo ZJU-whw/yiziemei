@@ -2,7 +2,7 @@ DELIMITER $$
 
 DROP PROCEDURE IF EXISTS FUNC_GET_WJDR_SBLIST_TEST$$
 
-CREATE PROCEDURE func_get_wjdr_sblist_test(p_czryDm VARCHAR(4000),
+CREATE PROCEDURE FUNC_GET_WJDR_SBLIST_TEST(p_czryDm VARCHAR(4000),
        p_sort VARCHAR(4000),p_offset DECIMAL(38,10),p_rows DECIMAL(38,10),p_filter VARCHAR(4000))
 routine_body: BEGIN
   -- Oracle REF CURSOR type removed; target uses a result set;
@@ -42,9 +42,9 @@ routine_body: BEGIN
 
   END;
 select IFNULL(qx_swjg, swjg_dm) into v_czry_swjg
-      from dm_czry where czry_dm =p_czryDm;
+      from DM_CZRY where czry_dm =p_czryDm;
   end;
-  SET v_czry_qxswjg =func_get_qxswjg(v_czry_swjg) ;
+  SET v_czry_qxswjg =FUNC_GET_QXSWJG(v_czry_swjg) ;
 
   if p_offset <= 0 then
     SET startRow =1;
@@ -67,7 +67,7 @@ select IFNULL(qx_swjg, swjg_dm) into v_czry_swjg
      SET v_filter =ORA_CONCAT(ORA_CONCAT(' and ', p_filter), ' ');
   end if;
 
-  SET dyn_select =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('select sbid,sssq,sbpc,sbrq,qyhgdm,nsrmc,sbywb_dm,flglcd,zzsbb,TT.swjg_jc as zs_swjg_mc,ds.swjg_jc as ts_swjg_mc,tsjsfs_dm,sd1.dname as sbywbmc,sbtmse from ', ' (select vs.sbid, vs.sssq, vs.sbpc, vs.sbrq, vs.qyhgdm, vs.nsrmc, vs.sbywb_dm,vs.flglcd,vs.zzsbb,vs.swjg_jc,vs.tsjsfs_dm,vs.swjg_dm,vs.sbtmse,'), ' row_number() over(ORDER BY '), sorting), ') rn '), ' from v_sbxx_sbdr_filemode vs '), ' where vs.swjg_dm like '''), v_czry_qxswjg), ''' and vs.sbr is null '), v_filter), ' and ( '), ' (vs.zs_swjg_dm is not null and  '), ' not exists (select 1 from sys_cfg_czry_fpgl sc1 '), ' where sc1.swjg_dm like ORA_CONCAT(ORA_CONCAT(''%'', vs.swjg_dm), ''%'') and sc1.qybz=''Y'' '), ' and (coalesce(sc1.zsjg_dm_set,'' '')='' '' or sc1.zsjg_dm_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.zs_swjg_dm), ''%'')) '), ' and (coalesce(sc1.flgl_set,'' '')='' '' or sc1.flgl_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.flglcd), ''%'')) '), ' and (vs.sbzl_dm<>''TSSB'' OR (coalesce(sc1.jsmode_set,'' '')='' '' or sc1.jsmode_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.tsjsfs_dm), ''%'')))) '), ' ) or '), ' (vs.zs_swjg_dm is null and  '), ' not exists (select 1 from sys_cfg_czry_fpgl sc2 '), ' where sc2.swjg_dm like ORA_CONCAT(ORA_CONCAT(''%'', vs.swjg_dm), ''%'') and sc2.qybz=''Y'' '), ' and (coalesce(sc2.zsjg_dm_set,'' '')='' '') '), ' and (coalesce(sc2.flgl_set,'' '')='' '' or sc2.flgl_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.flglcd), ''%'')) '), ' and (vs.sbzl_dm<>''TSSB'' OR (coalesce(sc2.jsmode_set,'' '')='' '' or sc2.jsmode_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.tsjsfs_dm), ''%'')))) '), ' ))) TT '), ' left join dm_swjg ds on (ds.swjg_dm=TT.swjg_dm) '), ' left join sys_dict sd1 on sd1.dtype=''ywlx_dm'' and sd1.dcode=TT.sbywb_dm '), ' where rn between '), startRow), ' and '), endRow), ' order by rn');
+  SET dyn_select =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('select sbid,sssq,sbpc,sbrq,qyhgdm,nsrmc,sbywb_dm,flglcd,zzsbb,TT.swjg_jc as zs_swjg_mc,ds.swjg_jc as ts_swjg_mc,tsjsfs_dm,sd1.dname as sbywbmc,sbtmse from ', ' (select vs.sbid, vs.sssq, vs.sbpc, vs.sbrq, vs.qyhgdm, vs.nsrmc, vs.sbywb_dm,vs.flglcd,vs.zzsbb,vs.swjg_jc,vs.tsjsfs_dm,vs.swjg_dm,vs.sbtmse,'), ' row_number() over(ORDER BY '), sorting), ') rn '), ' from V_SBXX_SBDR_FILEMODE vs '), ' where vs.swjg_dm like '''), v_czry_qxswjg), ''' and vs.sbr is null '), v_filter), ' and ( '), ' (vs.zs_swjg_dm is not null and  '), ' not exists (select 1 from SYS_CFG_CZRY_FPGL sc1 '), ' where sc1.swjg_dm like ORA_CONCAT(ORA_CONCAT(''%'', vs.swjg_dm), ''%'') and sc1.qybz=''Y'' '), ' and (coalesce(sc1.zsjg_dm_set,'' '')='' '' or sc1.zsjg_dm_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.zs_swjg_dm), ''%'')) '), ' and (coalesce(sc1.flgl_set,'' '')='' '' or sc1.flgl_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.flglcd), ''%'')) '), ' and (vs.sbzl_dm<>''TSSB'' OR (coalesce(sc1.jsmode_set,'' '')='' '' or sc1.jsmode_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.tsjsfs_dm), ''%'')))) '), ' ) or '), ' (vs.zs_swjg_dm is null and  '), ' not exists (select 1 from SYS_CFG_CZRY_FPGL sc2 '), ' where sc2.swjg_dm like ORA_CONCAT(ORA_CONCAT(''%'', vs.swjg_dm), ''%'') and sc2.qybz=''Y'' '), ' and (coalesce(sc2.zsjg_dm_set,'' '')='' '') '), ' and (coalesce(sc2.flgl_set,'' '')='' '' or sc2.flgl_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.flglcd), ''%'')) '), ' and (vs.sbzl_dm<>''TSSB'' OR (coalesce(sc2.jsmode_set,'' '')='' '' or sc2.jsmode_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.tsjsfs_dm), ''%'')))) '), ' ))) TT '), ' left join DM_SWJG ds on (ds.swjg_dm=TT.swjg_dm) '), ' left join SYS_DICT sd1 on sd1.dtype=''ywlx_dm'' and sd1.dcode=TT.sbywb_dm '), ' where rn between '), startRow), ' and '), endRow), ' order by rn');
 
   SET dyn_select = CONCAT('WITH BJTS_RESULT_SOURCE (v_sbid, v_sssq, v_sbpc, v_sbrq, v_qyhgdm, v_nsrmc, v_sbywbdm, v_flglcd, v_zzsbb, v_zs_swjg_mc, v_ts_swjg_mc, v_tsjsfs, v_sbywbmc, v_sbtmse) AS (', dyn_select, ') SELECT v_sbid AS SBID,
        case when v_sbywbdm=''A0301001'' then ORA_CONCAT(v_sssq, LPAD(CAST(v_sbpc AS CHAR), 2, ''0'')) else v_sssq end AS SSSQ,

@@ -359,7 +359,7 @@ SET pv_tbpc = SEQ_NEXTVAL('SEQ_TB_TBPC');
         WHERE CPCODE = pv_cpcode AND QYHGDM = pv_qydm;
 
         -- 插入待同步数据
-        INSERT INTO tb_dtbsj(id,tblx_dm,mainid,cjsj,tbcs,yxj)
+        INSERT INTO TB_DTBSJ(id,tblx_dm,mainid,cjsj,tbcs,yxj)
         VALUES(SEQ_NEXTVAL('SEQ_TB_DTBSJ_ID'),'GS_DJ_CKTMSDABToYun',pv_tbpc,CURRENT_TIMESTAMP,0,1);
 
         -- 记录日志，同步成功

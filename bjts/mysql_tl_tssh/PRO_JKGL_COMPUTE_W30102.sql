@@ -35,7 +35,7 @@ SELECT T.CK_PJDBHGZ
      WHERE T.BGQID=P_BGQID;
 
     IF V_ZB_VAL>0 THEN
-      SET V_PARAMS = ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('[s]select distinct hg.bgdhgbh as "报关单号" ', 'from ckts_wbsj_hg_bgd204 hg '), 'where hg.djxh='), CAST(P_DJXH AS CHAR)), ' and hg.ckrq_1 between '''), DATE_FORMAT(P_BGQ_Q, '%Y-%m-%d')), ''' and '''), DATE_FORMAT(P_BGQ_Z, '%Y-%m-%d')), ''' and not exists (select 1 from ckts_wbsj_hg_bgd204 hg2 '), 'where hg.jzxh=hg2.jzxh and hg.ckrq_1=hg2.ckrq_1 and hg.djxh<>hg2.djxh)');
+      SET V_PARAMS = ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('[s]select distinct hg.bgdhgbh as "报关单号" ', 'from CKTS_WBSJ_HG_BGD204 hg '), 'where hg.djxh='), CAST(P_DJXH AS CHAR)), ' and hg.ckrq_1 between '''), DATE_FORMAT(P_BGQ_Q, '%Y-%m-%d')), ''' and '''), DATE_FORMAT(P_BGQ_Z, '%Y-%m-%d')), ''' and not exists (select 1 from CKTS_WBSJ_HG_BGD204 hg2 '), 'where hg.jzxh=hg2.jzxh and hg.ckrq_1=hg2.ckrq_1 and hg.djxh<>hg2.djxh)');
     END IF;
   END;
 

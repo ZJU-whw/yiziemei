@@ -2,7 +2,7 @@ DELIMITER $$
 
 DROP PROCEDURE IF EXISTS P_TJ_JXKH_YWLC_JS$$
 
-CREATE procedure p_tj_jxkh_ywlc_js()
+CREATE procedure P_TJ_JXKH_YWLC_JS()
 routine_body: BEGIN
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
@@ -38,11 +38,11 @@ if extract(day from CURRENT_TIMESTAMP) <= 5 then
          case when s.lcslid=s.lcslid_sb then CAST('1900-01-01' AS DATE) else s.qdsj end,r.fsrq,q.sehzrq,q.sehzrq,least(q.xhrq_tk,q.xhrq_md),q.xhrq_tk,q.xhrq_md,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,
          s.sb_zzstse+s.sb_xfstse,s.sb_mdse,s.zh_mdtse,s.by_mdtse,q.sehz_zzstse+q.sehz_xfstse,q.sehz_mdse,q.gkbl_zzstse+q.gkbl_xfstse,q.gkbl_mdse,
          null,null,null,null,null,null,null,null,0,'system',s.sb_xsermb,s.sb_xsemy,s.wzhbz,least(t.sbrq,s.qdsj),least(t.sbrq,s.qdsj),null,null
-  from ckts_lc_sbxx t
-  inner join ckts_lc_shxx s on s.lcslid_sb=t.lcslid_sb
-  left join ckts_lc_ywhzxx r on r.lcslid_fs=s.lcslid_fs
-  left join ckts_lc_sehzxx q on q.ywhzbuuid=r.ywhzbuuid
-  inner join gs_dj_cktmsdab p on p.cpcode=CAST(t.djxh AS CHAR)
+  from CKTS_LC_SBXX t
+  inner join CKTS_LC_SHXX s on s.lcslid_sb=t.lcslid_sb
+  left join CKTS_LC_YWHZXX r on r.lcslid_fs=s.lcslid_fs
+  left join CKTS_LC_SEHZXX q on q.ywhzbuuid=r.ywhzbuuid
+  inner join GS_DJ_CKTMSDAB p on p.cpcode=CAST(t.djxh AS CHAR)
   where t.sbrq>=date_begin;
   commit;
 

@@ -8,33 +8,33 @@ CREATE PROCEDURE PRO_FXGL_SZYJ_MMYLRL_PERM()
  */
 routine_body: BEGIN
 
-  delete from yj_cs_wmqymmylrl;
-  delete from yj_cs_wmqymmylrl_fqy;
+  delete from YJ_CS_WMQYMMYLRL;
+  delete from YJ_CS_WMQYMMYLRL_FQY;
   commit;
 
-  insert into yj_cs_wmqymmylrl_fqy(swjg_dm,djxh,sbywbs,mmylrl_max,mmylrl_min,mmylrl_mid,mmylrl_avg,mmylrl_std,mylaj,rmblaj,jhcb,mmylrl_yjx)
+  insert into YJ_CS_WMQYMMYLRL_FQY(swjg_dm,djxh,sbywbs,mmylrl_max,mmylrl_min,mmylrl_mid,mmylrl_avg,mmylrl_std,mylaj,rmblaj,jhcb,mmylrl_yjx)
   with
   jh as (
   select a.djxh,a.glh,sum(a.jsje*(100+a.zssl-a.tsl)/100) as jhcb
-    from ckts_sb_mts_jhmx a
+    from CKTS_SB_MTS_JHMX a
    where a.sbrq>=DATE_ADD(CAST(DATE_FORMAT(CURRENT_TIMESTAMP, '%Y-%m-01') AS DATETIME), INTERVAL -12 MONTH) and a.sbrq<CAST(DATE_FORMAT(CURRENT_TIMESTAMP, '%Y-%m-01') AS DATETIME)
    group by a.djxh,a.glh
   )
   ,mx as (
   select b.tsswjg_dm,b.djxh,b.ckbgdh,b.mylaj,round(c.rmblaj*b.mylaj/c.mylaj,2) as rmblaj,jh.jhcb,
          round((round(c.rmblaj*b.mylaj/c.mylaj,2)-jh.jhcb)/b.mylaj,2) as mmylrl
-    from ckts_sb_mts_ckmx b
+    from CKTS_SB_MTS_CKMX b
    inner join jh on jh.djxh=b.djxh and jh.glh=b.glh
-   inner join ckts_wbsj_hg_bgd c on c.ckbgdh=b.ckbgdh and c.djxh=b.djxh
+   inner join CKTS_WBSJ_HG_BGD c on c.ckbgdh=b.ckbgdh and c.djxh=b.djxh
    where b.sbrq>=DATE_ADD(CAST(DATE_FORMAT(CURRENT_TIMESTAMP, '%Y-%m-01') AS DATETIME), INTERVAL -12 MONTH) and b.sbrq<CAST(DATE_FORMAT(CURRENT_TIMESTAMP, '%Y-%m-01') AS DATETIME)
      and b.ckbgdh is not null
      and c.mylaj>0 and b.mylaj>0
    union all
   select b.tsswjg_dm,b.djxh,b.dlckhwzmhm as ckbgdh,b.mylaj,round(c.rmblaj*b.mylaj/c.mylaj,2) as rmblaj,jh.jhcb,
          round((round(c.rmblaj*b.mylaj/c.mylaj,2)-jh.jhcb)/b.mylaj,2) as mmylrl
-    from ckts_sb_mts_ckmx b
+    from CKTS_SB_MTS_CKMX b
    inner join jh on jh.djxh=b.djxh and jh.glh=b.glh
-   inner join ckts_wbsj_zj_dlckhwzm c on c.dlckhwzmhm=b.dlckhwzmhm and c.djxh=b.djxh
+   inner join CKTS_WBSJ_ZJ_DLCKHWZM c on c.dlckhwzmhm=b.dlckhwzmhm and c.djxh=b.djxh
    where b.sbrq>=DATE_ADD(CAST(DATE_FORMAT(CURRENT_TIMESTAMP, '%Y-%m-01') AS DATETIME), INTERVAL -12 MONTH) and b.sbrq<CAST(DATE_FORMAT(CURRENT_TIMESTAMP, '%Y-%m-01') AS DATETIME)
      and b.ckbgdh is null
      and c.mylaj>0 and b.mylaj>0
@@ -49,14 +49,14 @@ routine_body: BEGIN
   ;
   commit;
 
-  insert into yj_cs_wmqymmylrl(swjg_dm,sbqyhs,sbywbs,mmylrl_max,mmylrl_min,mmylrl_mid,mmylrl_avg,mmylrl_std,mylaj,rmblaj,jhcb,mmylrl_yjx)
+  insert into YJ_CS_WMQYMMYLRL(swjg_dm,sbqyhs,sbywbs,mmylrl_max,mmylrl_min,mmylrl_mid,mmylrl_avg,mmylrl_std,mylaj,rmblaj,jhcb,mmylrl_yjx)
   select swjg_dm,
          count(distinct djxh) as sbqyhs,sum(sbywbs) as sbywbs,
          max(mmylrl_yjx) as mmylrl_max,min(mmylrl_yjx) as mmylrl_min,
          ORA_MEDIAN(JSON_ARRAYAGG(mmylrl_yjx)) as mmylrl_mid,avg(mmylrl_yjx) as mmylrl_avg,stddev(mmylrl_yjx) as mmylrl_std,
          sum(mylaj) as mylaj,sum(rmblaj) as rmblaj,sum(jhcb) as jhcb,
          round((sum(rmblaj)-sum(jhcb))/sum(mylaj),2) as mmylrl_yjx
-    from yj_cs_wmqymmylrl_fqy
+    from YJ_CS_WMQYMMYLRL_FQY
    group by swjg_dm
    union all
   select ORA_CONCAT(substr(swjg_dm,1,5), '000000'),
@@ -65,7 +65,7 @@ routine_body: BEGIN
          ORA_MEDIAN(JSON_ARRAYAGG(mmylrl_yjx)) as mmylrl_mid,avg(mmylrl_yjx) as mmylrl_avg,stddev(mmylrl_yjx) as mmylrl_std,
          sum(mylaj) as mylaj,sum(rmblaj) as rmblaj,sum(jhcb) as jhcb,
          round((sum(rmblaj)-sum(jhcb))/sum(mylaj),2) as mmylrl_yjx
-    from yj_cs_wmqymmylrl_fqy
+    from YJ_CS_WMQYMMYLRL_FQY
    group by substr(swjg_dm,1,5)
    union all
   select '13300000000',
@@ -74,7 +74,7 @@ routine_body: BEGIN
          ORA_MEDIAN(JSON_ARRAYAGG(mmylrl_yjx)) as mmylrl_mid,avg(mmylrl_yjx) as mmylrl_avg,stddev(mmylrl_yjx) as mmylrl_std,
          sum(mylaj) as mylaj,sum(rmblaj) as rmblaj,sum(jhcb) as jhcb,
          round((sum(rmblaj)-sum(jhcb))/sum(mylaj),2) as mmylrl_yjx
-    from yj_cs_wmqymmylrl_fqy
+    from YJ_CS_WMQYMMYLRL_FQY
   ;
   commit;
 

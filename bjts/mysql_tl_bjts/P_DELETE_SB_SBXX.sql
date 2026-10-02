@@ -20,7 +20,7 @@ BEGIN
   DECLARE BJTS_FETCH_DONE_001 BOOLEAN DEFAULT FALSE;
   DECLARE BJTS_RS_NSR_ID_001 LONGTEXT;
   DECLARE BJTS_FETCH_CURSOR_001 CURSOR FOR
-select id from sb_sbxx_hz hz where hz.sbzt_dm= '39';
+select id from SB_SBXX_HZ hz where hz.sbzt_dm= '39';
   OPEN BJTS_FETCH_CURSOR_001;
   BJTS_FETCH_LOOP_001: LOOP
     BEGIN
@@ -32,8 +32,8 @@ select id from sb_sbxx_hz hz where hz.sbzt_dm= '39';
     END IF;
 
 
-    delete from sb_sbxx_sbsj where id = BJTS_RS_NSR_ID_001;
-    delete from sb_sbxx_fksj where id = BJTS_RS_NSR_ID_001;
+    delete from SB_SBXX_SBSJ where id = BJTS_RS_NSR_ID_001;
+    delete from SB_SBXX_FKSJ where id = BJTS_RS_NSR_ID_001;
     commit;
 
   END LOOP BJTS_FETCH_LOOP_001;

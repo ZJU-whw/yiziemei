@@ -8,10 +8,10 @@ CREATE PROCEDURE PRO_FXGL_SZYJ_WMQYCKLL_SF_PERY()
  */
 routine_body: BEGIN
 
-  delete from ckllfx_cs_wmqylsll_sf AS t;
+  delete from CKLLFX_CS_WMQYLSLL_SF AS t;
   commit;
 
-  insert into ckllfx_cs_wmqylsll_sf(
+  insert into CKLLFX_CS_WMQYLSLL_SF(
          ysfs_dm,spdl_dm,qycode_hyd,qycode_hg,qycode_mdg,
          qyhs_all,qyzb_all,bgdfs_all,bgdzb_all,mylaj_all,myzb_all,
          qyhs_sx,qyzb_sx,bgdfs_sx,bgdzb_sx,mylaj_sx,myzb_sx)
@@ -31,9 +31,9 @@ routine_body: BEGIN
              then substr(a.xsfdsswjgdm,2,2)
          end as ghdz,
          row_number() over (partition by a.djxh,a.glh order by sum(a.jsje) desc) as pm
-    from ckts_sb_mts_jhmx a
+    from CKTS_SB_MTS_JHMX a
     -- 对进口缴款书，关联口岸代码表提取关区对应行政区划（省级）
-    left join dm_hgcode ka on ka.hgcode=ORA_CONCAT(substr(a.jhpzh,1,2), '00')
+    left join DM_HGCODE ka on ka.hgcode=ORA_CONCAT(substr(a.jhpzh,1,2), '00')
    where a.sbrq>=DATE_ADD(MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1), INTERVAL -24 MONTH) and a.sbrq<MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1)
    group by a.djxh,a.glh,
          case
@@ -55,14 +55,14 @@ routine_body: BEGIN
          hyd.qycode as qycode_hyd,
          hg.qycode as qycode_hg,
          mdg.qycode as qycode_mdg
-    from ckts_sb_mts_ckmx t
+    from CKTS_SB_MTS_CKMX t
    inner join zygys on zygys.djxh=t.djxh and zygys.glh=t.glh and pm=1
-   inner join ckts_wbsj_hg_bgd s on s.ckbgdh=t.ckbgdh and s.djxh=t.djxh
-    left join dm_xzqh_sf hyd on hyd.dm=zygys.ghdz
+   inner join CKTS_WBSJ_HG_BGD s on s.ckbgdh=t.ckbgdh and s.djxh=t.djxh
+    left join DM_XZQH_SF hyd on hyd.dm=zygys.ghdz
     -- 启运港报关单从报关单号提取报关关区，否则取离境关区
-    left join dm_hgcode ka on ka.hgcode=ORA_CONCAT((case when s.qygbz='Y' then substr(s.ckbgdh,1,2) else substr(s.hggqka_dm,1,2) end), '00')
-    left join dm_xzqh_sf hg on hg.dm=ka.xzqh_dm
-    left join dm_gbcode mdg on mdg.gb_code=s.zzmdgdqsz_dm
+    left join DM_HGCODE ka on ka.hgcode=ORA_CONCAT((case when s.qygbz='Y' then substr(s.ckbgdh,1,2) else substr(s.hggqka_dm,1,2) end), '00')
+    left join DM_XZQH_SF hg on hg.dm=ka.xzqh_dm
+    left join DM_GBCODE mdg on mdg.gb_code=s.zzmdgdqsz_dm
    where t.sbrq>=DATE_ADD(MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1), INTERVAL -24 MONTH) and t.sbrq<MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1)
      and t.ckbgdh is not null
    union all
@@ -74,13 +74,13 @@ routine_body: BEGIN
          hyd.qycode as qycode_hyd,
          hg.qycode as qycode_hg,
          mdg.qycode as qycode_mdg
-    from ckts_sb_mts_ckmx t
+    from CKTS_SB_MTS_CKMX t
    inner join zygys on zygys.djxh=t.djxh and zygys.glh=t.glh and pm=1
-   inner join ckts_wbsj_zj_dlckhwzm s on s.dlckhwzmhm=t.dlckhwzmhm and s.djxh=t.djxh
-    left join dm_xzqh_sf hyd on hyd.dm=zygys.ghdz
-    left join dm_hgcode ka on ka.hgcode=ORA_CONCAT(substr(s.hggqka_dm,1,2), '00')
-    left join dm_xzqh_sf hg on hg.dm=ka.xzqh_dm
-    left join dm_gbcode mdg on mdg.gb_code=s.zzmdgdqsz_dm
+   inner join CKTS_WBSJ_ZJ_DLCKHWZM s on s.dlckhwzmhm=t.dlckhwzmhm and s.djxh=t.djxh
+    left join DM_XZQH_SF hyd on hyd.dm=zygys.ghdz
+    left join DM_HGCODE ka on ka.hgcode=ORA_CONCAT(substr(s.hggqka_dm,1,2), '00')
+    left join DM_XZQH_SF hg on hg.dm=ka.xzqh_dm
+    left join DM_GBCODE mdg on mdg.gb_code=s.zzmdgdqsz_dm
    where t.sbrq>=DATE_ADD(MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1), INTERVAL -24 MONTH) and t.sbrq<MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1)
      and t.ckbgdh is null
   ),
@@ -136,12 +136,12 @@ routine_body: BEGIN
   ;
   commit;
 
-  update ckllfx_cs_wmqylsll_sf AS t
+  update CKLLFX_CS_WMQYLSLL_SF AS t
      set fxdj_zhfxzs= t.qyzb_all * 0.1 + t.bgdzb_all * 0.2 + t.myzb_all * 0.2
                       + t.qyzb_sx  * 0.1 + t.bgdzb_sx  * 0.2 + t.myzb_sx  * 0.2;
   commit;
   -- 根据风险指数设置风险等级，对浙江、上海出口或货源地与出口地区域一致的降一级风险等级
-  update ckllfx_cs_wmqylsll_sf AS t
+  update CKLLFX_CS_WMQYLSLL_SF AS t
      set fxdj_dm= case when t.fxdj_zhfxzs<=5
                          then (case when t.qycode_hg in ('31','33') or t.qycode_hyd=t.qycode_hg then '3' else '4' end)
                          when t.fxdj_zhfxzs<=10

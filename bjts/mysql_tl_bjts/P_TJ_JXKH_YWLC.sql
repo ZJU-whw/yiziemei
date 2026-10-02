@@ -2,7 +2,7 @@ DELIMITER $$
 
 DROP PROCEDURE IF EXISTS P_TJ_JXKH_YWLC$$
 
-CREATE procedure p_tj_jxkh_ywlc()
+CREATE procedure P_TJ_JXKH_YWLC()
 routine_body: BEGIN
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
@@ -54,8 +54,8 @@ JOIN (
 select LCSLID, SBID, SBRQ
            from (select T.lcslid,
                         S.ID as SBID,
-                        case when s.sbfs='0' then greatest(IFNULL(s.sbsj, s.sbrq),s.sbrq) else s.sbrq end as SBRQ,
-                        ROW_NUMBER() OVER(partition by s.lcslid order by s.sbrq desc) as RN
+                        case when S.sbfs='0' then greatest(IFNULL(S.sbsj, S.sbrq),S.sbrq) else S.sbrq end as SBRQ,
+                        ROW_NUMBER() OVER(partition by S.lcslid order by S.sbrq desc) as RN
                    FROM JXKH_YWLC T, SB_SBXX_HZ S
                   WHERE T.SL_DATE > date_slrq
                     and T.SBID IS NULL

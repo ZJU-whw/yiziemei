@@ -2,7 +2,7 @@ DELIMITER $$
 
 DROP PROCEDURE IF EXISTS FUNC_GET_RANDOM_SBR$$
 
-CREATE PROCEDURE func_get_random_sbr(p_sbid DECIMAL(38,10), OUT P_RESULT VARCHAR(4000))
+CREATE PROCEDURE FUNC_GET_RANDOM_SBR(p_sbid DECIMAL(38,10), OUT P_RESULT VARCHAR(4000))
 routine_body: BEGIN
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
@@ -36,7 +36,7 @@ routine_body: BEGIN
 
   END;
 SET v_sbr ='';
-  SET dyn_select =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('select sb.sbywb_dm,dj.swjg_dm,dj.zs_swjg_dm,dj.tsjsfs_dm,sb.sbr,IFNULL(kz.kzxx, ''C'') as flglcd ', ' from gs_dj_cktmsdab dj '), ' left join gs_dj_cktmsdab_kz kz on kz.nsrdzdah=dj.nsrdzdah '), ' and kzlx=''FLGLCD'' and CURRENT_TIMESTAMP between st_date and end_date and flag=''1'' '), ' ,sb_sbxx_hz sb '), ' where sb.id='), CAST(p_sbid AS CHAR)), ' and sb.nsrdzdah=dj.nsrdzdah  and 1=1 LIMIT 1');
+  SET dyn_select =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('select sb.sbywb_dm,dj.swjg_dm,dj.zs_swjg_dm,dj.tsjsfs_dm,sb.sbr,IFNULL(kz.kzxx, ''C'') as flglcd ', ' from GS_DJ_CKTMSDAB dj '), ' left join GS_DJ_CKTMSDAB_KZ kz on kz.nsrdzdah=dj.nsrdzdah '), ' and kzlx=''FLGLCD'' and CURRENT_TIMESTAMP between st_date and end_date and flag=''1'' '), ' ,SB_SBXX_HZ sb '), ' where sb.id='), CAST(p_sbid AS CHAR)), ' and sb.nsrdzdah=dj.nsrdzdah  and 1=1 LIMIT 1');
   -- DBMS_OUTPUT.put_line(dyn_select);
   SET @BJTS_DYNAMIC_OUT_001_001 = NULL;
 SET @BJTS_DYNAMIC_OUT_001_002 = NULL;
@@ -56,7 +56,7 @@ SET v_sbr = @BJTS_DYNAMIC_OUT_001_005;
 SET v_flglcd = @BJTS_DYNAMIC_OUT_001_006;
 
   -- 判断税务机关是否启用随机分单
-  SET dyn_select =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('select count(1) from sys_cfg_sbdr_filemode ', ' where codetype=''GS'' and code='''), v_swjgDm), ''' and jd_mode=''1''');
+  SET dyn_select =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('select count(1) from SYS_CFG_SBDR_FILEMODE ', ' where codetype=''GS'' and code='''), v_swjgDm), ''' and jd_mode=''1''');
   -- DBMS_OUTPUT.put_line(dyn_select);
   SET @BJTS_DYNAMIC_OUT_002_001 = NULL;
 SET @BJTS_DYNAMIC_SQL_002 = CONCAT(TRIM(TRAILING ';' FROM dyn_select), ' INTO @BJTS_DYNAMIC_OUT_002_001');
@@ -91,7 +91,7 @@ EXECUTE BJTS_DYNAMIC_STMT_003;
 DEALLOCATE PREPARE BJTS_DYNAMIC_STMT_003;
 SET v_sbr = @BJTS_DYNAMIC_OUT_003_001;
 
-  update sb_sbxx_hz set sbr=v_sbr where id=p_sbid;
+  update SB_SBXX_HZ set sbr=v_sbr where id=p_sbid;
   SET dyn_select =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('update SYS_CFG_CZRY_FPGL set cnt', v_ywlx), '= IFNULL(cnt'), v_ywlx), ',0) + 1'), ' where czry_dm='''), v_sbr), '''');
   -- DBMS_OUTPUT.put_line(dyn_select);
   SET @BJTS_DYNAMIC_SQL_004 = dyn_select;

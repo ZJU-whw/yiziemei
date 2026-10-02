@@ -2,7 +2,7 @@ DELIMITER $$
 
 DROP FUNCTION IF EXISTS F_WLGL_EXTRACT_PARCEL$$
 
-CREATE FUNCTION f_wlgl_extract_parcel
+CREATE FUNCTION F_WLGL_EXTRACT_PARCEL
 -- ============================================
 -- 函数：物流、快递单号（仅取第一个）
 -- ============================================

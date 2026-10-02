@@ -64,7 +64,7 @@ routine_body: BEGIN
 
 /*  -- 指标结果尚处于计算或赋分过程中，暂不能计算健康码结果
   select count1 into v_cnt
-    from tl_tssh.jkgl_data_zb_jgb t
+    from tl_tssh.JKGL_DATA_ZB_JGB t
     where djxh=p_djxh and t.js_status='0' and t.ff_status='0' and rownum=1;
   if v_cnt > 0 then
     return;
@@ -102,7 +102,7 @@ routine_body: BEGIN
     into zsblv1,zsblv2,zsblv3,zsblv4,zsblv5,zsblv6,
          lineRed1,lineRed2,lineRed3,lineRed4,lineRed5,lineRed6,lineRed_Zh,
          lineYellow1,lineYellow2,lineYellow3,lineYellow4,lineYellow5,lineYellow6,lineYellow_Zh
-    from tl_tssh.jkgl_pz_jkm t
+    from tl_tssh.JKGL_PZ_JKM t
     where t.tsjsfs=p_tsjsfs ;
     */
 
@@ -118,12 +118,12 @@ routine_body: BEGIN
 with TT as (
     select zb.ywfl_dm, sum(score) as zbScore
     from
-      jkgl_pz_zb zb left join
+      JKGL_PZ_ZB zb left join
       (
       select t.zb_id,max(IFNULL(s.score, t.score)) as score
       from
-      jkgl_pz_zb_ycff t
-      left join jkgl_pz_zb_ycff_swjg s
+      JKGL_PZ_ZB_YCFF t
+      left join JKGL_PZ_ZB_YCFF_SWJG s
            on s.swjg_dm =p_swjg
            and s.zb_id=t.zb_id and s.xh=t.xh and s.yxbz='Y'
       where t.yxbz='Y'
@@ -158,7 +158,7 @@ with TT as (
     into zsblv1,zsblv2,zsblv3,zsblv4,zsblv5,zsblv6,
          lineRed1,lineRed2,lineRed3,lineRed4,lineRed5,lineRed6,lineRed_Zh,
          lineYellow1,lineYellow2,lineYellow3,lineYellow4,lineYellow5,lineYellow6,lineYellow_Zh
-    from jkgl_pz_jkm jkm
+    from JKGL_PZ_JKM jkm
     left join TT on TT.ywfl_dm=jkm.ywfl_dm
     where jkm.tsjsfs=p_tsjsfs ;
 
@@ -177,9 +177,9 @@ with TT as (
       --   sum(t.score) as score
         sum(case when (k.fmyxq is null OR k.fmyxq>=DATE(CURRENT_TIMESTAMP)) and IFNULL(t.hcjg, '2')='1' then 0 else t.score end) as score
         from
-        jkgl_data_qyjkm_jgb k
-        inner join jkgl_data_zb_jgb t on t.djxh=k.djxh
-        inner join jkgl_pz_zb s on t.zb_id=s.zb_id and s.yxbz='Y'
+        JKGL_DATA_QYJKM_JGB k
+        inner join JKGL_DATA_ZB_JGB t on t.djxh=k.djxh
+        inner join JKGL_PZ_ZB s on t.zb_id=s.zb_id and s.yxbz='Y'
         where t.djxh=p_djxh
         group by s.ywfl_dm
     );
@@ -262,7 +262,7 @@ with TT as (
     end if;
 
     -- 保存健康码计算结果
-    update jkgl_data_qyjkm_jgb
+    update JKGL_DATA_QYJKM_JGB
       set jkm_level=V_level,
     score_10 = jk_SCORE1,
     score_20 = jk_SCORE2,

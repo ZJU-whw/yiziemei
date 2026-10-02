@@ -17,7 +17,7 @@ routine_body: BEGIN
    count(1) as value, sbywb_dm as sbywbDm, swjg_dm as swjgDm
     from (
        select distinct dj.swjg_dm,t.nsrdzdah,t.sbywb_dm, t.sssq, t.sbpc
-       from SB_SBXX_HZ t,gs_dj_cktmsdab dj
+       from SB_SBXX_HZ t,GS_DJ_CKTMSDAB dj
        where t.nsrdzdah=dj.nsrdzdah
        and DATE_FORMAT(t.sbrq, ''%Y%m'') = '), sbqb), ' ) b
     group by swjg_dm, sbywb_dm ');

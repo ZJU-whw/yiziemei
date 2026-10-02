@@ -2,7 +2,7 @@ DELIMITER $$
 
 DROP PROCEDURE IF EXISTS FUNC_SHZS_RWWP_BAK20250609$$
 
-CREATE PROCEDURE func_shzs_rwwp_bak20250609(p_swjg_dm VARCHAR(4000),p_gwdm VARCHAR(4000),p_nsrsbh VARCHAR(4000),p_lcswsxdm VARCHAR(4000))
+CREATE PROCEDURE FUNC_SHZS_RWWP_BAK20250609(p_swjg_dm VARCHAR(4000),p_gwdm VARCHAR(4000),p_nsrsbh VARCHAR(4000),p_lcswsxdm VARCHAR(4000))
 routine_body: BEGIN
   DECLARE v_WTDXMC VARCHAR(30);   -- 委托对象
   DECLARE v_WTDXSFDM VARCHAR(13); -- 委托对象身份代码
@@ -27,7 +27,7 @@ routine_body: BEGIN
     SET v_sbywbdm ='NODEF';
 
   END;
-select t.sbyw_dm into v_sbywbdm from dm_gt3_xml_config t where t.lcsx_dm=p_lcswsxdm;
+select t.sbyw_dm into v_sbywbdm from DM_GT3_XML_CONFIG t where t.lcsx_dm=p_lcswsxdm;
   end;
 
   -- 根据税务机关，获得接单方式（2本月已分配过 0分组 1随机）
@@ -41,7 +41,7 @@ select t.sbyw_dm into v_sbywbdm from dm_gt3_xml_config t where t.lcsx_dm=p_lcsws
        SET v_JDMODE ='';
 
   END;
-select d.jd_mode into V_JDMODE from sys_cfg_sbdr_filemode d where d.code = p_swjg_dm and d.qybz='Y';
+select d.jd_mode into V_JDMODE from SYS_CFG_SBDR_FILEMODE d where d.code = p_swjg_dm and d.qybz='Y';
     End;
 
   -- 根据税号，获取分类管理等级和企业分组。
@@ -59,8 +59,8 @@ select d.jd_mode into V_JDMODE from sys_cfg_sbdr_filemode d where d.code = p_swj
   END;
 select IFNULL(dj.zs_swjg_dm, 'NONE'),dj.tsjsfs_dm,dk.kzxx
            into v_QYFZDM,v_JSMODE,v_FLGLCD
-      from gs_dj_cktmsdab dj
-      left join gs_dj_cktmsdab_kz dk
+      from GS_DJ_CKTMSDAB dj
+      left join GS_DJ_CKTMSDAB_KZ dk
         on (dj.nsrdzdah = dk.nsrdzdah and dk.kzlx = 'FLGLCD' and dk.flag = '1' and
            CURRENT_TIMESTAMP between dk.st_date and dk.end_date and 1=1)
      where dj.nsrsbh = p_nsrsbh
@@ -85,7 +85,7 @@ LIMIT 1;
   END;
 select wpsfdm,swrymc into v_WTDXSFDM,v_WTDXMC
         from (select t.wpsfdm,s.swrymc
-                from shzs_wp_task t, shzs_wp_swry s
+                from SHZS_WP_TASK t, SHZS_WP_SWRY s
                where t.wpsfdm = s.sfdm
                  and s.status = '1'
                  and s.gwdm = p_gwdm
@@ -132,7 +132,7 @@ LIMIT 1;
 with RY as
            (select t.sfdm, t.swrymc
               from SHZS_WP_SWRY t
-              inner join sys_cfg_czry_fpgl s
+              inner join SYS_CFG_CZRY_FPGL s
                 on s.swjg_dm = t.swjgdm
                and s.czry_dm = substr(t.sfdm, 1, 11)
                and s.qybz = 'Y'
@@ -172,7 +172,7 @@ LIMIT 1;
 with RY as
            (select t.sfdm, t.swrymc
               from SHZS_WP_SWRY t
-              left join sys_cfg_czry_fpgl s
+              left join SYS_CFG_CZRY_FPGL s
                 on s.swjg_dm = t.swjgdm
                and s.czry_dm = substr(t.sfdm, 1, 11)
                and s.qybz = 'Y'
@@ -214,7 +214,7 @@ LIMIT 1;
 with RY as
            (select t.sfdm, t.swrymc
               from SHZS_WP_SWRY t
-             inner join sys_cfg_czry_fpgl s
+             inner join SYS_CFG_CZRY_FPGL s
                 on s.swjg_dm = t.swjgdm
                and s.czry_dm = substr(t.sfdm, 1, 11)
                and s.qybz = 'Y'

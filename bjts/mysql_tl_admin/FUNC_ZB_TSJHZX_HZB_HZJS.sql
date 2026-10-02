@@ -14,56 +14,56 @@ BEGIN
   end if;
   if p_zbjg_dm is null then
     -- 计算市辖区小计
-    update zb_tsjhzx_hzb AS A SET byxdjhe = (SELECT sum(IFNULL(byxdjhe, 0))
-from zb_tsjhzx_hzb B where B.Tszb_yn=A.Tszb_yn and
-         B.ZBJG_DM in (select zbjg_dm from dm_zbjg C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
+    update ZB_TSJHZX_HZB AS A SET byxdjhe = (SELECT sum(IFNULL(byxdjhe, 0))
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
     byzhtse = (SELECT sum(IFNULL(byzhtse, 0))
-from zb_tsjhzx_hzb B where B.Tszb_yn=A.Tszb_yn and
-         B.ZBJG_DM in (select zbjg_dm from dm_zbjg C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
     byybltse = (SELECT sum(IFNULL(byybltse, 0))
-from zb_tsjhzx_hzb B where B.Tszb_yn=A.Tszb_yn and
-         B.ZBJG_DM in (select zbjg_dm from dm_zbjg C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y'))
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y'))
          where A.Tszb_yn=p_tszb_yn and
-         exists(select 1 from dm_zbjg D where D.zbjg_dm=A.zbjg_dm and D.lx='2' and substr(D.zbjg_dm,-1,1)='X');
+         exists(select 1 from DM_ZBJG D where D.zbjg_dm=A.zbjg_dm and D.lx='2' and substr(D.zbjg_dm,-1,1)='X');
 
     -- 计算各地市小计
-    update zb_tsjhzx_hzb AS A SET byxdjhe = (SELECT sum(IFNULL(byxdjhe, 0))
-from zb_tsjhzx_hzb B where B.Tszb_yn=A.Tszb_yn and
-         B.ZBJG_DM in (select zbjg_dm from dm_zbjg C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
+    update ZB_TSJHZX_HZB AS A SET byxdjhe = (SELECT sum(IFNULL(byxdjhe, 0))
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
     byzhtse = (SELECT sum(IFNULL(byzhtse, 0))
-from zb_tsjhzx_hzb B where B.Tszb_yn=A.Tszb_yn and
-         B.ZBJG_DM in (select zbjg_dm from dm_zbjg C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
     byybltse = (SELECT sum(IFNULL(byybltse, 0))
-from zb_tsjhzx_hzb B where B.Tszb_yn=A.Tszb_yn and
-         B.ZBJG_DM in (select zbjg_dm from dm_zbjg C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y'))
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y'))
          where A.Tszb_yn=p_tszb_yn and
-         exists(select 1 from dm_zbjg D where D.zbjg_dm=A.zbjg_dm and D.lx='2' and D.Sj_Zbjg='13300');
+         exists(select 1 from DM_ZBJG D where D.zbjg_dm=A.zbjg_dm and D.lx='2' and D.Sj_Zbjg='13300');
 
     -- 计算全省所有地区（除直属分局外）小计
-    update zb_tsjhzx_hzb AS A SET byxdjhe = (SELECT sum(IFNULL(byxdjhe, 0))
-from zb_tsjhzx_hzb B where B.Tszb_yn=A.Tszb_yn and
-         B.ZBJG_DM in (select zbjg_dm from dm_zbjg C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
+    update ZB_TSJHZX_HZB AS A SET byxdjhe = (SELECT sum(IFNULL(byxdjhe, 0))
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
     byzhtse = (SELECT sum(IFNULL(byzhtse, 0))
-from zb_tsjhzx_hzb B where B.Tszb_yn=A.Tszb_yn and
-         B.ZBJG_DM in (select zbjg_dm from dm_zbjg C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
     byybltse = (SELECT sum(IFNULL(byybltse, 0))
-from zb_tsjhzx_hzb B where B.Tszb_yn=A.Tszb_yn and
-         B.ZBJG_DM in (select zbjg_dm from dm_zbjg C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y'))
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y'))
          where A.Tszb_yn=p_tszb_yn and
-         exists(select 1 from dm_zbjg D where D.zbjg_dm=A.zbjg_dm and D.lx='2' and D.Sj_Zbjg='133');
+         exists(select 1 from DM_ZBJG D where D.zbjg_dm=A.zbjg_dm and D.lx='2' and D.Sj_Zbjg='133');
 
     -- 计算全省小计
-    update zb_tsjhzx_hzb AS A SET byxdjhe = (SELECT sum(IFNULL(byxdjhe, 0))
-from zb_tsjhzx_hzb B where B.Tszb_yn=A.Tszb_yn and
-         B.ZBJG_DM in (select zbjg_dm from dm_zbjg C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
+    update ZB_TSJHZX_HZB AS A SET byxdjhe = (SELECT sum(IFNULL(byxdjhe, 0))
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
     byzhtse = (SELECT sum(IFNULL(byzhtse, 0))
-from zb_tsjhzx_hzb B where B.Tszb_yn=A.Tszb_yn and
-         B.ZBJG_DM in (select zbjg_dm from dm_zbjg C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
     byybltse = (SELECT sum(IFNULL(byybltse, 0))
-from zb_tsjhzx_hzb B where B.Tszb_yn=A.Tszb_yn and
-         B.ZBJG_DM in (select zbjg_dm from dm_zbjg C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y'))
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y'))
          where A.Tszb_yn=p_tszb_yn and
-         exists(select 1 from dm_zbjg D where D.zbjg_dm=A.zbjg_dm and D.lx='2' and D.Sj_Zbjg='1');
+         exists(select 1 from DM_ZBJG D where D.zbjg_dm=A.zbjg_dm and D.lx='2' and D.Sj_Zbjg='1');
 
   end if;
 

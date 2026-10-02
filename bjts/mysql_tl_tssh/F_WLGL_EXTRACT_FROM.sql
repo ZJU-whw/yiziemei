@@ -2,7 +2,7 @@ DELIMITER $$
 
 DROP FUNCTION IF EXISTS F_WLGL_EXTRACT_FROM$$
 
-CREATE FUNCTION f_wlgl_extract_from
+CREATE FUNCTION F_WLGL_EXTRACT_FROM
 -- ============================================
 -- 函数：提取起运地
 -- ============================================

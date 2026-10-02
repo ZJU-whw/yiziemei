@@ -35,7 +35,7 @@ DEALLOCATE PREPARE BJTS_DYNAMIC_STMT_001;
 UPDATE TB_CKTS_HISTORY_ZJDLZM SET TBPC = 6 WHERE TBPC = 0;
   COMMIT;
   -- 代理出口货物证明表
-  DELETE FROM GS_DLCKHWZM WHERE tbpc not in (SELECT mainid FROM tb_dtbsj WHERE tblx_dm = 'GS_DLCKHWZMToYun');
+  DELETE FROM GS_DLCKHWZM WHERE tbpc not in (SELECT mainid FROM TB_DTBSJ WHERE tblx_dm = 'GS_DLCKHWZMToYun');
   COMMIT;
   DO '代理出口货物证明表历史数据清理成功';
 
@@ -150,13 +150,13 @@ SET pv_tbpc = SEQ_NEXTVAL('SEQ_TB_TBPC');
 
         update GS_DLCKHWZM set tbpc = pv_newpc where tbpc = pv_tbpc and 1=1
 LIMIT 1000;
-        INSERT INTO tb_dtbsj(id,tblx_dm,mainid,cjsj,tbcs,yxj)
+        INSERT INTO TB_DTBSJ(id,tblx_dm,mainid,cjsj,tbcs,yxj)
         VALUES(SEQ_NEXTVAL('SEQ_TB_DTBSJ_ID'),'GS_DLCKHWZMToYun',pv_newpc,CURRENT_TIMESTAMP,0,1);
         COMMIT;
       END LOOP BJTS_LOOP_001;
 
       -- 插入待同步数据
-      INSERT INTO tb_dtbsj(id,tblx_dm,mainid,cjsj,tbcs,yxj)
+      INSERT INTO TB_DTBSJ(id,tblx_dm,mainid,cjsj,tbcs,yxj)
       VALUES(SEQ_NEXTVAL('SEQ_TB_DTBSJ_ID'),'GS_DLCKHWZMToYun',pv_tbpc,CURRENT_TIMESTAMP,0,1);
       COMMIT;
       DO ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(pv_qyhgdm, '同步成功'), CAST(pv_cnt AS CHAR)), '条数据');

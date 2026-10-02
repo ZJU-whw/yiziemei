@@ -34,7 +34,7 @@ DEALLOCATE PREPARE BJTS_DYNAMIC_STMT_001;
     commit;
 
   END;
-DELETE FROM GS_JLJG_JHFPL WHERE tbpc not in (SELECT mainid FROM tb_dtbsj WHERE tblx_dm = 'GS_JLJG_JHFPLToYun');
+DELETE FROM GS_JLJG_JHFPL WHERE tbpc not in (SELECT mainid FROM TB_DTBSJ WHERE tblx_dm = 'GS_JLJG_JHFPLToYun');
   COMMIT;
   DO '进料加工计划分配率表历史数据清理成功';
 
@@ -127,7 +127,7 @@ SET pv_tbpc = SEQ_NEXTVAL('SEQ_TB_TBPC');
       WHERE CPCODE = pv_qyhgdm;
 
       -- 插入待同步数据
-      INSERT INTO tb_dtbsj(id,tblx_dm,mainid,cjsj,tbcs,yxj)
+      INSERT INTO TB_DTBSJ(id,tblx_dm,mainid,cjsj,tbcs,yxj)
       VALUES(SEQ_NEXTVAL('SEQ_TB_DTBSJ_ID'),'GS_JLJG_JHFPLToYun',pv_tbpc,CURRENT_TIMESTAMP,0,1);
       COMMIT;
       DO ORA_CONCAT(pv_qyhgdm, '同步成功');
