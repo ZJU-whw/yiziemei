@@ -1,5 +1,6 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
+import json
 import unittest
 
 from tools.bjts_sql_migration.verifier import (
@@ -7,6 +8,7 @@ from tools.bjts_sql_migration.verifier import (
     load_manifest,
     scan_output_file,
     validate_output_structure,
+    verify,
 )
 
 
@@ -29,6 +31,48 @@ class ManifestTests(unittest.TestCase):
 
     def test_outputs_match_every_locked_source_filename(self):
         self.assertEqual([], compare_manifest(REPO_ROOT))
+
+    def test_named_summary_files_are_allowed_without_hiding_unexpected_files(self):
+        with TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            manifest_path = root / "tools/bjts_sql_migration/source_manifest.json"
+            manifest_path.parent.mkdir(parents=True)
+            manifest = {
+                schema: ["P_FIRST.sql", "P_SECOND.sql"]
+                for schema in ("tl_admin", "tl_bjts", "tl_tssh")
+            }
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            for schema in manifest:
+                directory = root / "bjts" / f"mysql_{schema}"
+                directory.mkdir(parents=True)
+                scripts = []
+                for name in ("P_FIRST", "P_SECOND"):
+                    sql = (
+                        f"DELIMITER $$\nDROP PROCEDURE IF EXISTS {name}$$\n"
+                        f"CREATE PROCEDURE {name}() BEGIN SELECT 1; END$$\n"
+                        "DELIMITER ;\n"
+                    )
+                    (directory / f"{name}.sql").write_text(sql, encoding="utf-8")
+                    scripts.append(sql)
+                (directory / f"{directory.name}_汇总.sql").write_text(
+                    "\n".join(scripts), encoding="utf-8"
+                )
+
+            self.assertEqual([], compare_manifest(root))
+            self.assertEqual([], verify(root))
+
+            admin = root / "bjts/mysql_tl_admin"
+            for name in ("P_EXTRA.sql", "mysql_tl_bjts_汇总.sql"):
+                (admin / name).write_text("SELECT 1;\n", encoding="utf-8")
+            errors = compare_manifest(root)
+            self.assertEqual(
+                [
+                    "mysql_tl_admin: unexpected 2 files: "
+                    "P_EXTRA.sql, mysql_tl_bjts_汇总.sql"
+                ],
+                errors,
+            )
+            self.assertIn(errors[0], verify(root))
 
 
 class ScannerTests(unittest.TestCase):

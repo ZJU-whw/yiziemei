@@ -134,6 +134,13 @@ def load_manifest(repo_root: Path | None = None) -> dict[str, list[str]]:
     return data
 
 
+def _individual_output_files(output_dir: Path) -> list[Path]:
+    """List routine scripts separately from the directory's generated summary."""
+
+    summary_name = f"{output_dir.name}_汇总.sql"
+    return sorted(path for path in output_dir.glob("*.sql") if path.name != summary_name)
+
+
 def compare_manifest(repo_root: Path) -> list[str]:
     """Return human-readable source/output filename mismatches."""
 
@@ -141,7 +148,7 @@ def compare_manifest(repo_root: Path) -> list[str]:
     manifest = load_manifest(repo_root)
     for source_name, output_name in SOURCE_TO_OUTPUT.items():
         output_dir = repo_root / "bjts" / output_name
-        actual = sorted(path.name for path in output_dir.glob("*.sql")) if output_dir.is_dir() else []
+        actual = [path.name for path in _individual_output_files(output_dir)]
         expected = manifest[source_name]
         missing = sorted(set(expected) - set(actual))
         extra = sorted(set(actual) - set(expected))
@@ -341,7 +348,7 @@ def _iter_output_files(repo_root: Path, schema: str | None) -> Iterable[Path]:
     for source_name in source_names:
         if source_name not in SOURCE_TO_OUTPUT:
             raise ValueError(f"unknown schema: {source_name}")
-        yield from sorted((repo_root / "bjts" / SOURCE_TO_OUTPUT[source_name]).glob("*.sql"))
+        yield from _individual_output_files(repo_root / "bjts" / SOURCE_TO_OUTPUT[source_name])
 
 
 def verify(repo_root: Path, schema: str | None = None) -> list[str]:
