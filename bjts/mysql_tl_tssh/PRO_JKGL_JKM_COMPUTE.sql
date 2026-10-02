@@ -182,7 +182,7 @@ with TT as (
         inner join JKGL_PZ_ZB s on t.zb_id=s.zb_id and s.yxbz='Y'
         where t.djxh=p_djxh
         group by s.ywfl_dm
-    );
+    ) AS BJTS_DERIVED_001;
 
     -- 计算健康码折算赋分
     SET jk_SCORE1 = zb_SCORE1 * zsblv1;

@@ -20,7 +20,7 @@ routine_body: BEGIN
     SET v_msgtext = BJTS_SQLERRM_001;
     rollback;
     DO ORA_CONCAT('Error: ', v_msgtext);
-    LEAVE routine_body;
+    -- EXIT HANDLER exits routine_body after preserving the result.
 
   END;
 if extract(day from CURRENT_TIMESTAMP) <= 5 then

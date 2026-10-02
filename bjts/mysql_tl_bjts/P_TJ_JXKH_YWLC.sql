@@ -27,7 +27,7 @@ routine_body: BEGIN
     SET v_msgtext = BJTS_SQLERRM_001;
     rollback;
     DO ORA_CONCAT('Error: ', v_msgtext);
-    LEAVE routine_body;
+    -- EXIT HANDLER exits routine_body after preserving the result.
 
   END;
 SET date_slrq = STR_TO_DATE('2021-01-01', '%Y-%m-%d');
@@ -59,7 +59,7 @@ select LCSLID, SBID, SBRQ
                    FROM JXKH_YWLC T, SB_SBXX_HZ S
                   WHERE T.SL_DATE > date_slrq
                     and T.SBID IS NULL
-                    and S.LCSLID = T.LCSLID)
+                    and S.LCSLID = T.LCSLID) AS BJTS_DERIVED_001
           WHERE RN = 1
 ) AS ZZ
 ON ZZ.lcslid = UU.LCSLID

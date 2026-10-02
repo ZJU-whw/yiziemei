@@ -26,7 +26,7 @@ SELECT KZXX
                AND KZLX = V_IN_KZLX
                AND FLAG ='1'
                AND V_IN_YXQ BETWEEN ST_DATE AND END_DATE
-             ORDER BY KZXX DESC)
+             ORDER BY KZXX DESC) AS BJTS_DERIVED_001
      WHERE 1=1
 LIMIT 1;
   END;

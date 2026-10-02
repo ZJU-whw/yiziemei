@@ -524,7 +524,7 @@ routine_body: BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
     -- DBMS_OUTPUT.put_line('检索为空：'||sqlerrm);
     rollback;
-    SET P_RESULT = '100'; LEAVE routine_body;
+    SET P_RESULT = '100'; -- EXIT HANDLER exits routine_body after preserving the result.
 
   END;
 
@@ -533,7 +533,7 @@ routine_body: BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
     rollback;
     -- DBMS_OUTPUT.put_line('异常：'||sqlerrm);
-    SET P_RESULT = '900'; LEAVE routine_body;
+    SET P_RESULT = '900'; -- EXIT HANDLER exits routine_body after preserving the result.
 
 
   END;
@@ -620,6 +620,7 @@ DROP PROCEDURE IF EXISTS FUNC_GET_SBHZXX$$
 
 CREATE PROCEDURE FUNC_GET_SBHZXX(p_czryDm VARCHAR(4000))
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   -- Oracle REF CURSOR type removed; target uses a result set;
   DECLARE dyn_select VARCHAR(1500);
   DECLARE i DECIMAL(38,10) DEFAULT 0;
@@ -641,12 +642,15 @@ routine_body: BEGIN
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
        -- DBMS_OUTPUT.put_line('操作员不存在');
-       SELECT NULL AS YWZLDM, NULL AS YWZLMC, NULL AS SBYWDM, NULL AS SBYWMC, NULL AS NUM, NULL AS CQCNT WHERE 1 = 0; LEAVE routine_body;
+       SELECT NULL AS YWZLDM, NULL AS YWZLMC, NULL AS SBYWDM, NULL AS SBYWMC, NULL AS NUM, NULL AS CQCNT WHERE 1 = 0; SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 select IFNULL(qx_swjg, swjg_dm) into v_czry_swjg
       from DM_CZRY where czry_dm =p_czryDm;
   end;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
      SET v_czry_qxswjg =FUNC_GET_QXSWJG(v_czry_swjg) ;
 
   SET dyn_select =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('select ', 'sd1.dcode as ywzldm,sd1.dname as ywzlmc,TT.sbywdm,TT.sbywmc,IFNULL(cnt, 0) as cnt,IFNULL(cqcnt, 0) as cqcnt '), 'from SYS_DICT sd1 '), 'left join   '), '(select sbzl_dm,sbywb_dm as sbywdm,sd2.dname as sbywmc,count(*) as cnt  '), ' ,sum(case when flglcd in (''A'',''B'') then case when sbzl_dm in (''TSSB'') and (ORA_DATE_DIFF(CURRENT_TIMESTAMP, sbrq))>5 then 1 else 0 end else case when sbzl_dm in (''TSSB'') and (ORA_DATE_DIFF(CURRENT_TIMESTAMP, sbrq))>10 then 1 else 0 end end) as cqcnt '), 'from V_SBXX_SBDR_FILEMODE vs '), 'left join SYS_DICT sd2 on sd2.dtype=''ywlx_dm'' and sd2.dcode=vs.sbywb_dm '), 'where vs.swjg_dm like '''), v_czry_qxswjg), ''' and '), '( '), ' (vs.sbr is not null and vs.sbr='''), p_czryDm), ''') or '), ' (vs.sbr is null and ( '), 'exists (select 1 from SYS_CFG_CZRY_FPGL sc2 '), 'where sc2.czry_dm='''), p_czryDm), ''' and sc2.swjg_dm like ORA_CONCAT(ORA_CONCAT(''%'', vs.swjg_dm), ''%'') and sc2.qybz=''Y'' '), ' and (vs.sbywb_dm=''A0101001'' or '), '( (coalesce(sc2.zsjg_dm_set,'' '')='' '' or vs.zs_swjg_dm is null or sc2.zsjg_dm_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.zs_swjg_dm), ''%'')) '), 'and (coalesce(sc2.zgswry_dm_set,'' '')='' '') '), 'and (coalesce(sc2.flgl_set,'' '')='' '' or sc2.flgl_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.flglcd), ''%'')) '), 'and (vs.sbzl_dm<>''TSSB'' OR (coalesce(sc2.jsmode_set,'' '')='' '' or sc2.jsmode_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.tsjsfs_dm), ''%'')))))))) '), ') '), 'group by sbzl_dm,sbywb_dm,sd2.dname '), ') TT on sd1.dtype=''ywzl_dm'' and sd1.dcode=TT.sbzl_dm '), 'where sd1.dtype=''ywzl_dm'' '), 'order by ywzldm,sbywdm');
@@ -678,6 +682,7 @@ DROP PROCEDURE IF EXISTS FUNC_GET_SBHZXX_QXSWJG$$
 
 CREATE PROCEDURE FUNC_GET_SBHZXX_QXSWJG(p_czryDm VARCHAR(4000))
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   -- Oracle REF CURSOR type removed; target uses a result set;
   DECLARE dyn_select VARCHAR(1500);
   DECLARE i DECIMAL(38,10) DEFAULT 0;
@@ -698,12 +703,15 @@ routine_body: BEGIN
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
        -- DBMS_OUTPUT.put_line('操作员不存在');
-       SELECT NULL AS YWZLDM, NULL AS YWZLMC, NULL AS SBYWDM, NULL AS SBYWMC, NULL AS NUM, NULL AS CQCNT WHERE 1 = 0; LEAVE routine_body;
+       SELECT NULL AS YWZLDM, NULL AS YWZLMC, NULL AS SBYWDM, NULL AS SBYWMC, NULL AS NUM, NULL AS CQCNT WHERE 1 = 0; SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 select swjg_dm into v_czry_swjg
       from DM_CZRY where czry_dm =p_czryDm;
   end;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   SET v_czry_qxswjg =FUNC_GET_QXSWJG(v_czry_swjg) ;
 
   SET dyn_select =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('select ', 'sd1.dcode as ywzldm,sd1.dname as ywzlmc,TT.sbywdm,TT.sbywmc,IFNULL(cnt, 0) as cnt '), 'from SYS_DICT sd1 '), 'left join   '), '(select sbzl_dm,sbywb_dm as sbywdm,sd2.dname as sbywmc,count(*) as cnt  '), 'from V_SBXX_SBDR_FILEMODE vs '), 'left join SYS_DICT sd2 on sd2.dtype=''ywlx_dm'' and sd2.dcode=vs.sbywb_dm '), 'where vs.swjg_dm like '''), v_czry_qxswjg), ''' and '), '( '), ' (vs.sbr is not null and vs.sbr='''), p_czryDm), ''') or '), ' (vs.sbr is null and ( '), 'exists (select 1 from SYS_CFG_CZRY_FPGL sc2 '), 'where sc2.czry_dm='''), p_czryDm), ''' and sc2.swjg_dm like ORA_CONCAT(ORA_CONCAT(''%'', vs.swjg_dm), ''%'') and sc2.qybz=''Y'' '), 'and (coalesce(sc2.zsjg_dm_set,'' '')='' '' or vs.zs_swjg_dm is null or sc2.zsjg_dm_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.zs_swjg_dm), ''%'')) '), 'and (coalesce(sc2.zgswry_dm_set,'' '')='' '') '), 'and (coalesce(sc2.flgl_set,'' '')='' '' or sc2.flgl_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.flglcd), ''%'')) '), 'and (coalesce(sc2.jsmode_set,'' '')='' '' or sc2.jsmode_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.tsjsfs_dm), ''%''))))) '), ') '), 'group by sbzl_dm,sbywb_dm,sd2.dname '), ') TT on sd1.dtype=''ywzl_dm'' and sd1.dcode=TT.sbzl_dm '), 'where sd1.dtype=''ywzl_dm'' '), 'order by ywzldm,sbywdm');
@@ -735,6 +743,7 @@ DROP PROCEDURE IF EXISTS FUNC_GET_SBHZXX_TEST$$
 
 CREATE PROCEDURE FUNC_GET_SBHZXX_TEST(p_czryDm VARCHAR(4000))
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   -- Oracle REF CURSOR type removed; target uses a result set;
   DECLARE dyn_select VARCHAR(1500);
   DECLARE i DECIMAL(38,10) DEFAULT 0;
@@ -755,12 +764,15 @@ routine_body: BEGIN
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
        -- DBMS_OUTPUT.put_line('操作员不存在');
-       SELECT NULL AS YWZLDM, NULL AS YWZLMC, NULL AS SBYWDM, NULL AS SBYWMC, NULL AS NUM, NULL AS CQCNT WHERE 1 = 0; LEAVE routine_body;
+       SELECT NULL AS YWZLDM, NULL AS YWZLMC, NULL AS SBYWDM, NULL AS SBYWMC, NULL AS NUM, NULL AS CQCNT WHERE 1 = 0; SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 select swjg_dm into v_czry_swjg
       from DM_CZRY where czry_dm =p_czryDm;
   end;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   SET v_czry_qxswjg =FUNC_GET_QXSWJG(v_czry_swjg) ;
 
   SET dyn_select =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('select ', 'sd1.dcode as ywzldm,sd1.dname as ywzlmc,TT.sbywdm,TT.sbywmc,IFNULL(cnt, 0) as cnt '), 'from SYS_DICT sd1 '), 'left join   '), '(select sbzl_dm,sbywb_dm as sbywdm,sd2.dname as sbywmc,count(*) as cnt  '), 'from V_SBXX_SBDR_FILEMODE vs '), 'left join SYS_DICT sd2 on sd2.dtype=''ywlx_dm'' and sd2.dcode=vs.sbywb_dm '), 'where vs.swjg_dm like '''), v_czry_qxswjg), ''' and '), '( '), ' (vs.sbr is not null and vs.sbr='''), p_czryDm), ''') or '), ' (vs.sbr is null and ( '), 'exists (select 1 from SYS_CFG_CZRY_FPGL sc2 '), 'where sc2.czry_dm='''), p_czryDm), ''' and sc2.swjg_dm like ORA_CONCAT(ORA_CONCAT(''%'', vs.swjg_dm), ''%'') and sc2.qybz=''Y'' '), ' and (vs.sbywb_dm=''A0101001'' or '), '( (coalesce(sc2.zsjg_dm_set,'' '')='' '' or vs.zs_swjg_dm is null or sc2.zsjg_dm_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.zs_swjg_dm), ''%'')) '), 'and (coalesce(sc2.zgswry_dm_set,'' '')='' '') '), 'and (coalesce(sc2.flgl_set,'' '')='' '' or sc2.flgl_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.flglcd), ''%'')) '), 'and (coalesce(sc2.jsmode_set,'' '')='' '' or sc2.jsmode_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.tsjsfs_dm), ''%''))))))) '), ') '), 'group by sbzl_dm,sbywb_dm,sd2.dname '), ') TT on sd1.dtype=''ywzl_dm'' and sd1.dcode=TT.sbzl_dm '), 'where sd1.dtype=''ywzl_dm'' '), 'order by ywzldm,sbywdm');
@@ -901,6 +913,7 @@ DROP PROCEDURE IF EXISTS FUNC_GET_SBLIST_SORT$$
 CREATE PROCEDURE FUNC_GET_SBLIST_SORT(p_czryDm VARCHAR(4000),p_sbywbDm VARCHAR(4000),
        p_sort VARCHAR(4000),p_offset DECIMAL(38,10),p_rows DECIMAL(38,10),p_filter VARCHAR(4000))
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   -- Oracle REF CURSOR type removed; target uses a result set;
   DECLARE dyn_select VARCHAR(1500);
   DECLARE sorting VARCHAR(200);
@@ -934,12 +947,15 @@ routine_body: BEGIN
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
        DO '操作员不存在';
-       SELECT NULL AS SBID, NULL AS SSSQ, NULL AS SBRQ, NULL AS QYHGDM, NULL AS NSRMC, NULL AS SBYWBDM, NULL AS FLGLCD, NULL AS ZZSBB, NULL AS ZS_SWJG_MC, NULL AS TS_SWJG_MC, NULL AS TSJSFS, NULL AS SBYWBMC, NULL AS SBTMSE, NULL AS YDCNT, NULL AS YJCNT, NULL AS CQBZ WHERE 1 = 0; LEAVE routine_body;
+       SELECT NULL AS SBID, NULL AS SSSQ, NULL AS SBRQ, NULL AS QYHGDM, NULL AS NSRMC, NULL AS SBYWBDM, NULL AS FLGLCD, NULL AS ZZSBB, NULL AS ZS_SWJG_MC, NULL AS TS_SWJG_MC, NULL AS TSJSFS, NULL AS SBYWBMC, NULL AS SBTMSE, NULL AS YDCNT, NULL AS YJCNT, NULL AS CQBZ WHERE 1 = 0; SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 select IFNULL(qx_swjg, swjg_dm) into v_czry_swjg
       from DM_CZRY where czry_dm =p_czryDm;
   end;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   SET v_czry_qxswjg =FUNC_GET_QXSWJG(v_czry_swjg) ;
 
   if p_offset <= 0 then
@@ -1004,6 +1020,7 @@ DROP PROCEDURE IF EXISTS FUNC_GET_SBLIST_SORT_QXSWJG$$
 CREATE PROCEDURE FUNC_GET_SBLIST_SORT_QXSWJG(p_czryDm VARCHAR(4000),p_sbywbDm VARCHAR(4000),
        p_sort VARCHAR(4000),p_offset DECIMAL(38,10),p_rows DECIMAL(38,10),p_filter VARCHAR(4000))
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   -- Oracle REF CURSOR type removed; target uses a result set;
   DECLARE dyn_select VARCHAR(1500);
   DECLARE sorting VARCHAR(200);
@@ -1034,12 +1051,15 @@ routine_body: BEGIN
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
        DO '操作员不存在';
-       SELECT NULL AS SBID, NULL AS SSSQ, NULL AS SBRQ, NULL AS QYHGDM, NULL AS NSRMC, NULL AS SBYWBDM, NULL AS FLGLCD, NULL AS ZZSBB, NULL AS ZS_SWJG_MC, NULL AS TS_SWJG_MC, NULL AS TSJSFS, NULL AS SBYWBMC, NULL AS SBTMSE, NULL AS YDCNT, NULL AS YJCNT, NULL AS CQBZ WHERE 1 = 0; LEAVE routine_body;
+       SELECT NULL AS SBID, NULL AS SSSQ, NULL AS SBRQ, NULL AS QYHGDM, NULL AS NSRMC, NULL AS SBYWBDM, NULL AS FLGLCD, NULL AS ZZSBB, NULL AS ZS_SWJG_MC, NULL AS TS_SWJG_MC, NULL AS TSJSFS, NULL AS SBYWBMC, NULL AS SBTMSE, NULL AS YDCNT, NULL AS YJCNT, NULL AS CQBZ WHERE 1 = 0; SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 select swjg_dm into v_czry_swjg
       from DM_CZRY where czry_dm =p_czryDm;
   end;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   SET v_czry_qxswjg =FUNC_GET_QXSWJG(v_czry_swjg) ;
 
   if p_offset <= 0 then
@@ -1103,6 +1123,7 @@ DROP PROCEDURE IF EXISTS FUNC_GET_SBLIST_SORT_TEST$$
 CREATE PROCEDURE FUNC_GET_SBLIST_SORT_TEST(p_czryDm VARCHAR(4000),p_sbywbDm VARCHAR(4000),
        p_sort VARCHAR(4000),p_offset DECIMAL(38,10),p_rows DECIMAL(38,10),p_filter VARCHAR(4000))
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   -- Oracle REF CURSOR type removed; target uses a result set;
   DECLARE dyn_select VARCHAR(1500);
   DECLARE sorting VARCHAR(200);
@@ -1133,12 +1154,15 @@ routine_body: BEGIN
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
        DO '操作员不存在';
-       SELECT NULL AS SBID, NULL AS SSSQ, NULL AS SBRQ, NULL AS QYHGDM, NULL AS NSRMC, NULL AS SBYWBDM, NULL AS FLGLCD, NULL AS ZZSBB, NULL AS ZS_SWJG_MC, NULL AS TS_SWJG_MC, NULL AS TSJSFS, NULL AS SBYWBMC, NULL AS SBTMSE, NULL AS YDCNT, NULL AS YJCNT, NULL AS CQBZ WHERE 1 = 0; LEAVE routine_body;
+       SELECT NULL AS SBID, NULL AS SSSQ, NULL AS SBRQ, NULL AS QYHGDM, NULL AS NSRMC, NULL AS SBYWBDM, NULL AS FLGLCD, NULL AS ZZSBB, NULL AS ZS_SWJG_MC, NULL AS TS_SWJG_MC, NULL AS TSJSFS, NULL AS SBYWBMC, NULL AS SBTMSE, NULL AS YDCNT, NULL AS YJCNT, NULL AS CQBZ WHERE 1 = 0; SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 select swjg_dm into v_czry_swjg
       from DM_CZRY where czry_dm =p_czryDm;
   end;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   SET v_czry_qxswjg =FUNC_GET_QXSWJG(v_czry_swjg) ;
 
   if p_offset <= 0 then
@@ -1281,6 +1305,7 @@ DROP PROCEDURE IF EXISTS FUNC_GET_WJDR_COUNT$$
 
 CREATE PROCEDURE FUNC_GET_WJDR_COUNT(p_czryDm VARCHAR(4000), OUT P_RESULT integer)
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   DECLARE dyn_select VARCHAR(1500);
   DECLARE v_czry_qxswjg VARCHAR(11);
   DECLARE v_czry_swjg VARCHAR(11);
@@ -1295,12 +1320,15 @@ routine_body: BEGIN
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
        -- DBMS_OUTPUT.put_line('操作员不存在');
-       SET P_RESULT = 0; LEAVE routine_body;
+       SET P_RESULT = 0; SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 select IFNULL(qx_swjg, swjg_dm) into v_czry_swjg
       from DM_CZRY where czry_dm =p_czryDm;
   end;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   SET v_czry_qxswjg =FUNC_GET_QXSWJG(v_czry_swjg) ;
 
   SET dyn_select =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('select count(1) from V_SBXX_SBDR_FILEMODE vs ', ' where vs.swjg_dm like '''), v_czry_qxswjg), ''' and vs.sbr is null and ( '), ' (vs.zs_swjg_dm is not null and  '), ' not exists (select 1 from SYS_CFG_CZRY_FPGL sc1 '), ' where sc1.swjg_dm like ORA_CONCAT(ORA_CONCAT(''%'', vs.swjg_dm), ''%'') and sc1.qybz=''Y'' '), ' and (coalesce(sc1.zsjg_dm_set,'' '')='' '' or sc1.zsjg_dm_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.zs_swjg_dm), ''%'')) '), ' and (coalesce(sc1.flgl_set,'' '')='' '' or sc1.flgl_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.flglcd), ''%'')) '), ' and (vs.sbzl_dm<>''TSSB'' OR (coalesce(sc1.jsmode_set,'' '')='' '' or sc1.jsmode_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.tsjsfs_dm), ''%'')))) '), ' ) or '), ' (vs.zs_swjg_dm is null and  '), ' not exists (select 1 from SYS_CFG_CZRY_FPGL sc2 '), ' where sc2.swjg_dm like ORA_CONCAT(ORA_CONCAT(''%'', vs.swjg_dm), ''%'') and sc2.qybz=''Y'' '), ' and (coalesce(sc2.zsjg_dm_set,'' '')='' '') '), ' and (coalesce(sc2.flgl_set,'' '')='' '' or sc2.flgl_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.flglcd), ''%'')) '), ' and (vs.sbzl_dm<>''TSSB'' OR (coalesce(sc2.jsmode_set,'' '')='' '' or sc2.jsmode_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.tsjsfs_dm), ''%'')))) '), ' ))');
@@ -1329,6 +1357,7 @@ DROP PROCEDURE IF EXISTS FUNC_GET_WJDR_SBLIST$$
 CREATE PROCEDURE FUNC_GET_WJDR_SBLIST(p_czryDm VARCHAR(4000),
        p_sort VARCHAR(4000),p_offset DECIMAL(38,10),p_rows DECIMAL(38,10),p_filter VARCHAR(4000))
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   -- Oracle REF CURSOR type removed; target uses a result set;
   DECLARE dyn_select VARCHAR(1500);
   DECLARE sorting VARCHAR(200);
@@ -1362,12 +1391,15 @@ routine_body: BEGIN
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
        DO '操作员不存在';
-       SELECT NULL AS SBID, NULL AS SSSQ, NULL AS SBRQ, NULL AS QYHGDM, NULL AS NSRMC, NULL AS SBYWBDM, NULL AS FLGLCD, NULL AS ZZSBB, NULL AS ZS_SWJG_MC, NULL AS TS_SWJG_MC, NULL AS TSJSFS, NULL AS SBYWBMC, NULL AS SBTMSE, NULL AS YDCNT, NULL AS YJCNT, NULL AS CQBZ WHERE 1 = 0; LEAVE routine_body;
+       SELECT NULL AS SBID, NULL AS SSSQ, NULL AS SBRQ, NULL AS QYHGDM, NULL AS NSRMC, NULL AS SBYWBDM, NULL AS FLGLCD, NULL AS ZZSBB, NULL AS ZS_SWJG_MC, NULL AS TS_SWJG_MC, NULL AS TSJSFS, NULL AS SBYWBMC, NULL AS SBTMSE, NULL AS YDCNT, NULL AS YJCNT, NULL AS CQBZ WHERE 1 = 0; SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 select IFNULL(qx_swjg, swjg_dm) into v_czry_swjg
       from DM_CZRY where czry_dm =p_czryDm;
   end;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   SET v_czry_qxswjg =FUNC_GET_QXSWJG(v_czry_swjg) ;
 
   if p_offset <= 0 then
@@ -1431,6 +1463,7 @@ DROP PROCEDURE IF EXISTS FUNC_GET_WJDR_SBLIST_TEST$$
 CREATE PROCEDURE FUNC_GET_WJDR_SBLIST_TEST(p_czryDm VARCHAR(4000),
        p_sort VARCHAR(4000),p_offset DECIMAL(38,10),p_rows DECIMAL(38,10),p_filter VARCHAR(4000))
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   -- Oracle REF CURSOR type removed; target uses a result set;
   DECLARE dyn_select VARCHAR(1500);
   DECLARE sorting VARCHAR(200);
@@ -1464,12 +1497,15 @@ routine_body: BEGIN
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
        DO '操作员不存在';
-       SELECT NULL AS SBID, NULL AS SSSQ, NULL AS SBRQ, NULL AS QYHGDM, NULL AS NSRMC, NULL AS SBYWBDM, NULL AS FLGLCD, NULL AS ZZSBB, NULL AS ZS_SWJG_MC, NULL AS TS_SWJG_MC, NULL AS TSJSFS, NULL AS SBYWBMC, NULL AS SBTMSE, NULL AS YDCNT, NULL AS YJCNT, NULL AS CQBZ WHERE 1 = 0; LEAVE routine_body;
+       SELECT NULL AS SBID, NULL AS SSSQ, NULL AS SBRQ, NULL AS QYHGDM, NULL AS NSRMC, NULL AS SBYWBDM, NULL AS FLGLCD, NULL AS ZZSBB, NULL AS ZS_SWJG_MC, NULL AS TS_SWJG_MC, NULL AS TSJSFS, NULL AS SBYWBMC, NULL AS SBTMSE, NULL AS YDCNT, NULL AS YJCNT, NULL AS CQBZ WHERE 1 = 0; SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 select IFNULL(qx_swjg, swjg_dm) into v_czry_swjg
       from DM_CZRY where czry_dm =p_czryDm;
   end;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   SET v_czry_qxswjg =FUNC_GET_QXSWJG(v_czry_swjg) ;
 
   if p_offset <= 0 then
@@ -1619,7 +1655,7 @@ select wpsfdm,swrymc into v_WTDXSFDM,v_WTDXMC
                  and s.gwdm = p_gwdm
                  and t.nsrsbh = p_nsrsbh
                  and DATE_FORMAT(t.wpsj, '%Y%m') = DATE_FORMAT(CURRENT_TIMESTAMP, '%Y%m')
-               order by t.wpsj desc)
+               order by t.wpsj desc) AS BJTS_DERIVED_001
        where 1=1
 LIMIT 1;
     end;
@@ -1676,7 +1712,7 @@ with RY as
                       ON RY.SFDM = TK.WPSFDM
                      AND DATE_FORMAT(TK.Wpsj, '%Y%m%d') = DATE_FORMAT(CURRENT_TIMESTAMP, '%Y%m%d')
                    group by RY.SFDM, RY.swrymc
-                   order by CNT)
+                   order by CNT) AS BJTS_DERIVED_002
            WHERE 1=1
 LIMIT 1;
 
@@ -1716,7 +1752,7 @@ with RY as
                       ON RY.SFDM = TK.WPSFDM
                      AND DATE_FORMAT(TK.Wpsj, '%Y%m%d') = DATE_FORMAT(CURRENT_TIMESTAMP, '%Y%m%d')
                    group by RY.SFDM, RY.swrymc
-                   order by CNT)
+                   order by CNT) AS BJTS_DERIVED_003
            WHERE 1=1
 LIMIT 1;
 -- DBMS_OUTPUT.put_line('随机分单=找到在岗接单人');
@@ -1759,7 +1795,7 @@ with RY as
                       ON RY.SFDM = TK.WPSFDM
                      AND DATE_FORMAT(TK.Wpsj, '%m') = DATE_FORMAT(CURRENT_TIMESTAMP, '%m')
                    group by RY.SFDM, RY.swrymc
-                   order by CNT)
+                   order by CNT) AS BJTS_DERIVED_004
            WHERE 1=1
 LIMIT 1;
 
@@ -1888,7 +1924,7 @@ select wpsfdm,swrymc into v_WTDXSFDM,v_WTDXMC
                  and s.gwdm = p_gwdm
                  and t.nsrsbh = p_nsrsbh
                  and DATE_FORMAT(t.wpsj, '%m') = DATE_FORMAT(CURRENT_TIMESTAMP, '%m')
-               order by t.wpsj desc)
+               order by t.wpsj desc) AS BJTS_DERIVED_001
        where 1=1
 LIMIT 1;
     end;
@@ -1945,7 +1981,7 @@ with RY as
                       ON RY.SFDM = TK.WPSFDM
                      AND DATE_FORMAT(TK.Wpsj, '%Y%m%d') = DATE_FORMAT(CURRENT_TIMESTAMP, '%Y%m%d')
                    group by RY.SFDM, RY.swrymc
-                   order by CNT)
+                   order by CNT) AS BJTS_DERIVED_002
            WHERE 1=1
 LIMIT 1;
 
@@ -1985,7 +2021,7 @@ with RY as
                       ON RY.SFDM = TK.WPSFDM
                      AND DATE_FORMAT(TK.Wpsj, '%Y%m%d') = DATE_FORMAT(CURRENT_TIMESTAMP, '%Y%m%d')
                    group by RY.SFDM, RY.swrymc
-                   order by CNT)
+                   order by CNT) AS BJTS_DERIVED_003
            WHERE 1=1
 LIMIT 1;
 -- DBMS_OUTPUT.put_line('随机分单=找到在岗接单人');
@@ -2028,7 +2064,7 @@ with RY as
                       ON RY.SFDM = TK.WPSFDM
                      AND DATE_FORMAT(TK.Wpsj, '%m') = DATE_FORMAT(CURRENT_TIMESTAMP, '%m')
                    group by RY.SFDM, RY.swrymc
-                   order by CNT)
+                   order by CNT) AS BJTS_DERIVED_004
            WHERE 1=1
 LIMIT 1;
 
@@ -2141,7 +2177,7 @@ select wpsfdm,swrymc into v_WTDXSFDM,v_WTDXMC
                  and s.gwdm = p_gwdm
                  and t.nsrsbh = p_nsrsbh
                  and DATE_FORMAT(t.wpsj, '%m') = DATE_FORMAT(CURRENT_TIMESTAMP, '%m')
-               order by t.wpsj desc)
+               order by t.wpsj desc) AS BJTS_DERIVED_001
        where 1=1
 LIMIT 1;
     end;
@@ -2210,7 +2246,7 @@ with RY as
                       ON RY.SFDM = TK.WPSFDM
                      AND DATE_FORMAT(TK.Wpsj, '%Y%m%d') = DATE_FORMAT(CURRENT_TIMESTAMP, '%Y%m%d')
                    group by RY.SFDM, RY.swrymc
-                   order by CNT)
+                   order by CNT) AS BJTS_DERIVED_002
            WHERE 1=1
 LIMIT 1;
 
@@ -2250,7 +2286,7 @@ with RY as
                       ON RY.SFDM = TK.WPSFDM
                      AND DATE_FORMAT(TK.Wpsj, '%Y%m%d') = DATE_FORMAT(CURRENT_TIMESTAMP, '%Y%m%d')
                    group by RY.SFDM, RY.swrymc
-                   order by CNT)
+                   order by CNT) AS BJTS_DERIVED_003
            WHERE 1=1
 LIMIT 1;
 -- DBMS_OUTPUT.put_line('随机分单=找到在岗接单人');
@@ -2293,7 +2329,7 @@ with RY as
                       ON RY.SFDM = TK.WPSFDM
                      AND DATE_FORMAT(TK.Wpsj, '%m') = DATE_FORMAT(CURRENT_TIMESTAMP, '%m')
                    group by RY.SFDM, RY.swrymc
-                   order by CNT)
+                   order by CNT) AS BJTS_DERIVED_004
            WHERE 1=1
 LIMIT 1;
 
@@ -2602,7 +2638,7 @@ SELECT KZXX
                AND KZLX = V_IN_KZLX
                AND FLAG ='1'
                AND V_IN_YXQ BETWEEN ST_DATE AND END_DATE
-             ORDER BY KZXX DESC)
+             ORDER BY KZXX DESC) AS BJTS_DERIVED_001
      WHERE 1=1
 LIMIT 1;
   END;
@@ -2662,6 +2698,7 @@ CREATE PROCEDURE PROC_XXBD_BNSH
   OUT V_OUT_MESSAGE VARCHAR(4000)
 )
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   DECLARE LDT_TODAY    DATETIME;
 
   DECLARE LC_QYHGDM       VARCHAR(20);
@@ -2711,7 +2748,7 @@ routine_body: BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_002 = MYSQL_ERRNO, BJTS_SQLERRM_002 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='06';
       SET V_OUT_MESSAGE ='查询申报记录数据失败！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT COUNT(1)
@@ -2719,6 +2756,9 @@ SELECT COUNT(1)
       FROM CKTS_SB_BNSHSB_LSB
      WHERE SBID=V_IN_SBID;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LN_ROWNUM_TSSB=0 THEN
     BEGIN
       SET V_OUT_STATUS ='07';
@@ -2732,12 +2772,12 @@ SELECT COUNT(1)
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
 
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='08';
       SET V_OUT_MESSAGE ='企业当前未进行出口退（免）税备案，不允许申报除出口退（免）税备案以外的其他业务！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS, T.YFSJ, T.ZX_FLAG
@@ -2745,6 +2785,9 @@ SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS,
       FROM GS_DJ_CKTMSDAB T
      WHERE T.NSRDZDAH=V_IN_NSRDZDAH;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LC_ZXFLAG='R' THEN
     BEGIN
       SET V_OUT_STATUS ='09';
@@ -3039,32 +3082,32 @@ SELECT SBYWB_DM, SSSQ, SBPC, SBID, CRTIME
               SET V_TEMP = BJTS_SQLCODE_001;
 
   END;
-DELETE CKTS_XXBD_SHQ WHERE DJXH = V_IN_DJXH;
-            DELETE CKTS_XXBD_SHQ_YDXX WHERE DJXH = V_IN_DJXH;
+DELETE FROM CKTS_XXBD_SHQ WHERE DJXH = V_IN_DJXH;
+            DELETE FROM CKTS_XXBD_SHQ_YDXX WHERE DJXH = V_IN_DJXH;
 
-            DELETE CKTS_GCB_ZM_TYYBSWTS WHERE DJXH = V_IN_DJXH;
+            DELETE FROM CKTS_GCB_ZM_TYYBSWTS WHERE DJXH = V_IN_DJXH;
 
-            DELETE CKTS_JGB_BA_SCQYWTDBTS WHERE DJXH = V_IN_DJXH;
-            DELETE CKTS_JGB_BA_WMZHFWDBTS WHERE DJXH = V_IN_DJXH;
-            DELETE CKTS_JGB_BA_XTHHZG WHERE DJXH = V_IN_DJXH;
-            DELETE CKTS_JGB_ZM_TYYBSWTS WHERE DJXH = V_IN_DJXH;
-            DELETE CKTS_JGB_ZM_LLJG WHERE DJXH = V_IN_DJXH;
+            DELETE FROM CKTS_JGB_BA_SCQYWTDBTS WHERE DJXH = V_IN_DJXH;
+            DELETE FROM CKTS_JGB_BA_WMZHFWDBTS WHERE DJXH = V_IN_DJXH;
+            DELETE FROM CKTS_JGB_BA_XTHHZG WHERE DJXH = V_IN_DJXH;
+            DELETE FROM CKTS_JGB_ZM_TYYBSWTS WHERE DJXH = V_IN_DJXH;
+            DELETE FROM CKTS_JGB_ZM_LLJG WHERE DJXH = V_IN_DJXH;
 
-            DELETE CKTS_WBSJ_FP_YCKSPZXX WHERE DJXH = V_IN_DJXH;
-            DELETE CKTS_WBSJ_FP_ZZSZYFPXX WHERE DJXH = V_IN_DJXH;
-            DELETE CKTS_WBSJ_FP_ZZSFPHWXX WHERE DJXH = V_IN_DJXH;
-            DELETE CKTS_WBSJ_GT3_ZS_JKS WHERE DJXH = V_IN_DJXH;
-            DELETE CKTS_WBSJ_HG_BGD201 WHERE DJXH = V_IN_DJXH;
-            DELETE CKTS_WBSJ_HG_BGD202 WHERE DJXH = V_IN_DJXH;
-            DELETE CKTS_WBSJ_HG_DZSZCBAXX WHERE DJXH = V_IN_DJXH;
-            DELETE CKTS_WBSJ_HG_JKJKS WHERE DJXH = V_IN_DJXH;
-            DELETE CKTS_WBSJ_ZJ_DLCKHWZM WHERE DJXH = V_IN_DJXH;
-            DELETE CKTS_WBSJ_ZJ_JHBFXCJG WHERE DJXH = V_IN_DJXH;
-            DELETE CKTS_WBSJ_ZJ_SCWTDBBA WHERE DJXH = V_IN_DJXH;
-            DELETE CKTS_WBSJ_ZJ_TYYBSWTSZM WHERE DJXH = V_IN_DJXH;
-            DELETE CKTS_WBSJ_ZJ_WTCKHWZM WHERE DJXH = V_IN_DJXH;
-            DELETE CKTS_WBSJ_ZJ_XKFP WHERE DJXH = V_IN_DJXH;
-            DELETE CKTS_WBSJ_ZJ_ZJZYJKS WHERE DJXH = V_IN_DJXH;
+            DELETE FROM CKTS_WBSJ_FP_YCKSPZXX WHERE DJXH = V_IN_DJXH;
+            DELETE FROM CKTS_WBSJ_FP_ZZSZYFPXX WHERE DJXH = V_IN_DJXH;
+            DELETE FROM CKTS_WBSJ_FP_ZZSFPHWXX WHERE DJXH = V_IN_DJXH;
+            DELETE FROM CKTS_WBSJ_GT3_ZS_JKS WHERE DJXH = V_IN_DJXH;
+            DELETE FROM CKTS_WBSJ_HG_BGD201 WHERE DJXH = V_IN_DJXH;
+            DELETE FROM CKTS_WBSJ_HG_BGD202 WHERE DJXH = V_IN_DJXH;
+            DELETE FROM CKTS_WBSJ_HG_DZSZCBAXX WHERE DJXH = V_IN_DJXH;
+            DELETE FROM CKTS_WBSJ_HG_JKJKS WHERE DJXH = V_IN_DJXH;
+            DELETE FROM CKTS_WBSJ_ZJ_DLCKHWZM WHERE DJXH = V_IN_DJXH;
+            DELETE FROM CKTS_WBSJ_ZJ_JHBFXCJG WHERE DJXH = V_IN_DJXH;
+            DELETE FROM CKTS_WBSJ_ZJ_SCWTDBBA WHERE DJXH = V_IN_DJXH;
+            DELETE FROM CKTS_WBSJ_ZJ_TYYBSWTSZM WHERE DJXH = V_IN_DJXH;
+            DELETE FROM CKTS_WBSJ_ZJ_WTCKHWZM WHERE DJXH = V_IN_DJXH;
+            DELETE FROM CKTS_WBSJ_ZJ_XKFP WHERE DJXH = V_IN_DJXH;
+            DELETE FROM CKTS_WBSJ_ZJ_ZJZYJKS WHERE DJXH = V_IN_DJXH;
 
             COMMIT;
           END;
@@ -3111,6 +3154,7 @@ CREATE PROCEDURE PROC_XXBD_GJ
   OUT V_OUT_MESSAGE VARCHAR(4000)
 )
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   DECLARE LDT_TODAY       DATETIME;
 
   DECLARE LC_QYHGDM       VARCHAR(20);
@@ -3151,7 +3195,7 @@ routine_body: BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_003 = MYSQL_ERRNO, BJTS_SQLERRM_003 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='06';
       SET V_OUT_MESSAGE ='查询申报记录数据失败！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT COUNT(1)
@@ -3159,6 +3203,9 @@ SELECT COUNT(1)
       FROM CKTS_SB_GJ_SBMX_LSB
      WHERE SBID=V_IN_SBID;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LN_ROWNUM_TSSB=0 THEN
     BEGIN
       SET V_OUT_STATUS ='07';
@@ -3172,12 +3219,12 @@ SELECT COUNT(1)
   DECLARE BJTS_SQLCODE_002 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_002 TEXT DEFAULT '';
 
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_002 = MYSQL_ERRNO, BJTS_SQLERRM_002 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='08';
       SET V_OUT_MESSAGE ='企业当前未进行出口退（免）税备案，不允许申报除出口退（免）税备案以外的其他业务！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS, T.YFSJ, T.ZX_FLAG
@@ -3185,6 +3232,9 @@ SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS,
       FROM GS_DJ_CKTMSDAB T
      WHERE T.NSRDZDAH=V_IN_NSRDZDAH;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LC_ZXFLAG='R' THEN
     BEGIN
       SET V_OUT_STATUS ='09';
@@ -3245,11 +3295,14 @@ SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS,
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='52';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('增值税发票自检出错：', BJTS_SQLCODE_001), ' - '), BJTS_SQLERRM_001);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_GJ_ZZSFP(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
 END$$
 
@@ -3610,6 +3663,7 @@ CREATE PROCEDURE PROC_XXBD_JHPZHT
   OUT V_OUT_MESSAGE VARCHAR(4000)
 )
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   DECLARE LDT_TODAY    DATETIME;
 
   DECLARE LC_QYHGDM       VARCHAR(20);
@@ -3652,7 +3706,7 @@ routine_body: BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_002 = MYSQL_ERRNO, BJTS_SQLERRM_002 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='06';
       SET V_OUT_MESSAGE ='查询申报记录数据失败！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT COUNT(1)
@@ -3660,6 +3714,9 @@ SELECT COUNT(1)
       FROM CKTS_SB_MTS_JHPZHT_LSB
      WHERE SBID=V_IN_SBID;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LN_ROWNUM_TSSB=0 THEN
     BEGIN
       SET V_OUT_STATUS ='07';
@@ -3673,12 +3730,12 @@ SELECT COUNT(1)
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
 
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='08';
       SET V_OUT_MESSAGE ='企业当前未进行出口退（免）税备案，不允许申报除出口退（免）税备案以外的其他业务！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS, T.YFSJ, T.ZX_FLAG
@@ -3686,6 +3743,9 @@ SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS,
       FROM GS_DJ_CKTMSDAB T
      WHERE T.NSRDZDAH=V_IN_NSRDZDAH;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LC_ZXFLAG='R' THEN
     BEGIN
       SET V_OUT_STATUS ='09';
@@ -3804,6 +3864,7 @@ CREATE PROCEDURE PROC_XXBD_JSB
   OUT V_OUT_MESSAGE VARCHAR(4000)
 )
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   DECLARE LDT_TODAY       DATETIME;
 
   DECLARE LC_QYHGDM       VARCHAR(20);
@@ -3846,7 +3907,7 @@ routine_body: BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_009 = MYSQL_ERRNO, BJTS_SQLERRM_009 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='06';
       SET V_OUT_MESSAGE ='查询申报记录数据失败！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT COUNT(1)
@@ -3863,6 +3924,9 @@ SELECT COUNT(1)
      WHERE SBID=V_IN_SBID
        AND (((STR_TO_DATE(ORA_CONCAT(DATE_FORMAT(CURRENT_TIMESTAMP, '%Y'), '0420'), '%Y%m%d')<DATE(CURRENT_TIMESTAMP)) AND (CKRQ_1<MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1))) OR (CKRQ_1<DATE_ADD(MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1), INTERVAL -12 MONTH)));
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LN_ROWNUM_CKMX=0 THEN
     BEGIN
       SET V_OUT_STATUS ='07';
@@ -3876,12 +3940,12 @@ SELECT COUNT(1)
   DECLARE BJTS_SQLCODE_008 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_008 TEXT DEFAULT '';
 
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_008 = MYSQL_ERRNO, BJTS_SQLERRM_008 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='08';
       SET V_OUT_MESSAGE ='企业当前未进行出口退（免）税备案，不允许申报除出口退（免）税备案以外的其他业务！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS, T.YFSJ, T.ZX_FLAG
@@ -3889,6 +3953,9 @@ SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS,
       FROM GS_DJ_CKTMSDAB T
      WHERE T.NSRDZDAH=V_IN_NSRDZDAH;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LC_ZXFLAG='Y' THEN
     BEGIN
       SET V_OUT_STATUS ='09';
@@ -3979,11 +4046,14 @@ SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS,
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_007 = MYSQL_ERRNO, BJTS_SQLERRM_007 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='51';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('出口已使用旧设备退税明细自检出错：', BJTS_SQLCODE_007), ' - '), BJTS_SQLERRM_007);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_JSB_TSSB(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_006 INT DEFAULT 0;
@@ -3994,11 +4064,14 @@ CALL PROC_XXBD_JSB_TSSB(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_006 = MYSQL_ERRNO, BJTS_SQLERRM_006 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='52';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('出口报关单自检出错：', BJTS_SQLCODE_006), ' - '), BJTS_SQLERRM_006);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_JSB_TSSB_BGD(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_005 INT DEFAULT 0;
@@ -4009,11 +4082,14 @@ CALL PROC_XXBD_JSB_TSSB_BGD(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_005 = MYSQL_ERRNO, BJTS_SQLERRM_005 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='53';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('代理出口证明自检出错：', BJTS_SQLCODE_005), ' - '), BJTS_SQLERRM_005);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_JSB_TSSB_DLZM(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_004 INT DEFAULT 0;
@@ -4024,11 +4100,14 @@ CALL PROC_XXBD_JSB_TSSB_DLZM(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_004 = MYSQL_ERRNO, BJTS_SQLERRM_004 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='54';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('增值税专用发票自检出错：', BJTS_SQLCODE_004), ' - '), BJTS_SQLERRM_004);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_JSB_TSSB_ZZSFP(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_003 INT DEFAULT 0;
@@ -4039,11 +4118,14 @@ CALL PROC_XXBD_JSB_TSSB_ZZSFP(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_I
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_003 = MYSQL_ERRNO, BJTS_SQLERRM_003 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='55';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('海关进口增值税缴款书自检出错：', BJTS_SQLCODE_003), ' - '), BJTS_SQLERRM_003);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_JSB_TSSB_JKZZS(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_002 INT DEFAULT 0;
@@ -4054,11 +4136,14 @@ CALL PROC_XXBD_JSB_TSSB_JKZZS(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_I
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_002 = MYSQL_ERRNO, BJTS_SQLERRM_002 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='62';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('出口收汇申报资料自检出错：', BJTS_SQLCODE_002), ' - '), BJTS_SQLERRM_002);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_JSB_CKSH(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
@@ -4069,11 +4154,14 @@ CALL PROC_XXBD_JSB_CKSH(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='63';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('海关商品代码调整表自检出错：', BJTS_SQLCODE_001), ' - '), BJTS_SQLERRM_001);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_JSB_HGSPTZ(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
 END$$
 
@@ -5112,6 +5200,7 @@ CREATE PROCEDURE PROC_XXBD_MDT
   OUT V_OUT_MESSAGE VARCHAR(4000)
 )
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   DECLARE LDT_TODAY       DATETIME;
 
   DECLARE LC_QYHGDM       VARCHAR(20);
@@ -5157,7 +5246,7 @@ routine_body: BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_016 = MYSQL_ERRNO, BJTS_SQLERRM_016 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='06';
       SET V_OUT_MESSAGE ='查询申报记录数据失败！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT COUNT(1)
@@ -5187,6 +5276,9 @@ SELECT COUNT(1)
        AND FUNC_XXBD_CHECK_NEEDSH(ORA_CONCAT(ORA_CONCAT(',', CKTMSYWLXDMJH), ',')) = 1
        AND (((STR_TO_DATE(ORA_CONCAT(DATE_FORMAT(CURRENT_TIMESTAMP, '%Y'), '0420'), '%Y%m%d')<DATE(CURRENT_TIMESTAMP)) AND (CKRQ_1<MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1))) OR (CKRQ_1<DATE_ADD(MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1), INTERVAL -12 MONTH)));
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LN_ROWNUM_SBHZ=0 THEN
     BEGIN
       SET V_OUT_STATUS ='07';
@@ -5200,12 +5292,12 @@ SELECT COUNT(1)
   DECLARE BJTS_SQLCODE_015 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_015 TEXT DEFAULT '';
 
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_015 = MYSQL_ERRNO, BJTS_SQLERRM_015 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='08';
       SET V_OUT_MESSAGE ='企业当前未进行出口退（免）税备案，不允许申报除出口退（免）税备案以外的其他业务！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS, T.YFSJ, T.ZX_FLAG
@@ -5213,6 +5305,9 @@ SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS,
       FROM GS_DJ_CKTMSDAB T
      WHERE T.NSRDZDAH=V_IN_NSRDZDAH;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LC_ZXFLAG='R' THEN
     BEGIN
       SET V_OUT_STATUS ='09';
@@ -5365,11 +5460,14 @@ SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS,
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_014 = MYSQL_ERRNO, BJTS_SQLERRM_014 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='51';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('退税出口明细自检出错：', BJTS_SQLCODE_014), ' - '), BJTS_SQLERRM_014);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MDT_TSSB(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_013 INT DEFAULT 0;
@@ -5380,11 +5478,14 @@ CALL PROC_XXBD_MDT_TSSB(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_013 = MYSQL_ERRNO, BJTS_SQLERRM_013 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='52';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('出口报关单自检出错：', BJTS_SQLCODE_013), ' - '), BJTS_SQLERRM_013);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MDT_TSSB_BGD(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_012 INT DEFAULT 0;
@@ -5395,11 +5496,14 @@ CALL PROC_XXBD_MDT_TSSB_BGD(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_012 = MYSQL_ERRNO, BJTS_SQLERRM_012 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='53';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('代理出口证明自检出错：', BJTS_SQLCODE_012), ' - '), BJTS_SQLERRM_012);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MDT_TSSB_DLZM(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_011 INT DEFAULT 0;
@@ -5410,11 +5514,14 @@ CALL PROC_XXBD_MDT_TSSB_DLZM(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_011 = MYSQL_ERRNO, BJTS_SQLERRM_011 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='62';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('出口收汇申报资料自检出错：', BJTS_SQLCODE_011), ' - '), BJTS_SQLERRM_011);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MDT_CKSH(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_010 INT DEFAULT 0;
@@ -5425,11 +5532,14 @@ CALL PROC_XXBD_MDT_CKSH(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_010 = MYSQL_ERRNO, BJTS_SQLERRM_010 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='63';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('海关商品代码调整表自检出错：', BJTS_SQLCODE_010), ' - '), BJTS_SQLERRM_010);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MDT_HGSPTZ(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_009 INT DEFAULT 0;
@@ -5440,11 +5550,14 @@ CALL PROC_XXBD_MDT_HGSPTZ(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SB
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_009 = MYSQL_ERRNO, BJTS_SQLERRM_009 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='64';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('离岸价差异说明表自检出错：', BJTS_SQLCODE_009), ' - '), BJTS_SQLERRM_009);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MDT_CYSM(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_008 INT DEFAULT 0;
@@ -5455,11 +5568,14 @@ CALL PROC_XXBD_MDT_CYSM(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_008 = MYSQL_ERRNO, BJTS_SQLERRM_008 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='65';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('先退后核申报资料自检出错：', BJTS_SQLCODE_008), ' - '), BJTS_SQLERRM_008);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MDT_XTHH(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_007 INT DEFAULT 0;
@@ -5470,11 +5586,14 @@ CALL PROC_XXBD_MDT_XTHH(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_007 = MYSQL_ERRNO, BJTS_SQLERRM_007 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='66';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('视同自产清单自检出错：', BJTS_SQLCODE_007), ' - '), BJTS_SQLERRM_007);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MDT_STZC(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_006 INT DEFAULT 0;
@@ -5485,11 +5604,14 @@ CALL PROC_XXBD_MDT_STZC(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_006 = MYSQL_ERRNO, BJTS_SQLERRM_006 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='71';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('零税率应税服务明细自检出错：', BJTS_SQLCODE_006), ' - '), BJTS_SQLERRM_006);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MDT_YFSJ(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,LC_YFSJ,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_005 INT DEFAULT 0;
@@ -5500,11 +5622,14 @@ CALL PROC_XXBD_MDT_YFSJ(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_005 = MYSQL_ERRNO, BJTS_SQLERRM_005 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='72';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('零税率应税服务收讫自检出错：', BJTS_SQLCODE_005), ' - '), BJTS_SQLERRM_005);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MDT_YFSJ_SYYK(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_004 INT DEFAULT 0;
@@ -5515,11 +5640,14 @@ CALL PROC_XXBD_MDT_YFSJ_SYYK(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_004 = MYSQL_ERRNO, BJTS_SQLERRM_004 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='81';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('国际（港澳台）运输服务明细自检出错：', BJTS_SQLCODE_004), ' - '), BJTS_SQLERRM_004);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MDT_GJYS(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,LC_YSFS,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_003 INT DEFAULT 0;
@@ -5530,11 +5658,14 @@ CALL PROC_XXBD_MDT_GJYS(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_003 = MYSQL_ERRNO, BJTS_SQLERRM_003 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='82';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('航空运输清算账单自检出错：', BJTS_SQLCODE_003), ' - '), BJTS_SQLERRM_003);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MDT_GJYS_HKYS(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_002 INT DEFAULT 0;
@@ -5545,11 +5676,14 @@ CALL PROC_XXBD_MDT_GJYS_HKYS(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_002 = MYSQL_ERRNO, BJTS_SQLERRM_002 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='83';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('国际客运清算函件自检出错：', BJTS_SQLCODE_002), ' - '), BJTS_SQLERRM_002);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MDT_GJYS_KYHJ(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
@@ -5560,11 +5694,14 @@ CALL PROC_XXBD_MDT_GJYS_KYHJ(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='84';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('中铁国际货运明细自检出错：', BJTS_SQLCODE_001), ' - '), BJTS_SQLERRM_001);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MDT_GJYS_THLY(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
 END$$
 
@@ -6622,7 +6759,7 @@ SELECT ZHJHFPL
       FROM (SELECT CASE WHEN T.JHFPLV_NEW=0 THEN T.JHFPLV ELSE T.JHFPLV_NEW END AS ZHJHFPL
               FROM GS_JLJG_JHFPL T
              WHERE T.NSRDZDAH=V_IN_NSRDZDAH
-             ORDER BY T.UPTIME DESC)
+             ORDER BY T.UPTIME DESC) AS BJTS_DERIVED_001
      WHERE 1=1
 LIMIT 1;
   END;
@@ -7307,7 +7444,7 @@ SELECT ZHJHFPL
       FROM (SELECT CASE WHEN T.JHFPLV_NEW=0 THEN T.JHFPLV ELSE T.JHFPLV_NEW END AS ZHJHFPL
               FROM GS_JLJG_JHFPL T
              WHERE T.NSRDZDAH=V_IN_NSRDZDAH
-             ORDER BY T.UPTIME DESC)
+             ORDER BY T.UPTIME DESC) AS BJTS_DERIVED_001
      WHERE 1=1
 LIMIT 1;
   END;
@@ -8115,6 +8252,7 @@ CREATE PROCEDURE PROC_XXBD_MSZM_LLJG
   OUT V_OUT_MESSAGE VARCHAR(4000)
 )
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   DECLARE LDT_TODAY    DATETIME;
 
   DECLARE LC_QYHGDM       VARCHAR(20);
@@ -8156,7 +8294,7 @@ routine_body: BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_002 = MYSQL_ERRNO, BJTS_SQLERRM_002 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='06';
       SET V_OUT_MESSAGE ='查询申报记录数据失败！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT COUNT(1)
@@ -8164,6 +8302,9 @@ SELECT COUNT(1)
       FROM CKTS_ZM_LLJG_LSB
      WHERE SBID=V_IN_SBID;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LN_ROWNUM_TSSB=0 THEN
     BEGIN
       SET V_OUT_STATUS ='07';
@@ -8177,12 +8318,12 @@ SELECT COUNT(1)
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
 
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='08';
       SET V_OUT_MESSAGE ='企业当前未进行出口退（免）税备案，不允许申报除出口退（免）税备案以外的其他业务！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS, T.YFSJ, T.ZX_FLAG
@@ -8190,6 +8331,9 @@ SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS,
       FROM GS_DJ_CKTMSDAB T
      WHERE T.NSRDZDAH=V_IN_NSRDZDAH;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LC_ZXFLAG='R' THEN
     BEGIN
       SET V_OUT_STATUS ='09';
@@ -8265,6 +8409,7 @@ CREATE PROCEDURE PROC_XXBD_MSZM_LLJGHX
   OUT V_OUT_MESSAGE VARCHAR(4000)
 )
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   DECLARE LDT_TODAY    DATETIME;
 
   DECLARE LC_QYHGDM       VARCHAR(20);
@@ -8306,7 +8451,7 @@ routine_body: BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_002 = MYSQL_ERRNO, BJTS_SQLERRM_002 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='06';
       SET V_OUT_MESSAGE ='查询申报记录数据失败！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT COUNT(1)
@@ -8314,6 +8459,9 @@ SELECT COUNT(1)
       FROM CKTS_ZM_LLJGHX_LSB
      WHERE SBID=V_IN_SBID;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LN_ROWNUM_TSSB=0 THEN
     BEGIN
       SET V_OUT_STATUS ='07';
@@ -8327,12 +8475,12 @@ SELECT COUNT(1)
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
 
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='08';
       SET V_OUT_MESSAGE ='企业当前未进行出口退（免）税备案，不允许申报除出口退（免）税备案以外的其他业务！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS, T.YFSJ, T.ZX_FLAG
@@ -8340,6 +8488,9 @@ SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS,
       FROM GS_DJ_CKTMSDAB T
      WHERE T.NSRDZDAH=V_IN_NSRDZDAH;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LC_ZXFLAG='R' THEN
     BEGIN
       SET V_OUT_STATUS ='09';
@@ -8440,6 +8591,7 @@ CREATE PROCEDURE PROC_XXBD_MTS
   OUT V_OUT_MESSAGE VARCHAR(4000)
 )
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   DECLARE LDT_TODAY       DATETIME;
 
   DECLARE LC_QYHGDM       VARCHAR(20);
@@ -8485,7 +8637,7 @@ routine_body: BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_015 = MYSQL_ERRNO, BJTS_SQLERRM_015 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='06';
       SET V_OUT_MESSAGE ='查询申报记录数据失败！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT COUNT(1)
@@ -8515,6 +8667,9 @@ SELECT COUNT(1)
        AND (((STR_TO_DATE(ORA_CONCAT(DATE_FORMAT(CURRENT_TIMESTAMP, '%Y'), '0420'), '%Y%m%d')<DATE(CURRENT_TIMESTAMP)) AND (CKRQ_1<MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1))) OR (CKRQ_1<DATE_ADD(MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1), INTERVAL -12 MONTH)))
        AND FUNC_XXBD_CHECK_NEEDSH(ORA_CONCAT(ORA_CONCAT(',', CKTMSYWLXDMJH), ',')) = 1;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF (LN_ROWNUM_CKMX + LN_ROWNUM_LSLV + LN_ROWNUM_HZCJ)=0 THEN
     BEGIN
       SET V_OUT_STATUS ='07';
@@ -8528,12 +8683,12 @@ SELECT COUNT(1)
   DECLARE BJTS_SQLCODE_014 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_014 TEXT DEFAULT '';
 
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_014 = MYSQL_ERRNO, BJTS_SQLERRM_014 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='08';
       SET V_OUT_MESSAGE ='企业当前未进行出口退（免）税备案，不允许申报除出口退（免）税备案以外的其他业务！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS, T.YFSJ, T.ZX_FLAG
@@ -8541,6 +8696,9 @@ SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS,
       FROM GS_DJ_CKTMSDAB T
      WHERE T.NSRDZDAH=V_IN_NSRDZDAH;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LC_ZXFLAG='Y' THEN
     BEGIN
       SET V_OUT_STATUS ='09';
@@ -8672,11 +8830,14 @@ SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS,
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_013 = MYSQL_ERRNO, BJTS_SQLERRM_013 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='51';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('退税出口明细自检出错：', BJTS_SQLCODE_013), ' - '), BJTS_SQLERRM_013);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MTS_TSSB(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_012 INT DEFAULT 0;
@@ -8687,11 +8848,14 @@ CALL PROC_XXBD_MTS_TSSB(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_012 = MYSQL_ERRNO, BJTS_SQLERRM_012 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='52';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('出口报关单自检出错：', BJTS_SQLCODE_012), ' - '), BJTS_SQLERRM_012);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MTS_TSSB_BGD(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_011 INT DEFAULT 0;
@@ -8702,11 +8866,14 @@ CALL PROC_XXBD_MTS_TSSB_BGD(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_011 = MYSQL_ERRNO, BJTS_SQLERRM_011 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='53';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('代理出口证明自检出错：', BJTS_SQLCODE_011), ' - '), BJTS_SQLERRM_011);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MTS_TSSB_DLZM(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_010 INT DEFAULT 0;
@@ -8717,11 +8884,14 @@ CALL PROC_XXBD_MTS_TSSB_DLZM(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_010 = MYSQL_ERRNO, BJTS_SQLERRM_010 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='62';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('出口收汇情况表自检出错：', BJTS_SQLCODE_010), ' - '), BJTS_SQLERRM_010);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MTS_CKSH(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_009 INT DEFAULT 0;
@@ -8732,11 +8902,14 @@ CALL PROC_XXBD_MTS_CKSH(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_009 = MYSQL_ERRNO, BJTS_SQLERRM_009 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='63';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('海关商品代码调整表自检出错：', BJTS_SQLCODE_009), ' - '), BJTS_SQLERRM_009);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MTS_HGSPTZ(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_008 INT DEFAULT 0;
@@ -8747,11 +8920,14 @@ CALL PROC_XXBD_MTS_HGSPTZ(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SB
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_008 = MYSQL_ERRNO, BJTS_SQLERRM_008 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='71';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('退税进货明细自检出错：', BJTS_SQLCODE_008), ' - '), BJTS_SQLERRM_008);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MTS_TSJH(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_007 INT DEFAULT 0;
@@ -8762,11 +8938,14 @@ CALL PROC_XXBD_MTS_TSJH(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_007 = MYSQL_ERRNO, BJTS_SQLERRM_007 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='72';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('增值税专用发票自检出错：', BJTS_SQLCODE_007), ' - '), BJTS_SQLERRM_007);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MTS_TSJH_ZZSFP(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_006 INT DEFAULT 0;
@@ -8777,11 +8956,14 @@ CALL PROC_XXBD_MTS_TSJH_ZZSFP(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_I
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_006 = MYSQL_ERRNO, BJTS_SQLERRM_006 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='73';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('海关进口增值税缴款书自检出错：', BJTS_SQLCODE_006), ' - '), BJTS_SQLERRM_006);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MTS_TSJH_JKZZS(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_005 INT DEFAULT 0;
@@ -8792,11 +8974,14 @@ CALL PROC_XXBD_MTS_TSJH_JKZZS(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_I
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_005 = MYSQL_ERRNO, BJTS_SQLERRM_005 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='74';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('海关进口消费税税缴款书自检出错：', BJTS_SQLCODE_005), ' - '), BJTS_SQLERRM_005);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MTS_TSJH_JKXFS(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_004 INT DEFAULT 0;
@@ -8807,11 +8992,14 @@ CALL PROC_XXBD_MTS_TSJH_JKXFS(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_I
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_004 = MYSQL_ERRNO, BJTS_SQLERRM_004 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='75';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('总局税收缴款书自检出错：', BJTS_SQLCODE_004), ' - '), BJTS_SQLERRM_004);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MTS_TSJH_ZJJKS(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_003 INT DEFAULT 0;
@@ -8822,11 +9010,14 @@ CALL PROC_XXBD_MTS_TSJH_ZJJKS(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_I
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_003 = MYSQL_ERRNO, BJTS_SQLERRM_003 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='81';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('外购服务出口明细自检出错：', BJTS_SQLCODE_003), ' - '), BJTS_SQLERRM_003);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MTS_LSLV(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,LC_YFSJ,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_002 INT DEFAULT 0;
@@ -8837,11 +9028,14 @@ CALL PROC_XXBD_MTS_LSLV(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_002 = MYSQL_ERRNO, BJTS_SQLERRM_002 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='82';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('外购服务增值税专用发票自检出错：', BJTS_SQLCODE_002), ' - '), BJTS_SQLERRM_002);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MTS_LSLV_ZZSFP(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
@@ -8852,11 +9046,14 @@ CALL PROC_XXBD_MTS_LSLV_ZZSFP(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_I
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='91';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('调整申报自检出错：', BJTS_SQLCODE_001), ' - '), BJTS_SQLERRM_001);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_MTS_HZCJ(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
 END$$
 
@@ -10533,6 +10730,7 @@ CREATE PROCEDURE PROC_XXBD_MTS_TSSB_BGD
   OUT V_OUT_MESSAGE VARCHAR(4000)
 )
 routine_body: BEGIN
+  DECLARE BJTS_ITERATE_001 BOOLEAN DEFAULT FALSE;
   DECLARE LN_MXROW        BIGINT;
   DECLARE LC_YDOBJECT     VARCHAR(20);
   DECLARE LN_CPCODEKZ     BIGINT;
@@ -10994,7 +11192,8 @@ SELECT A.SBXH, A.GLH, A.JHPZH FROM CKTS_SB_MTS_TSJH_LSB A WHERE A.SBID=V_IN_SBID
               FROM CKTS_WBSJ_FP_ZZSFPHWXX B
              WHERE B.DJXH=V_IN_DJXH AND B.JHPZH=BJTS_LSF_YY_JHPZH_001;
             IF LN_MXROW>0 THEN
-              BEGIN
+              SET BJTS_ITERATE_001 = FALSE;
+    BEGIN
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
 
@@ -11025,7 +11224,7 @@ SELECT A.SBXH, A.GLH, A.JHPZH FROM CKTS_SB_MTS_TSJH_LSB A WHERE A.SBID=V_IN_SBID
   DECLARE EXIT HANDLER FOR SQLEXCEPTION
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
-                  ITERATE BJTS_CURSOR_LOOP_001;
+                  SET BJTS_ITERATE_001 = TRUE;
 
   END;
 SELECT DISTINCT B.JLDWMC
@@ -11042,6 +11241,9 @@ SELECT DISTINCT B.JLDWMC
                   COMMIT;
                 END IF;
               END;
+  IF BJTS_ITERATE_001 THEN
+    ITERATE BJTS_CURSOR_LOOP_001;
+  END IF;
             END IF;
           END;
 
@@ -11093,6 +11295,7 @@ CREATE PROCEDURE PROC_XXBD_MTS_TSSB_DLZM
   OUT V_OUT_MESSAGE VARCHAR(4000)
 )
 routine_body: BEGIN
+  DECLARE BJTS_ITERATE_001 BOOLEAN DEFAULT FALSE;
   DECLARE LN_MXROW        BIGINT;
   DECLARE LC_YDOBJECT     VARCHAR(20);
   DECLARE LN_CMCD_LEN     BIGINT;
@@ -11405,7 +11608,8 @@ SELECT A.SBXH, A.GLH, A.JHPZH FROM CKTS_SB_MTS_TSJH_LSB A WHERE A.SBID=V_IN_SBID
               FROM CKTS_WBSJ_FP_ZZSFPHWXX B
              WHERE B.DJXH=V_IN_DJXH AND B.JHPZH=BJTS_LSF_YY_JHPZH_001;
             IF LN_MXROW>0 THEN
-              BEGIN
+              SET BJTS_ITERATE_001 = FALSE;
+    BEGIN
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
 
@@ -11436,7 +11640,7 @@ SELECT A.SBXH, A.GLH, A.JHPZH FROM CKTS_SB_MTS_TSJH_LSB A WHERE A.SBID=V_IN_SBID
   DECLARE EXIT HANDLER FOR SQLEXCEPTION
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
-                  ITERATE BJTS_CURSOR_LOOP_001;
+                  SET BJTS_ITERATE_001 = TRUE;
 
   END;
 SELECT DISTINCT B.JLDWMC
@@ -11453,6 +11657,9 @@ SELECT DISTINCT B.JLDWMC
                   COMMIT;
                 END IF;
               END;
+  IF BJTS_ITERATE_001 THEN
+    ITERATE BJTS_CURSOR_LOOP_001;
+  END IF;
             END IF;
           END;
 
@@ -11496,6 +11703,7 @@ CREATE PROCEDURE PROC_XXBD_TSZM_CKHWZNXZM
   OUT V_OUT_MESSAGE VARCHAR(4000)
 )
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   DECLARE LDT_TODAY    DATETIME;
 
   DECLARE LC_QYHGDM       VARCHAR(20);
@@ -11537,7 +11745,7 @@ routine_body: BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_002 = MYSQL_ERRNO, BJTS_SQLERRM_002 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='06';
       SET V_OUT_MESSAGE ='查询申报记录数据失败！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT COUNT(1)
@@ -11545,6 +11753,9 @@ SELECT COUNT(1)
       FROM CKTS_ZM_CKHWZNX_LSB
      WHERE SBID=V_IN_SBID;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LN_ROWNUM_TSSB=0 THEN
     BEGIN
       SET V_OUT_STATUS ='07';
@@ -11558,12 +11769,12 @@ SELECT COUNT(1)
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
 
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='08';
       SET V_OUT_MESSAGE ='企业当前未进行出口退（免）税备案，不允许申报除出口退（免）税备案以外的其他业务！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS, T.YFSJ, T.ZX_FLAG
@@ -11571,6 +11782,9 @@ SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS,
       FROM GS_DJ_CKTMSDAB T
      WHERE T.NSRDZDAH=V_IN_NSRDZDAH;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LC_ZXFLAG='R' THEN
     BEGIN
       SET V_OUT_STATUS ='09';
@@ -11776,6 +11990,7 @@ CREATE PROCEDURE PROC_XXBD_TSZM_DLCKHWZM
   OUT V_OUT_MESSAGE VARCHAR(4000)
 )
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   DECLARE LDT_TODAY    DATETIME;
 
   DECLARE LC_QYHGDM       VARCHAR(20);
@@ -11820,7 +12035,7 @@ routine_body: BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_002 = MYSQL_ERRNO, BJTS_SQLERRM_002 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='06';
       SET V_OUT_MESSAGE ='查询申报记录数据失败！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT COUNT(1)
@@ -11828,6 +12043,9 @@ SELECT COUNT(1)
       FROM CKTS_ZM_DLCK_LSB
      WHERE SBID=V_IN_SBID;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LN_ROWNUM_TSSB=0 THEN
     BEGIN
       SET V_OUT_STATUS ='07';
@@ -11841,12 +12059,12 @@ SELECT COUNT(1)
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
 
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='08';
       SET V_OUT_MESSAGE ='企业当前未进行出口退（免）税备案，不允许申报除出口退（免）税备案以外的其他业务！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS, T.YFSJ, T.ZX_FLAG
@@ -11854,6 +12072,9 @@ SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS,
       FROM GS_DJ_CKTMSDAB T
      WHERE T.NSRDZDAH=V_IN_NSRDZDAH;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LC_ZXFLAG='R' THEN
     BEGIN
       SET V_OUT_STATUS ='09';
@@ -12139,6 +12360,7 @@ CREATE PROCEDURE PROC_XXBD_TSZM_TYYBSWTS
   OUT V_OUT_MESSAGE VARCHAR(4000)
 )
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   DECLARE LDT_TODAY    DATETIME;
 
   DECLARE LC_QYHGDM       VARCHAR(20);
@@ -12180,7 +12402,7 @@ routine_body: BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_002 = MYSQL_ERRNO, BJTS_SQLERRM_002 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='06';
       SET V_OUT_MESSAGE ='查询申报记录数据失败！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT COUNT(1)
@@ -12188,6 +12410,9 @@ SELECT COUNT(1)
       FROM CKTS_ZM_TYYBSWTS_LSB
      WHERE SBID=V_IN_SBID;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LN_ROWNUM_TSSB=0 THEN
     BEGIN
       SET V_OUT_STATUS ='07';
@@ -12201,12 +12426,12 @@ SELECT COUNT(1)
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
 
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='08';
       SET V_OUT_MESSAGE ='企业当前未进行出口退（免）税备案，不允许申报除出口退（免）税备案以外的其他业务！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS, T.YFSJ, T.ZX_FLAG
@@ -12214,6 +12439,9 @@ SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS,
       FROM GS_DJ_CKTMSDAB T
      WHERE T.NSRDZDAH=V_IN_NSRDZDAH;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LC_ZXFLAG='R' THEN
     BEGIN
       SET V_OUT_STATUS ='09';
@@ -12612,6 +12840,7 @@ CREATE PROCEDURE PROC_XXBD_TSZM_WTCKHWZM
   OUT V_OUT_MESSAGE VARCHAR(4000)
 )
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   DECLARE LDT_TODAY    DATETIME;
 
   DECLARE LC_QYHGDM       VARCHAR(20);
@@ -12652,7 +12881,7 @@ routine_body: BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_002 = MYSQL_ERRNO, BJTS_SQLERRM_002 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='06';
       SET V_OUT_MESSAGE ='查询申报记录数据失败！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT COUNT(1)
@@ -12660,6 +12889,9 @@ SELECT COUNT(1)
       FROM CKTS_ZM_WTCK_LSB
      WHERE SBID=V_IN_SBID;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LN_ROWNUM_TSSB=0 THEN
     BEGIN
       SET V_OUT_STATUS ='07';
@@ -12673,12 +12905,12 @@ SELECT COUNT(1)
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
 
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='08';
       SET V_OUT_MESSAGE ='企业当前未进行出口退（免）税备案，不允许申报除出口退（免）税备案以外的其他业务！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS, T.YFSJ, T.ZX_FLAG
@@ -12686,6 +12918,9 @@ SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS,
       FROM GS_DJ_CKTMSDAB T
      WHERE T.NSRDZDAH=V_IN_NSRDZDAH;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LC_ZXFLAG='R' THEN
     BEGIN
       SET V_OUT_STATUS ='09';
@@ -12792,6 +13027,7 @@ CREATE PROCEDURE PROC_XXBD_WZF
   OUT V_OUT_MESSAGE VARCHAR(4000)
 )
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   DECLARE LDT_TODAY       DATETIME;
 
   DECLARE LC_QYHGDM       VARCHAR(20);
@@ -12834,7 +13070,7 @@ routine_body: BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_007 = MYSQL_ERRNO, BJTS_SQLERRM_007 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='06';
       SET V_OUT_MESSAGE ='查询申报记录数据失败！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT COUNT(1)
@@ -12852,6 +13088,9 @@ SELECT COUNT(1)
        AND (((STR_TO_DATE(ORA_CONCAT(DATE_FORMAT(CURRENT_TIMESTAMP, '%Y'), '0420'), '%Y%m%d')<DATE(CURRENT_TIMESTAMP)) AND (CKRQ_1<MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1))) OR (CKRQ_1<DATE_ADD(MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1), INTERVAL -12 MONTH)))
        AND FUNC_XXBD_CHECK_NEEDSH(ORA_CONCAT(ORA_CONCAT(',', CKTMSYWLXDMJH), ',')) = 1;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LN_ROWNUM_CKMX=0 THEN
     BEGIN
       SET V_OUT_STATUS ='07';
@@ -12865,12 +13104,12 @@ SELECT COUNT(1)
   DECLARE BJTS_SQLCODE_006 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_006 TEXT DEFAULT '';
 
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_006 = MYSQL_ERRNO, BJTS_SQLERRM_006 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='08';
       SET V_OUT_MESSAGE ='企业当前未进行出口退（免）税备案，不允许申报除出口退（免）税备案以外的其他业务！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS, T.YFSJ, T.ZX_FLAG
@@ -12878,6 +13117,9 @@ SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS,
       FROM GS_DJ_CKTMSDAB T
      WHERE T.NSRDZDAH=V_IN_NSRDZDAH;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LC_ZXFLAG='Y' THEN
     BEGIN
       SET V_OUT_STATUS ='09';
@@ -12983,11 +13225,14 @@ SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS,
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_005 = MYSQL_ERRNO, BJTS_SQLERRM_005 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='51';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('代办退税明细自检出错：', BJTS_SQLCODE_005), ' - '), BJTS_SQLERRM_005);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_WZF_TSSB(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_004 INT DEFAULT 0;
@@ -12998,11 +13243,14 @@ CALL PROC_XXBD_WZF_TSSB(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_004 = MYSQL_ERRNO, BJTS_SQLERRM_004 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='52';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('出口报关单自检出错：', BJTS_SQLCODE_004), ' - '), BJTS_SQLERRM_004);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_WZF_TSSB_BGD(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_003 INT DEFAULT 0;
@@ -13013,11 +13261,14 @@ CALL PROC_XXBD_WZF_TSSB_BGD(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_003 = MYSQL_ERRNO, BJTS_SQLERRM_003 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='53';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('代办退税发票自检出错：', BJTS_SQLCODE_003), ' - '), BJTS_SQLERRM_003);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_WZF_TSSB_ZZSFP(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_002 INT DEFAULT 0;
@@ -13028,11 +13279,14 @@ CALL PROC_XXBD_WZF_TSSB_ZZSFP(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_I
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_002 = MYSQL_ERRNO, BJTS_SQLERRM_002 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='62';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('出口收汇申报资料自检出错：', BJTS_SQLCODE_002), ' - '), BJTS_SQLERRM_002);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_WZF_CKSH(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
@@ -13043,11 +13297,14 @@ CALL PROC_XXBD_WZF_CKSH(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='63';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('海关商品代码调整表自检出错：', BJTS_SQLCODE_001), ' - '), BJTS_SQLERRM_001);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_WZF_HGSPTZ(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
 END$$
 
@@ -14168,6 +14425,7 @@ CREATE PROCEDURE PROC_XXBD_XFS
   OUT V_OUT_MESSAGE VARCHAR(4000)
 )
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   DECLARE LDT_TODAY       DATETIME;
 
   DECLARE LC_QYHGDM       VARCHAR(20);
@@ -14210,7 +14468,7 @@ routine_body: BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_009 = MYSQL_ERRNO, BJTS_SQLERRM_009 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='06';
       SET V_OUT_MESSAGE ='查询申报记录数据失败！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT COUNT(1)
@@ -14228,6 +14486,9 @@ SELECT COUNT(1)
        AND FUNC_XXBD_CHECK_NEEDSH(ORA_CONCAT(ORA_CONCAT(',', CKTMSYWLXDMJH), ',')) = 1
        AND (((STR_TO_DATE(ORA_CONCAT(DATE_FORMAT(CURRENT_TIMESTAMP, '%Y'), '0420'), '%Y%m%d')<DATE(CURRENT_TIMESTAMP)) AND (KPRQ<MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1))) OR (KPRQ<DATE_ADD(MAKEDATE(YEAR(CURRENT_TIMESTAMP), 1), INTERVAL -12 MONTH)));
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LN_ROWNUM_CKMX=0 THEN
     BEGIN
       SET V_OUT_STATUS ='07';
@@ -14241,12 +14502,12 @@ SELECT COUNT(1)
   DECLARE BJTS_SQLCODE_008 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_008 TEXT DEFAULT '';
 
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_008 = MYSQL_ERRNO, BJTS_SQLERRM_008 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='08';
       SET V_OUT_MESSAGE ='企业当前未进行出口退（免）税备案，不允许申报除出口退（免）税备案以外的其他业务！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS, T.YFSJ, T.ZX_FLAG
@@ -14254,6 +14515,9 @@ SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS,
       FROM GS_DJ_CKTMSDAB T
      WHERE T.NSRDZDAH=V_IN_NSRDZDAH;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LC_ZXFLAG='Y' THEN
     BEGIN
       SET V_OUT_STATUS ='09';
@@ -14351,11 +14615,14 @@ SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS,
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_007 = MYSQL_ERRNO, BJTS_SQLERRM_007 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='51';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('出口非自产货物退消费税明细自检出错：', BJTS_SQLCODE_007), ' - '), BJTS_SQLERRM_007);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_XFS_TSSB(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_006 INT DEFAULT 0;
@@ -14366,11 +14633,14 @@ CALL PROC_XXBD_XFS_TSSB(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_006 = MYSQL_ERRNO, BJTS_SQLERRM_006 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='52';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('出口报关单自检出错：', BJTS_SQLCODE_006), ' - '), BJTS_SQLERRM_006);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_XFS_TSSB_BGD(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_005 INT DEFAULT 0;
@@ -14381,11 +14651,14 @@ CALL PROC_XXBD_XFS_TSSB_BGD(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_005 = MYSQL_ERRNO, BJTS_SQLERRM_005 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='53';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('代理出口证明自检出错：', BJTS_SQLCODE_005), ' - '), BJTS_SQLERRM_005);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_XFS_TSSB_DLZM(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_004 INT DEFAULT 0;
@@ -14396,11 +14669,14 @@ CALL PROC_XXBD_XFS_TSSB_DLZM(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_004 = MYSQL_ERRNO, BJTS_SQLERRM_004 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='54';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('海关进口消费税缴款书自检出错：', BJTS_SQLCODE_004), ' - '), BJTS_SQLERRM_004);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_XFS_TSSB_JKXFS(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_003 INT DEFAULT 0;
@@ -14411,11 +14687,14 @@ CALL PROC_XXBD_XFS_TSSB_JKXFS(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_I
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_003 = MYSQL_ERRNO, BJTS_SQLERRM_003 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='55';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('总局税收缴款书自检出错：', BJTS_SQLCODE_003), ' - '), BJTS_SQLERRM_003);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_XFS_TSSB_ZJJKS(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_002 INT DEFAULT 0;
@@ -14426,11 +14705,14 @@ CALL PROC_XXBD_XFS_TSSB_ZJJKS(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_I
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_002 = MYSQL_ERRNO, BJTS_SQLERRM_002 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='62';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('出口收汇申报资料自检出错：', BJTS_SQLCODE_002), ' - '), BJTS_SQLERRM_002);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_XFS_CKSH(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
   BEGIN
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
@@ -14441,11 +14723,14 @@ CALL PROC_XXBD_XFS_CKSH(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='63';
       SET V_OUT_MESSAGE =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('海关商品代码调整表自检出错：', BJTS_SQLCODE_001), ' - '), BJTS_SQLERRM_001);
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 CALL PROC_XXBD_XFS_HGSPTZ(V_IN_NSRDZDAH,V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,V_OUT_STATUS,V_OUT_MESSAGE);
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
 
 END$$
 
@@ -15512,6 +15797,7 @@ CREATE PROCEDURE PROC_XXBD_ZG_CKTMSBABG
   OUT V_OUT_MESSAGE VARCHAR(4000)
 )
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   DECLARE LN_ROWNUM_CKMX  BIGINT;
 
   SET V_OUT_STATUS ='00';
@@ -15527,7 +15813,7 @@ routine_body: BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='06';
       SET V_OUT_MESSAGE ='查询申报记录数据失败！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT COUNT(1)
@@ -15535,6 +15821,9 @@ SELECT COUNT(1)
       FROM CKTS_BA_BABGQK_LSB
      WHERE SBID=V_IN_SBID;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LN_ROWNUM_CKMX=0 THEN
     BEGIN
       SET V_OUT_STATUS ='07';
@@ -15600,6 +15889,7 @@ CREATE PROCEDURE PROC_XXBD_ZG_SCWTDBBA
   OUT V_OUT_MESSAGE VARCHAR(4000)
 )
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   DECLARE LDT_TODAY       DATETIME;
 
   DECLARE LC_QYHGDM       VARCHAR(20);
@@ -15641,7 +15931,7 @@ routine_body: BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_002 = MYSQL_ERRNO, BJTS_SQLERRM_002 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='06';
       SET V_OUT_MESSAGE ='查询申报记录数据失败！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT COUNT(1)
@@ -15649,6 +15939,9 @@ SELECT COUNT(1)
       FROM CKTS_BA_SCQYWTDBTS_LSB
      WHERE SBID=V_IN_SBID;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LN_ROWNUM_CKMX=0 THEN
     BEGIN
       SET V_OUT_STATUS ='07';
@@ -15662,12 +15955,12 @@ SELECT COUNT(1)
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
 
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='08';
       SET V_OUT_MESSAGE ='企业当前未进行出口退（免）税备案，不允许申报除出口退（免）税备案以外的其他业务！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS, T.YFSJ, T.ZX_FLAG
@@ -15675,6 +15968,9 @@ SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS,
       FROM GS_DJ_CKTMSDAB T
      WHERE T.NSRDZDAH=V_IN_NSRDZDAH;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LC_ZXFLAG='Y' THEN
     BEGIN
       SET V_OUT_STATUS ='09';
@@ -15897,6 +16193,7 @@ CREATE PROCEDURE PROC_XXBD_ZG_SCWTDBCH
   OUT V_OUT_MESSAGE VARCHAR(4000)
 )
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   DECLARE LDT_TODAY       DATETIME;
 
   DECLARE LC_QYHGDM       VARCHAR(20);
@@ -15938,7 +16235,7 @@ routine_body: BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_002 = MYSQL_ERRNO, BJTS_SQLERRM_002 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='06';
       SET V_OUT_MESSAGE ='查询申报记录数据失败！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT COUNT(1)
@@ -15946,6 +16243,9 @@ SELECT COUNT(1)
       FROM CKTS_BA_SCQYWTDBTS_LSB
      WHERE SBID=V_IN_SBID;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LN_ROWNUM_CKMX=0 THEN
     BEGIN
       SET V_OUT_STATUS ='07';
@@ -15959,12 +16259,12 @@ SELECT COUNT(1)
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
 
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='08';
       SET V_OUT_MESSAGE ='企业当前未进行出口退（免）税备案，不允许申报除出口退（免）税备案以外的其他业务！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS, T.YFSJ, T.ZX_FLAG
@@ -15972,6 +16272,9 @@ SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS,
       FROM GS_DJ_CKTMSDAB T
      WHERE T.NSRDZDAH=V_IN_NSRDZDAH;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LC_ZXFLAG='Y' THEN
     BEGIN
       SET V_OUT_STATUS ='09';
@@ -16128,6 +16431,7 @@ CREATE PROCEDURE PROC_XXBD_ZG_WZFDBTSBA
   OUT V_OUT_MESSAGE VARCHAR(4000)
 )
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   DECLARE LDT_TODAY       DATETIME;
 
   DECLARE LC_QYHGDM       VARCHAR(20);
@@ -16170,7 +16474,7 @@ routine_body: BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_002 = MYSQL_ERRNO, BJTS_SQLERRM_002 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='06';
       SET V_OUT_MESSAGE ='查询申报记录数据失败！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT COUNT(1)
@@ -16178,6 +16482,9 @@ SELECT COUNT(1)
       FROM CKTS_BA_WMZHFWDBTS_LSB
      WHERE SBID=V_IN_SBID;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LN_ROWNUM_CKMX=0 THEN
     BEGIN
       SET V_OUT_STATUS ='07';
@@ -16191,12 +16498,12 @@ SELECT COUNT(1)
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
 
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
       SET V_OUT_STATUS ='08';
       SET V_OUT_MESSAGE ='企业当前未进行出口退（免）税备案，不允许申报除出口退（免）税备案以外的其他业务！';
-      LEAVE routine_body;
+      SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS, T.YFSJ, T.ZX_FLAG, T.YHMC, T.YHZH
@@ -16204,6 +16511,9 @@ SELECT T.QYHGDM, T.QYLX_DM, T.TSJSFS_DM, T.WMZHFWQYBZ, T.SFYSFW, T.YSFW, T.YSFS,
       FROM GS_DJ_CKTMSDAB T
      WHERE T.NSRDZDAH=V_IN_NSRDZDAH;
   END;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   IF LC_ZXFLAG='Y' THEN
     BEGIN
       SET V_OUT_STATUS ='09';
@@ -16962,7 +17272,7 @@ DROP PROCEDURE IF EXISTS P_ETL_GS_DJ_CKTMSDAB_ONE$$
 
 CREATE PROCEDURE P_ETL_GS_DJ_CKTMSDAB_ONE
 (
-  IN av_nsrsbh VARCHAR
+  IN av_nsrsbh VARCHAR(4000)
 )
 routine_body: BEGIN
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
@@ -17348,6 +17658,8 @@ DROP PROCEDURE IF EXISTS P_ETL_GS_DJ_TXFWSQXX$$
 
 CREATE PROCEDURE P_ETL_GS_DJ_TXFWSQXX()
 routine_body: BEGIN
+  DECLARE BJTS_ITERATE_001 BOOLEAN DEFAULT FALSE;
+  DECLARE BJTS_ITERATE_002 BOOLEAN DEFAULT FALSE;
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
   DECLARE pv_tbpc DECIMAL(20,0);
@@ -17410,19 +17722,24 @@ SELECT DISTINCT CPCODE FROM GS_DJ_TXFWSQXX WHERE TBPC = 6 and CPCODE IS NOT NULL
     SET pv_qyhgdm = BJTS_RS_NSR_CPCODE_001;
 
     -- 获取NSRDZDAH
+    SET BJTS_ITERATE_001 = FALSE;
     BEGIN
   DECLARE BJTS_SQLCODE_003 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_003 TEXT DEFAULT '';
 
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_003 = MYSQL_ERRNO, BJTS_SQLERRM_003 = MESSAGE_TEXT;
-        ITERATE BJTS_FETCH_LOOP_001;
+        SET BJTS_ITERATE_001 = TRUE;
 
   END;
 SELECT NSRDZDAH INTO pv_nsrdzdah FROM GS_DJ_CKTMSDAB WHERE CPCODE = pv_qyhgdm AND NSRDZDAH > 0 AND IFNULL(ZX_FLAG, 'N') <> 'Y';
       END;
+  IF BJTS_ITERATE_001 THEN
+    ITERATE BJTS_FETCH_LOOP_001;
+  END IF;
 
+    SET BJTS_ITERATE_002 = FALSE;
     BEGIN
   DECLARE BJTS_SQLCODE_002 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_002 TEXT DEFAULT '';
@@ -17434,7 +17751,7 @@ SELECT NSRDZDAH INTO pv_nsrdzdah FROM GS_DJ_CKTMSDAB WHERE CPCODE = pv_qyhgdm AN
         ROLLBACK;
         -- 记录日志，同步失败
         DO ORA_CONCAT(ORA_CONCAT('提醒服务信息表同步失败:', pv_qyhgdm), BJTS_SQLERRM_002);
-        ITERATE BJTS_FETCH_LOOP_001;
+        SET BJTS_ITERATE_002 = TRUE;
 
   END;
 SET pv_tbpc = SEQ_NEXTVAL('SEQ_TB_TBPC');
@@ -17450,6 +17767,9 @@ SET pv_tbpc = SEQ_NEXTVAL('SEQ_TB_TBPC');
       -- DBMS_OUTPUT.put_line(pv_qyhgdm || '同步成功');
 
       END;
+  IF BJTS_ITERATE_002 THEN
+    ITERATE BJTS_FETCH_LOOP_001;
+  END IF;
 
   END LOOP BJTS_FETCH_LOOP_001;
   CLOSE BJTS_FETCH_CURSOR_001;
@@ -17473,6 +17793,8 @@ DROP PROCEDURE IF EXISTS P_ETL_GS_DLCKHWZM$$
 
 CREATE PROCEDURE P_ETL_GS_DLCKHWZM()
 routine_body: BEGIN
+  DECLARE BJTS_ITERATE_001 BOOLEAN DEFAULT FALSE;
+  DECLARE BJTS_ITERATE_002 BOOLEAN DEFAULT FALSE;
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
   DECLARE pv_tbpc DECIMAL(20,0);
@@ -17535,19 +17857,24 @@ SELECT DISTINCT WT_CPCODE FROM TB_CKTS_HISTORY_ZJDLZM WHERE TBPC = 6 and WT_CPCO
     SET pv_qyhgdm = BJTS_RS_NSR_WT_CPCODE_001;
 
     -- 获取NSRDZDAH
+    SET BJTS_ITERATE_001 = FALSE;
     BEGIN
   DECLARE BJTS_SQLCODE_003 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_003 TEXT DEFAULT '';
 
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_003 = MYSQL_ERRNO, BJTS_SQLERRM_003 = MESSAGE_TEXT;
-        ITERATE BJTS_FETCH_LOOP_001;
+        SET BJTS_ITERATE_001 = TRUE;
 
   END;
 SELECT NSRDZDAH INTO pv_nsrdzdah FROM GS_DJ_CKTMSDAB WHERE CPCODE = pv_qyhgdm AND NSRDZDAH > 0 AND IFNULL(ZX_FLAG, 'N') <> 'Y';
       END;
+  IF BJTS_ITERATE_001 THEN
+    ITERATE BJTS_FETCH_LOOP_001;
+  END IF;
 
+    SET BJTS_ITERATE_002 = FALSE;
     BEGIN
   DECLARE BJTS_SQLCODE_002 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_002 TEXT DEFAULT '';
@@ -17566,7 +17893,7 @@ EXECUTE BJTS_DYNAMIC_STMT_002 USING @BJTS_BIND_002_001, @BJTS_BIND_002_002;
 DEALLOCATE PREPARE BJTS_DYNAMIC_STMT_002;
         COMMIT;
         DO ORA_CONCAT(ORA_CONCAT('代理出口货物证明表同步失败:', pv_qyhgdm), BJTS_SQLERRM_002);
-        ITERATE BJTS_FETCH_LOOP_001;
+        SET BJTS_ITERATE_002 = TRUE;
 
   END;
 SET pv_tbpc = SEQ_NEXTVAL('SEQ_TB_TBPC');
@@ -17631,6 +17958,9 @@ LIMIT 1000;
       DO ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(pv_qyhgdm, '同步成功'), CAST(pv_cnt AS CHAR)), '条数据');
 
       END;
+  IF BJTS_ITERATE_002 THEN
+    ITERATE BJTS_FETCH_LOOP_001;
+  END IF;
 
   END LOOP BJTS_FETCH_LOOP_001;
   CLOSE BJTS_FETCH_CURSOR_001;
@@ -17736,6 +18066,8 @@ DROP PROCEDURE IF EXISTS P_ETL_GS_JLJG_JHFPL$$
 
 CREATE PROCEDURE P_ETL_GS_JLJG_JHFPL()
 routine_body: BEGIN
+  DECLARE BJTS_ITERATE_001 BOOLEAN DEFAULT FALSE;
+  DECLARE BJTS_ITERATE_002 BOOLEAN DEFAULT FALSE;
   DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
   DECLARE pv_tbpc DECIMAL(20,0);
@@ -17797,19 +18129,24 @@ SELECT DISTINCT CPCODE FROM TB_CKTS_GC_JLJG_JHFPL WHERE CPCODE IS NOT NULL;
     SET pv_qyhgdm = BJTS_RS_NSR_CPCODE_001;
 
     -- 获取NSRDZDAH
+    SET BJTS_ITERATE_001 = FALSE;
     BEGIN
   DECLARE BJTS_SQLCODE_003 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_003 TEXT DEFAULT '';
 
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION, NOT FOUND
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_003 = MYSQL_ERRNO, BJTS_SQLERRM_003 = MESSAGE_TEXT;
-        ITERATE BJTS_FETCH_LOOP_001;
+        SET BJTS_ITERATE_001 = TRUE;
 
   END;
 SELECT NSRDZDAH INTO pv_nsrdzdah FROM GS_DJ_CKTMSDAB WHERE CPCODE = pv_qyhgdm AND NSRDZDAH > 0 AND IFNULL(ZX_FLAG, 'N') <> 'Y';
       END;
+  IF BJTS_ITERATE_001 THEN
+    ITERATE BJTS_FETCH_LOOP_001;
+  END IF;
 
+    SET BJTS_ITERATE_002 = FALSE;
     BEGIN
   DECLARE BJTS_SQLCODE_002 INT DEFAULT 0;
   DECLARE BJTS_SQLERRM_002 TEXT DEFAULT '';
@@ -17828,7 +18165,7 @@ EXECUTE BJTS_DYNAMIC_STMT_002 USING @BJTS_BIND_002_001, @BJTS_BIND_002_002;
 DEALLOCATE PREPARE BJTS_DYNAMIC_STMT_002;
         COMMIT;
         DO ORA_CONCAT(ORA_CONCAT('进料加工计划分配率表同步失败:', pv_qyhgdm), BJTS_SQLERRM_002);
-        ITERATE BJTS_FETCH_LOOP_001;
+        SET BJTS_ITERATE_002 = TRUE;
 
   END;
 SET pv_tbpc = SEQ_NEXTVAL('SEQ_TB_TBPC');
@@ -17865,6 +18202,9 @@ SET pv_tbpc = SEQ_NEXTVAL('SEQ_TB_TBPC');
       DO ORA_CONCAT(pv_qyhgdm, '同步成功');
 
       END;
+  IF BJTS_ITERATE_002 THEN
+    ITERATE BJTS_FETCH_LOOP_001;
+  END IF;
 
   END LOOP BJTS_FETCH_LOOP_001;
   CLOSE BJTS_FETCH_CURSOR_001;
@@ -17934,7 +18274,7 @@ routine_body: BEGIN
     SET v_msgtext = BJTS_SQLERRM_001;
     rollback;
     DO ORA_CONCAT('Error: ', v_msgtext);
-    LEAVE routine_body;
+    -- EXIT HANDLER exits routine_body after preserving the result.
 
   END;
 update SYS_CFG_CZRY_FPGL set cnt_sc=0, cnt_wm=0, cnt_qt=0;
@@ -17981,7 +18321,7 @@ routine_body: BEGIN
     SET v_msgtext = BJTS_SQLERRM_001;
     rollback;
     DO ORA_CONCAT('Error: ', v_msgtext);
-    LEAVE routine_body;
+    -- EXIT HANDLER exits routine_body after preserving the result.
 
   END;
 SET date_slrq = STR_TO_DATE('2021-01-01', '%Y-%m-%d');
@@ -18013,7 +18353,7 @@ select LCSLID, SBID, SBRQ
                    FROM JXKH_YWLC T, SB_SBXX_HZ S
                   WHERE T.SL_DATE > date_slrq
                     and T.SBID IS NULL
-                    and S.LCSLID = T.LCSLID)
+                    and S.LCSLID = T.LCSLID) AS BJTS_DERIVED_001
           WHERE RN = 1
 ) AS ZZ
 ON ZZ.lcslid = UU.LCSLID
@@ -18197,7 +18537,7 @@ routine_body: BEGIN
     SET v_msgtext = BJTS_SQLERRM_001;
     rollback;
     DO ORA_CONCAT('Error: ', v_msgtext);
-    LEAVE routine_body;
+    -- EXIT HANDLER exits routine_body after preserving the result.
 
   END;
 SET date_slrq = STR_TO_DATE('2020-01-01', '%Y-%m-%d');
@@ -18229,7 +18569,7 @@ select LCSLID, SBID, SBRQ
                    FROM JXKH_YWLC T, SB_SBXX_HZ S
                   WHERE T.SL_DATE > date_slrq
                     and T.SBID IS NULL
-                    and S.LCSLID = T.LCSLID)
+                    and S.LCSLID = T.LCSLID) AS BJTS_DERIVED_001
           WHERE RN = 1
 ) AS ZZ
 ON ZZ.lcslid = UU.LCSLID
@@ -18406,7 +18746,7 @@ routine_body: BEGIN
     SET v_msgtext = BJTS_SQLERRM_001;
     rollback;
     DO ORA_CONCAT('Error: ', v_msgtext);
-    LEAVE routine_body;
+    -- EXIT HANDLER exits routine_body after preserving the result.
 
   END;
 if extract(day from CURRENT_TIMESTAMP) <= 5 then

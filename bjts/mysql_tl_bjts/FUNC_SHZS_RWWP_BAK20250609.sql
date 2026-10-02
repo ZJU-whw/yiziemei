@@ -91,7 +91,7 @@ select wpsfdm,swrymc into v_WTDXSFDM,v_WTDXMC
                  and s.gwdm = p_gwdm
                  and t.nsrsbh = p_nsrsbh
                  and DATE_FORMAT(t.wpsj, '%m') = DATE_FORMAT(CURRENT_TIMESTAMP, '%m')
-               order by t.wpsj desc)
+               order by t.wpsj desc) AS BJTS_DERIVED_001
        where 1=1
 LIMIT 1;
     end;
@@ -148,7 +148,7 @@ with RY as
                       ON RY.SFDM = TK.WPSFDM
                      AND DATE_FORMAT(TK.Wpsj, '%Y%m%d') = DATE_FORMAT(CURRENT_TIMESTAMP, '%Y%m%d')
                    group by RY.SFDM, RY.swrymc
-                   order by CNT)
+                   order by CNT) AS BJTS_DERIVED_002
            WHERE 1=1
 LIMIT 1;
 
@@ -188,7 +188,7 @@ with RY as
                       ON RY.SFDM = TK.WPSFDM
                      AND DATE_FORMAT(TK.Wpsj, '%Y%m%d') = DATE_FORMAT(CURRENT_TIMESTAMP, '%Y%m%d')
                    group by RY.SFDM, RY.swrymc
-                   order by CNT)
+                   order by CNT) AS BJTS_DERIVED_003
            WHERE 1=1
 LIMIT 1;
 -- DBMS_OUTPUT.put_line('随机分单=找到在岗接单人');
@@ -231,7 +231,7 @@ with RY as
                       ON RY.SFDM = TK.WPSFDM
                      AND DATE_FORMAT(TK.Wpsj, '%m') = DATE_FORMAT(CURRENT_TIMESTAMP, '%m')
                    group by RY.SFDM, RY.swrymc
-                   order by CNT)
+                   order by CNT) AS BJTS_DERIVED_004
            WHERE 1=1
 LIMIT 1;
 

@@ -20,7 +20,7 @@ routine_body: BEGIN
     SET v_msgtext = BJTS_SQLERRM_001;
     rollback;
     DO ORA_CONCAT('Error: ', v_msgtext);
-    LEAVE routine_body;
+    -- EXIT HANDLER exits routine_body after preserving the result.
 
   END;
 update SYS_CFG_CZRY_FPGL set cnt_sc=0, cnt_wm=0, cnt_qt=0;

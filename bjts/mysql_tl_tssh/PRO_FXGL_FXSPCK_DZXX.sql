@@ -34,7 +34,7 @@ SELECT GZ_MC,GZ_FXMS,GZ_FW_SWJG,GZ_SPDM,GZ_SPMC,GZ_GGXH,GZ_CKKA,GZ_CKGB,GZ_HYD,G
                      FROM FXGL_SZ_SPFXCK
                     WHERE GZ_FW_DATA IN ('1','3') -- 规则适用业务范围：1出口电子信息+3同时适用
                       AND QYBJ='Y' -- 规则启用标记：Y
-                      AND IFNULL(GZ_YXQZ, CAST('2100-12-31' AS DATE))>CURRENT_TIMESTAMP -- 规则有效期止：NULL或大于当前日期;
+                      AND IFNULL(GZ_YXQZ, CAST('2100-12-31' AS DATE))>CURRENT_TIMESTAMP; -- 规则有效期止：NULL或大于当前日期
   OPEN BJTS_CURSOR_002;
   BJTS_CURSOR_LOOP_002: LOOP
     SET BJTS_CURSOR_DONE_002 = FALSE;

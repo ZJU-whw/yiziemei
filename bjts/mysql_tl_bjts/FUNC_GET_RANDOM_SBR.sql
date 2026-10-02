@@ -22,7 +22,7 @@ routine_body: BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
     -- DBMS_OUTPUT.put_line('检索为空：'||sqlerrm);
     rollback;
-    SET P_RESULT = '100'; LEAVE routine_body;
+    SET P_RESULT = '100'; -- EXIT HANDLER exits routine_body after preserving the result.
 
   END;
 
@@ -31,7 +31,7 @@ routine_body: BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
     rollback;
     -- DBMS_OUTPUT.put_line('异常：'||sqlerrm);
-    SET P_RESULT = '900'; LEAVE routine_body;
+    SET P_RESULT = '900'; -- EXIT HANDLER exits routine_body after preserving the result.
 
 
   END;

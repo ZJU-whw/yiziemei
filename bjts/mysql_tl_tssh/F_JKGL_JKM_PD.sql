@@ -171,7 +171,7 @@ select swjgdm,(CASE jsmode WHEN '1' THEN '1' ELSE '2' END) into v_swjg,v_tsjsfs 
         inner join JKGL_PZ_ZB s on t.zb_id=s.zb_id and s.yxbz='Y'
         where t.djxh=p_djxh
         group by s.ywfl_dm
-    );
+    ) AS BJTS_DERIVED_001;
 
     -- 计算健康码折算赋分
     SET jk_SCORE1 = zb_SCORE1 * zsblv1;

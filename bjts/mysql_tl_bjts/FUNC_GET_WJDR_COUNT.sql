@@ -4,6 +4,7 @@ DROP PROCEDURE IF EXISTS FUNC_GET_WJDR_COUNT$$
 
 CREATE PROCEDURE FUNC_GET_WJDR_COUNT(p_czryDm VARCHAR(4000), OUT P_RESULT integer)
 routine_body: BEGIN
+  DECLARE BJTS_ROUTINE_EXIT BOOLEAN DEFAULT FALSE;
   DECLARE dyn_select VARCHAR(1500);
   DECLARE v_czry_qxswjg VARCHAR(11);
   DECLARE v_czry_swjg VARCHAR(11);
@@ -18,12 +19,15 @@ routine_body: BEGIN
   BEGIN
     GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
        -- DBMS_OUTPUT.put_line('操作员不存在');
-       SET P_RESULT = 0; LEAVE routine_body;
+       SET P_RESULT = 0; SET BJTS_ROUTINE_EXIT = TRUE;
 
   END;
 select IFNULL(qx_swjg, swjg_dm) into v_czry_swjg
       from DM_CZRY where czry_dm =p_czryDm;
   end;
+  IF BJTS_ROUTINE_EXIT THEN
+    LEAVE routine_body;
+  END IF;
   SET v_czry_qxswjg =FUNC_GET_QXSWJG(v_czry_swjg) ;
 
   SET dyn_select =ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('select count(1) from V_SBXX_SBDR_FILEMODE vs ', ' where vs.swjg_dm like '''), v_czry_qxswjg), ''' and vs.sbr is null and ( '), ' (vs.zs_swjg_dm is not null and  '), ' not exists (select 1 from SYS_CFG_CZRY_FPGL sc1 '), ' where sc1.swjg_dm like ORA_CONCAT(ORA_CONCAT(''%'', vs.swjg_dm), ''%'') and sc1.qybz=''Y'' '), ' and (coalesce(sc1.zsjg_dm_set,'' '')='' '' or sc1.zsjg_dm_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.zs_swjg_dm), ''%'')) '), ' and (coalesce(sc1.flgl_set,'' '')='' '' or sc1.flgl_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.flglcd), ''%'')) '), ' and (vs.sbzl_dm<>''TSSB'' OR (coalesce(sc1.jsmode_set,'' '')='' '' or sc1.jsmode_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.tsjsfs_dm), ''%'')))) '), ' ) or '), ' (vs.zs_swjg_dm is null and  '), ' not exists (select 1 from SYS_CFG_CZRY_FPGL sc2 '), ' where sc2.swjg_dm like ORA_CONCAT(ORA_CONCAT(''%'', vs.swjg_dm), ''%'') and sc2.qybz=''Y'' '), ' and (coalesce(sc2.zsjg_dm_set,'' '')='' '') '), ' and (coalesce(sc2.flgl_set,'' '')='' '' or sc2.flgl_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.flglcd), ''%'')) '), ' and (vs.sbzl_dm<>''TSSB'' OR (coalesce(sc2.jsmode_set,'' '')='' '' or sc2.jsmode_set like ORA_CONCAT(ORA_CONCAT(''%'', vs.tsjsfs_dm), ''%'')))) '), ' ))');
