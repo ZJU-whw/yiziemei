@@ -1,0 +1,386 @@
+[SQL] Query mysql_tl_tssh_汇总 start
+[ERR] 1248 - Every derived table must have its own alias
+[ERR] 
+DROP PROCEDURE IF EXISTS F_JKGL_JKM_PD;
+
+CREATE PROCEDURE F_JKGL_JKM_PD(p_djxh VARCHAR(4000), p_yxq DATETIME, OUT P_RESULT integer)
+routine_body: BEGIN
+/*
+ * 单户企业健康码结果计算（仅评定，不更新）
+ */
+  DECLARE v_swjg   VARCHAR(11);
+  DECLARE v_tsjsfs char(1);
+
+  -- 定义变量
+  -- 指标分转健康码分的折算比例
+  DECLARE zsblv1 DECIMAL(18,2);
+  DECLARE zsblv2 DECIMAL(18,2);
+  DECLARE zsblv3 DECIMAL(18,2);
+  DECLARE zsblv4 DECIMAL(18,2);
+  DECLARE zsblv5 DECIMAL(18,2);
+  DECLARE zsblv6 DECIMAL(18,2);
+
+  -- 六个分类的红线
+  DECLARE lineRed1 int;
+  DECLARE lineRed2 int;
+  DECLARE lineRed3 int;
+  DECLARE lineRed4 int;
+  DECLARE lineRed5 int;
+  DECLARE lineRed6 int;
+  -- 六个分类的黄线
+  DECLARE lineYellow1 int;
+  DECLARE lineYellow2 int;
+  DECLARE lineYellow3 int;
+  DECLARE lineYellow4 int;
+  DECLARE lineYellow5 int;
+  DECLARE lineYellow6 int;
+
+  DECLARE lineRed_Zh integer;          -- 综合红线
+  DECLARE lineYellow_Zh integer;       -- 综合黄线
+
+  -- 实际指标赋分
+  DECLARE zb_SCORE1 int;
+  DECLARE zb_SCORE2 int;
+  DECLARE zb_SCORE3 int;
+  DECLARE zb_SCORE4 int;
+  DECLARE zb_SCORE5 int;
+  DECLARE zb_SCORE6 int;
+
+  -- 折算后的分数
+  DECLARE jk_SCORE1 int;
+  DECLARE jk_SCORE2 int;
+  DECLARE jk_SCORE3 int;
+  DECLARE jk_SCORE4 int;
+  DECLARE jk_SCORE5 int;
+  DECLARE jk_SCORE6 int;
+  DECLARE jk_SCORE_ZH integer;          -- -折算后健康码综合赋分
+
+  -- 健康码结果  1绿  2黄 3红
+  DECLARE V_level char(1);
+
+  SET V_level ='0';
+
+  BEGIN
+  DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
+
+
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
+      DO ORA_CONCAT('【健康码】等级评定：', BJTS_SQLERRM_001);
+      ROLLBACK;
+      CALL ORA_RAISE_APPLICATION_ERROR(-20001,ORA_CONCAT('【健康码】等级评定：', P_djxh));
+
+  END;
+select swjgdm,(CASE jsmode WHEN '1' THEN '1' ELSE '2' END) into v_swjg,v_tsjsfs from GLXT_BB_SHXT_DJXX d where d.cpcode=p_djxh;
+    -- 从健康码配置表，计算折算比率
+    /*
+    select
+      sum(decode (ywfl_dm,'10',case when ZB_TOTAL=0 then 0 else JKM_TOTAL/ZB_TOTAL end,0)),
+      sum(decode (ywfl_dm,'20',case when ZB_TOTAL=0 then 0 else JKM_TOTAL/ZB_TOTAL end,0)),
+      sum(decode (ywfl_dm,'30',case when ZB_TOTAL=0 then 0 else JKM_TOTAL/ZB_TOTAL end,0)),
+      sum(decode (ywfl_dm,'40',case when ZB_TOTAL=0 then 0 else JKM_TOTAL/ZB_TOTAL end,0)),
+      sum(decode (ywfl_dm,'50',case when ZB_TOTAL=0 then 0 else JKM_TOTAL/ZB_TOTAL end,0)),
+      sum(decode (ywfl_dm,'60',case when ZB_TOTAL=0 then 0 else JKM_TOTAL/ZB_TOTAL end,0)),
+      sum(decode (ywfl_dm,'10',line_red,0)),
+      sum(decode (ywfl_dm,'20',line_red,0)),
+      sum(decode (ywfl_dm,'30',line_red,0)),
+      sum(decode (ywfl_dm,'40',line_red,0)),
+      sum(decode (ywfl_dm,'50',line_red,0)),
+      sum(decode (ywfl_dm,'60',line_red,0)),
+      sum(decode (ywfl_dm,'ZH',line_red,0)),
+      sum(decode (ywfl_dm,'10',line_yellow,0)),
+      sum(decode (ywfl_dm,'20',line_yellow,0)),
+      sum(decode (ywfl_dm,'30',line_yellow,0)),
+      sum(decode (ywfl_dm,'40',line_yellow,0)),
+      sum(decode (ywfl_dm,'50',line_yellow,0)),
+      sum(decode (ywfl_dm,'60',line_yellow,0)),
+      sum(decode (ywfl_dm,'ZH',line_yellow,0))
+    into zsblv1,zsblv2,zsblv3,zsblv4,zsblv5,zsblv6,
+         lineRed1,lineRed2,lineRed3,lineRed4,lineRed5,lineRed6,lineRed_Zh,
+         lineYellow1,lineYellow2,lineYellow3,lineYellow4,lineYellow5,lineYellow6,lineYellow_Zh
+    from tl_tssh.JKGL_PZ_JKM t
+    where t.tsjsfs=v_tsjsfs ;
+    */
+    with TT as (
+    select zb.ywfl_dm, sum(score) as zbScore
+    from
+      JKGL_PZ_ZB zb left join
+      (
+      select t.zb_id,max(IFNULL(s.score, t.score)) as score
+      from
+      JKGL_PZ_ZB_YCFF t
+      left join JKGL_PZ_ZB_YCFF_SWJG s
+           on s.swjg_dm =v_swjg
+           and s.zb_id=t.zb_id and s.xh=t.xh and s.yxbz='Y'
+      where t.yxbz='Y'
+      group by t.zb_id
+      ) pt on pt.zb_id=zb.zb_id
+    where
+      zb.yxbz='Y' and
+      zb.apply_qy=v_tsjsfs
+      group by zb.ywfl_dm
+    )
+    select
+     sum((CASE jkm.ywfl_dm WHEN '10' THEN case
+[ERR] 1064 - You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')
+routine_body: BEGIN
+  DECLARE V_ZB_VAL     DECIMAL(18,2);
+  DECLARE V_ROWS ' at line 13
+[ERR] 
+
+CREATE PROCEDURE PRO_JKGL_COMPUTE_S30104
+/*
+ * 首笔出口未满一年企业,出口额达100万美元且环比增幅超50%。
+ * ZB_VAL：出口额大于等于100W，返回报告期增幅，否则坏点
+ */
+(
+  IN P_BGQID DECIMAL(38,10),
+  IN P_JDBGQID DECIMAL(38,10),
+  IN P_JDJQID DECIMAL(38,10),
+  IN P_DJXH DECIMAL(38,10),
+  IN P_BGQ_Z DATETIME,
+  IN P_SWJGDM VARCHAR
+)
+routine_body: BEGIN
+  DECLARE V_ZB_VAL     DECIMAL(18,2);
+  DECLARE V_ROWS       BIGINT;
+  DECLARE V_BADPOINT   CHAR(1);
+  DECLARE V_THIS_DATA  DECIMAL(18,2);
+  DECLARE V_LAST_DATA  DECIMAL(18,2);
+  DECLARE V_SCCKYF     DECIMAL(18,2);
+  DECLARE VAL1         DECIMAL(18,2);    -- 参数1
+  DECLARE VAL2         DECIMAL(18,2);    -- 参数2
+  DECLARE V_PARAMS     VARCHAR(1000);
+
+  BEGIN
+  DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
+
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
+      SET V_ZB_VAL = NULL;
+
+  END;
+SELECT TIMESTAMPDIFF(MONTH, IFNULL(A.SCCKRQ, CURRENT_TIMESTAMP), P_BGQ_Z)
+      INTO V_SCCKYF
+      FROM GS_DJ_CKTMSDAB A
+     WHERE A.CPCODE=CAST(P_DJXH AS CHAR)
+       AND 1=1
+LIMIT 1;
+    IF V_SCCKYF>=12 THEN
+      SET V_ZB_VAL = NULL;
+    ELSE
+      SELECT IFNULL(S.VAL_DEF, T.VAL_DEF) / (CASE T.CSTYPE WHEN '百分比' THEN 100 ELSE 1 END)
+        INTO VAL1
+        FROM JKGL_PZ_ZB_CS T
+        LEFT JOIN JKGL_PZ_ZB_CS_SWJG S ON S.CSBM=T.CSBM AND S.SWJG_DM=P_SWJGDM AND S.YXBZ='Y'
+       WHERE T.CSBM='ZC_S30104_CKWMYN_CKE_HB';
+      SELECT IFNULL(S.VAL_DEF, T.VAL_DEF) / (CASE T.CSTYPE WHEN '百分比' THEN 100 ELSE 1 END)
+        INTO VAL2
+        FROM JKGL_PZ_ZB_CS T
+        LEFT JOIN JKGL_PZ_ZB_CS_SWJG S ON S.CSBM=T.CSBM AND S.SWJG_DM=P_SWJGDM AND S.YXBZ='Y'
+       WHERE T.CSBM='ZC_S30104_CKWMYN_CKE_JE';
+
+      SELECT S.CK_CKEUSD
+        INTO V_THIS_DATA
+        FROM JKGL_DATA_TJ_ZBU S
+       WHERE S.BGQID=P_JDBGQID;
+      SELECT S.CK_CKEUSD
+        INTO V_LAST_DATA
+        FROM JKGL_DATA_TJ_ZBU S
+       WHERE S.BGQID=P_JDJQID;
+
+      SET V_PARAMS = ORA_CONCAT(ORA_CONCAT(ORA_CONCAT('[d]季度报告期出口销售额=', V_THIS_DATA), '|季度基期出口销售额='), V_LAST_DATA);
+      IF V_LAST_DATA>0 THEN
+        IF V_THIS_DATA>=VAL2 AND V_THIS_DATA>=V_LAST_DATA * VAL1 THEN
+          SET V_ZB_VAL = 1;
+        ELSE
+          SET V_ZB_VAL = 0;
+        END IF;
+        SET V_PARAMS = ORA_CONCAT(ORA_CONCAT(ORA_CONCAT(V_PARAMS, '|季度环比='), ROUND(100 * V_THIS_DATA / V_LAST_DATA,2)), '%');
+      ELSE
+        SET V_ZB_VAL = NULL;
+      END IF;
+    END IF;
+  END;
+
+  IF V_ZB_VAL IS NULL THEN
+    SET V_BADPOINT = 'Y';
+  ELSE
+    SET V_BADPOINT = 'N';
+  END IF;
+
+  SELECT LEAST(COUNT(1), 1)
+    INTO V_ROWS
+    FROM JKGL_DATA_TJ_ZB T
+   WHERE T.BGQID=P_BGQID AND T.ZB_ID='S30104' AND 1=1;
+  IF V_ROWS=0 THEN
+    INSERT INTO JKGL_DATA_TJ_ZB(BGQID,ZB_ID,ZB_VAL,BADPOINT,PARAMS)
+           VALUES(P_BGQID,'S30104',V_ZB_VAL,V_BADPOINT,V_PARAMS);
+  ELSE
+    UPDATE JKGL_DATA_TJ_ZB AS T
+       SET ZB_VAL=V_ZB_VAL,
+    BADPOINT=V_BADPOINT,
+    PARAMS=V_PARAMS,
+    UPTIME=CURRENT_TIMESTAMP
+     WHERE T.BGQID=P_BGQID AND T.ZB_ID='S30104';
+  END IF;
+  COMMIT;
+
+  LEAVE routine_body;
+END;
+DROP PROCEDURE IF EXISTS PRO_JKGL_COMPUTE_S30105;
+
+CREATE PROCEDURE PRO_JKGL_COMPUTE_S30105
+/*
+ * 首笔出口未满一年企业,出口额超1000万美元。
+ * ZB_VAL：前1-13月出口额大于等于1000W返回1，否则返回0
+ */
+(
+  IN P_BGQID DECIMAL(38,10),
+  IN P_DJXH DECIMAL(38,10),
+  IN P_BGQ_Z DATETIME,
+  IN P_SWJGDM VARCHAR
+)
+routine_body: BEGIN
+  DECLARE V_ZB_VAL     DECIMAL(18,2);
+  DECLARE V_ROWS       BIGINT;
+  DECLARE V_BADPOINT   CHAR(1);
+  DECLARE V_THIS_DATA  DECIMAL(18,2);
+  DECLARE V_SCCKYF     DECIMAL(18,2);
+  DECLARE VAL1         DECIMAL(18,2);    -- 参数1
+  DECLARE V_PARAMS     VARCHAR(1000);
+
+  BEGIN
+  DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
+
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
+      SET V_ZB_VAL = NULL;
+
+  END;
+SELECT TIMESTAMPDIFF(MONTH, IFNULL(A.SCCKRQ,
+[ERR] 1308 - ITERATE with no matching label: BJTS_CURSOR_LOOP_001
+[ERR] 
+
+CREATE PROCEDURE PRO_JKGL_COMPUTE_ZB
+/*
+ * 指标计算总入口
+ * P_ZBYEAR: 指标年度，空的时候默认为最新的企业年度报告期，否则按YYYY格式
+ * P_SWJGDM: 税务机关范围，空的时候默认为133（全省），否则按省级前3位，地市级传前5位，区县级传前7位
+ * P_QYLX: 企业类型范围，空的时候默认为全部，否则按生产1外贸2
+ * P_DJXH：企业登记序号，空的时候默认为全部，否则单个企业刷新
+ * P_ZB_ID：指标标识，可空，空默认为全部指标
+ * P_ERROR：输出参数，0执行成功，其他执行失败
+ * P_MSG：  输出参数，执行失败时的错误信息
+ */
+(
+  IN P_ZBYEAR VARCHAR(4000),
+  IN P_SWJGDM VARCHAR(4000),
+  IN P_QYLX VARCHAR(4000),
+  IN P_DJXH DECIMAL(38,10),
+  IN P_ZB_ID VARCHAR(4000),
+  OUT P_ERROR DECIMAL(38,10),
+  OUT P_MSG VARCHAR(4000)
+)
+routine_body: BEGIN
+  DECLARE V_ZBYEAR  VARCHAR(4);
+  DECLARE V_SWJGDM  VARCHAR(12);
+  DECLARE V_NDJQID  DECIMAL(20,0);     -- 年度基期ID
+  DECLARE V_JDBGQID DECIMAL(20,0);     -- 季度报告期ID
+  DECLARE V_JDJQID  DECIMAL(20,0);     -- 季度基期ID
+  DECLARE V_QSPJID  DECIMAL(20,0);     -- 全省平均报告期ID
+  DECLARE V_JDBGQQ  DATETIME;           -- 季度报告期起
+  DECLARE V_JDBGQZ  DATETIME;           -- 季度报告期止
+  DECLARE V_NDBGQQ  DATETIME;           -- 年度报告期起
+  DECLARE V_NDBGQZ  DATETIME;           -- 年度报告期止
+
+  SET P_ERROR =0;
+  SET P_MSG = ' ';
+
+  IF TRIM(P_ZBYEAR) IS NULL THEN
+    SET V_ZBYEAR = DATE_FORMAT(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL -4 MONTH), '%Y');
+  ELSEIF LENGTH(TRIM(P_ZBYEAR))=4 AND P_ZBYEAR>='2019' AND P_ZBYEAR<=DATE_FORMAT(DATE_ADD(CURRENT_TIMESTAMP, INTERVAL -4 MONTH), '%Y') THEN
+    SET V_ZBYEAR = TRIM(P_ZBYEAR);
+  ELSE
+    SET P_ERROR = -1;
+    SET P_MSG = '参数（指标年度）请按YYYY格式输入！';
+    LEAVE routine_body;
+  END IF;
+  IF TRIM(P_SWJGDM) IS NULL THEN
+    SET V_SWJGDM = '133%';
+  ELSEIF LENGTH(TRIM(P_SWJGDM)) IN (3,5,7) THEN
+    SET V_SWJGDM = ORA_CONCAT(TRIM(P_SWJGDM), '%');
+  ELSE
+    SET P_ERROR = -2;
+    SET P_MSG = '参数（税务机关代码）请按省级前3位，地市级传前5位，区县级传前7位输入！';
+    LEAVE routine_body;
+  END IF;
+  IF TRIM(P_QYLX) IS NOT NULL AND TRIM(P_QYLX)!='1' AND TRIM(P_QYLX)!='2' THEN
+    SET P_ERROR = -3;
+    SET P_MSG = '参数（企业类型）请按生产1外贸2输入！';
+    LEAVE routine_body;
+  END IF;
+
+  SET V_NDBGQQ = STR_TO_DATE(ORA_CONCAT(V_ZBYEAR, '-01-01'), '%Y-%m-%d');
+  SET V_NDBGQZ = STR_TO_DATE(ORA_CONCAT(V_ZBYEAR, '-12-31'), '%Y-%m-%d');
+
+  DELETE FROM CKTS_DJ_BGDJMX AS T
+  WHERE T.BGQNR=T.BGHNR;
+  COMMIT;
+  DELETE FROM CKTS_DJ_BGDJMX AS T
+  WHERE LENGTH(T.BGQNR)=15 AND LENGTH(T.BGHNR)=18
+  AND T.BGQNR=ORA_CONCAT(SUBSTR(T.BGHNR,1,6), SUBSTR(T.BGHNR,9,9));
+  COMMIT;
+  DELETE FROM CKTS_DJ_BGDJMX AS T
+  WHERE LENGTH(T.BGHNR)=15 AND LENGTH(T.BGQNR)=18
+  AND T.BGHNR=ORA_CONCAT(SUBSTR(T.BGQNR,1,6), SUBSTR(T.BGQNR,9,9));
+  COMMIT;
+
+  BEGIN
+  DECLARE BJTS_CURSOR_DONE_001 BOOLEAN DEFAULT FALSE;
+  DECLARE BJTS_CUR_BGQ_DJXH_001 LONGTEXT;
+  DECLARE BJTS_CUR_BGQ_BGQID_001 LONGTEXT;
+  DECLARE BJTS_CUR_BGQ_SWJGDM_001 LONGTEXT;
+  DECLARE BJTS_CUR_BGQ_JSMODE_001 LONGTEXT;
+  DECLARE BJTS_CURSOR_001 CURSOR FOR
+SELECT S.DJXH, S.BGQID, T.SWJGDM, T.JSMODE
+                    FROM GLXT_BB_SHXT_DJXX T
+                   INNER JOIN JKGL_DATA_BGQ S ON S.DJXH=T.DJXH_JS
+                   WHERE T.SWJGDM LIKE V_SWJGDM
+                     AND ((TRIM(P_QYLX) IS NULL) OR ((CASE T.JSMODE WHEN '1' THEN '1' ELSE '2' END) = TRIM(P_QYLX)))
+                     AND ((P_DJXH IS NULL) OR (T.DJXH_JS=P_DJXH))
+                     AND S.BGQ_Q=V_NDBGQQ AND S.BGQ_Z=V_NDBGQZ
+                     AND S.SXZT='2';
+  OPEN BJTS_CURSOR_001;
+  BJTS_CURSOR_LOOP_001: LOOP
+    SET BJTS_CURSOR_DONE_001 = FALSE;
+    BEGIN
+      DECLARE CONTINUE HANDLER FOR NOT FOUND SET BJTS_CURSOR_DONE_001 = TRUE;
+      FETCH BJTS_CURSOR_001 INTO BJTS_CUR_BGQ_DJXH_001, BJTS_CUR_BGQ_BGQID_001, BJTS_CUR_BGQ_SWJGDM_001, BJTS_CUR_BGQ_JSMODE_001;
+    END;
+    IF BJTS_CURSOR_DONE_001 THEN
+      LEAVE BJTS_CURSOR_LOOP_001;
+    END IF;
+    -- 年度报告期ID : CUR_BGQ.BGQID
+    -- 年度基期ID
+    BEGIN
+  DECLARE BJTS_SQLCODE_006 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_006 TEXT DEFAULT '';
+
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_006 = MYSQL_ERRNO, BJTS_SQLERRM_006 = MESSAGE_TEXT;
+        SET V_NDJQID =0;
+
+  END;
+SELECT T.BGQID
+        INTO V_NDJQID
+        FROM JKGL_DATA_BG
+[SQL] Finished with error
+

@@ -1,0 +1,197 @@
+[SQL] Query mysql_tl_admin_汇总 start
+[ERR] 1308 - LEAVE with no matching label: routine_body
+[ERR] 
+DROP PROCEDURE IF EXISTS FUNC_GET_XJ_SWJG;
+
+CREATE PROCEDURE FUNC_GET_XJ_SWJG(IN P_SJ_SWCODE VARCHAR(4000))
+routine_body: BEGIN
+    IF SUBSTR(P_SJ_SWCODE, 1, 1) = '2' THEN
+        SELECT VIR_SWJGDM AS SWJG_DM
+          FROM DM_SWJG_VIRTUAL
+         WHERE SWJG_DM = P_SJ_SWCODE
+           AND YXBZ = 'Y'
+           AND VIR_FLAG = '0';
+    ELSE
+        SELECT SWJG_DM AS SWJG_DM
+          FROM DM_SWJG
+         WHERE SWJG_DM_SJ = P_SJ_SWCODE
+           AND TSJG_BZ = '1';
+    END IF;
+END;
+DROP FUNCTION IF EXISTS FUNC_ZB_TSJHZX_HZB_HZJS;
+
+CREATE function FUNC_ZB_TSJHZX_HZB_HZJS(p_tszb_yn VARCHAR(4000),p_zbjg_dm VARCHAR(4000))
+RETURNS integer
+NOT DETERMINISTIC
+MODIFIES SQL DATA
+BEGIN
+
+  -- 退税指标计划执行汇总表，汇总计算LX=2汇总类指标机关
+  if length(p_tszb_yn)<>6 then
+    return -1;
+  end if;
+  if p_zbjg_dm is null then
+    -- 计算市辖区小计
+    update ZB_TSJHZX_HZB AS A SET byxdjhe = (SELECT sum(IFNULL(byxdjhe, 0))
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
+    byzhtse = (SELECT sum(IFNULL(byzhtse, 0))
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
+    byybltse = (SELECT sum(IFNULL(byybltse, 0))
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y'))
+         where A.Tszb_yn=p_tszb_yn and
+         exists(select 1 from DM_ZBJG D where D.zbjg_dm=A.zbjg_dm and D.lx='2' and substr(D.zbjg_dm,-1,1)='X');
+
+    -- 计算各地市小计
+    update ZB_TSJHZX_HZB AS A SET byxdjhe = (SELECT sum(IFNULL(byxdjhe, 0))
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
+    byzhtse = (SELECT sum(IFNULL(byzhtse, 0))
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
+    byybltse = (SELECT sum(IFNULL(byybltse, 0))
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y'))
+         where A.Tszb_yn=p_tszb_yn and
+         exists(select 1 from DM_ZBJG D where D.zbjg_dm=A.zbjg_dm and D.lx='2' and D.Sj_Zbjg='13300');
+
+    -- 计算全省所有地区（除直属分局外）小计
+    update ZB_TSJHZX_HZB AS A SET byxdjhe = (SELECT sum(IFNULL(byxdjhe, 0))
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
+    byzhtse = (SELECT sum(IFNULL(byzhtse, 0))
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
+    byybltse = (SELECT sum(IFNULL(byybltse, 0))
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y'))
+         where A.Tszb_yn=p_tszb_yn and
+         exists(select 1 from DM_ZBJG D where D.zbjg_dm=A.zbjg_dm and D.lx='2' and D.Sj_Zbjg='133');
+
+    -- 计算全省小计
+    update ZB_TSJHZX_HZB AS A SET byxdjhe = (SELECT sum(IFNULL(byxdjhe, 0))
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
+    byzhtse = (SELECT sum(IFNULL(byzhtse, 0))
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y')),
+    byybltse = (SELECT sum(IFNULL(byybltse, 0))
+from ZB_TSJHZX_HZB B where B.Tszb_yn=A.Tszb_yn and
+         B.ZBJG_DM in (select zbjg_dm from DM_ZBJG C where C.SJ_ZBJG=A.Zbjg_Dm and C.Yxbz='Y'))
+         where A.Tszb_yn=p_tszb_yn and
+         exists(select 1 from DM_ZBJG D where D.zbjg_dm=A.zbjg_dm and D.lx='2' and D.Sj_Zbjg='1');
+
+  end if;
+
+  return 1;
+END;
+DROP FUNCTION IF EXISTS FUNC_ZB_TSJHZX_HZB_INIT;
+
+CREATE function FUNC_ZB
+[ERR] 1308 - LEAVE with no matching label: routine_body
+[ERR] 
+
+CREATE PROCEDURE PRO_TJBB_DT_B03102_HZ_NEW
+/**********************************************************************************************
+ * 浙江省办理出口退税累计趋势图（省、市局汇总）
+ *********************************************************************************************/
+(
+  IN V_SWCODE VARCHAR(4000),
+  IN V_SSNY VARCHAR(4000),
+  OUT V_ERROR DECIMAL(38,10),
+  OUT V_MSG VARCHAR(4000)
+)
+routine_body: BEGIN
+  DECLARE LD_SYSDATE       DATETIME;
+  DECLARE LC_THISMONTH     VARCHAR(6);
+  DECLARE LD_THISYEAR      DATETIME;
+  DECLARE LD_NEXTMONTH     DATETIME;
+  DECLARE LD_LASTYEAR      DATETIME;
+
+  DECLARE LC_THISYEAR      VARCHAR(4);-- 当年
+  DECLARE LC_LASTYEAR      VARCHAR(4);-- 上年
+
+  SET V_ERROR =0;
+  SET V_MSG = ' ';
+
+  IF V_SSNY IS NOT NULL THEN
+    SET LD_SYSDATE =STR_TO_DATE(ORA_CONCAT(V_SSNY, '01'), '%Y%m%d');
+  ELSE
+    SET LD_SYSDATE =CAST(DATE_FORMAT(CURRENT_TIMESTAMP, '%Y-%m-01') AS DATETIME);
+  END IF;
+  SET LC_THISMONTH =DATE_FORMAT(LD_SYSDATE, '%Y%m');
+  SET LD_THISYEAR =MAKEDATE(YEAR(LD_SYSDATE), 1);
+  SET LD_NEXTMONTH =CAST(DATE_FORMAT(DATE_ADD(LD_SYSDATE, INTERVAL 1 MONTH), '%Y-%m-01') AS DATETIME);
+  SET LD_LASTYEAR =MAKEDATE(YEAR(DATE_ADD(LD_SYSDATE, INTERVAL -12 MONTH)), 1);
+
+  SET LC_THISYEAR =DATE_FORMAT(LD_SYSDATE, '%Y');
+  SET LC_LASTYEAR =DATE_FORMAT(DATE_ADD(LD_SYSDATE, INTERVAL -12 MONTH), '%Y');
+
+  -- 0、清除原有制表数据，准备重新制表
+  BEGIN
+  DECLARE BJTS_SQLCODE_003 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_003 TEXT DEFAULT '';
+
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_003 = MYSQL_ERRNO, BJTS_SQLERRM_003 = MESSAGE_TEXT;
+      SET V_ERROR = BJTS_SQLCODE_003;
+      SET V_MSG = BJTS_SQLERRM_003;
+      LEAVE routine_body;
+
+  END;
+DELETE FROM TJBB_DT_B03102 WHERE SWJGDM=V_SWCODE AND SSNY=LC_THISMONTH;
+    COMMIT;
+  END;
+
+  -- 1、制表
+  BEGIN
+  DECLARE BJTS_SQLCODE_002 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_002 TEXT DEFAULT '';
+    -- 1.1 本年数
+    -- 1.1.1 生产企业
+
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_002 = MYSQL_ERRNO, BJTS_SQLERRM_002 = MESSAGE_TEXT;
+      SET V_ERROR = BJTS_SQLCODE_002;
+      SET V_MSG = BJTS_SQLERRM_002;
+      LEAVE routine_body;
+
+  END;
+INSERT INTO TJBB_DT_B03102 (SSNY,BBLC,SWJGDM,
+           JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC,
+           JAN_HZ,FEB_HZ,MAR_HZ,APR_HZ,MAY_HZ,JUN_HZ,JUL_HZ,AUG_HZ,SEP_HZ,OCT_HZ,NOV_HZ,DEC_HZ)
+    WITH TSFN AS (SELECT DATE_FORMAT(T.RKRQ, '%Y%m') AS FNMONTH, IFNULL(ROUND(SUM(T.SJJE)/10000,0), 0) AS FNSE
+                    FROM FG_CKTSFN_HXZG T
+                    LEFT JOIN GLXT_BB_SHXT_DJXX R ON R.DJXH_JS=T.DJXH
+                   WHERE ((V_SWCODE='13300000000'  AND (T.SKSSSWJG_DM IN (SELECT SWJG_DM FROM DM_SWJG WHERE TSJG_BZ='1'))) OR
+                          (V_SWCODE<>'13300000000' AND (T.SKSSSWJG_DM IN (SELECT VIR_SWJGDM AS SWJG_DM
+       FROM DM_SWJG_VIRTUAL
+      WHERE SUBSTR(V_SWCODE, 1, 1) = '2'
+        AND SWJG_DM = V_SWCODE
+        AND YXBZ = 'Y'
+        AND VIR_FLAG = '0'
+      UNION ALL
+     SELECT SWJG_DM AS SWJG_DM
+       FROM DM_SWJG
+      WHERE (SUBSTR(V_SWCODE, 1, 1) <> '2' OR SUBSTR(V_SWCODE, 1, 1) IS NULL)
+        AND SWJG_DM_SJ = V_SWCODE
+        AND TSJG_BZ = '1'))))
+                     AND T.RKRQ>=LD_THISYEAR AND T.RKRQ<LD_NEXTMONTH
+                     AND T.YWHZBUUID IS NULL
+                     AND R.JSMODE='1'
+                   GROUP BY DATE_FORMAT(T.RKRQ, '%Y%m')),
+         TSTK AS (SELECT DATE_FORMAT(S.XHRQ_TK, '%Y%m') AS TKMONTH, IFNULL(ROUND(SUM(S.GKBL_ZZSTSE+S.GKBL_XFSTSE)/10000,0), 0) AS TKSE
+                    FROM CKTS_LC_SEHZXX S
+                    LEFT JOIN GLXT_BB_SHXT_DJXX R ON R.DJXH_JS=S.DJXH
+                   WHERE ((V_SWCODE='13300000000'  AND (S.CKTMSJHSSSWJGDM IN (SELECT SWJG_DM FROM DM_SWJG WHERE TSJG_BZ='1'))) OR
+                          (V_SWCODE<>'13300000000' AND (S.CKTMSJHSSSWJGDM IN (SELECT VIR_SWJGDM AS SWJG_DM
+       FROM DM_SWJG_VIRTUAL
+      WHERE SUBSTR(V_SWCODE, 1, 1) = '2'
+        AND SWJG_DM = V_SWCODE
+
+[SQL] Finished with error
+

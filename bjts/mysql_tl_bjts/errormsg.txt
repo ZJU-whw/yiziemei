@@ -1,0 +1,376 @@
+[SQL] Query mysql_tl_bjts_汇总 start
+[ERR] 1308 - LEAVE with no matching label: routine_body
+[ERR] 
+DROP FUNCTION IF EXISTS COMPUTE_BLDATE;
+
+CREATE FUNCTION COMPUTE_BLDATE
+/*
+  编制人:毛小东
+  编制日期:202109
+  功能:计算两个日期之间，减去节假日，返回工作日天数
+  参数:SL_DATE 开始日期，SB_DATE 结束日期
+  返回：NUMBER 天数
+ */
+(
+  END_DATE DATETIME,
+  BEGIN_DATE DATETIME
+)
+RETURNS DECIMAL(38,10)
+NOT DETERMINISTIC
+READS SQL DATA
+BEGIN
+  DECLARE V_END_DATE DATETIME;
+  DECLARE V_BEGIN_DATE DATETIME;
+  DECLARE V_BETWEENDAYS DECIMAL(38,10);
+  DECLARE V_JJRDAYS INTEGER;
+
+  SET V_END_DATE =END_DATE;
+  IF V_END_DATE IS NULL THEN
+    SET V_END_DATE =CURRENT_TIMESTAMP;
+  END IF;
+
+  SET V_BEGIN_DATE =BEGIN_DATE;
+  IF V_BEGIN_DATE IS NULL THEN
+    SET V_BEGIN_DATE =CURRENT_TIMESTAMP;
+  END IF;
+
+  -- 传递的开始日期只有日期，没有时间，以当天8点30分为开始时间
+  IF V_BEGIN_DATE=DATE(V_BEGIN_DATE) THEN
+    SET V_BEGIN_DATE =ORA_DATE_ADD(DATE(V_BEGIN_DATE), 0.3542);
+  END IF;
+  -- 传递的开始日期在下午17点30分之后，以次日8点30分为开始时间
+  IF V_BEGIN_DATE>=ORA_DATE_ADD(DATE(V_BEGIN_DATE), 0.7295) THEN
+    SET V_BEGIN_DATE =ORA_DATE_ADD(DATE(V_BEGIN_DATE), 1.3542);
+  END IF;
+  -- 剔除开始日期是节假日，以后续第一个工作日8点30分为开始时间
+  SELECT COUNT(*) INTO V_JJRDAYS FROM PUB_JJR WHERE JJR_DATE = DATE(V_BEGIN_DATE);
+  BJTS_LOOP_002: LOOP
+    IF V_JJRDAYS=0 THEN LEAVE BJTS_LOOP_002; END IF;
+    SET V_BEGIN_DATE = ORA_DATE_ADD(DATE(V_BEGIN_DATE), 1.3542);
+    SELECT COUNT(*) INTO V_JJRDAYS FROM PUB_JJR WHERE JJR_DATE = DATE(V_BEGIN_DATE);
+  END LOOP BJTS_LOOP_002;
+
+  -- 传递的结束日期只有日期，没有时间，以当天17点30分为结束时间
+  IF V_END_DATE=DATE(V_END_DATE) THEN
+    SET V_END_DATE =ORA_DATE_ADD(DATE(V_END_DATE), 0.7295);
+  END IF;
+  -- 传递的结束日期在下午17点30分之后，以当天17点30分为结束时间
+  IF V_END_DATE>=ORA_DATE_ADD(DATE(V_END_DATE), 0.7295) THEN
+    SET V_END_DATE =ORA_DATE_ADD(DATE(V_END_DATE), 0.7295);
+  END IF;
+  -- 剔除结束日期是节假日，以前一个工作日17点30分为结束时间
+  SELECT COUNT(*) INTO V_JJRDAYS FROM PUB_JJR WHERE JJR_DATE = DATE(V_END_DATE);
+  BJTS_LOOP_001: LOOP
+    IF V_JJRDAYS=0 THEN LEAVE BJTS_LOOP_001; END IF;
+    SET V_END_DATE = ORA_DATE_ADD(ORA_DATE_ADD(DATE(V_END_DATE), -(1)), 0.7295);
+    SELECT COUNT(*) INTO V_JJRDAYS FROM PUB_JJR WHERE JJR_DATE = DATE(V_END_DATE);
+  END LOOP BJTS_LOOP_001;
+
+  -- 起始、截止日期均非节假日时，计算日期差
+  SET V_BETWEENDAYS = ORA_DATE_DIFF(V_END_DATE, V_BEGIN_DATE);
+
+  -- 剔除日期间隔中的节假日天数
+  SELECT COUNT(*) INTO V_JJRDAYS FROM PUB_JJR WHERE JJR_DATE > V_BEGIN_DATE AND JJR_DATE < V_END_DATE;
+  SET V_BETWEENDAYS = V_BETWEENDAYS - V_JJRDAYS;
+
+  IF V_BETWEENDAYS < 0 THEN
+    RETURN (0);
+  ELSE
+    RETURN(V_BETWEENDAYS);
+  END IF;
+END;
+DROP FUNCTION IF EXISTS COMPUTE_BLJZDATE;
+
+CREATE FUNCTION COMPUTE_BLJZDATE
+/*
+  编制人:毛小东
+  编制日期:202109
+  功能:根据分类管理等级，增加工作日，其中A+5, B+10, C+15, D+20，默认20，返回截止日期
+  参数:CKQYGLLB_DM 分类管理等级A,B,C,D  ；SL_DATE 开始受理日期
+  返回：date 办理截止日期
+ */
+(
+  V_IN_CKQYGLLB_DM VARCHAR(4000),
+  V_IN_SL_DATE DATETIME
+)
+RETURNS DATETIME
+NOT DETERMINISTIC
+READS SQL DATA
+BEGIN
+  DECLARE v_adddays integer;
+  DECLARE v_jjrdays integer;
+  DECLARE v_zz_date DATETIME;
+  DECLARE i integer;
+
+  IF V_IN_SL_DATE IS NULL THEN
+    RETURN NULL;
+  END IF;
+
+  IF V_IN_CKQYGLLB_DM = 'A' OR V_IN_CKQYGLLB_DM = 'a' THEN
+    SET v_adddays = 5;
+  ELSEIF V_IN_CKQYGLLB_DM = 'B' OR V_IN_CKQYGLLB_DM = 'b' THEN
+    SET v_adddays = 10;
+  ELSEIF V_IN_CKQYGLLB_DM = 'C' OR V_IN_CKQYGLLB_DM = 'c' THEN
+    SET v_adddays = 15;
+  ELSEIF V_IN_CKQYGLLB_DM = 'D' OR V_IN_CKQYGLLB_DM = 'd' THEN
+    SET v_adddays = 20;
+  ELSE
+    SET v_adddays = 20;
+  END IF;
+
+  -- 节假日
+  SET v_zz_date = V_IN_SL_DATE;
+  BEGIN
+  DECLARE BJTS_FOR_I_001 DECIMAL(65,30) DEFAULT 1;
+  DECLARE BJTS_FOR_END_001 DECIMAL(65,30) DEFAULT v_adddays;
+  WHILE BJTS_FOR_I_001 <= BJTS_FOR_END_001 DO
+    SET v_zz_date = ORA_DATE_ADD(v_zz_date, 1);
+    SET v_jjrdays = 1;
+    BJTS_WHILE_001: WHILE v_jjrdays = 1 DO
+      select count(*) into v_jjrdays from PUB_JJR where jjr_date = DATE(v_zz_date);
+      IF v_jjrdays > 0 THEN
+        SET v_zz_date = ORA_DATE_ADD(v_zz_date, 1);
+      END IF;
+
+END WHILE BJTS_WHILE_001;
+
+    SET BJTS_FOR_I_001 = BJTS_FOR_I_001 + 1;
+  END WHILE;
+END;
+
+  return(v_zz_date);
+END;
+DROP FUNCTION IF EXISTS FUNC_GET_JDFWMS
+[ERR] 1248 - Every derived table must have its own alias
+[ERR] 
+
+CREATE PROCEDURE PROC_XXBD_MDT_TSSB_BGD
+/*
+  编制人:严国平
+  编制日期:202009
+  功能:信息比对（生产企业免抵退税）
+  调整日期：20201106，1、对HZCJ不判断剩余数量和美元离岸价，2、对金额增加null判断，3、监管方式1200列入进料加工
+  调整日期：20201109，1、历史已申报记录本期冲减本期重新申报，对重新申报记录的数量、金额比对逻辑调整
+  调整日期：20201119，1、调整改单报关单监控条件，由bgd202不存在改为bgd201.gdbz_1<>Y，2、调整MDT_CKHW_BGD_XLXP_NOT为可挑过提示性疑点
+  调整日期：20201201，1、调整报关单总量控制疑点的疑点对象赋值，原来自动用了进料加工，现调整回出口报关单
+  调整日期：20210113，1、调整改单报关单监控条件，改为bgd202不存在 且 bgd201.gdbz_1<>Y
+  调整日期：20210416，1、MDT_CKHW_BDG_CKRQ的监控条件，剔除经保税区出口业务类型，该业务类型采用出境货物备案清单的日期，与报关单离境日期不一样
+  调整日期：20210512，1、调整MDT_CKHW_BGD_USDLAJ监控条件，对本期红字冲减本期正数申报的数据当合计离岸价小于0的时候也校验差异说明
+  调整日期：20210812，1、调整MDT_CKHW_BGD_CD、MDT_CKHW_BGD_GD监控条件，对红字冲减业务不判断
+  调整日期：20211108，1、调整MDT_CKHW_BGD_WDZXX监控条件，对红字冲减业务不判断（永康徐育泽反应有企业已申报数据海关作废，导致冲减时201找不到）
+  调整日期：20211111，1、与魏浩确认，调整离岸价差异表监控条件，增加疑点MDT_CKHW_BGD_USDLAJ_CY
+                       2、增加红字冲减与原申报数的比较疑点MDT_CKHW_BGD_HZCJ_BYZ
+                       3、调整MDT_CKHW_BGD_USDLAJ监控条件与说明
+  调整日期：20211123，对疑点MDT_LACY_BGD_USDLAJ的校验逻辑进行修正，仅校验bgd201表，不校验bgd202表，与202表的校验改到PROC_XXBD_MDT_TSSB_BGD中进行
+                       （通过增加MDT_CKHW_BGD_USDLAJ_GD疑点，在企业申报数据与201不一致需要差异说明时，如果存在改单数据与申报一致，提示）
+  调整日期：20211213，对疑点MDT_CKHW_BGD_BYTS的校验逻辑进行修正，仅针对非红字冲减或红字冲减退运的业务进行判断
+  调整日期：20211214，对疑点MDT_JLJG_SCH_NOJLJG的校验逻辑进行修正，同时判断企业是否填了加工贸易手册号或计划分配率
+  调整日期：20220707, 增加非红字冲减报关单历史是否曾经申报退税的判断，疑点代码MDT_CKHW_BGD_LSSBJL
+  调整日期：20220720，1、出口日期不一致疑点代码，由MDT_CKHW_BDG_CKRQ改为MDT_CKHW_BGD_CKRQ
+  调整日期：20230308，1、针对启运港业务的负数冲减，不判断MDT_CKHW_BGD_QYGTS_CXCK、MDT_CKHW_BGD_QYGTS_FLGLCD、MDT_CKHW_BGD_QYGTS_CKRQ、MDT_CKHW_BGD_QYGTS_WDD
+  调整日期：20230313，增加MDT_CKHW_BGD_BSQ_BAQD、MDT_CKHW_BGD_BSQ_BANR、MDT_CKHW_BGD_RMBLAJ、MDT_CKHW_BGD_HZCJ_TY疑点判断
+ */
+(
+  IN V_IN_NSRDZDAH DECIMAL(38,10), /*纳税人电子档案号*/
+  IN V_IN_DJXH DECIMAL(38,10), /*登记序号*/
+  IN V_IN_SBYWBDM VARCHAR(4000), /*申报业务表代码*/
+  IN V_IN_SSSQ VARCHAR(4000), /*申报年月*/
+  IN V_IN_SBPC DECIMAL(38,10), /*申报批次*/
+  IN V_IN_SBID DECIMAL(38,10), /*申报ID*/
+  OUT V_OUT_STATUS VARCHAR(4000), /*00:成功; 其他:执行失败*/
+  OUT V_OUT_MESSAGE VARCHAR(4000)
+)
+routine_body: BEGIN
+  DECLARE LN_MXROW        BIGINT;
+  DECLARE LC_YDOBJECT     VARCHAR(20);
+  DECLARE LN_CPCODEKZ     BIGINT;
+  DECLARE LC_FLGLCD       VARCHAR(20);
+  DECLARE LC_KZXX         VARCHAR(20);
+  DECLARE LN_CMCD_LEN     BIGINT;
+  DECLARE LN_ZHJHFPL      DECIMAL(16,6);
+
+  SET V_OUT_STATUS ='00';
+  SET V_OUT_MESSAGE =' ';
+
+
+  -- 报关单出口货物劳务明细表记录为空，不需要比对
+  BEGIN
+    SELECT COUNT(1)
+      INTO LN_MXROW
+      FROM CKTS_SB_MDT_TSSB_LSB T
+     WHERE T.SBID=V_IN_SBID
+       AND T.CKBGDH IS NOT NULL;
+    IF LN_MXROW=0 THEN
+      LEAVE routine_body;
+    END IF;
+  END;
+  SET LC_YDOBJECT ='出口报关单';
+
+  -- 获取进料加工企业最新调整计划分配律
+  BEGIN
+  DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
+
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
+      SET LN_ZHJHFPL =0;
+
+  END;
+SELECT ZHJHFPL
+      INTO LN_ZHJHFPL
+      FROM (SELECT CASE WHEN T.JHFPLV_NEW=0 THEN T.JHFPLV ELSE T.JHFPLV_NEW END AS ZHJHFPL
+              FROM GS_JLJG_JHFPL T
+             WHERE T.NSRDZDAH=V_IN_NSRDZDAH
+             ORDER BY T.UPTIME DESC)
+     WHERE 1=1
+LIMIT 1;
+  END;
+
+  BEGIN
+    INSERT INTO CKTS_XXBD_SHQ_YDXX(DJXH,SBYWB_DM,SSSQ,SBPC,SBID,ERR_LY,XH,ERR_OBJ,GLYWB1,GLYWB2,GLYWB3,GLYWZ1,GLYWZ2,YDCODE,ERR_LEV,ERR_MSG,PASS_FLAG,CRTIME)
+         SELECT V_IN_DJXH,V_IN_SBYWBDM,V_IN_SSSQ,V_IN_SBPC,V_IN_SBID,'1',SEQ_NEXTVAL('SEQ_XXBD_SHQ_YDID'),LC_YDOBJECT,
+                'CKTS_SB_MDT_TSSB_LSB',NULL,NULL,T.SBXH,NULL,'MDT_CKHW_BGD_WDZXX','E',
+                ORA_CONCAT(ORA_CONCAT('出口货物报关单号[', T.CKBGDH), ']无电子信息！'),'N',CURRENT_TIMESTAMP
+           FROM CKTS_SB_MDT_TSSB_LSB T
+          WHERE T.SBID=V_IN_SBID
+            AND T.CKBGDH IS NOT NULL
+            AND FUNC_XXBD_CHECK_YWLX(ORA_CONCAT(ORA_CONCAT(',', T.CKTMSYWLXDMJH), ',')) = 0
+            AND INSTR(IFNULL(T.CKTMSYWLXDMJH, ' '),'HZCJ')=0
+            AND NOT EXISTS (SELECT 1 FROM CKTS_WBSJ_HG_BGD201 S WHERE S.DJXH=V_IN_DJXH AND S.CKBGDH=T.CKBGD
+[ERR] 1308 - LEAVE with no matching label: routine_body
+[ERR] 
+
+CREATE procedure P_TB_DOEVERYDAY()
+routine_body: BEGIN
+  DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
+  DECLARE v_msgtext VARCHAR(4000);
+
+  -- 计划任务
+
+--  if extract(day from sysdate) = 1 then
+    -- 每个月1号执行一次
+    -- 随机分单，每个账户月分配笔数，月初清0
+
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
+    SET v_msgtext = BJTS_SQLERRM_001;
+    rollback;
+    DO ORA_CONCAT('Error: ', v_msgtext);
+    LEAVE routine_body;
+
+  END;
+update SYS_CFG_CZRY_FPGL set cnt_sc=0, cnt_wm=0, cnt_qt=0;
+    commit;
+    DO '随机分单月初清0';
+--  end if;
+  LEAVE routine_body;
+
+  END;
+DROP PROCEDURE IF EXISTS P_TJ_JXKH_YWLC;
+
+CREATE procedure P_TJ_JXKH_YWLC()
+routine_body: BEGIN
+  DECLARE BJTS_SQLCODE_001 INT DEFAULT 0;
+  DECLARE BJTS_SQLERRM_001 TEXT DEFAULT '';
+  DECLARE v_msgtext VARCHAR(4000);
+
+
+  DECLARE date_tjrq DATETIME;
+  DECLARE date_slrq DATETIME;
+
+  -- 5日前不统计
+  -- if extract(day from date_tjrq) < 5 then
+  --  return;
+  -- end if;
+  -- DELETE FROM JXKH_YWLC WHERE TO_CHAR(SL_DATE,'YYYY') = av_ssnd;
+  -- COMMIT;
+
+  -- 核准日期日,固定年初
+
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION
+  BEGIN
+    GET DIAGNOSTICS CONDITION 1 BJTS_SQLCODE_001 = MYSQL_ERRNO, BJTS_SQLERRM_001 = MESSAGE_TEXT;
+    SET v_msgtext = BJTS_SQLERRM_001;
+    rollback;
+    DO ORA_CONCAT('Error: ', v_msgtext);
+    LEAVE routine_body;
+
+  END;
+SET date_slrq = STR_TO_DATE('2021-01-01', '%Y-%m-%d');
+
+  UPDATE JXKH_YWLC AS T
+     SET NSRDZDAH = (SELECT NSRDZDAH
+FROM GS_DJ_CKTMSDAB S WHERE S.CPCODE=T.CPCODE AND 1=1
+LIMIT 1),
+    QYHGDM = (SELECT QYHGDM
+FROM GS_DJ_CKTMSDAB S WHERE S.CPCODE=T.CPCODE AND 1=1
+LIMIT 1),
+    NSRSBH = (SELECT NSRSBH
+FROM GS_DJ_CKTMSDAB S WHERE S.CPCODE=T.CPCODE AND 1=1
+LIMIT 1),
+    NSRMC = (SELECT NSRMC
+FROM GS_DJ_CKTMSDAB S WHERE S.CPCODE=T.CPCODE AND 1=1
+LIMIT 1)
+   WHERE SL_DATE > date_slrq and NSRDZDAH IS NULL;
+  COMMIT;
+  DO '完成名称设置';
+
+  UPDATE JXKH_YWLC AS UU
+JOIN (
+select LCSLID, SBID, SBRQ
+           from (select T.lcslid,
+                        S.ID as SBID,
+                        case when S.sbfs='0' then greatest(IFNULL(S.sbsj, S.sbrq),S.sbrq) else S.sbrq end as SBRQ,
+                        ROW_NUMBER() OVER(partition by S.lcslid order by S.sbrq desc) as RN
+                   FROM JXKH_YWLC T, SB_SBXX_HZ S
+                  WHERE T.SL_DATE > date_slrq
+                    and T.SBID IS NULL
+                    and S.LCSLID = T.LCSLID)
+          WHERE RN = 1
+) AS ZZ
+ON ZZ.lcslid = UU.LCSLID
+SET SBID = ZZ.SBID, SBRQ = ZZ.SBRQ;
+  COMMIT;
+
+  DO '完成申报日期设置';
+
+  -- 计算实际接单日期(实际申报日期)
+  -- FLGLCD='D',WZHQY='0'，接单日期=MAX(受理日期,增值税日期)
+  -- (免抵退)，接单日期=MAX(申报日期,增值税日期)
+  -- (其他),   接单日期=申报日期
+  UPDATE JXKH_YWLC AS T
+     SET JD_DATE = CASE WHEN FLGLCD='D' OR WZHQY='0' THEN SL_DATE
+                        WHEN FLGLCD<>'D' AND WZHQY<>'0' AND SBYWB_DM='A0305001' THEN least(greatest(IFNULL(SBRQ, SL_DATE),ZZS_DATE),SL_DATE)
+                        ELSE least(IFNULL(SBRQ, SL_DATE),SL_DATE) END
+    WHERE SL_DATE > date_slrq and JD_DATE=STR_TO_DATE('1900-01-01', '%Y-%m-%d');
+  COMMIT;
+  DO '完成实际接单日期设置';
+
+  -- 参与计算表识 0 默认 1有评估 2退税额为0
+/*  UPDATE JXKH_YWLC T
+     SET JS_FLAG = '1'
+     WHERE SL_DATE > date_slrq AND JS_FLAG = '0'
+     AND NVL(PG_DATE,TO_DATE('1900-01-01','YYYY-MM-DD')) > TO_DATE('1900-01-02','YYYY-MM-DD');
+  COMMIT;
+*/
+  UPDATE JXKH_YWLC AS T
+     SET JS_FLAG = '2'
+     WHERE SL_DATE > date_slrq AND JS_FLAG = '0' AND IFNULL(HZ_TSE, 0) = 0;
+  COMMIT;
+  UPDATE JXKH_YWLC AS T
+     SET JS_FLAG = '0'
+     WHERE SL_DATE > date_slrq AND JS_FLAG = '2' AND IFNULL(HZ_TSE, 0) <> 0;
+  COMMIT;
+  UPDATE JXKH_YWLC AS T
+     SET JS_FLAG = '3'
+     WHERE SL_DATE > date_slrq AND JS_FLAG = '0'
+     AND IFNULL(KP_DATE, STR_TO_DATE('1900-01-01', '%Y-%m-%d')) = STR_TO_DATE('1900-01-01', '%Y-%m-%d');
+  COMMIT;
+  UPDATE JXKH_YWLC AS T
+     SET JS_FLAG = '0'
+     WHERE SL_DATE > date_slrq AND JS_FLAG = '3'
+     AND IFNULL(KP_DATE, STR_TO_DA
+[SQL] Finished with error
